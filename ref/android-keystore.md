@@ -95,8 +95,8 @@ val apiKey: String? = prefs.getString("api_key", null)?.let(SecretBox::decrypt)
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [KeyCipher.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/settings/KeyCipher.kt) | AI のキーと Google Maps のキーを AES-GCM で暗号化。IV を前に付けて保存。復号できなければ null | [4-5](../04-outside/05-storage.md) |
-| [SettingsRepository.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/settings/SettingsRepository.kt) | 保存のときに `KeyCipher.encrypt`、読むときに `KeyCipher.decrypt` | [4-5](../04-outside/05-storage.md) |
+| [KeyCipher.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/settings/KeyCipher.kt) | AI のキーと Google Maps のキーを AES-GCM で暗号化。IV を前に付けて保存。復号できなければ null | [4-5](../04-outside/05-storage.md) |
+| [SettingsRepository.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/settings/SettingsRepository.kt) | 保存のときに `KeyCipher.encrypt`、読むときに `KeyCipher.decrypt` | [4-5](../04-outside/05-storage.md) |
 | [AndroidManifest.xml](../../SanpoGuide/app/src/main/AndroidManifest.xml) | `android:allowBackup="false"`（バックアップに含めない） | [1-3](../01-kotlin-android/03-android-components.md) |
 
 ## よくある間違い

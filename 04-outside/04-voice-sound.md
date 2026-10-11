@@ -12,7 +12,7 @@
 
 ## 読み上げ: Speaker
 
-散策ガイドの声は、Android に入っている **TTS**（Text To Speech、文章の読み上げ）です。[Speaker.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/guide/Speaker.kt) が受け持っています。
+散策ガイドの声は、Android に入っている **TTS**（Text To Speech、文章の読み上げ）です。[Speaker.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/guide/Speaker.kt) が受け持っています。
 
 ```kotlin
 /**
@@ -100,7 +100,7 @@ private val focus = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANS
 
 ### どの音を流すか: Soundscape
 
-[Soundscape.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/sound/Soundscape.kt):
+[Soundscape.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/sound/Soundscape.kt):
 
 ```kotlin
 /**
@@ -130,7 +130,7 @@ fun forMood(mood: Mood): Soundscape {
 
 デジタルの音は、**サンプル**（ある瞬間の空気の圧力を表す数）の並びです。散策ガイドは 1 秒に 22,050 個のサンプルを作り、スピーカーに送ります。
 
-[Voices.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/sound/Voices.kt) は、1 回呼ぶたびにサンプルを 1 つ返す `Voice` を作ります。
+[Voices.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/sound/Voices.kt) は、1 回呼ぶたびにサンプルを 1 つ返す `Voice` を作ります。
 
 ```kotlin
 /** An endless mono sound, one sample at a time in -1..1. Pure Kotlin, so it can be tested off the device. */
@@ -180,7 +180,7 @@ object Voices {
 
 ### 音を流す: AmbientPlayer
 
-作ったサンプルを流すのが [AmbientPlayer.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/sound/AmbientPlayer.kt) です。
+作ったサンプルを流すのが [AmbientPlayer.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/sound/AmbientPlayer.kt) です。
 
 ```kotlin
 val track = AudioTrack.Builder()
@@ -311,7 +311,7 @@ private val worker = thread(name = "ambient", isDaemon = true) {
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../sanpo-tutorial/04-outside/scripts/SoundscapeWavExport.kt app/src/test/java/com/example/sanpoguide/sound/
+cp ../sanpo-tutorial/04-outside/scripts/SoundscapeWavExport.kt app/src/test/java/io/github/duwenji/sanpoguide/sound/
 ./gradlew :app:testDebugUnitTest --tests '*SoundscapeWavExport*'
 ls -la app/build/soundscapes/
 ```
@@ -349,7 +349,7 @@ for (scape in Soundscape.entries) {
 
 ### 3. 雨粒を増やしてみる
 
-[Voices.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/sound/Voices.kt) の `rain` の
+[Voices.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/sound/Voices.kt) の `rain` の
 
 ```kotlin
 val dropsPerSample = 14f / sr
@@ -357,7 +357,7 @@ val dropsPerSample = 14f / sr
 
 を `140f / sr`（1 秒に 140 粒）に変えて、もう一度手順 1 を実行し、`rain.wav` を聞き比べてください。雨脚が強くなったように聞こえるはずです。
 
-音のテストも流してみましょう。音の大きさの範囲を確かめるテストは、[SoundscapeTest.kt](../../SanpoGuide/app/src/test/java/com/example/sanpoguide/sound/SoundscapeTest.kt) の中の `VoicesTest` というクラスにあります。
+音のテストも流してみましょう。音の大きさの範囲を確かめるテストは、[SoundscapeTest.kt](../../SanpoGuide/app/src/test/java/io/github/duwenji/sanpoguide/sound/SoundscapeTest.kt) の中の `VoicesTest` というクラスにあります。
 
 ```sh
 ./gradlew :app:testDebugUnitTest --tests '*VoicesTest*'
@@ -382,8 +382,8 @@ val bed = (band - low.lp(band)) * 0.35f
 ### 4. 片付け
 
 ```sh
-git checkout -- app/src/main/java/com/example/sanpoguide/sound/Voices.kt
-rm app/src/test/java/com/example/sanpoguide/sound/SoundscapeWavExport.kt
+git checkout -- app/src/main/java/io/github/duwenji/sanpoguide/sound/Voices.kt
+rm app/src/test/java/io/github/duwenji/sanpoguide/sound/SoundscapeWavExport.kt
 git status
 ```
 

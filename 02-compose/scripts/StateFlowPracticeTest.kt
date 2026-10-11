@@ -1,4 +1,4 @@
-package com.example.sanpoguide
+package io.github.duwenji.sanpoguide
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine

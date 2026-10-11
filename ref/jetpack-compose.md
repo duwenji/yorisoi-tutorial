@@ -95,11 +95,11 @@ class MainActivity : ComponentActivity() {
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [CompanionCard.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/ui/CompanionCard.kt) | 引数だけで描く部品、`rememberSaveable`、時間で変わる値（`produceState`）、Modifier | [2-1](../02-compose/01-compose-basics.md) |
-| [MainScreen.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/ui/MainScreen.kt) | ViewModel の状態を受け取り、操作をラムダで上に伝える | [2-2](../02-compose/02-state-viewmodel.md) |
-| [MoodTheme.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/ui/MoodTheme.kt) | Material3 のテーマを雰囲気で切り替え、色をアニメーションで変える | [2-4](../02-compose/04-theme-mood.md) |
-| [MoodScene.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/ui/MoodScene.kt) | `Canvas` で風景を描く | [2-4](../02-compose/04-theme-mood.md) |
-| [SpotMap.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/ui/SpotMap.kt) | `AndroidView` で地図（osmdroid）を置く | [4-2](../04-outside/02-map.md) |
+| [CompanionCard.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/CompanionCard.kt) | 引数だけで描く部品、`rememberSaveable`、時間で変わる値（`produceState`）、Modifier | [2-1](../02-compose/01-compose-basics.md) |
+| [MainScreen.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainScreen.kt) | ViewModel の状態を受け取り、操作をラムダで上に伝える | [2-2](../02-compose/02-state-viewmodel.md) |
+| [MoodTheme.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MoodTheme.kt) | Material3 のテーマを雰囲気で切り替え、色をアニメーションで変える | [2-4](../02-compose/04-theme-mood.md) |
+| [MoodScene.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MoodScene.kt) | `Canvas` で風景を描く | [2-4](../02-compose/04-theme-mood.md) |
+| [SpotMap.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/SpotMap.kt) | `AndroidView` で地図（osmdroid）を置く | [4-2](../04-outside/02-map.md) |
 
 ## よくある間違い
 

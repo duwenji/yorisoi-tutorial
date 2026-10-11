@@ -32,7 +32,7 @@ Android の画面は **メインスレッド** という 1 本の流れで描か
 
 ## suspend 関数
 
-散策ガイドの AI の呼び出し（[GuideRepository.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/guide/GuideRepository.kt)）は、こう宣言されています。
+散策ガイドの AI の呼び出し（[GuideRepository.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/guide/GuideRepository.kt)）は、こう宣言されています。
 
 ```kotlin
 suspend fun guideFor(poi: Poi, distanceM: Int?): String
@@ -44,7 +44,7 @@ suspend fun guideFor(poi: Poi, distanceM: Int?): String
 - 返事が来たら、止まったところから続きを実行する
 - 呼ぶ側から見ると、普通の関数のように結果（`String`）が返ってくる
 
-[MainViewModel.select](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/ui/MainViewModel.kt) を思い出してください（[2-2](../02-compose/02-state-viewmodel.md)）。
+[MainViewModel.select](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainViewModel.kt) を思い出してください（[2-2](../02-compose/02-state-viewmodel.md)）。
 
 ```kotlin
 viewModelScope.launch {
@@ -75,7 +75,7 @@ viewModelScope.launch {
 
 ### 散歩の後片付けは appScope で
 
-[WalkService.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/walk/WalkService.kt) の、散歩の記録を保存するところです。
+[WalkService.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) の、散歩の記録を保存するところです。
 
 ```kotlin
 /** Saves the walk so far, in the app scope so a stopping service doesn't cut the write short. */
@@ -89,7 +89,7 @@ private fun saveProgress(s: WalkSession) {
 
 **「この処理は、何が終わったら止まるべきか」を考えてスコープを選ぶ**、というのが大事な点です。
 
-[SanpoApp.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/SanpoApp.kt) は `appScope` をこう作っています。
+[SanpoApp.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) は `appScope` をこう作っています。
 
 ```kotlin
 val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -122,7 +122,7 @@ private fun startTicker() = lifecycleScope.launch {
 
 `suspend` 関数は、スレッドを止めずに **待つ** ことはできますが、OkHttp の `execute()` のような **スレッドを止めて待つ** 昔ながらの処理を、メインスレッドで呼んではいけません。そういう処理は、`withContext` でほかのスレッドに移します。
 
-[WeatherClient.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/companion/WeatherClient.kt):
+[WeatherClient.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherClient.kt):
 
 ```kotlin
 suspend fun current(lat: Double, lon: Double): Weather = withContext(Dispatchers.IO) {
@@ -149,7 +149,7 @@ suspend fun current(lat: Double, lon: Double): Weather = withContext(Dispatchers
 
 ### スポットの検索を重ねない
 
-[SpotRepository.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/data/SpotRepository.kt):
+[SpotRepository.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/data/SpotRepository.kt):
 
 ```kotlin
 private val fetchLock = Mutex()
@@ -208,7 +208,7 @@ private inline fun talk(block: () -> Unit) {
 | 値が流れ出すとき | 集め始めたとき（`collect`） | いつでも。集める人が来たら今の値から |
 | 向いているもの | 次々に起きる出来事、計算の途中 | 「今の状態」 |
 
-散策ガイドは、時計を Flow で作っています（[MoodSource.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/mood/MoodSource.kt)、[2-4](../02-compose/04-theme-mood.md)）。
+散策ガイドは、時計を Flow で作っています（[MoodSource.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/mood/MoodSource.kt)、[2-4](../02-compose/04-theme-mood.md)）。
 
 ```kotlin
 private val clock = flow {
@@ -241,7 +241,7 @@ private fun startAmbient() = lifecycleScope.launch {
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../sanpo-tutorial/03-walk/scripts/CoroutinePracticeTest.kt app/src/test/java/com/example/sanpoguide/
+cp ../sanpo-tutorial/03-walk/scripts/CoroutinePracticeTest.kt app/src/test/java/io/github/duwenji/sanpoguide/
 ./gradlew :app:testDebugUnitTest --tests '*CoroutinePracticeTest*'
 ```
 
@@ -306,7 +306,7 @@ assertEquals(listOf("話す: スポットの案内", "見送り: 雑談", "話�
 ### 4. 片付け
 
 ```sh
-rm app/src/test/java/com/example/sanpoguide/CoroutinePracticeTest.kt
+rm app/src/test/java/io/github/duwenji/sanpoguide/CoroutinePracticeTest.kt
 git status
 ```
 

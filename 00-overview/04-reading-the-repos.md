@@ -14,7 +14,7 @@
 SanpoGuide/
 ├── app/                         Android アプリ本体（モジュール :app）
 │   └── src/
-│       ├── main/java/com/example/sanpoguide/
+│       ├── main/java/io/github/duwenji/sanpoguide/
 │       │   ├── ui/              画面（Compose）と ViewModel
 │       │   ├── walk/            常駐サービス WalkService
 │       │   ├── companion/       話しかけの判断（天気・施設・スポットの選び方）

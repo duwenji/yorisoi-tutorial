@@ -82,11 +82,12 @@ plugins {
 
 ```kotlin
 android {
-    namespace = "com.example.sanpoguide"
+    namespace = "io.github.duwenji.sanpoguide"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.sanpoguide"
+        // The Google Play ID: fixed once uploaded. …
+        applicationId = "io.github.duwenji.sanpoguide"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -106,13 +107,16 @@ android {
 
 | 項目 | 値 | 意味 |
 |---|---|---|
-| `applicationId` | `com.example.sanpoguide` | 端末やストアでアプリを見分ける ID。**一度公開したら変えない** |
+| `namespace` | `io.github.duwenji.sanpoguide` | `R`・`BuildConfig` のクラスが入る Kotlin のパッケージ。ソースのパッケージと同じにする |
+| `applicationId` | `io.github.duwenji.sanpoguide` | 端末やストアでアプリを見分ける ID。**一度公開したら変えない** |
 | `minSdk` | 26 | 動く最低の Android の版。26 は Android 8.0 |
 | `targetSdk` | 35 | どの版の振る舞いに合わせて作ったか。35 は Android 15 |
 | `compileSdk` | 35 | コンパイルに使う Android の API の版 |
 | `versionCode` | 1 | 更新のたびに増やす整数。端末は大きい方を新しいと判断する |
 | `versionName` | `0.1.0` | 人に見せる版 |
 | `buildConfig = true` | — | `BuildConfig.VERSION_CODE`・`BuildConfig.DEBUG` などをコードから使えるようにする |
+
+`applicationId` は、逆さにしたドメイン名で、世界で重ならない名前にします。Android Studio の雛形が入れる `com.example.…` は仮の名前で、Google Play には上げられません。散策ガイドは Play に上げる前に、自分の GitHub のアドレス（`duwenji.github.io`）を逆さにした `io.github.duwenji.sanpoguide` に変えました。あわせて `namespace`・Kotlin のパッケージ・`station-format` の公開の名前（[5-3](../05-station-format/03-publish.md)）も同じ名前に揃えています。`applicationId` は公開後に変えられませんが、パッケージ名は後からでも変えられます。ただ、使う人が増えるほど手間が増えるので、最初に揃えておきました。
 
 `minSdk = 26` は、第 6 部で何度も出てきた「Android 8 から動かしたい」の正体です。Ed25519 のために Tink を入れた（[技術カード: Tink](../ref/tink.md)）のも、base64url に `java.util.Base64` を使える（API 26 から）のも、この値が決めています。
 
@@ -185,7 +189,7 @@ plugins {
     `maven-publish`
 }
 
-group = "com.example.sanpoguide"
+group = "io.github.duwenji.sanpoguide"
 version = providers.gradleProperty("stationFormatVersion").get()
 
 dependencies {
@@ -207,7 +211,7 @@ dependencies {
 org.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8
 android.useAndroidX=true
 # Version of :station-format as published to GitHub Packages …
-stationFormatVersion=1.2.0
+stationFormatVersion=2.0.0
 ```
 
 ### 自分で作ったタスク: channelIndex

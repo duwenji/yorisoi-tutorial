@@ -32,14 +32,14 @@
 ライブラリは 3 つの値で決まります。これを **座標** と呼びます。
 
 ```
-com.example.sanpoguide : station-format : 1.2.0
-└──── グループ ────┘   └─── 名前 ───┘   └ 版 ┘
+io.github.duwenji.sanpoguide : station-format : 2.0.0
+└───────── グループ ───────┘   └─── 名前 ───┘   └ 版 ┘
 ```
 
 [station-format/build.gradle.kts](../../SanpoGuide/station-format/build.gradle.kts):
 
 ```kotlin
-group = "com.example.sanpoguide"
+group = "io.github.duwenji.sanpoguide"
 version = providers.gradleProperty("stationFormatVersion").get()
 ```
 
@@ -50,10 +50,10 @@ version = providers.gradleProperty("stationFormatVersion").get()
 版は `gradle.properties` に書いています。
 
 ```properties
-# Version of :station-format as published to GitHub Packages (com.example.sanpoguide:station-format).
+# Version of :station-format as published to GitHub Packages (io.github.duwenji.sanpoguide:station-format).
 # Independent of the app's version: bump it when the format, the prompts or the built-in channels
 # change, then push the tag station-format-v<version> (.github/workflows/publish-station-format.yml).
-stationFormatVersion=1.2.0
+stationFormatVersion=2.0.0
 ```
 
 アプリの版（`versionName = "0.1.0"`）とは **別** です。アプリの画面を直しても、`:station-format` は変わらないので、版を上げる必要はありません。逆に、プロンプトの文面を直したら、アプリの版はそのままでも `:station-format` の版は上げます。管理システムの見本が、新しい文面で作られるようにするためです。
@@ -65,8 +65,10 @@ stationFormatVersion=1.2.0
 | 1.0.0 | プロンプトと組み込みのチャンネルを移した最初の版（RFC-001） |
 | 1.1.0 | ZIP の展開と配信元の署名の確認（[5-2](02-package-format.md)） |
 | 1.2.0 | 提供元の文書の確認（`ProviderDocuments`、[6-5](../06-trust/05-verify-in-app.md)） |
+| 1.3.0 | 店の種類 7 つ（飲食・買い物）と、組み込みのチャンネル「グルメの旅」「ショッピング」（API-003 1.1）。公開はせず、2.0.0 に含めた |
+| 2.0.0 | グループと Kotlin のパッケージを `com.example.sanpoguide` から `io.github.duwenji.sanpoguide` に変えた（RFC-001 1.1） |
 
-機能を足したら真ん中の数字を、互換性のない変更をしたら最初の数字を上げる、という決まり（セマンティック バージョニング）に近い付け方です。
+機能を足したら真ん中の数字を、互換性のない変更をしたら最初の数字を上げる、という決まり（セマンティック バージョニング）に近い付け方です。2.0.0 は、最初の数字を上げた例です。中身の動きは 1.3.0 と同じですが、パッケージ名が変わったので、使う側は `import` と依存の座標を書き換えないとビルドできません。だから「互換性のない変更」です。
 
 ### 一度公開した版は変えない
 
@@ -175,7 +177,7 @@ jobs:
 
 ```mermaid
 flowchart LR
-    A["gradle.properties の<br/>版を上げてマージ"] --> B["タグ station-format-v1.2.0<br/>を push"]
+    A["gradle.properties の<br/>版を上げてマージ"] --> B["タグ station-format-v2.0.0<br/>を push"]
     B --> C["GitHub Actions が起動"]
     C --> D{"タグと版が一致？"}
     D -->|いいえ| X["失敗（公開しない）"]
@@ -187,7 +189,7 @@ flowchart LR
 工夫を見ておきましょう。
 
 - **タグで公開する**: `main` にマージするたびではなく、`station-format-v…` のタグを押したときだけ公開します。公開は「この版を出す」という意思を持って行うものだからです
-- **タグと版の一致を確かめる**: タグ `station-format-v1.3.0` を押したのに、`gradle.properties` が `1.2.0` のままだったら、`1.2.0` を公開し直そうとしてしまいます。公開の前に、2 つが一致しているかを確かめて止めます
+- **タグと版の一致を確かめる**: タグ `station-format-v2.1.0` を押したのに、`gradle.properties` が `2.0.0` のままだったら、`2.0.0` を公開し直そうとしてしまいます。公開の前に、2 つが一致しているかを確かめて止めます
 - **テストに通ってから公開する**: `:station-format:test` と `:station-format:publish` を同じコマンドで実行するので、テストが落ちれば公開されません
 - **権限を最小にする**: `permissions` で、リポジトリの読み取り（`contents: read`）とパッケージの書き込み（`packages: write`）だけを許します。それ以上の権限をワークフローに与えません
 
@@ -212,26 +214,26 @@ dependencyResolutionManagement {
                     username = gprUser
                     password = gprKey
                 }
-                content { includeGroup("com.example.sanpoguide") }
+                content { includeGroup("io.github.duwenji.sanpoguide") }
             }
         }
         // A station-format built locally (`./gradlew :station-format:publishToMavenLocal` in SanpoGuide).
-        mavenLocal { content { includeGroup("com.example.sanpoguide") } }
+        mavenLocal { content { includeGroup("io.github.duwenji.sanpoguide") } }
     }
 }
 ```
 
 - **GitHub Packages は、公開のリポジトリでも読むのにトークンが要る**: CI では `GITHUB_TOKEN`、手元では `~/.gradle/gradle.properties` に書いた `gpr.user`・`gpr.key`（`read:packages` の権限のトークン）
 - **トークンがなければ、手元に公開したものを使う**（`mavenLocal`）: SanpoGuide で `./gradlew :station-format:publishToMavenLocal` を実行すると、パソコンの `~/.m2/repository` に公開され、それを使える
-- **`includeGroup("com.example.sanpoguide")`**: このリポジトリからは、このグループのライブラリだけを取る。ほかのライブラリを、思わぬ場所から取ってこないように
+- **`includeGroup("io.github.duwenji.sanpoguide")`**: このリポジトリからは、このグループのライブラリだけを取る。ほかのライブラリを、思わぬ場所から取ってこないように
 
 `validator/build.gradle.kts` の依存は、版を固定しています。
 
 ```kotlin
-implementation("com.example.sanpoguide:station-format:1.1.0")
+implementation("io.github.duwenji.sanpoguide:station-format:2.0.0")
 ```
 
-SanpoGuide が `1.2.0` を出しても、管理システムは `1.1.0` を使い続けます。新しい版を使うのは、管理システムの側で版を書き換えて確かめたときです。**使う側が、上げる時期を自分で決められる** のが、版を固定する利点です。
+SanpoGuide が新しい版（たとえば `2.1.0`）を出しても、管理システムは `2.0.0` を使い続けます。実際、SanpoGuide が `1.2.0` を出したあとも、管理システムは `2.0.0` に上げるまで `1.1.0` を使っていました。新しい版を使うのは、管理システムの側で版を書き換えて確かめたときです。**使う側が、上げる時期を自分で決められる** のが、版を固定する利点です。
 
 管理システムの CI（[ci.yml](../../sanpo-channel-console/.github/workflows/ci.yml)）も、`packages: read` の権限と `GITHUB_TOKEN` で `station-format` を取ってきて、`validator` をビルドしています。
 
@@ -274,9 +276,9 @@ cat station-format/build/publications/stationFormat/pom-default.xml
 ```
 
 ```xml
-  <groupId>com.example.sanpoguide</groupId>
+  <groupId>io.github.duwenji.sanpoguide</groupId>
   <artifactId>station-format</artifactId>
-  <version>1.2.0</version>
+  <version>2.0.0</version>
   <name>SanpoGuide station-format</name>
   <description>… Requires org.json on the classpath.</description>
   …
@@ -300,7 +302,7 @@ cat station-format/build/publications/stationFormat/pom-default.xml
 ワークフローの「Check the tag matches the version」と同じ処理を、手元で動かしてみます。
 
 ```sh
-for tag in station-format-v1.2.0 station-format-v1.3.0; do
+for tag in station-format-v2.0.0 station-format-v2.1.0; do
   GITHUB_REF_NAME=$tag bash -c '
     version=$(grep "^stationFormatVersion=" gradle.properties | cut -d= -f2)
     if [ "${GITHUB_REF_NAME}" != "station-format-v${version}" ]; then
@@ -311,11 +313,11 @@ done
 ```
 
 ```
-OK station-format-v1.2.0
-Tag station-format-v1.3.0 does not match stationFormatVersion=1.2.0
+OK station-format-v2.0.0
+Tag station-format-v2.1.0 does not match stationFormatVersion=2.0.0
 ```
 
-版を上げずにタグだけ `1.3.0` を押すと、ここで止まることが分かります。
+版を上げずにタグだけ `2.1.0` を押すと、ここで止まることが分かります。
 
 ### 3. gradlew の権限を確かめる
 
@@ -337,9 +339,9 @@ GitHub の CLI（`gh`）が使えるなら、公開のワークフローの実�
 gh run list --workflow publish-station-format.yml --limit 5
 ```
 
-`station-format-v1.0.0` の失敗（11 秒）と成功、`v1.1.0`・`v1.2.0` の成功が並んでいるはずです。失敗した実行のログは `gh run view <実行のID> --log-failed` で読めます。
+`station-format-v1.0.0` の失敗（11 秒）と成功、`v1.1.0`・`v1.2.0`・`v2.0.0` の成功が並んでいるはずです（1.3.0 は公開していません）。失敗した実行のログは `gh run view <実行のID> --log-failed` で読めます。
 
-> 手元への公開（`./gradlew :station-format:publishToMavenLocal`）も試せますが、パソコンの `~/.m2/repository` にファイルが書き込まれ、管理システムの `validator` のビルドがそれを使うことがあります（`mavenLocal`）。試したあとは `~/.m2/repository/com/example/sanpoguide/` を消すと元に戻ります。
+> 手元への公開（`./gradlew :station-format:publishToMavenLocal`）も試せますが、パソコンの `~/.m2/repository` にファイルが書き込まれ、管理システムの `validator` のビルドがそれを使うことがあります（`mavenLocal`）。試したあとは `~/.m2/repository/io/github/duwenji/sanpoguide/` を消すと元に戻ります。
 
 ## つまずきやすいところ
 
@@ -359,9 +361,9 @@ gh run list --workflow publish-station-format.yml --limit 5
 </details>
 
 <details>
-<summary>問 2. SanpoGuide が <code>station-format</code> の 1.2.0 を公開しました。管理システムの <code>validator</code> は、すぐに 1.2.0 を使い始めますか。</summary>
+<summary>問 2. SanpoGuide が <code>station-format</code> の 2.1.0 を公開しました。管理システムの <code>validator</code> は、すぐに 2.1.0 を使い始めますか。</summary>
 
-使い始めません。`validator/build.gradle.kts` が `1.1.0` に固定しているからです。管理システムの側で版を書き換え、テストで確かめてから上げます。
+使い始めません。`validator/build.gradle.kts` が `2.0.0` に固定しているからです。管理システムの側で版を書き換え、テストで確かめてから上げます。
 
 </details>
 

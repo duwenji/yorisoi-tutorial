@@ -73,7 +73,7 @@ prompts/
 }
 ```
 
-[StationManifest.kt](../../SanpoGuide/station-format/src/main/kotlin/com/example/sanpoguide/station/format/StationManifest.kt) が、これを Kotlin のデータクラスで表しています。
+[StationManifest.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/StationManifest.kt) が、これを Kotlin のデータクラスで表しています。
 
 ```kotlin
 /** `channel.json` of a channel package (API-003). Only the values the format allows can be held. */
@@ -122,7 +122,7 @@ enum class TalkLevel(override val json: String) : JsonValue { QUIET("quiet"), NO
 
 ## スロット: 差し込めるのは文章だけ
 
-[4-3](../04-outside/03-ai.md) で見たとおり、チャンネルが変えられるのは、アプリのプロンプトの決まった **枠（スロット）** に入る文章だけです（F-1）。[Slot.kt](../../SanpoGuide/station-format/src/main/kotlin/com/example/sanpoguide/station/format/Slot.kt):
+[4-3](../04-outside/03-ai.md) で見たとおり、チャンネルが変えられるのは、アプリのプロンプトの決まった **枠（スロット）** に入る文章だけです（F-1）。[Slot.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/Slot.kt):
 
 ```kotlin
 /**
@@ -246,7 +246,7 @@ enum class StationOrigin { BUILT_IN, THIRD_PARTY }
 
 ## 外から来た ZIP を安全に開く
 
-第三者のパッケージは ZIP です。外から来た ZIP には、2 つの有名な危険があります。[PackageArchive.kt](../../SanpoGuide/station-format/src/main/kotlin/com/example/sanpoguide/station/format/PackageArchive.kt) は、その両方に備えています。
+第三者のパッケージは ZIP です。外から来た ZIP には、2 つの有名な危険があります。[PackageArchive.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/PackageArchive.kt) は、その両方に備えています。
 
 ### 危険 1: パスの細工（Zip Slip）
 
@@ -305,7 +305,7 @@ ZIP の中に書かれた「展開後の大きさ」は信用せず（いくら�
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../sanpo-tutorial/05-station-format/scripts/MyChannelPracticeTest.kt station-format/src/test/kotlin/com/example/sanpoguide/station/format/
+cp ../sanpo-tutorial/05-station-format/scripts/MyChannelPracticeTest.kt station-format/src/test/kotlin/io/github/duwenji/sanpoguide/station/format/
 ./gradlew :station-format:test --tests '*MyChannelPracticeTest*'
 ```
 
@@ -396,7 +396,7 @@ private val persona = "あなたは、町の古い喫茶店を何十年も見て
 ### 5. 片付け
 
 ```sh
-rm station-format/src/test/kotlin/com/example/sanpoguide/station/format/MyChannelPracticeTest.kt
+rm station-format/src/test/kotlin/io/github/duwenji/sanpoguide/station/format/MyChannelPracticeTest.kt
 git status
 ```
 

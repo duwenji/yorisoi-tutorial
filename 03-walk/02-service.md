@@ -12,7 +12,7 @@
 - Service と画面のあいだで状態を共有する方法
 - 散策を終えるときの後片付けの順番
 
-[1-3](../01-kotlin-android/03-android-components.md) で Service とフォアグラウンドサービスの基本を見ました。この章では、[WalkService.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/walk/WalkService.kt) をもっと深く読みます。
+[1-3](../01-kotlin-android/03-android-components.md) で Service とフォアグラウンドサービスの基本を見ました。この章では、[WalkService.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) をもっと深く読みます。
 
 ## WalkService の一生
 
@@ -144,7 +144,7 @@ override fun onDestroy() {
 
 ### 3 つのチャンネル
 
-[SanpoApp.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/SanpoApp.kt) が、起動時に 3 つの通知のチャンネルを作っています（[1-3](../01-kotlin-android/03-android-components.md)）。
+[SanpoApp.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) が、起動時に 3 つの通知のチャンネルを作っています（[1-3](../01-kotlin-android/03-android-components.md)）。
 
 ```kotlin
 createNotificationChannel(NotificationChannel(CHANNEL_WALK, "散策モード", NotificationManager.IMPORTANCE_LOW))
@@ -301,7 +301,7 @@ mId='weather_alert', mName=雷雨の..., mDescription=hasDescription , mImportan
 散策していないとき:
 
 ```sh
-"$ADB" shell dumpsys activity services com.example.sanpoguide
+"$ADB" shell dumpsys activity services io.github.duwenji.sanpoguide
 ```
 
 ```

@@ -82,7 +82,7 @@ Node.js は、違う方式の文字も、知らない文字も、黙って受け
 署名を確かめるコードで寛容なデコードを使うと、**同じバイト列を表す文字列が何通りもある** ことになり、比較や記録で食い違いが起きます。そこでこのリポジトリは、デコードの前に正規表現 `^[A-Za-z0-9_-]*$` で文字を確かめています。
 
 - TypeScript: [encoding.ts](../../sanpo-channel-console/packages/protocol/src/encoding.ts) の `b64url.decode`
-- Kotlin: [PublisherSignature.kt](../../SanpoGuide/station-format/src/main/kotlin/com/example/sanpoguide/station/format/PublisherSignature.kt) の `decodeBase64Url`
+- Kotlin: [PublisherSignature.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/PublisherSignature.kt) の `decodeBase64Url`
 
 ## このリポジトリでは
 

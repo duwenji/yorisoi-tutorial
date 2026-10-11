@@ -18,7 +18,7 @@
 
 ```mermaid
 flowchart LR
-    SG["SanpoGuide<br/>station-format（Kotlin）"] -->|"GitHub Packages<br/>com.example.sanpoguide:station-format:1.1.0"| V["validator<br/>機械審査の Lambda（Kotlin）"]
+    SG["SanpoGuide<br/>station-format（Kotlin）"] -->|"GitHub Packages<br/>io.github.duwenji.sanpoguide:station-format:2.0.0"| V["validator<br/>機械審査の Lambda（Kotlin）"]
     SG -->|"project(':station-format')"| APP["アプリ"]
 ```
 
@@ -69,7 +69,7 @@ sequenceDiagram
  * before) and the icon. Pure: the Lambda reads and writes, this decides.
  */
 object MachineReview {
-    const val VALIDATOR = "station-format 1.1.0"
+    const val VALIDATOR = "station-format 2.0.0"
 
     fun review(upload: Upload, zip: ByteArray, icon: ByteArray): Outcome {
         // …
@@ -162,7 +162,7 @@ intakeBucket.addEventNotification(s3.EventType.OBJECT_CREATED, new s3n.LambdaDes
 
 ```kotlin
 dependencies {
-    implementation("com.example.sanpoguide:station-format:1.1.0")
+    implementation("io.github.duwenji.sanpoguide:station-format:2.0.0")
     // station-format leaves org.json to its users (Android ships one).
     implementation("org.json:json:20240303")
     implementation("com.amazonaws:aws-lambda-java-core:1.4.0")
@@ -188,7 +188,7 @@ val lambdaZip by tasks.registering(Zip::class) {
 tasks.build { dependsOn(lambdaZip) }
 ```
 
-- `station-format:1.1.0` を GitHub Packages から取る（[5-3](../05-station-format/03-publish.md)）。`org.json` は自分で足す（[5-1](../05-station-format/01-jvm-library.md) の `compileOnly`）
+- `station-format:2.0.0` を GitHub Packages から取る（[5-3](../05-station-format/03-publish.md)）。`org.json` は自分で足す（[5-1](../05-station-format/01-jvm-library.md) の `compileOnly`）
 - **JVM の Lambda の zip の決まり**: クラスのファイルは zip のいちばん上に、依存の jar は `lib/` に。自作のタスク `lambdaZip`（[1-2](../01-kotlin-android/02-gradle.md) の `channelIndex` と同じく、Gradle のタスクを自分で作る）がそう並べる
 - AWS の SDK の BOM（[1-2](../01-kotlin-android/02-gradle.md) の Compose の BOM と同じ考え方）で、SDK の部品の版をそろえる
 
@@ -243,7 +243,7 @@ fun process(key: String): String {
 
 ## ハンズオン: 機械審査をビルドして、テストを壊す
 
-機械審査のビルドには、`station-format` の 1.1.0 が要ります。GitHub Packages のトークン（[5-3](../05-station-format/03-publish.md)）を設定するか、SanpoGuide で手元に公開したもの（`~/.m2`）を使います。
+機械審査のビルドには、`station-format` の 2.0.0 が要ります。GitHub Packages のトークン（[5-3](../05-station-format/03-publish.md)）を設定するか、SanpoGuide で手元に公開したもの（`~/.m2`）を使います。
 
 ### 1. テストを流して、zip を作る
 
@@ -266,7 +266,7 @@ unzip -l build/lambda/validator.zip | awk '{print $4}' | grep '^lib/' | head -8
 console/validator/Finding.class
 console/validator/Handler$1.class
 …
-lib/station-format-1.1.0.jar
+lib/station-format-2.0.0.jar
 lib/kotlin-stdlib-2.2.0.jar
 lib/json-20240303.jar
 lib/aws-lambda-java-core-1.4.0.jar
@@ -277,7 +277,7 @@ lib/url-connection-client-2.55.11.jar
 …
 ```
 
-いちばん上に自分のクラス、`lib/` に依存の jar が並んでいます。`lib/station-format-1.1.0.jar` が、アプリと同じ確認のコードです。
+いちばん上に自分のクラス、`lib/` に依存の jar が並んでいます。`lib/station-format-2.0.0.jar` が、アプリと同じ確認のコードです。
 
 ### 3. テストを読む
 

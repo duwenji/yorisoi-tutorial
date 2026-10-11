@@ -32,7 +32,7 @@ flowchart TB
 
 ## 散策ガイドの地図
 
-設定画面で 6 種類から選べます（[MapStyle.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/settings/MapStyle.kt)）。
+設定画面で 6 種類から選べます（[MapStyle.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/settings/MapStyle.kt)）。
 
 ```kotlin
 enum class MapStyle(val label: String, val description: String, val google: GoogleMapType? = null) {
@@ -56,7 +56,7 @@ enum class MapStyle(val label: String, val description: String, val google: Goog
 
 ### 国土地理院のタイル
 
-[MapTiles.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/ui/MapTiles.kt):
+[MapTiles.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MapTiles.kt):
 
 ```kotlin
 private fun gsi(name: String, layer: String, minZoom: Int, maxZoom: Int, ext: String, credit: String) =
@@ -72,7 +72,7 @@ private val GsiRelief = gsi("GSI_relief", "relief", 5, 15, ".png", /* 出典 */)
 
 ### Google のタイル: セッションと出典
 
-Google Map Tiles API は、タイルを取る前に **セッション** を作る必要があります（[GoogleMapTiles.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/data/GoogleMapTiles.kt)）。
+Google Map Tiles API は、タイルを取る前に **セッション** を作る必要があります（[GoogleMapTiles.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/data/GoogleMapTiles.kt)）。
 
 ```kotlin
 suspend fun session(apiKey: String, type: GoogleMapType): GoogleTileSession {
@@ -111,7 +111,7 @@ suspend fun session(apiKey: String, type: GoogleMapType): GoogleTileSession {
 
 Google 純正の地図の部品（Maps SDK for Android）ではなく osmdroid を使うのは、国土地理院のタイルをそのまま使えて、キーも要らないからです。
 
-osmdroid は利用者のアプリを見分けるため、User-Agent の設定を求めています。[SanpoApp.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/SanpoApp.kt) の最初で設定しています。
+osmdroid は利用者のアプリを見分けるため、User-Agent の設定を求めています。[SanpoApp.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) の最初で設定しています。
 
 ```kotlin
 Configuration.getInstance().userAgentValue = "SanpoGuide/${BuildConfig.VERSION_NAME} (Android)"
@@ -119,7 +119,7 @@ Configuration.getInstance().userAgentValue = "SanpoGuide/${BuildConfig.VERSION_N
 
 ## Compose の中に地図を置く
 
-osmdroid の `MapView` は、Compose ではない昔ながらの部品（View）です。[SpotMap.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/ui/SpotMap.kt) は、これを `AndroidView` で Compose の中に置いています（[2-1](../02-compose/01-compose-basics.md) で少し触れました）。
+osmdroid の `MapView` は、Compose ではない昔ながらの部品（View）です。[SpotMap.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/SpotMap.kt) は、これを `AndroidView` で Compose の中に置いています（[2-1](../02-compose/01-compose-basics.md) で少し触れました）。
 
 ```kotlin
 @Composable

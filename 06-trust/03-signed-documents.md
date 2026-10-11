@@ -143,7 +143,7 @@ function openSigned(doc: SignedDocument, publicKey: Uint8Array, type: string, wh
 }
 ```
 
-同じことをする Kotlin（[ProviderDocuments.kt](../../SanpoGuide/station-format/src/main/kotlin/com/example/sanpoguide/station/format/ProviderDocuments.kt) の `open`）:
+同じことをする Kotlin（[ProviderDocuments.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/ProviderDocuments.kt) の `open`）:
 
 ```kotlin
 /** Checks a signature and the payload's `type`, which keeps one kind of document from passing for another (P-3). */
