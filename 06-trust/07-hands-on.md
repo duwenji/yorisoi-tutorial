@@ -209,7 +209,7 @@ cd /c/Dev/apps/SanpoGuide
 
 ### 5-2. リストの期限の上限を 13 日に変える
 
-[ProviderDocuments.kt](../../SanpoGuide/station-format/src/main/kotlin/com/example/sanpoguide/station/format/ProviderDocuments.kt) の `companion object` にある次の行を探して、
+[ProviderDocuments.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/ProviderDocuments.kt) の `companion object` にある次の行を探して、
 
 ```kotlin
 val LIST_LIFETIME: Duration = Duration.ofDays(14)
@@ -241,7 +241,7 @@ val LIST_LIFETIME: Duration = Duration.ofDays(14)
 ### 5-3. 元に戻す
 
 ```sh
-git checkout -- station-format/src/main/kotlin/com/example/sanpoguide/station/format/ProviderDocuments.kt
+git checkout -- station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/ProviderDocuments.kt
 git status
 ```
 

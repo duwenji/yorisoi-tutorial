@@ -69,7 +69,7 @@ try {
 
 ## このリポジトリでは
 
-[TinkEd25519.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/station/remote/TinkEd25519.kt) の、十数行のクラスだけが Tink を使っています。
+[TinkEd25519.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/TinkEd25519.kt) の、十数行のクラスだけが Tink を使っています。
 
 ```kotlin
 object TinkEd25519 : Ed25519Verifier {
@@ -86,7 +86,7 @@ object TinkEd25519 : Ed25519Verifier {
 
 - Tink の「例外で知らせる」作りを、`:station-format` の約束（`Ed25519Verifier`、`true`/`false` を返す）に合わせています
 - 2 つの例外を両方受け止めています。署名が合わないとき（`GeneralSecurityException`）と、公開鍵の長さがおかしいとき（`IllegalArgumentException`）です。どちらも「確かめられなかった」として扱います
-- `:station-format` は Tink に依存しません。アプリだけが Tink を持ち込み、`ChannelSync` に `verifier = TinkEd25519` として渡します（[ThirdPartyChannels.kt](../../SanpoGuide/app/src/main/java/com/example/sanpoguide/station/remote/ThirdPartyChannels.kt)）。管理システムの機械審査は、代わりに Java 標準の `JcaEd25519` を渡します
+- `:station-format` は Tink に依存しません。アプリだけが Tink を持ち込み、`ChannelSync` に `verifier = TinkEd25519` として渡します（[ThirdPartyChannels.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ThirdPartyChannels.kt)）。管理システムの機械審査は、代わりに Java 標準の `JcaEd25519` を渡します
 
 くわしくは [6-5](../06-trust/05-verify-in-app.md) の「差し替え口: Ed25519Verifier」を見てください。
 

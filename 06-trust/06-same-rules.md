@@ -74,7 +74,7 @@ npm run vectors -w conformance -- ../SanpoGuide/station-format/src/test/resource
 
 ### 確かめる側
 
-SanpoGuide の [ProviderDocumentsTest.kt](../../SanpoGuide/station-format/src/test/kotlin/com/example/sanpoguide/station/format/ProviderDocumentsTest.kt) が、そのファイルを読みます。
+SanpoGuide の [ProviderDocumentsTest.kt](../../SanpoGuide/station-format/src/test/kotlin/io/github/duwenji/sanpoguide/station/format/ProviderDocumentsTest.kt) が、そのファイルを読みます。
 
 ```kotlin
 /**
@@ -128,7 +128,7 @@ URL を渡すと、アプリと同じように検出の文書・リスト・パ�
 ```kotlin
 // sanpo-channel-console/validator/build.gradle.kts
 dependencies {
-    implementation("com.example.sanpoguide:station-format:1.1.0")
+    implementation("io.github.duwenji.sanpoguide:station-format:2.0.0")
     // station-format leaves org.json to its users (Android ships one).
     implementation("org.json:json:20240303")
     // …

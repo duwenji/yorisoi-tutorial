@@ -1,14 +1,14 @@
-package com.example.sanpoguide.ui
+package io.github.duwenji.sanpoguide.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.sanpoguide.companion.LiveWalk
-import com.example.sanpoguide.companion.Utterance
-import com.example.sanpoguide.mood.Mood
-import com.example.sanpoguide.mood.Place
-import com.example.sanpoguide.mood.Season
-import com.example.sanpoguide.mood.Sky
-import com.example.sanpoguide.mood.TimeOfDay
+import io.github.duwenji.sanpoguide.companion.LiveWalk
+import io.github.duwenji.sanpoguide.companion.Utterance
+import io.github.duwenji.sanpoguide.mood.Mood
+import io.github.duwenji.sanpoguide.mood.Place
+import io.github.duwenji.sanpoguide.mood.Season
+import io.github.duwenji.sanpoguide.mood.Sky
+import io.github.duwenji.sanpoguide.mood.TimeOfDay
 
 // チュートリアル 2-1・2-4 のハンズオン用。終わったら消す。
 private val sampleLines = listOf(

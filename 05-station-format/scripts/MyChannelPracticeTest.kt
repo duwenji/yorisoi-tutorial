@@ -1,7 +1,7 @@
-package com.example.sanpoguide.station.format
+package io.github.duwenji.sanpoguide.station.format
 
-import com.example.sanpoguide.prompt.Prompts
-import com.example.sanpoguide.prompt.StationPrompts
+import io.github.duwenji.sanpoguide.prompt.Prompts
+import io.github.duwenji.sanpoguide.prompt.StationPrompts
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail

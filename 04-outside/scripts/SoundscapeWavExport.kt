@@ -1,4 +1,4 @@
-package com.example.sanpoguide.sound
+package io.github.duwenji.sanpoguide.sound
 
 import org.junit.Test
 import java.io.DataOutputStream

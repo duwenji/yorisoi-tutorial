@@ -30,7 +30,7 @@
 flowchart LR
     SF[":station-format<br/>（素の Kotlin・JVM）"]
     SF -->|"project(':station-format')"| APP[":app<br/>Android アプリ"]
-    SF -->|"GitHub Packages<br/>com.example.sanpoguide:station-format"| VAL["sanpo-channel-console<br/>validator（Kotlin の Lambda）"]
+    SF -->|"GitHub Packages<br/>io.github.duwenji.sanpoguide:station-format"| VAL["sanpo-channel-console<br/>validator（Kotlin の Lambda）"]
 ```
 
 チャンネル管理システムは、配信元が申請したパッケージを機械で確かめ（機械審査）、運用者のために「このチャンネルなら AI はこう話す」という見本のプロンプトを作ります。そのとき、アプリと **違うコード** で確かめると、次のような食い違いが起きます。
@@ -90,7 +90,7 @@ dependencies {
 管理システムの [validator/build.gradle.kts](../../sanpo-channel-console/validator/build.gradle.kts) には、そのとおりのコメントがあります。
 
 ```kotlin
-implementation("com.example.sanpoguide:station-format:1.1.0")
+implementation("io.github.duwenji.sanpoguide:station-format:2.0.0")
 // station-format leaves org.json to its users (Android ships one).
 implementation("org.json:json:20240303")
 ```
@@ -143,7 +143,7 @@ const val INDEX = "$RESOURCE_DIR/index.txt"
 | クラスパスのリソース | アプリや機械審査で、組み込みのチャンネルを読む |
 | ZIP の中身（メモリ） | 第三者のチャンネルのパッケージを展開したもの |
 
-確かめる側（`StationValidator`）が、それぞれの読み方を知っていたら大変です。そこで「ファイルの一覧と、ファイルの中身を返す」という約束だけを決めています（[StationFiles.kt](../../SanpoGuide/station-format/src/main/kotlin/com/example/sanpoguide/station/format/StationFiles.kt)）。
+確かめる側（`StationValidator`）が、それぞれの読み方を知っていたら大変です。そこで「ファイルの一覧と、ファイルの中身を返す」という約束だけを決めています（[StationFiles.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/StationFiles.kt)）。
 
 ```kotlin
 /** The files of one channel, by path relative to its root (`channel.json`, `prompts/...`). */
@@ -220,15 +220,15 @@ cd /c/Dev/apps/SanpoGuide
 ls station-format/build/libs/
 ```
 
-`station-format-1.2.0.jar` のように、`gradle.properties` の `stationFormatVersion` の版が付いた jar ができます（前の版の jar が残っていることもあります）。
+`station-format-2.0.0.jar` のように、`gradle.properties` の `stationFormatVersion` の版が付いた jar ができます（前の版の jar が残っていることもあります）。
 
 ```sh
-J=station-format/build/libs/station-format-1.2.0.jar
+J=station-format/build/libs/station-format-2.0.0.jar
 unzip -l "$J" | awk '{print $4}' | sed 's#^\([^/]*/[^/]*/[^/]*\)/.*#\1/…#' | sort | uniq -c | sort -rn | head -12
 ```
 
 ```
-     49 com/example/sanpoguide/…
+     49 io/github/duwenji/sanpoguide/…
      13 sanpoguide/prompts/companion/…
      12 sanpoguide/prompts/fallback/…
       9 sanpoguide/channels/standard/…
@@ -238,7 +238,7 @@ unzip -l "$J" | awk '{print $4}' | sed 's#^\([^/]*/[^/]*/[^/]*\)/.*#\1/…#' | s
       …
 ```
 
-- `com/example/sanpoguide/…`: コンパイルした Kotlin のクラス
+- `io/github/duwenji/sanpoguide/…`: コンパイルした Kotlin のクラス
 - `sanpoguide/prompts/…`・`sanpoguide/channels/…`: リソース。プロンプトの文面と、組み込みのチャンネル
 
 `index.txt` も入っていることを確かめましょう。
