@@ -156,5 +156,5 @@ flowchart LR
 
 | 項目 | 値 |
 |---|---|
-| 最後に照合した日 | 2026-10-05 |
-| 照合したコミット | SanpoGuide `24bb2bb`、sanpo-channel-console `8bdfd02`（どちらも `main`） |
+| 最後に照合した日 | 2026-10-11 |
+| 照合したコミット | SanpoGuide `cf71e95`、sanpo-channel-console `77bfd96`（どちらも `main`） |

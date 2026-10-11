@@ -48,7 +48,7 @@ prompts/
 - **これ以外のファイルを入れると拒む**（API-003 F-5）
 - テキストは UTF-8（BOM なし）、改行は LF
 
-組み込みの 4 つのチャンネル（[station-format/src/main/resources/sanpoguide/channels/](../../SanpoGuide/station-format/src/main/resources/sanpoguide/channels/)）も、`signature.json` がないだけで同じ形です。「しずかに」チャンネル（`quiet/`）は `channel.json` だけで、スロットは全部「標準」のものを使っています。
+組み込みの 6 つのチャンネル（[station-format/src/main/resources/sanpoguide/channels/](../../SanpoGuide/station-format/src/main/resources/sanpoguide/channels/)）も、`signature.json` がないだけで同じ形です。「しずかに」チャンネル（`quiet/`）は `channel.json` だけで、スロットは全部「標準」のものを使っています。
 
 ## channel.json: 選択肢から選ぶ設定
 
@@ -102,13 +102,24 @@ data class StationManifest(
 | `talk.level` | `quiet`・`normal`・`chatty` の 3 つだけ |
 | `guide.length` | `short`・`normal`・`long` の 3 つだけ |
 | `mood.sound` | `auto`・`rain`・`waves`… の 7 つだけ |
-| `spots.prefer`・`skip` | 決まった 15 種類のスポットの名前だけ |
+| `spots.prefer`・`skip` | 決まった 22 種類のスポットの名前だけ |
 
 API-003 の決定事項 F-3:
 
 > 話す量・話す場面・話題の優先・雰囲気・解説の長さを、アプリが決めた選択肢の中から選ぶ。数値を自由に書くことはできない。**選択肢の範囲そのものが上限になる**（話しかけの頻度は最大で「おしゃべり」、解説は最長 450 字）。
 
 もし「話しかけの間隔（秒）」を自由に書けたら、配信元が「5 秒」と書いて、利用者の AI の料金をつり上げられます。選択肢しか書けなければ、どう選んでも「おしゃべり」（2 分に 1 回）が上限です。**危ない値を書けない形にする** ことで、確かめる手間そのものを減らしています。
+
+スポットの種類のうち 7 つ（飲食店・カフェ・菓子・パン・食品店・市場・工芸・土産・専門店）は、`prefer` に入れたチャンネルでだけ探します（API-003 1.1）。ふつうの散歩で店ばかり案内しないためです。チェーン店は探しません。組み込みの「グルメの旅」（`gourmet/`）と「ショッピング」（`shopping/`）が、これを使っています。
+
+```kotlin
+enum class SpotKind(override val json: String, val category: String, val onlyWhenPreferred: Boolean = false) : JsonValue {
+    SHRINE("shrine", "神社"),
+    // …
+    RESTAURANT("restaurant", "飲食店", onlyWhenPreferred = true),
+    // …
+}
+```
 
 選択肢は enum で、`channel.json` での書き方（`json`）を持っています（[1-1](../01-kotlin-android/01-kotlin-syntax.md) の、項目を持つ enum）。
 

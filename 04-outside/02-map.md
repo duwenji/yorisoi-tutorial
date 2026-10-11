@@ -171,6 +171,7 @@ fun SpotMap(
 map.overlays.clear()
 // Under the spots, so a bench in a park doesn't cover the park.
 map.overlays += markers.facilities
+if (walked.size >= 2) { /* … 歩いた道の線 … */ map.overlays += track }
 if (route != null) { /* … ルートの線 … */ map.overlays += line }
 map.overlays += markers.spots
 if (location != null) { /* … 現在地 … */ map.overlays += me }
@@ -178,7 +179,7 @@ if (tiles !is MapTiles.Google) map.overlays += copyright
 map.invalidate()
 ```
 
-**足した順に下から重なります**。施設 → ルート → スポット → 現在地の順なので、公園の中のベンチが公園の印を隠すことはなく、現在地はいつもいちばん上に見えます（コメント: "Under the spots, so a bench in a park doesn't cover the park."）。
+**足した順に下から重なります**。施設 → 歩いた道 → ルート → スポット → 現在地の順なので、公園の中のベンチが公園の印を隠すことはなく、現在地はいつもいちばん上に見えます（コメント: "Under the spots, so a bench in a park doesn't cover the park."）。
 
 ### ルートの線
 
@@ -196,6 +197,20 @@ line.setPoints(route.route.points.map { GeoPoint(it.lat, it.lon) })
 ```
 
 OSRM でルートが引けたら道にそった実線、引けなかったら（[4-1](01-http-json.md) のハンズオン 4）スポットへの方向だけを示す **破線** にしています。線の太さは `density`（画面の細かさ）を掛けて、どの端末でも同じくらいの太さに見えるようにしています（Compose の `dp` と同じ考え方を、自分で計算しています）。
+
+### 歩いた道の線
+
+散策中に歩いた道も線で描きます。ルートの線と同じ `Polyline` ですが、色を変え（ルートの青と区別する赤紫）、ルートより下に置きます。歩いている最中は、これから行く道の方が大事だからです。
+
+```kotlin
+// The list is replaced only when the walk has grown, so this skips most updates.
+if (walked !== markers.walkedPoints) {
+    track.setPoints(walked.map { GeoPoint(it.lat, it.lon) })
+    markers.walkedPoints = walked
+}
+```
+
+このブロックは、位置や向きが少し変わるたびに呼ばれます。そのたびに何百もの点を入れ直すのは無駄なので、前回渡したリストと **同じもの（`!==` で、中身ではなく同じオブジェクトか）** なら飛ばします。歩いた道のリストは、記録した点が増えたときだけ新しいリストに置き換わる（`CompanionFeed` の `walked`）ので、それ以外の呼び出しでは入れ直しが起きません。点が 1 つだけのとき（歩き始めた場所）は、現在地の印と重なるので描きません。
 
 ### 現在地と向き
 
