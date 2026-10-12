@@ -14,11 +14,11 @@
 
 | ファイル | 役割 | モジュール |
 |---|---|---|
-| [ProviderDocuments.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/ProviderDocuments.kt) | 検出の文書・鍵セット・リスト・試用チケットを確かめる | `:station-format` |
-| [PublisherSignature.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/PublisherSignature.kt) | Ed25519 の差し替え口、ID の計算 | `:station-format` |
-| [TinkEd25519.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/TinkEd25519.kt) | Tink による Ed25519 の実装 | `:app` |
-| [ChannelSync.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ChannelSync.kt) | 取得・確認・保存の流れ | `:app` |
-| [ThirdPartyChannels.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ThirdPartyChannels.kt) | `ChannelSync` を Android の上で動かす（スレッド、画面への通知） | `:app` |
+| [ProviderDocuments.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/ProviderDocuments.kt) | 検出の文書・鍵セット・リスト・試用チケットを確かめる | `:station-format` |
+| [PublisherSignature.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/PublisherSignature.kt) | Ed25519 の差し替え口、ID の計算 | `:station-format` |
+| [TinkEd25519.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/TinkEd25519.kt) | Tink による Ed25519 の実装 | `:app` |
+| [ChannelSync.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ChannelSync.kt) | 取得・確認・保存の流れ | `:app` |
+| [ThirdPartyChannels.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ThirdPartyChannels.kt) | `ChannelSync` を Android の上で動かす（スレッド、画面への通知） | `:app` |
 
 **確かめる規則そのもの** は `:station-format` にあり、**Android に依存する部分**（Tink、通信、ファイル、スレッド）は `:app` にあります。この分け方には理由があり、[6-6](06-same-rules.md) で見ます。
 

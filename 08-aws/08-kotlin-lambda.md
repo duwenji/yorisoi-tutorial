@@ -12,7 +12,7 @@
 
 ## なぜ Kotlin なのか
 
-管理システムは TypeScript で書かれていますが、**機械審査の Lambda**（[validator/](../../sanpo-channel-console/validator/)）だけは Kotlin です。
+管理システムは TypeScript で書かれていますが、**機械審査の Lambda**（[validator/](../../michizure-console/validator/)）だけは Kotlin です。
 
 チャンネル提供者が上げたチャンネルのパッケージや、素材提供者が上げた素材集を確かめるとき、**アプリと同じ確認** をしなければなりません。管理システムで合格したのにアプリで読み込めない、ということが起きないようにするためです（[6-6](../06-trust/06-same-rules.md)）。アプリの確認は、Kotlin で書かれた `station-format` のライブラリにあります（第 5 部）。それを **そのまま使う** ために、機械審査は Kotlin（JVM）で書いています。
 
@@ -59,8 +59,8 @@ sequenceDiagram
 
 | ファイル | 役割 | Android・AWS への依存 |
 |---|---|---|
-| [MachineReview.kt](../../sanpo-channel-console/validator/src/main/kotlin/console/validator/MachineReview.kt) | 判断する（純粋な関数） | なし |
-| [Handler.kt](../../sanpo-channel-console/validator/src/main/kotlin/console/validator/Handler.kt) | S3・DynamoDB を読み書きする（Lambda の入口） | AWS の SDK |
+| [MachineReview.kt](../../michizure-console/validator/src/main/kotlin/console/validator/MachineReview.kt) | 判断する（純粋な関数） | なし |
+| [Handler.kt](../../michizure-console/validator/src/main/kotlin/console/validator/Handler.kt) | S3・DynamoDB を読み書きする（Lambda の入口） | AWS の SDK |
 
 `MachineReview.review` は、ファイルの中身を受け取って、結果を返すだけです。
 
@@ -112,7 +112,7 @@ object MachineReview {
 
 ## JVM の Lambda の形
 
-[Handler.kt](../../sanpo-channel-console/validator/src/main/kotlin/console/validator/Handler.kt):
+[Handler.kt](../../michizure-console/validator/src/main/kotlin/console/validator/Handler.kt):
 
 ```kotlin
 class Handler(
@@ -144,7 +144,7 @@ class Handler(
 - **コンストラクタの引数に既定値**: Lambda が呼ぶときは引数なし（既定値で本物の S3・DynamoDB・時計）。テストでは代役を渡せる（[2-3](../02-compose/03-manual-di.md)、Kotlin の既定値の引数は [1-1](../01-kotlin-android/01-kotlin-syntax.md)）
 - S3 のイベントのキーは URL 形式で符号化されているので、`URLDecoder.decode` で戻す
 
-CDK の定義（[console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts)）:
+CDK の定義（[console-app.ts](../../michizure-console/infra/lib/console-app.ts)）:
 
 ```ts
 const validator = new lambda.Function(this, 'MachineReview', {
@@ -178,7 +178,7 @@ intakeBucket.addEventNotification(s3.EventType.OBJECT_CREATED, new s3n.LambdaDes
 
 ## 配備するための zip
 
-[validator/build.gradle.kts](../../sanpo-channel-console/validator/build.gradle.kts):
+[validator/build.gradle.kts](../../michizure-console/validator/build.gradle.kts):
 
 ```kotlin
 dependencies {
@@ -277,7 +277,7 @@ class Handler(/* … */) : RequestHandler<S3Event, String> {
 ### 1. テストを流して、zip を作る
 
 ```sh
-cd /c/Dev/apps/sanpo-channel-console/validator
+cd /c/Dev/apps/michizure-console/validator
 ./gradlew test lambdaZip
 ls -la build/lambda/
 ```
@@ -310,7 +310,7 @@ lib/url-connection-client-2.55.11.jar
 
 ### 3. テストを読む
 
-[MachineReviewTest.kt](../../sanpo-channel-console/validator/src/test/kotlin/console/validator/MachineReviewTest.kt) のテストの名前:
+[MachineReviewTest.kt](../../michizure-console/validator/src/test/kotlin/console/validator/MachineReviewTest.kt) のテストの名前:
 
 - a signed package by the publisher, newer than the approved one, passes with its samples（チャンネル提供者が署名した、承認済みより新しいパッケージは、見本つきで合格する）
 - the package must be for this channel, by this publisher, and newer（このチャンネルの、このチャンネル提供者の、より新しい版でなければならない）
@@ -319,11 +319,11 @@ lib/url-connection-client-2.55.11.jar
 
 `MachineReview` が純粋な関数なので、テストは S3 も DynamoDB も使わず、パッケージとアイコンのバイト列を渡すだけで書けています。
 
-素材集の審査のテストは [MaterialsReviewTest.kt](../../sanpo-channel-console/validator/src/test/kotlin/console/validator/MaterialsReviewTest.kt) にあります。公開中の素材集（`Catalog`）や外の URL を取ってくる部品（`ExternalFetcher`）も、引数で代役を渡しています。たとえば「a channel can't use a collection that isn't listed, isn't granted, or lacks the resource」（リストにない・使う許しがない・その素材がない素材集は使えない）のように、素材ならではの決まりを確かめています。
+素材集の審査のテストは [MaterialsReviewTest.kt](../../michizure-console/validator/src/test/kotlin/console/validator/MaterialsReviewTest.kt) にあります。公開中の素材集（`Catalog`）や外の URL を取ってくる部品（`ExternalFetcher`）も、引数で代役を渡しています。たとえば「a channel can't use a collection that isn't listed, isn't granted, or lacks the resource」（リストにない・使う許しがない・その素材がない素材集は使えない）のように、素材ならではの決まりを確かめています。
 
 ### 4. アイコンの上限を変えてみる
 
-[MachineReview.kt](../../sanpo-channel-console/validator/src/main/kotlin/console/validator/MachineReview.kt) の
+[MachineReview.kt](../../michizure-console/validator/src/main/kotlin/console/validator/MachineReview.kt) の
 
 ```kotlin
 const val MAX_ICON_SIDE = 256

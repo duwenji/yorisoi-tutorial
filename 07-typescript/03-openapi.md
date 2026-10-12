@@ -27,9 +27,9 @@ flowchart LR
 
 | 文書 | 役割 |
 |---|---|
-| [API-001（console-api.md）](../../sanpo-channel-console/docs/console-api.md) | 人が読む契約書。決定事項（C-1・C-2…）、状態の移り変わり、権限、エラーの意味。**正本** |
-| [console.openapi.yaml](../../sanpo-channel-console/docs/api/console.openapi.yaml) | 同じ内容を、機械が読める形にしたもの。操作 66 個、データの形、エラーコード |
-| [packages/api-types/src/schema.ts](../../sanpo-channel-console/packages/api-types/src/schema.ts) | OpenAPI から **生成した** TypeScript の型。手で書かない |
+| [API-001（console-api.md）](../../michizure-console/docs/console-api.md) | 人が読む契約書。決定事項（C-1・C-2…）、状態の移り変わり、権限、エラーの意味。**正本** |
+| [console.openapi.yaml](../../michizure-console/docs/api/console.openapi.yaml) | 同じ内容を、機械が読める形にしたもの。操作 66 個、データの形、エラーコード |
+| [packages/api-types/src/schema.ts](../../michizure-console/packages/api-types/src/schema.ts) | OpenAPI から **生成した** TypeScript の型。手で書かない |
 
 OpenAPI の冒頭には、正本がどちらかが書いてあります。
 
@@ -43,7 +43,7 @@ description: |
 
 **OpenAPI** は、HTTP の API の「どの道（パス）に、どんな要求を送ると、どんな応答が返るか」を書くための、広く使われている形式です。YAML（または JSON）で書きます。
 
-取り下げの操作（[console.openapi.yaml](../../sanpo-channel-console/docs/api/console.openapi.yaml)）:
+取り下げの操作（[console.openapi.yaml](../../michizure-console/docs/api/console.openapi.yaml)）:
 
 ```yaml
 paths:
@@ -93,11 +93,11 @@ RevokeInput:
 
 ## OpenAPI から型を作る
 
-[packages/api-types/package.json](../../sanpo-channel-console/packages/api-types/package.json):
+[packages/api-types/package.json](../../michizure-console/packages/api-types/package.json):
 
 ```json
 {
-  "name": "@sanpo-console/api-types",
+  "name": "@michizure-console/api-types",
   "description": "Types generated from docs/api/console.openapi.yaml (API-001); regenerate with npm run generate",
   "scripts": {
     "generate": "openapi-typescript ../../docs/api/console.openapi.yaml -o src/schema.ts"
@@ -120,7 +120,7 @@ RevokeInput: {
 
 [7-1](01-typescript-syntax.md) で学んだ、任意の項目（`?`）とユニオン型（`"high" | "low"`）です。
 
-[packages/api-types/src/index.ts](../../sanpo-channel-console/packages/api-types/src/index.ts) は、よく使う型に短い名前を付けて公開しているだけです。
+[packages/api-types/src/index.ts](../../michizure-console/packages/api-types/src/index.ts) は、よく使う型に短い名前を付けて公開しているだけです。
 
 ```ts
 import type { components, paths } from './schema.js';
@@ -156,10 +156,10 @@ export type ProblemCode = Problem['code'];
 
 `code` の取りうる値は、OpenAPI の `Problem` の `enum` に 23 個並んでいます（`invalid_request`・`forbidden`・`not_found`・`precondition_failed`…）。
 
-サーバーの [api/src/console/http.ts](../../sanpo-channel-console/api/src/console/http.ts) は、それぞれの `code` を HTTP のステータスに対応させています。
+サーバーの [api/src/console/http.ts](../../michizure-console/api/src/console/http.ts) は、それぞれの `code` を HTTP のステータスに対応させています。
 
 ```ts
-import type { ProblemCode } from '@sanpo-console/api-types';
+import type { ProblemCode } from '@michizure-console/api-types';
 
 const STATUS: Record<ProblemCode, number> = {
   invalid_request: 400,
@@ -213,10 +213,10 @@ export async function revokeChannel(deps: Deps, req: Request): Promise<Response>
 
 ## 画面で使う: openapi-fetch
 
-画面の [web/src/api.ts](../../sanpo-channel-console/web/src/api.ts) は、生成した型を **openapi-fetch** に渡して、型のついた API の呼び出し口を作っています。
+画面の [web/src/api.ts](../../michizure-console/web/src/api.ts) は、生成した型を **openapi-fetch** に渡して、型のついた API の呼び出し口を作っています。
 
 ```ts
-import type { Problem, paths } from '@sanpo-console/api-types';
+import type { Problem, paths } from '@michizure-console/api-types';
 import createClient, { type Middleware } from 'openapi-fetch';
 
 export function createApi(auth: Auth) {
@@ -227,7 +227,7 @@ export function createApi(auth: Auth) {
 }
 ```
 
-画面での取り下げの呼び出し（[web/src/pages/channel.tsx](../../sanpo-channel-console/web/src/pages/channel.tsx)）:
+画面での取り下げの呼び出し（[web/src/pages/channel.tsx](../../michizure-console/web/src/pages/channel.tsx)）:
 
 ```ts
 await api.POST('/api/admin/channels/{channelId}/revoke', {
@@ -305,7 +305,7 @@ sequenceDiagram
 管理システムのフォルダで行います。どの手順も、最後に元に戻します。
 
 ```sh
-cd /c/Dev/apps/sanpo-channel-console
+cd /c/Dev/apps/michizure-console
 npx tsc -b
 ```
 
@@ -313,7 +313,7 @@ npx tsc -b
 
 ### 1. 画面で、応答の項目を書き間違える
 
-[web/src/main.tsx](../../sanpo-channel-console/web/src/main.tsx) の
+[web/src/main.tsx](../../michizure-console/web/src/main.tsx) の
 
 ```ts
 const operator = session.me.roles.includes('operator');
@@ -335,7 +335,7 @@ web/src/main.tsx(85,46): error TS2345: Argument of type '"admin"' is not assigna
 
 ### 2. 画面で、必須の項目を忘れる
 
-[web/src/pages/channel.tsx](../../sanpo-channel-console/web/src/pages/channel.tsx) の取り下げの呼び出しで、`body: { reason, severity, …` から `severity, ` を消して、`npx tsc -b` を実行します。
+[web/src/pages/channel.tsx](../../michizure-console/web/src/pages/channel.tsx) の取り下げの呼び出しで、`body: { reason, severity, …` から `severity, ` を消して、`npx tsc -b` を実行します。
 
 ```
 error TS2322: Type '{ reason: string; versions?: number[] | undefined; }' is not assignable to type '{ versions?: number[] | undefined; reason: string; severity: "high" | "low"; } & {}'.
@@ -346,7 +346,7 @@ OpenAPI の `RevokeInput` で `severity` が必須（`required`）だからで�
 
 ### 3. 契約にエラーコードを足す
 
-[docs/api/console.openapi.yaml](../../sanpo-channel-console/docs/api/console.openapi.yaml) の `Problem` の `code` の `enum` に、`- throttled` の次の行として `- maintenance` を足します（字下げを周りとそろえる）。そして型を作り直し、型を確かめます。
+[docs/api/console.openapi.yaml](../../michizure-console/docs/api/console.openapi.yaml) の `Problem` の `code` の `enum` に、`- throttled` の次の行として `- maintenance` を足します（字下げを周りとそろえる）。そして型を作り直し、型を確かめます。
 
 ```sh
 npm run generate -w packages/api-types

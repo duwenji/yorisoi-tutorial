@@ -32,7 +32,7 @@
 flowchart LR
     SF[":station-format<br/>（素の Kotlin・JVM）"]
     SF -->|"project(':station-format')"| APP[":app<br/>Android アプリ"]
-    SF -->|"GitHub Packages<br/>io.github.duwenji.sanpoguide:station-format"| VAL["sanpo-channel-console<br/>validator（Kotlin の Lambda）"]
+    SF -->|"GitHub Packages<br/>io.github.duwenji.sanpoguide:station-format"| VAL["michizure-console<br/>validator（Kotlin の Lambda）"]
 ```
 
 チャンネル管理システムは、チャンネル提供者が申請したパッケージを機械で確かめ（機械審査）、運営のために「このチャンネルなら AI はこう話す」という見本のプロンプトを作ります。そのとき、アプリと **違うコード** で確かめると、次のような食い違いが起きます。
@@ -44,7 +44,7 @@ flowchart LR
 
 この切り出しの経緯は [RFC-001](../../SanpoGuide/docs/refactoring/RFC-001-prompts-to-station-format.md) に記録されています。
 
-> 管理システム（sanpo-channel-console）は、審査でアプリと同じプロンプトを組み立てて AI に話させる。そのため、アプリ本体にあったプロンプトの組み立て（…）と、空いたスロットを埋める組み込みのチャンネルを、Android に依存しない `:station-format` に移す。（RFC-001「目的・背景」より要約）
+> 管理システム（michizure-console）は、審査でアプリと同じプロンプトを組み立てて AI に話させる。そのため、アプリ本体にあったプロンプトの組み立て（…）と、空いたスロットを埋める組み込みのチャンネルを、Android に依存しない `:station-format` に移す。（RFC-001「目的・背景」より要約）
 
 ## Android に依存しないための 3 つの工夫
 
@@ -89,7 +89,7 @@ dependencies {
 | 管理システムの `validator` | 自分で `implementation("org.json:json:20240303")` を足す |
 | `:station-format` の単体テスト | `testImplementation` で足している |
 
-管理システムの [validator/build.gradle.kts](../../sanpo-channel-console/validator/build.gradle.kts) には、そのとおりのコメントがあります。
+管理システムの [validator/build.gradle.kts](../../michizure-console/validator/build.gradle.kts) には、そのとおりのコメントがあります。
 
 ```kotlin
 implementation("io.github.duwenji.sanpoguide:station-format:2.1.0")
@@ -145,7 +145,7 @@ const val INDEX = "$RESOURCE_DIR/index.txt"
 | クラスパスのリソース | アプリや機械審査で、組み込みのチャンネルを読む |
 | ZIP の中身（メモリ） | 第三者のチャンネルのパッケージを展開したもの |
 
-確かめる側（`StationValidator`）が、それぞれの読み方を知っていたら大変です。そこで「ファイルの一覧と、ファイルの中身を返す」という約束だけを決めています（[StationFiles.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/StationFiles.kt)）。
+確かめる側（`StationValidator`）が、それぞれの読み方を知っていたら大変です。そこで「ファイルの一覧と、ファイルの中身を返す」という約束だけを決めています（[StationFiles.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/StationFiles.kt)）。
 
 ```kotlin
 /** The files of one channel, by path relative to its root (`channel.json`, `prompts/...`). */

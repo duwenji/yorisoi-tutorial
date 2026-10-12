@@ -46,7 +46,7 @@ flowchart LR
 | 第三者の素材集 | 観光協会の解説と写真 | 審査で固定。前もって取得する |
 | チャンネルに同梱の素材 | `channel.json` の `resources` | 審査で固定。パッケージに入っている |
 
-ばらばらに見えますが、アプリはすべてを **同じ形** で扱います（API-004 I-1）。アプリの側の形は [Producer.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/material/Producer.kt) の `Producer` です。
+ばらばらに見えますが、アプリはすべてを **同じ形** で扱います（API-004 I-1）。アプリの側の形は [Producer.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/material/Producer.kt) の `Producer` です。
 
 ```kotlin
 interface Producer {
@@ -89,7 +89,7 @@ sealed interface MaterialResult {
 
 組み込みの AI と第三者の素材集では、許してよいことがまるで違います。AI は散策者の位置（スポット名）を外の AI サービスに送りますが、第三者の素材集にそれを許すと、散策者の居場所が第三者に伝わります。
 
-この違いを、散策ガイドは **クラスの種類ではなく、記述の属性** で表します（API-004 I-2）。[Producers.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/material/format/Producers.kt) の `ProducerDescriptor`:
+この違いを、散策ガイドは **クラスの種類ではなく、記述の属性** で表します（API-004 I-2）。[Producers.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/material/Producers.kt) の `ProducerDescriptor`:
 
 | 属性 | 値 | 意味 |
 |---|---|---|
@@ -145,8 +145,8 @@ val AI_GUIDE = ProducerDescriptor(
 
 | 場所 | 何の候補か |
 |---|---|
-| `Producers.first`（[Producer.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/material/Producer.kt)） | きっかけのないふだんの解説と話しかけ（`Narration` の `Shorthand`、[4-3](../04-outside/03-ai.md)） |
-| `CuePresenter`（[Cues.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/material/Cues.kt)） | きっかけの見せ方ごとの候補 |
+| `Producers.first`（[Producer.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/material/Producer.kt)） | きっかけのないふだんの解説と話しかけ（`Narration` の `Shorthand`、[4-3](../04-outside/03-ai.md)） |
+| `CuePresenter`（[Cues.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/material/Cues.kt)） | きっかけの見せ方ごとの候補 |
 
 ふだんの解説も「`builtin:ai-guide` → `builtin:fallback-text`」という候補の並びとして書かれています（API-004「省略形の展開」）。きっかけを持たない組み込みのチャンネルも、同じ仕組みの上で動いているわけです。
 
@@ -157,7 +157,7 @@ val AI_GUIDE = ProducerDescriptor(
 
 ## きっかけ: いつ出すか
 
-きっかけの条件（`trigger`）は 4 種類です（[Cues.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/Cues.kt) の `Trigger`）。
+きっかけの条件（`trigger`）は 4 種類です（[Cues.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/Cues.kt) の `Trigger`）。
 
 ```kotlin
 sealed interface Trigger {
@@ -266,7 +266,7 @@ enum class PresentAs(override val json: String, val types: Set<MaterialType>) : 
 
 ### 使えるかどうかは、リストで決まる
 
-宣言した素材集が使えるかは、`CollectionReferences.resolve`（[CollectionReferences.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/CollectionReferences.kt)）がリストと照らして決めます（API-004 確かめる手順 3・4）。
+宣言した素材集が使えるかは、`CollectionReferences.resolve`（[CollectionReferences.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/CollectionReferences.kt)）がリストと照らして決めます（API-004 確かめる手順 3・4）。
 
 ```kotlin
 sealed interface CollectionStatus {
@@ -302,13 +302,13 @@ sealed interface CollectionStatus {
 
 ここで問題になるのが取得の時期です。日本中の素材集を前もって全部取るわけにはいきません。かといって、スポットに近づいてから取りに行けば、散策者の居場所が伝わります。そこで、**今いる大まかな地域とその周り** の素材集だけを、Wi-Fi のときに取ります（API-004 P-6）。
 
-地域は **ジオハッシュ** の 3 文字で表します（[技術カード: ジオハッシュ](../ref/geohash.md)）。3 文字で約 150km 四方です。[Regions.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/material/format/Regions.kt) の `around` は、今いるマスと周りの 8 マスを返します。
+地域は **ジオハッシュ** の 3 文字で表します（[技術カード: ジオハッシュ](../ref/geohash.md)）。3 文字で約 150km 四方です。[Regions.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/material/Regions.kt) の `around` は、今いるマスと周りの 8 マスを返します。
 
 - 管理システムは、素材集の素材の `about` の位置から、その素材集の地域（`regions`）を計算してリストに載せる
 - アプリは、自分のまわり 9 マスに地域が重なる素材集だけを取る
 - だから素材集の置き場所に伝わるのは「どの 150km 四方の素材集を取ったか」まで。どのスポットにいるかは伝わらない
 
-管理システム（TypeScript の [geo.ts](../../sanpo-channel-console/packages/protocol/src/geo.ts)）とアプリ（Kotlin の `Regions.geohash`）は、同じ計算を別の言語で書いています。食い違いを防ぐため、Kotlin のテスト（`RegionsTest`）には鎌倉が `xn7` になることを書き、管理システムの準拠テストの V-25 は、リストに載った地域（Kotlin の機械審査が計算したもの）を TypeScript で計算し直して照らします。[6-6](../06-trust/06-same-rules.md) と同じ考え方です。
+管理システム（TypeScript の [geo.ts](../../michizure-console/packages/protocol/src/geo.ts)）とアプリ（Kotlin の `Regions.geohash`）は、同じ計算を別の言語で書いています。食い違いを防ぐため、Kotlin のテスト（`RegionsTest`）には鎌倉が `xn7` になることを書き、管理システムの準拠テストの V-25 は、リストに載った地域（Kotlin の機械審査が計算したもの）を TypeScript で計算し直して照らします。[6-6](../06-trust/06-same-rules.md) と同じ考え方です。
 
 ## 段階: アプリが出せるものだけ
 
@@ -373,7 +373,7 @@ xn7 [xn4, xn5, xn6, xn7, xnd, xne, xnh, xnk, xns]
 ### 3. 管理システムでも同じ地域になるか
 
 ```sh
-cd /c/Dev/apps/sanpo-channel-console
+cd /c/Dev/apps/michizure-console
 npx tsx -e "import { geohash } from './packages/protocol/src/geo.ts'; console.log(geohash(35.3260, 139.5565), geohash(35.6812, 139.7671))"
 ```
 

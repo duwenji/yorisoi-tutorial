@@ -52,7 +52,7 @@ resources/                   パッケージに入れる素材（任意。第三
 - **これ以外のファイルを入れると拒む**（API-003 F-5）
 - テキストは UTF-8（BOM なし）、改行は LF
 
-組み込みの 6 つのチャンネル（[station-format/src/main/resources/sanpoguide/channels/](../../SanpoGuide/station-format/src/main/resources/sanpoguide/channels/)）も、`signature.json` がないだけで同じ形です。「しずかに」チャンネル（`quiet/`）は `channel.json` だけで、スロットは全部「標準」のものを使っています。
+組み込みの 6 つのチャンネル（[station-format/src/main/resources/sanpoguide/channels/](../../SanpoGuide/apps/sanpoguide/prompts/src/main/resources/sanpoguide/channels/)）も、`signature.json` がないだけで同じ形です。「しずかに」チャンネル（`quiet/`）は `channel.json` だけで、スロットは全部「標準」のものを使っています。
 
 ## channel.json: 選択肢から選ぶ設定
 
@@ -77,7 +77,7 @@ resources/                   パッケージに入れる素材（任意。第三
 }
 ```
 
-[StationManifest.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/StationManifest.kt) が、これを Kotlin のデータクラスで表しています。
+[StationManifest.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/StationManifest.kt) が、これを Kotlin のデータクラスで表しています。
 
 ```kotlin
 /** `channel.json` of a channel package (API-003). Only the values the format allows can be held. */
@@ -137,7 +137,7 @@ enum class TalkLevel(override val json: String) : JsonValue { QUIET("quiet"), NO
 
 ## スロット: 差し込めるのは文章だけ
 
-[4-3](../04-outside/03-ai.md) で見たとおり、チャンネルが変えられるのは、アプリのプロンプトの決まった **枠（スロット）** に入る文章だけです（F-1）。[Slot.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/Slot.kt):
+[4-3](../04-outside/03-ai.md) で見たとおり、チャンネルが変えられるのは、アプリのプロンプトの決まった **枠（スロット）** に入る文章だけです（F-1）。[Slot.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/Slot.kt):
 
 ```kotlin
 /**
@@ -171,7 +171,7 @@ if (HEADING_PATTERN.containsMatchIn(text)) reject(RejectCode.FORBIDDEN_TEXT, "${
 // … 文字数の上限、合計 4,000 字 …
 ```
 
-`URL_PATTERN`・`HEADING_PATTERN` や、UTF-8 として読む `decodeUtf8` は、[Checks.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/Checks.kt) にまとめてあります。素材の文章や素材集（下で見ます）の確認でも同じ決まりを使うので、チャンネル専用の `StationValidator` から外に出しました。
+`URL_PATTERN`・`HEADING_PATTERN` や、UTF-8 として読む `decodeUtf8` は、[Checks.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/Checks.kt) にまとめてあります。素材の文章や素材集（下で見ます）の確認でも同じ決まりを使うので、チャンネル専用の `StationValidator` から外に出しました。
 
 | 禁止 | 理由 |
 |---|---|
@@ -326,7 +326,7 @@ enum class StationOrigin { BUILT_IN, THIRD_PARTY }
 
 ## 外から来た ZIP を安全に開く
 
-第三者のパッケージは ZIP です。外から来た ZIP には、2 つの有名な危険があります。[PackageArchive.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/PackageArchive.kt) は、その両方に備えています。
+第三者のパッケージは ZIP です。外から来た ZIP には、2 つの有名な危険があります。[PackageArchive.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/PackageArchive.kt) は、その両方に備えています。
 
 ### 危険 1: パスの細工（Zip Slip）
 

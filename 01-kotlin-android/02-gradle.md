@@ -78,7 +78,7 @@ plugins {
 
 ## app/build.gradle.kts: アプリの設定
 
-[app/build.gradle.kts](../../SanpoGuide/app/build.gradle.kts) の中心部分です。
+[app/build.gradle.kts](../../SanpoGuide/apps/sanpoguide/app/build.gradle.kts) の中心部分です。
 
 ```kotlin
 android {
@@ -181,7 +181,7 @@ implementation("androidx.fragment:fragment:1.8.8")
 
 ## station-format/build.gradle.kts: JVM ライブラリ
 
-[station-format/build.gradle.kts](../../SanpoGuide/station-format/build.gradle.kts) は、Android ではなく **普通の JVM のライブラリ** の設定です。
+[station-format/build.gradle.kts](../../SanpoGuide/platform/core-format/build.gradle.kts) は、Android ではなく **普通の JVM のライブラリ** の設定です。
 
 ```kotlin
 plugins {

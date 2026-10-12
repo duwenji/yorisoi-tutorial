@@ -15,7 +15,7 @@
 
 ## なぜ公開するのか
 
-同じリポジトリの中なら、`:app` は `implementation(project(":station-format"))` で `:station-format` を使えます（[1-2](../01-kotlin-android/02-gradle.md)）。でも管理システム（sanpo-channel-console）は **別のリポジトリ** です。`project(…)` では参照できません。
+同じリポジトリの中なら、`:app` は `implementation(project(":station-format"))` で `:station-format` を使えます（[1-2](../01-kotlin-android/02-gradle.md)）。でも管理システム（michizure-console）は **別のリポジトリ** です。`project(…)` では参照できません。
 
 方法はいくつか考えられます。
 
@@ -36,7 +36,7 @@ io.github.duwenji.sanpoguide : station-format : 2.1.0
 └───────── グループ ───────┘   └─── 名前 ───┘   └ 版 ┘
 ```
 
-[station-format/build.gradle.kts](../../SanpoGuide/station-format/build.gradle.kts):
+[station-format/build.gradle.kts](../../SanpoGuide/platform/core-format/build.gradle.kts):
 
 ```kotlin
 group = "io.github.duwenji.sanpoguide"
@@ -88,7 +88,7 @@ java {
     withSourcesJar()
 }
 
-// Published to GitHub Packages for the channel management system (sanpo-channel-console,
+// Published to GitHub Packages for the channel management system (michizure-console,
 // ADR-001 T-4). Users add org.json themselves (see the dependency note above).
 publishing {
     publications {
@@ -132,7 +132,7 @@ POM の説明文に "Requires org.json on the classpath."（クラスパスに o
 
 ## タグを押すと公開される
 
-公開は、手元のパソコンではなく **GitHub Actions**（GitHub の上でコマンドを自動で実行する仕組み）で行います。[.github/workflows/publish-station-format.yml](../../SanpoGuide/.github/workflows/publish-station-format.yml):
+公開は、手元のパソコンではなく **GitHub Actions**（GitHub の上でコマンドを自動で実行する仕組み）で行います。[.github/workflows/publish-station-format.yml](../../SanpoGuide/.github/workflows/publish.yml):
 
 ```yaml
 # Publishes :station-format to GitHub Packages when a tag station-format-v<version> is pushed.
@@ -196,7 +196,7 @@ flowchart LR
 
 ## 使う側: validator の設定
 
-管理システムの [validator/settings.gradle.kts](../../sanpo-channel-console/validator/settings.gradle.kts) は、GitHub Packages から `station-format` を取ってくる設定をしています。
+管理システムの [validator/settings.gradle.kts](../../michizure-console/validator/settings.gradle.kts) は、GitHub Packages から `station-format` を取ってくる設定をしています。
 
 ```kotlin
 dependencyResolutionManagement {
@@ -236,7 +236,7 @@ implementation("io.github.duwenji.sanpoguide:station-format:2.1.0")
 
 SanpoGuide が新しい版（たとえば `2.2.0`）を出しても、管理システムは `2.1.0` を使い続けます。実際、SanpoGuide が `1.2.0` を出したあとも、管理システムは `2.0.0` に上げるまで `1.1.0` を使っていました。`2.1.0` も、素材集の機械審査を作るとき（実装の順番 4a）に、それを使うコードと一緒に上げています。新しい版を使うのは、管理システムの側で版を書き換えて確かめたときです。**使う側が、上げる時期を自分で決められる** のが、版を固定する利点です。
 
-管理システムの CI（[ci.yml](../../sanpo-channel-console/.github/workflows/ci.yml)）も、`packages: read` の権限と `GITHUB_TOKEN` で `station-format` を取ってきて、`validator` をビルドしています。
+管理システムの CI（[ci.yml](../../michizure-console/.github/workflows/ci.yml)）も、`packages: read` の権限と `GITHUB_TOKEN` で `station-format` を取ってきて、`validator` をビルドしています。
 
 ## 実際に起きた失敗: Permission denied
 

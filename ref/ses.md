@@ -54,10 +54,10 @@ fn.addToRolePolicy(new iam.PolicyStatement({
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [infra/lib/config.ts](../../sanpo-channel-console/infra/lib/config.ts) の `notify` | `log`（記録だけ）か `ses`（送る）か。送る準備（ドメイン T-7・サンドボックスの解除 T-8）ができるまでは `log` | [8-7](../08-aws/07-sqs-ses-kms.md) |
-| [api/src/notify/handler.ts](../../sanpo-channel-console/api/src/notify/handler.ts) の `send` | `log` のときは、件名と本文の長さだけを記録。宛先と本文は書かない | [8-7](../08-aws/07-sqs-ses-kms.md) |
+| [infra/lib/config.ts](../../michizure-console/infra/lib/config.ts) の `notify` | `log`（記録だけ）か `ses`（送る）か。送る準備（ドメイン T-7・サンドボックスの解除 T-8）ができるまでは `log` | [8-7](../08-aws/07-sqs-ses-kms.md) |
+| [api/src/notify/handler.ts](../../michizure-console/api/src/notify/handler.ts) の `send` | `log` のときは、件名と本文の長さだけを記録。宛先と本文は書かない | [8-7](../08-aws/07-sqs-ses-kms.md) |
 | 同 `emailOf` | 送り先は持たず、送るたびに Cognito から確認済みのアドレスを引く | [8-7](../08-aws/07-sqs-ses-kms.md) |
-| [infra/lib/console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts) | `ses` のときだけ、送り主のドメインに絞った `ses:SendEmail` を許す | [8-7](../08-aws/07-sqs-ses-kms.md) |
+| [infra/lib/console-app.ts](../../michizure-console/infra/lib/console-app.ts) | `ses` のときだけ、送り主のドメインに絞った `ses:SendEmail` を許す | [8-7](../08-aws/07-sqs-ses-kms.md) |
 
 ## よくある間違い
 

@@ -56,7 +56,7 @@ console.log(Object.keys(t.toJSON().Resources).length, 'resources');
 ```
 
 ```sh
-cd /c/Dev/apps/sanpo-channel-console
+cd /c/Dev/apps/michizure-console
 mkdir -p .local/cdk-cards && cp ../sanpo-tutorial/08-aws/scripts/cdk-samples.ts .local/cdk-cards/app.ts
 cd infra && npx tsx ../.local/cdk-cards/app.ts
 #  → 27 resources …
@@ -76,10 +76,10 @@ cd infra && npx tsx ../.local/cdk-cards/app.ts
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [infra/bin/app.ts](../../sanpo-channel-console/infra/bin/app.ts) | `-c env=dev -c rootPublicKey=…`。ルート鍵の公開鍵を外から必ず渡させる。タグ | [8-2](../08-aws/02-cdk.md) |
-| [infra/lib/config.ts](../../sanpo-channel-console/infra/lib/config.ts) | 開発用・本番用の違いを 1 か所に。判別できるユニオンで設定を守る | [8-2](../08-aws/02-cdk.md) |
-| [infra/lib/console-stack.ts](../../sanpo-channel-console/infra/lib/console-stack.ts)・[console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts) | スタックと自作のコンストラクト。`RETAIN` と `DESTROY` の使い分け | [8-2](../08-aws/02-cdk.md) |
-| [infra/test/console-stack.test.ts](../../sanpo-channel-console/infra/test/console-stack.test.ts) | `Template.hasResourceProperties` で、大事な設定をテストで守る | [8-2](../08-aws/02-cdk.md) |
+| [infra/bin/app.ts](../../michizure-console/infra/bin/app.ts) | `-c env=dev -c rootPublicKey=…`。ルート鍵の公開鍵を外から必ず渡させる。タグ | [8-2](../08-aws/02-cdk.md) |
+| [infra/lib/config.ts](../../michizure-console/infra/lib/config.ts) | 開発用・本番用の違いを 1 か所に。判別できるユニオンで設定を守る | [8-2](../08-aws/02-cdk.md) |
+| [infra/lib/console-stack.ts](../../michizure-console/infra/lib/console-stack.ts)・[console-app.ts](../../michizure-console/infra/lib/console-app.ts) | スタックと自作のコンストラクト。`RETAIN` と `DESTROY` の使い分け | [8-2](../08-aws/02-cdk.md) |
+| [infra/test/console-stack.test.ts](../../michizure-console/infra/test/console-stack.test.ts) | `Template.hasResourceProperties` で、大事な設定をテストで守る | [8-2](../08-aws/02-cdk.md) |
 
 ## よくある間違い
 

@@ -64,9 +64,9 @@ stage.defaultRouteSettings = { throttlingRateLimit: 20, throttlingBurstLimit: 40
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [infra/lib/console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts) | `/api/{proxy+}` を `ANY` で 1 つの Lambda に。JWT の確認。1 秒 20 回の制限 | [8-3](../08-aws/03-lambda-apigw.md) |
+| [infra/lib/console-app.ts](../../michizure-console/infra/lib/console-app.ts) | `/api/{proxy+}` を `ANY` で 1 つの Lambda に。JWT の確認。1 秒 20 回の制限 | [8-3](../08-aws/03-lambda-apigw.md) |
 | 同 `ConsoleDistribution` | CloudFront の `api/*` から API Gateway へ。画面と同じ場所なので CORS が要らない | [8-6](../08-aws/06-s3-cloudfront.md) |
-| [api/src/console/handler.ts](../../sanpo-channel-console/api/src/console/handler.ts) | イベントを、ルーターの形に直すつなぎ。`claims` から役割を取り出す | [8-3](../08-aws/03-lambda-apigw.md) |
+| [api/src/console/handler.ts](../../michizure-console/api/src/console/handler.ts) | イベントを、ルーターの形に直すつなぎ。`claims` から役割を取り出す | [8-3](../08-aws/03-lambda-apigw.md) |
 
 ## よくある間違い
 

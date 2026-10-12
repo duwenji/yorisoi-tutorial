@@ -1,4 +1,4 @@
-// チュートリアル 8-3 のハンズオン用。sanpo-channel-console/.local/ にコピーし、
+// チュートリアル 8-3 のハンズオン用。michizure-console/.local/ にコピーし、
 // DynamoDB Local を起動してから実行する（AWS にはつながない）。
 //   DDB_PORT=<番号> npx tsx .local/invoke-console.ts
 import { CreateTableCommand, DynamoDBClient } from '@aws-sdk/client-dynamodb';

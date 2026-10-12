@@ -1,6 +1,6 @@
 # 散策ガイドで学ぶ Kotlin・Android・TypeScript・AWS
 
-SanpoGuide（Android アプリ）と sanpo-channel-console（AWS 上のチャンネル管理システム）の 2 つのリポジトリを教材にして、そこで使われている技術を順に学ぶチュートリアルです。
+SanpoGuide（Android アプリ）と michizure-console（AWS 上のチャンネル管理システム）の 2 つのリポジトリを教材にして、そこで使われている技術を順に学ぶチュートリアルです。
 
 ## このチュートリアルの考え方
 
@@ -151,11 +151,11 @@ flowchart LR
 
 ## コードへのリンクについて
 
-このフォルダは `SanpoGuide`・`sanpo-channel-console` と同じ親フォルダ（`c:\Dev\apps`）に置く前提で、`../../SanpoGuide/...` のような相対パスでリンクしています。VS Code ならクリックで開けます。
+このフォルダは `SanpoGuide`・`michizure-console` と同じ親フォルダ（`c:\Dev\apps`）に置く前提で、`../../SanpoGuide/...` のような相対パスでリンクしています。VS Code ならクリックで開けます。
 
 コードは日々変わるので、行番号ではなく **ファイルと関数の名前** で場所を示しています。リンク先で見つからないときは、関数名で検索してください。見直しの手順は [MAINTENANCE.md](MAINTENANCE.md) にあります。
 
 | 項目 | 値 |
 |---|---|
 | 最後に照合した日 | 2026-10-12 |
-| 照合したコミット | SanpoGuide `bd71c0a`、sanpo-channel-console `51cef1f`（どちらも `main`） |
+| 照合したコミット | SanpoGuide `bd71c0a`、michizure-console `51cef1f`（どちらも `main`） |

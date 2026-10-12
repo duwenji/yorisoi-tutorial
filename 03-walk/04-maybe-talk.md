@@ -12,7 +12,7 @@
 
 ## maybeTalk はいつ呼ばれるか
 
-[WalkService.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) の `maybeTalk()` は、次の 3 つのときに呼ばれます。
+[WalkService.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) の `maybeTalk()` は、次の 3 つのときに呼ばれます。
 
 | きっかけ | 場所 | 章 |
 |---|---|---|
@@ -216,7 +216,7 @@ if (sunsetAt != null && !s.sunsetWarned) {
 }
 ```
 
-`in 5..30` は「5 以上 30 以下」という範囲の判定です。コメントの "an empty range if the settings cross" に注目してください。設定で「何分前から」（30）より「何分前を過ぎたら知らせない」（5）を大きくしてしまうと、`35..30` のような **空の範囲** になり、何も当たりません。設定画面がこの組み合わせを保存させないのは、このためです（[Threshold.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt) の `conflicts`）。
+`in 5..30` は「5 以上 30 以下」という範囲の判定です。コメントの "an empty range if the settings cross" に注目してください。設定で「何分前から」（30）より「何分前を過ぎたら知らせない」（5）を大きくしてしまうと、`35..30` のような **空の範囲** になり、何も当たりません。設定画面がこの組み合わせを保存させないのは、このためです（[Threshold.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt) の `conflicts`）。
 
 ### ここから雑談の間隔を守る
 
@@ -248,7 +248,7 @@ if (now - s.lastSpokeAt < level.minGapMs) return
 
 ### 話しかけの頻度: TalkLevel
 
-間隔の長さは、チャンネルの「話しかけの頻度」で決まります（[TalkLevel.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/settings/TalkLevel.kt)）。
+間隔の長さは、チャンネルの「話しかけの頻度」で決まります（[TalkLevel.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/TalkLevel.kt)）。
 
 ```kotlin
 enum class TalkLevel(
@@ -286,7 +286,7 @@ enum class TalkLevel(
 
 ### WeatherChangeDetector を読む
 
-[WeatherChange.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherChange.kt):
+[WeatherChange.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherChange.kt):
 
 ```kotlin
 /** A turn for the worse, most serious first. Each kind also covers the ones after it. */
@@ -343,7 +343,7 @@ cd /c/Dev/apps/SanpoGuide
 ./gradlew :app:testDebugUnitTest --tests '*WeatherChangeDetectorTest*'
 ```
 
-8 件のテストが通ります。テストの名前を [WeatherChangeDetectorTest.kt](../../SanpoGuide/app/src/test/java/io/github/duwenji/sanpoguide/companion/WeatherChangeDetectorTest.kt) で見てみてください。
+8 件のテストが通ります。テストの名前を [WeatherChangeDetectorTest.kt](../../SanpoGuide/apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/companion/WeatherChangeDetectorTest.kt) で見てみてください。
 
 - steady weather is no news（天気が変わらなければ、知らせない）
 - rain starting within the hour（1 時間以内に雨が降り出す）
@@ -352,7 +352,7 @@ cd /c/Dev/apps/SanpoGuide
 
 ### 2. enum の並びを入れ替える
 
-[WeatherChange.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherChange.kt) の `WeatherChangeKind` を、深刻でない順に並べ替えます。
+[WeatherChange.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherChange.kt) の `WeatherChangeKind` を、深刻でない順に並べ替えます。
 
 ```kotlin
 enum class WeatherChangeKind {

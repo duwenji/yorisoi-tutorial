@@ -15,10 +15,10 @@
 
 | サービス | 何をもらうか | キー | 呼ぶ部品 |
 |---|---|---|---|
-| **Overpass API**（OpenStreetMap） | 近くのスポットと施設 | 要らない | [OverpassClient.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/data/OverpassClient.kt) |
-| **Open-Meteo** | 今の天気、15 分ごとの予報、日の入り | 要らない | [WeatherClient.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherClient.kt) |
-| **FOSSGIS OSRM** | 徒歩のルート | 要らない | [RouteClient.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/data/RouteClient.kt) |
-| **Wikimedia Commons** | スポットの写真 | 要らない | [SpotPhotos.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/data/SpotPhotos.kt) |
+| **Overpass API**（OpenStreetMap） | 近くのスポットと施設 | 要らない | [OverpassClient.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/OverpassClient.kt) |
+| **Open-Meteo** | 今の天気、15 分ごとの予報、日の入り | 要らない | [WeatherClient.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/weather/WeatherClient.kt) |
+| **FOSSGIS OSRM** | 徒歩のルート | 要らない | [RouteClient.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/RouteClient.kt) |
+| **Wikimedia Commons** | スポットの写真 | 要らない | [SpotPhotos.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/SpotPhotos.kt) |
 | 国土地理院・Google Map Tiles | 地図の画像 | Google だけ要る | [4-2](02-map.md) |
 | Claude・OpenAI 互換の AI | 解説と話しかけ | 要る（散策者のキー） | [4-3](03-ai.md) |
 
@@ -42,7 +42,7 @@
 
 ## OkHttp で呼ぶ
 
-散策ガイドは、Android で定番の HTTP ライブラリ **OkHttp** を使っています。天気を取る [WeatherClient.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherClient.kt) を読みます。
+散策ガイドは、Android で定番の HTTP ライブラリ **OkHttp** を使っています。天気を取る [WeatherClient.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/weather/WeatherClient.kt) を読みます。
 
 ```kotlin
 class WeatherClient {
@@ -71,7 +71,7 @@ class WeatherClient {
 
 ### タイムアウトを用途に合わせる
 
-[OverpassClient.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/data/OverpassClient.kt) のタイムアウトには、実際につまずいた経験がコメントに残っています。
+[OverpassClient.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/OverpassClient.kt) のタイムアウトには、実際につまずいた経験がコメントに残っています。
 
 ```kotlin
 private val http: OkHttpClient = OkHttpClient.Builder()
@@ -176,7 +176,7 @@ throw lastError!!
 
 散策ガイドは、JSON を **`org.json`** で読んでいます。Android に最初から入っているライブラリです（[1-2](../01-kotlin-android/02-gradle.md) の「単体テストでは本物を足す」の、あの `org.json`）。
 
-[RouteClient.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/data/RouteClient.kt) の `parse` は小さくて読みやすい例です。
+[RouteClient.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/RouteClient.kt) の `parse` は小さくて読みやすい例です。
 
 ```kotlin
 internal fun parse(body: String): WalkRoute {
@@ -262,7 +262,7 @@ python -m json.tool weather.json
     }
 ```
 
-`weather_code` は WMO（世界気象機関）の天気の番号です（2 は「一部くもり」）。散策ガイドは [WeatherClient.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherClient.kt) の `WeatherCodes` で、これを「晴れ」「雨」などに直しています。`interval: 900` は、今の天気が 15 分（900 秒）ごとの値だという意味で、[3-4](../03-walk/04-maybe-talk.md) の `WeatherChangeDetector` のコメントに出てきた「15 分」の正体です。
+`weather_code` は WMO（世界気象機関）の天気の番号です（2 は「一部くもり」）。散策ガイドは [WeatherClient.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/weather/WeatherClient.kt) の `WeatherCodes` で、これを「晴れ」「雨」などに直しています。`interval: 900` は、今の天気が 15 分（900 秒）ごとの値だという意味で、[3-4](../03-walk/04-maybe-talk.md) の `WeatherChangeDetector` のコメントに出てきた「15 分」の正体です。
 
 > Windows では、`℃` などの記号が `°C` のように表示されることがあります（`json.tool` が英数字以外を書き換えるため）。`weather.json` を VS Code で開けば、そのまま読めます。
 

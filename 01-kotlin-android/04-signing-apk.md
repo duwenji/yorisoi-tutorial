@@ -40,7 +40,7 @@ Android は、**署名されていない APK をインストールしません**
 
 ## 散策ガイドの署名の設定
 
-[app/build.gradle.kts](../../SanpoGuide/app/build.gradle.kts):
+[app/build.gradle.kts](../../SanpoGuide/apps/sanpoguide/app/build.gradle.kts):
 
 ```kotlin
 // Release signing keys live outside Git, in keystore.properties at the project root

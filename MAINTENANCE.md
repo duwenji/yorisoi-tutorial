@@ -18,7 +18,7 @@
 
 ```sh
 cd ../SanpoGuide && git pull && git log --oneline bd71c0a..main
-cd ../sanpo-channel-console && git pull && git log --oneline 51cef1f..main
+cd ../michizure-console && git pull && git log --oneline 51cef1f..main
 ```
 
 ファイル名だけを見るなら `git diff --stat <前回>..main` が便利です。
@@ -47,7 +47,7 @@ done
 
 ```sh
 grep -rn "fun channelList\|export function verifyChannelList\|export async function signChannelList" \
-  ../SanpoGuide ../sanpo-channel-console --include=*.kt --include=*.ts
+  ../SanpoGuide ../michizure-console --include=*.kt --include=*.ts
 ```
 
 ### 4. 引用したコードを照合する
@@ -67,7 +67,7 @@ grep -rn "fun channelList\|export function verifyChannelList\|export async funct
 
 ```sh
 cd ../SanpoGuide && git diff bd71c0a..main -- '*.gradle.kts' gradle/
-cd ../sanpo-channel-console && git diff 51cef1f..main -- '**/package.json'
+cd ../michizure-console && git diff 51cef1f..main -- '**/package.json'
 ```
 
 ### 7. 記録を更新する
