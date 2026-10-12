@@ -18,10 +18,10 @@
 
 | Lambda | 入口 | 何がきっかけで呼ばれるか |
 |---|---|---|
-| 管理 API | [api/src/console/handler.ts](../../sanpo-channel-console/api/src/console/handler.ts) | API Gateway（画面からの HTTP の要求） |
-| 公開の処理 | [api/src/publish/handler.ts](../../sanpo-channel-console/api/src/publish/handler.ts) | 管理 API（承認・取り下げのあと）、EventBridge Scheduler（毎日） |
-| メール | [api/src/notify/handler.ts](../../sanpo-channel-console/api/src/notify/handler.ts) | SQS（待ち行列にたまった知らせ）、[8-7](07-sqs-ses-kms.md) |
-| 登録の後処理 | [api/src/console/post-confirmation.ts](../../sanpo-channel-console/api/src/console/post-confirmation.ts) | Cognito（登録が確かめられたとき）、[8-4](04-cognito.md) |
+| 管理 API | [api/src/console/handler.ts](../../michizure-console/api/src/console/handler.ts) | API Gateway（画面からの HTTP の要求） |
+| 公開の処理 | [api/src/publish/handler.ts](../../michizure-console/api/src/publish/handler.ts) | 管理 API（承認・取り下げのあと）、EventBridge Scheduler（毎日） |
+| メール | [api/src/notify/handler.ts](../../michizure-console/api/src/notify/handler.ts) | SQS（待ち行列にたまった知らせ）、[8-7](07-sqs-ses-kms.md) |
+| 登録の後処理 | [api/src/console/post-confirmation.ts](../../michizure-console/api/src/console/post-confirmation.ts) | Cognito（登録が確かめられたとき）、[8-4](04-cognito.md) |
 | 機械審査（Kotlin） | `validator/…/Handler.kt` | S3（受付用のバケットにファイルが届いたとき）、[8-8](08-kotlin-lambda.md) |
 
 **Lambda** は、何かが起きたとき（**イベント**）に、AWS が関数を呼び出して動かすサービスです。関数は、イベントを受け取って、結果を返すだけです。サーバーを動かし続ける必要はありません（[8-1](01-aws-basics.md)）。
@@ -104,7 +104,7 @@ table: env('TABLE_NAME'),
 rootPublicKey: env('ROOT_PUBLIC_KEY'),
 ```
 
-テーブルの名前やバケットの名前は、CDK が配備のときに決まる名前を **環境変数** で渡します（`consoleFn.addEnvironment('TABLE_NAME', props.table.tableName)`、[console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts)）。コードに名前を書かないので、同じコードが開発用でも本番用でも動きます。ないときは、すぐに例外で止めます。
+テーブルの名前やバケットの名前は、CDK が配備のときに決まる名前を **環境変数** で渡します（`consoleFn.addEnvironment('TABLE_NAME', props.table.tableName)`、[console-app.ts](../../michizure-console/infra/lib/console-app.ts)）。コードに名前を書かないので、同じコードが開発用でも本番用でも動きます。ないときは、すぐに例外で止めます。
 
 ### メモリと時間の上限
 
@@ -127,10 +127,10 @@ API Gateway も、要求に 30 秒ほどの上限があります。管理 API �
 
 **API Gateway** は、HTTP の要求を受けて、Lambda などに渡す入口です。管理システムは、安くて単純な **HTTP API** を使っています（ADR-001 A-3）。
 
-[console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts):
+[console-app.ts](../../michizure-console/infra/lib/console-app.ts):
 
 ```ts
-const httpApi = new apigw.HttpApi(this, 'HttpApi', { apiName: `sanpo-channel-console-${config.name}`, createDefaultStage: true });
+const httpApi = new apigw.HttpApi(this, 'HttpApi', { apiName: `michizure-console-${config.name}`, createDefaultStage: true });
 const stage = httpApi.defaultStage?.node.defaultChild as apigw.CfnStage;
 stage.defaultRouteSettings = { throttlingRateLimit: 20, throttlingBurstLimit: 40 };
 
@@ -229,7 +229,7 @@ requestPublish: async (trigger) => {
 
 `InvocationType: 'Event'` は **非同期の呼び出し** です。「頼んだ」ことだけを確かめて、公開の処理が終わるのを待ちません。運営の画面は、承認の操作のあと、リストの署名や S3 への書き込みを待たずにすぐ戻れます。
 
-公開の Lambda の入口（[api/src/publish/handler.ts](../../sanpo-channel-console/api/src/publish/handler.ts)）:
+公開の Lambda の入口（[api/src/publish/handler.ts](../../michizure-console/api/src/publish/handler.ts)）:
 
 ```ts
 /**
@@ -320,7 +320,7 @@ for (const alarm of [failures, stale]) alarm.addAlarmAction(new cwActions.SnsAct
 [scripts/invoke-console.ts](scripts/invoke-console.ts) をコピーします。
 
 ```sh
-cd /c/Dev/apps/sanpo-channel-console
+cd /c/Dev/apps/michizure-console
 cp ../sanpo-tutorial/08-aws/scripts/invoke-console.ts .local/
 ID=$(docker run -d --rm -p 127.0.0.1::8000 amazon/dynamodb-local:latest -jar DynamoDBLocal.jar -inMemory)
 PORT=$(docker port $ID 8000/tcp | head -1 | sed 's/.*://')

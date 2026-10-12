@@ -131,10 +131,10 @@ adb shell dumpsys notification                       # 通知とチャンネル�
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [AndroidManifest.xml](../../SanpoGuide/app/src/main/AndroidManifest.xml) | `WalkService` の登録と、位置情報のフォアグラウンドサービスの権限 | [1-3](../01-kotlin-android/03-android-components.md) |
-| [SanpoApp.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) | 4 つの通知のチャンネル（チャンネルの案内・散策モード・スポット案内・雷雨の予報）と重要度 | [1-3](../01-kotlin-android/03-android-components.md)、[3-2](../03-walk/02-service.md) |
-| [WalkService.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) | 散策の開始と終了、通知の上書き、「終了」ボタン、雷雨だけ音つきの通知 | [3-2](../03-walk/02-service.md) |
-| [MainActivity.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainActivity.kt) | Android 13 以上でだけ通知の権限を求める | [1-3](../01-kotlin-android/03-android-components.md) |
+| [AndroidManifest.xml](../../SanpoGuide/apps/sanpoguide/app/src/main/AndroidManifest.xml) | `WalkService` の登録と、位置情報のフォアグラウンドサービスの権限 | [1-3](../01-kotlin-android/03-android-components.md) |
+| [SanpoApp.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) | 4 つの通知のチャンネル（チャンネルの案内・散策モード・スポット案内・雷雨の予報）と重要度 | [1-3](../01-kotlin-android/03-android-components.md)、[3-2](../03-walk/02-service.md) |
+| [WalkService.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) | 散策の開始と終了、通知の上書き、「終了」ボタン、雷雨だけ音つきの通知 | [3-2](../03-walk/02-service.md) |
+| [MainActivity.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainActivity.kt) | Android 13 以上でだけ通知の権限を求める | [1-3](../01-kotlin-android/03-android-components.md) |
 
 ## よくある間違い
 
@@ -151,7 +151,7 @@ adb shell dumpsys notification                       # 通知とチャンネル�
 
 | 項目 | 版 |
 |---|---|
-| `androidx.core:core-ktx`（`NotificationCompat`・`ServiceCompat`） | 1.16.0（SanpoGuide の `app/build.gradle.kts`） |
+| `androidx.core:core-ktx`（`NotificationCompat`・`ServiceCompat`） | 1.16.0（SanpoGuide の `apps/sanpoguide/app/build.gradle.kts`） |
 | `androidx.lifecycle:lifecycle-service`（`LifecycleService`） | 2.9.1 |
 | `targetSdk` | 35 |
 

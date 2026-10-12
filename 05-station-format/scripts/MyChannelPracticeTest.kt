@@ -1,7 +1,14 @@
-package io.github.duwenji.sanpoguide.station.format
+package io.github.duwenji.sanpoguide.prompt
 
-import io.github.duwenji.sanpoguide.prompt.Prompts
-import io.github.duwenji.sanpoguide.prompt.StationPrompts
+import io.github.duwenji.michizure.core.format.ArchiveException
+import io.github.duwenji.michizure.core.format.MemoryStationFiles
+import io.github.duwenji.michizure.core.format.PackageArchive
+import io.github.duwenji.michizure.core.format.RejectCode
+import io.github.duwenji.michizure.core.format.Slot
+import io.github.duwenji.michizure.core.format.StationCheck
+import io.github.duwenji.michizure.core.format.StationFiles
+import io.github.duwenji.michizure.core.format.StationOrigin
+import io.github.duwenji.michizure.core.format.StationValidator
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -16,7 +23,9 @@ class MyChannelPracticeTest {
     /** 自分のチャンネルの channel.json。値を変えて試す。 */
     private val manifest = """
         {
-          "format": 1,
+          "format": 2,
+          "activities": ["walk"],
+          "genres": ["history"],
           "id": "my-cafe-walk",
           "version": 1,
           "name": "喫茶店さんぽ",

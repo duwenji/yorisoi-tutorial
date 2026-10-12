@@ -77,9 +77,9 @@ fetch('/api/me', { headers: { Authorization: `Bearer ${user.access_token}` } });
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [web/src/auth.ts](../../sanpo-channel-console/web/src/auth.ts) | `UserManager` の設定、元いた道を `state` に預ける、外の場所へ飛ばさない、Cognito の `/logout` | [9-2](../09-console/02-browser-login.md) |
-| [web/src/main.tsx](../../sanpo-channel-console/web/src/main.tsx) の `Callback`・`Gate` | 戻りの処理を 1 回だけ。トークンがなければログインへ | [9-1](../09-console/01-react-vite.md)、[9-2](../09-console/02-browser-login.md) |
-| [infra/lib/console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts) | 公開クライアント、戻り先、トークンの期限（60 分・12 時間） | [8-4](../08-aws/04-cognito.md) |
+| [web/src/auth.ts](../../michizure-console/web/src/auth.ts) | `UserManager` の設定、元いた道を `state` に預ける、外の場所へ飛ばさない、Cognito の `/logout` | [9-2](../09-console/02-browser-login.md) |
+| [web/src/main.tsx](../../michizure-console/web/src/main.tsx) の `Callback`・`Gate` | 戻りの処理を 1 回だけ。トークンがなければログインへ | [9-1](../09-console/01-react-vite.md)、[9-2](../09-console/02-browser-login.md) |
+| [infra/lib/console-app.ts](../../michizure-console/infra/lib/console-app.ts) | 公開クライアント、戻り先、トークンの期限（60 分・12 時間） | [8-4](../08-aws/04-cognito.md) |
 | ADR-001 A-17 | GitHub Actions から AWS に入るのにも OIDC を使う、という決定（まだ手で配備） | [9-4](../09-console/04-ci.md) |
 
 ## よくある間違い

@@ -66,8 +66,8 @@ Lambda を作ると、CDK はその Lambda 専用のロールを作り、`grant�
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [infra/lib/console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts) | `grantPut(consoleFn, 'intake/*')` のように、場所（接頭辞）まで絞った許可。コメントに理由 | [8-1](../08-aws/01-aws-basics.md) |
-| [infra/lib/console-stack.ts](../../sanpo-channel-console/infra/lib/console-stack.ts) | KMS の鍵ポリシー: 署名してよいのは決まったロールだけ、決まった方式だけ。`key.grant()` を使わない理由 | [6-4](../06-trust/04-two-tier-keys.md)、[8-1](../08-aws/01-aws-basics.md) |
+| [infra/lib/console-app.ts](../../michizure-console/infra/lib/console-app.ts) | `grantPut(consoleFn, 'intake/*')` のように、場所（接頭辞）まで絞った許可。コメントに理由 | [8-1](../08-aws/01-aws-basics.md) |
+| [infra/lib/console-stack.ts](../../michizure-console/infra/lib/console-stack.ts) | KMS の鍵ポリシー: 署名してよいのは決まったロールだけ、決まった方式だけ。`key.grant()` を使わない理由 | [6-4](../06-trust/04-two-tier-keys.md)、[8-1](../08-aws/01-aws-basics.md) |
 | 同 `postConfirmation` | 1 つの操作（`AdminAddUserToGroup`）だけ。循環を避けるため `userpool/*` | [8-4](../08-aws/04-cognito.md) |
 | ADR-001 A-17 | 配備を自動にするときは、GitHub Actions から OIDC で AWS に入る（長期のアクセスキーを持たない）と決めている。2026-10-05 の時点では、開発者が手で配備している | [9-4](../09-console/04-ci.md) |
 

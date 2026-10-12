@@ -1,6 +1,6 @@
 # 散策ガイドで学ぶ Kotlin・Android・TypeScript・AWS
 
-SanpoGuide（Android アプリ）と sanpo-channel-console（AWS 上のチャンネル管理システム）の 2 つのリポジトリを教材にして、そこで使われている技術を順に学ぶチュートリアルです。
+SanpoGuide（Android アプリ）と michizure-console（AWS 上のチャンネル管理システム）の 2 つのリポジトリを教材にして、そこで使われている技術を順に学ぶチュートリアルです。
 
 ## このチュートリアルの考え方
 
@@ -70,7 +70,7 @@ flowchart LR
 | [4-4 声と音](04-outside/04-voice-sound.md) | TTS とオーディオフォーカス、背景音の合成（ノイズとフィルター）、AudioTrack、専用のスレッドと `@Volatile`。WAV に書き出して聞く |
 | [4-5 端末にデータを置く](04-outside/05-storage.md) | SharedPreferences と変えた値だけの保存、設定の移行、`AtomicFile`、古い記録を読めるようにする、Android Keystore での暗号化 |
 
-### 第 5 部 共有ライブラリ station-format ✅
+### 第 5 部 共有ライブラリ（コアとプロンプト・パック。もとは station-format） ✅
 
 | 章 | 内容 |
 |---|---|
@@ -151,11 +151,11 @@ flowchart LR
 
 ## コードへのリンクについて
 
-このフォルダは `SanpoGuide`・`sanpo-channel-console` と同じ親フォルダ（`c:\Dev\apps`）に置く前提で、`../../SanpoGuide/...` のような相対パスでリンクしています。VS Code ならクリックで開けます。
+このフォルダは `SanpoGuide`・`michizure-console` と同じ親フォルダ（`c:\Dev\apps`）に置く前提で、`../../SanpoGuide/...` のような相対パスでリンクしています。VS Code ならクリックで開けます。
 
 コードは日々変わるので、行番号ではなく **ファイルと関数の名前** で場所を示しています。リンク先で見つからないときは、関数名で検索してください。見直しの手順は [MAINTENANCE.md](MAINTENANCE.md) にあります。
 
 | 項目 | 値 |
 |---|---|
-| 最後に照合した日 | 2026-10-12 |
-| 照合したコミット | SanpoGuide `bd71c0a`、sanpo-channel-console `51cef1f`（どちらも `main`） |
+| 最後に照合した日 | 2026-10-13 |
+| 照合したコミット | SanpoGuide `ac66b5d`、michizure-console `68e7852`（どちらも `main`）。マージ前の SanpoGuide #51（宣伝の表示、versionCode 3）と michizure-console #32（開発用の宣伝の版）・#34（改名）の内容も反映している |

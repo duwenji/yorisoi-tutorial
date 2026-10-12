@@ -17,8 +17,8 @@
 [README.md](README.md) の「照合したコミット」から今の `main` までの差分を見ます。
 
 ```sh
-cd ../SanpoGuide && git pull && git log --oneline bd71c0a..main
-cd ../sanpo-channel-console && git pull && git log --oneline 51cef1f..main
+cd ../SanpoGuide && git pull && git log --oneline ac66b5d..main
+cd ../michizure-console && git pull && git log --oneline 68e7852..main
 ```
 
 ファイル名だけを見るなら `git diff --stat <前回>..main` が便利です。
@@ -47,7 +47,7 @@ done
 
 ```sh
 grep -rn "fun channelList\|export function verifyChannelList\|export async function signChannelList" \
-  ../SanpoGuide ../sanpo-channel-console --include=*.kt --include=*.ts
+  ../SanpoGuide ../michizure-console --include=*.kt --include=*.ts
 ```
 
 ### 4. 引用したコードを照合する
@@ -66,8 +66,8 @@ grep -rn "fun channelList\|export function verifyChannelList\|export async funct
 依存ライブラリの版が上がっていたら、該当する技術カード（`ref/`）の「版と公式ドキュメント」の表を直し、「最小の使い方」が今の版でも動くかを確かめます。AWS のサービスは、上限（例: KMS の Sign は 4,096 バイト）や料金が変わることがあるので、公式ドキュメントと料金のページも見直します。
 
 ```sh
-cd ../SanpoGuide && git diff bd71c0a..main -- '*.gradle.kts' gradle/
-cd ../sanpo-channel-console && git diff 51cef1f..main -- '**/package.json'
+cd ../SanpoGuide && git diff ac66b5d..main -- '*.gradle.kts' gradle/
+cd ../michizure-console && git diff 68e7852..main -- '**/package.json'
 ```
 
 ### 7. 記録を更新する

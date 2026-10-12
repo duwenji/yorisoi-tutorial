@@ -132,9 +132,9 @@ fun main() {
 | 場所 | 中身 | 章 |
 |---|---|---|
 | [SanpoGuide/settings.gradle.kts](../../SanpoGuide/settings.gradle.kts) | 2 つのモジュール、ライブラリの取得先を 1 か所に固定 | [1-2](../01-kotlin-android/02-gradle.md) |
-| [SanpoGuide/app/build.gradle.kts](../../SanpoGuide/app/build.gradle.kts) | Android アプリの設定、Compose の BOM、署名 | [1-2](../01-kotlin-android/02-gradle.md)、[1-4](../01-kotlin-android/04-signing-apk.md) |
-| [SanpoGuide/station-format/build.gradle.kts](../../SanpoGuide/station-format/build.gradle.kts) | JVM ライブラリ、自作のタスク `channelIndex`、GitHub Packages への公開 | [1-2](../01-kotlin-android/02-gradle.md)、[5-3](../05-station-format/03-publish.md) |
-| [sanpo-channel-console/validator/build.gradle.kts](../../sanpo-channel-console/validator/build.gradle.kts) | Kotlin の Lambda。`station-format` を GitHub Packages から取り、Lambda 用の zip を作るタスク | [8-8](../08-aws/08-kotlin-lambda.md) |
+| [SanpoGuide/app/build.gradle.kts](../../SanpoGuide/apps/sanpoguide/app/build.gradle.kts) | Android アプリの設定、Compose の BOM、署名 | [1-2](../01-kotlin-android/02-gradle.md)、[1-4](../01-kotlin-android/04-signing-apk.md) |
+| [SanpoGuide/platform/core-format/build.gradle.kts](../../SanpoGuide/platform/core-format/build.gradle.kts) | JVM ライブラリ、自作のタスク `channelIndex`、GitHub Packages への公開 | [1-2](../01-kotlin-android/02-gradle.md)、[5-3](../05-station-format/03-publish.md) |
+| [michizure-console/validator/build.gradle.kts](../../michizure-console/validator/build.gradle.kts) | Kotlin の Lambda。コアとプロンプト・パックを GitHub Packages から取り、Lambda 用の zip を作るタスク | [8-8](../08-aws/08-kotlin-lambda.md) |
 
 ## よくある間違い
 

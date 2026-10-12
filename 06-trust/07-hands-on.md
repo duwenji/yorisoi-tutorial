@@ -18,8 +18,8 @@
 
 [0-3 開発環境の準備](../00-overview/03-setup.md) を済ませておいてください。とくに次の 2 つが要ります。
 
-- sanpo-channel-console で `npm ci` が済んでいる
-- SanpoGuide で `./gradlew :station-format:test` が通る
+- michizure-console で `npm ci` が済んでいる
+- SanpoGuide で `./gradlew :platform:core-format:test` が通る
 
 ターミナルを **2 つ** 開きます。ここでは「ターミナル A」「ターミナル B」と呼びます。どちらも Git Bash を使います。
 
@@ -28,7 +28,7 @@
 ターミナル A で:
 
 ```sh
-cd /c/Dev/apps/sanpo-channel-console
+cd /c/Dev/apps/michizure-console
 npm run publish:local -w api
 ```
 
@@ -41,7 +41,7 @@ provider: sc1yajr5krpx5u2nb4x45rijsrnvvtizhwl
 
 ### 何が起きたか
 
-[api/src/publish/local-cli.ts](../../sanpo-channel-console/api/src/publish/local-cli.ts) が次のことをしました。
+[api/src/publish/local-cli.ts](../../michizure-console/api/src/publish/local-cli.ts) が次のことをしました。
 
 1. テスト用のリストを作る（ルート鍵・署名鍵を新しく作り、鍵セットにルート鍵で署名する。`makeTestProvider`）
 2. 見本のチャンネルを 1 つ用意する（パッケージとアイコンは中身のない仮のファイル）
@@ -91,7 +91,7 @@ console.log({ ...body, channels: body.channels.map((c) => c.id) });
 ターミナル B で:
 
 ```sh
-cd /c/Dev/apps/sanpo-channel-console
+cd /c/Dev/apps/michizure-console
 npm run serve -w conformance
 ```
 
@@ -208,14 +208,14 @@ FAIL V-05 seq has not gone back — rollback: seq 1 < 5
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-./gradlew :station-format:test --tests '*ProviderDocumentsTest*'
+./gradlew :platform:core-format:test --tests '*ProviderDocumentsTest*'
 ```
 
 `BUILD SUCCESSFUL` になります。
 
 ### 5-2. リストの期限の上限を 13 日に変える
 
-[ProviderDocuments.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/ProviderDocuments.kt) の `companion object` にある次の行を探して、
+[ProviderDocuments.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/ProviderDocuments.kt) の `companion object` にある次の行を探して、
 
 ```kotlin
 val LIST_LIFETIME: Duration = Duration.ofDays(14)
@@ -224,14 +224,14 @@ val LIST_LIFETIME: Duration = Duration.ofDays(14)
 `14` を `13` に変えて保存し、もう一度テストを流します。
 
 ```sh
-./gradlew :station-format:test --tests '*ProviderDocumentsTest*'
+./gradlew :platform:core-format:test --tests '*ProviderDocumentsTest*'
 ```
 
 ```
 8 tests completed, 3 failed
 ```
 
-落ちたテストは、Gradle が表示するレポート（`station-format/build/reports/tests/test/index.html`）をブラウザで開くと見られます。
+落ちたテストは、Gradle が表示するレポート（`platform/core-format/build/reports/tests/test/index.html`）をブラウザで開くと見られます。
 
 | テスト | 失敗の理由 |
 |---|---|
@@ -248,7 +248,7 @@ val LIST_LIFETIME: Duration = Duration.ofDays(14)
 ### 5-3. 元に戻す
 
 ```sh
-git checkout -- station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/ProviderDocuments.kt
+git checkout -- platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/ProviderDocuments.kt
 git status
 ```
 
@@ -257,7 +257,7 @@ git status
 ## 片付け
 
 - ターミナル B のサーバーを Ctrl+C で止める
-- `.local/` は Git の対象外なので、残しておいてかまいません。消したいときは `rm -rf .local/site`（sanpo-channel-console のフォルダで）
+- `.local/` は Git の対象外なので、残しておいてかまいません。消したいときは `rm -rf .local/site`（michizure-console のフォルダで）
 
 ## ふりかえり
 
@@ -272,7 +272,7 @@ git status
 
 - `publish` を支える DynamoDB・S3・CloudFront・KMS と CDK は **第 8 部**
 - `packages/protocol` のようなパッケージの分け方と、依存を外から渡す作りは **第 7 部**
-- `:station-format` をライブラリとして公開する方法は **第 5 部**
+- コアをライブラリとして公開する方法は **第 5 部**
 - チャンネル提供者の鍵をブラウザの中で作る方法は **[9-3](../09-console/03-keys-in-browser.md)**
 
 で、くわしく扱います。

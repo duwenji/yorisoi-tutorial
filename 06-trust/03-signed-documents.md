@@ -75,7 +75,7 @@ API-002 の署名つき文書は、どれも次の形をしています（決定
 
 ## 署名する側のコード
 
-[signed.ts](../../sanpo-channel-console/packages/protocol/src/signed.ts) を見ます。
+[signed.ts](../../michizure-console/packages/protocol/src/signed.ts) を見ます。
 
 ```ts
 /** Signs bytes with one Ed25519 key: a root key on an offline machine, or a signing key in KMS. */
@@ -103,8 +103,8 @@ export async function signDocument(content: object, signer: Signer): Promise<Sig
 
 | 実装 | どこで使うか | 秘密鍵の場所 |
 |---|---|---|
-| `localSigner`（[signed.ts](../../sanpo-channel-console/packages/protocol/src/signed.ts)） | ルート鍵の CLI、テスト、手元での公開 | メモリの中 |
-| KMS の Signer（[api/src/publish/aws.ts](../../sanpo-channel-console/api/src/publish/aws.ts) の末尾） | AWS の上での公開 | KMS の中（取り出せない） |
+| `localSigner`（[signed.ts](../../michizure-console/packages/protocol/src/signed.ts)） | ルート鍵の CLI、テスト、手元での公開 | メモリの中 |
+| KMS の Signer（[api/src/publish/aws.ts](../../michizure-console/api/src/publish/aws.ts) の末尾） | AWS の上での公開 | KMS の中（取り出せない） |
 
 `signDocument` はどちらの実装でも同じように動きます。だから、手元では `localSigner` で、本番では KMS で、同じコードを使えます。[0-3](../00-overview/03-setup.md) で「AWS なしで公開できる」と書いたのは、こうした差し替え口があちこちにあるからです。
 
@@ -130,7 +130,7 @@ export async function signDocument(content: object, signer: Signer): Promise<Sig
 
 そこで、**署名されるバイト列の中に `type` を必ず入れ**、確かめる側は「期待した `type` か」を署名と一緒に確かめます。`type` は署名の内側にあるので、書き換えれば署名が合わなくなります。
 
-確かめる側の TypeScript（[verify.ts](../../sanpo-channel-console/packages/protocol/src/verify.ts) の `openSigned`）:
+確かめる側の TypeScript（[verify.ts](../../michizure-console/packages/protocol/src/verify.ts) の `openSigned`）:
 
 ```ts
 /** Checks a signature and the payload's `type`, which keeps a document from passing for another kind (P-3). */
@@ -143,7 +143,7 @@ function openSigned(doc: SignedDocument, publicKey: Uint8Array, type: string, wh
 }
 ```
 
-同じことをする Kotlin（[ProviderDocuments.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/ProviderDocuments.kt) の `open`）:
+同じことをする Kotlin（[ProviderDocuments.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/ProviderDocuments.kt) の `open`）:
 
 ```kotlin
 /** Checks a signature and the payload's `type`, which keeps one kind of document from passing for another (P-3). */
@@ -180,7 +180,7 @@ API-002 には「知らない項目は無視する。項目の追加は互換性
 [0-3](../00-overview/03-setup.md) で `npm run publish:local -w api` を実行していれば、手元に公開ファイルがあります。鍵セットの `payload` をデコードしてみましょう。
 
 ```sh
-cd /c/Dev/apps/sanpo-channel-console
+cd /c/Dev/apps/michizure-console
 node -e '
 const d = JSON.parse(require("fs").readFileSync(".local/site/public/.well-known/sanpo-channels"));
 console.log("keyId:", d.keyset.keyId);

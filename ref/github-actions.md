@@ -93,10 +93,10 @@ gh run view <実行のID> --log-failed   # 失敗したステップのログ
 
 | ワークフロー | きっかけ | 何をするか | 章 |
 |---|---|---|---|
-| [SanpoGuide: publish-station-format.yml](../../SanpoGuide/.github/workflows/publish-station-format.yml) | タグ `station-format-v*` の push | タグと版の照合 → テスト → GitHub Packages に公開（`packages: write`） | [5-3](../05-station-format/03-publish.md) |
-| [sanpo-channel-console: ci.yml](../../sanpo-channel-console/.github/workflows/ci.yml) | `main` への push、プルリクエスト | 型の確認・テスト（DynamoDB Local をサービスで起動）・画面のビルド・`validator` のテストと zip の作成・`cdk synth` | [7-4](../07-typescript/04-testing.md)、[9-4](../09-console/04-ci.md) |
+| [SanpoGuide: publish-station-format.yml](../../SanpoGuide/.github/workflows/publish.yml) | タグ `station-format-v*` の push | タグと版の照合 → テスト → GitHub Packages に公開（`packages: write`） | [5-3](../05-station-format/03-publish.md) |
+| [michizure-console: ci.yml](../../michizure-console/.github/workflows/ci.yml) | `main` への push、プルリクエスト | 型の確認・テスト（DynamoDB Local をサービスで起動）・画面のビルド・`validator` のテストと zip の作成・`cdk synth` | [7-4](../07-typescript/04-testing.md)、[9-4](../09-console/04-ci.md) |
 
-管理システムの CI は、`services:` でテスト用のデータベース（DynamoDB Local）のコンテナを一緒に動かし、`packages: read` の権限で SanpoGuide の `station-format` を取ってきています。CDK の確認（`cdk synth`）には、その場で作った使い捨てのルート鍵の公開鍵を渡しています。本物の鍵は CI に置きません（[6-4](../06-trust/04-two-tier-keys.md)）。
+管理システムの CI は、`services:` でテスト用のデータベース（DynamoDB Local）のコンテナを一緒に動かし、`packages: read` の権限で SanpoGuide のコアとプロンプト・パックを取ってきています。CDK の確認（`cdk synth`）には、その場で作った使い捨てのルート鍵の公開鍵を渡しています。本物の鍵は CI に置きません（[6-4](../06-trust/04-two-tier-keys.md)）。
 
 ## よくある間違い
 
@@ -116,7 +116,7 @@ gh run view <実行のID> --log-failed   # 失敗したステップのログ
 | `actions/checkout` | v4（両リポジトリのワークフロー） |
 | `actions/setup-java` | v4 |
 | `gradle/actions/setup-gradle` | v4 |
-| `actions/setup-node` | v4（sanpo-channel-console） |
+| `actions/setup-node` | v4（michizure-console） |
 
 - [GitHub Actions のドキュメント](https://docs.github.com/ja/actions)
 - [ワークフローの構文](https://docs.github.com/ja/actions/writing-workflows/workflow-syntax-for-github-actions)

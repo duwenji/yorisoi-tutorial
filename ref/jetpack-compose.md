@@ -95,11 +95,11 @@ class MainActivity : ComponentActivity() {
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [CompanionCard.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/CompanionCard.kt) | 引数だけで描く部品、`rememberSaveable`、時間で変わる値（`produceState`）、Modifier | [2-1](../02-compose/01-compose-basics.md) |
-| [MainScreen.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainScreen.kt) | ViewModel の状態を受け取り、操作をラムダで上に伝える | [2-2](../02-compose/02-state-viewmodel.md) |
-| [MoodTheme.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MoodTheme.kt) | Material3 のテーマを雰囲気で切り替え、色をアニメーションで変える | [2-4](../02-compose/04-theme-mood.md) |
-| [MoodScene.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MoodScene.kt) | `Canvas` で風景を描く | [2-4](../02-compose/04-theme-mood.md) |
-| [SpotMap.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/SpotMap.kt) | `AndroidView` で地図（osmdroid）を置く | [4-2](../04-outside/02-map.md) |
+| [CompanionCard.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/CompanionCard.kt) | 引数だけで描く部品、`rememberSaveable`、時間で変わる値（`produceState`）、Modifier | [2-1](../02-compose/01-compose-basics.md) |
+| [MainScreen.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainScreen.kt) | ViewModel の状態を受け取り、操作をラムダで上に伝える | [2-2](../02-compose/02-state-viewmodel.md) |
+| [MoodTheme.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/michizure/kit/mood/MoodTheme.kt) | Material3 のテーマを雰囲気で切り替え、色をアニメーションで変える | [2-4](../02-compose/04-theme-mood.md) |
+| [MoodScene.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/michizure/kit/mood/MoodScene.kt) | `Canvas` で風景を描く | [2-4](../02-compose/04-theme-mood.md) |
+| [SpotMap.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/map/SpotMap.kt) | `AndroidView` で地図（osmdroid）を置く | [4-2](../04-outside/02-map.md) |
 
 ## よくある間違い
 
@@ -116,7 +116,7 @@ class MainActivity : ComponentActivity() {
 
 | 項目 | 版 |
 |---|---|
-| Compose BOM | 2025.06.00（SanpoGuide の `app/build.gradle.kts`） |
+| Compose BOM | 2025.06.00（SanpoGuide の `apps/sanpoguide/app/build.gradle.kts`） |
 | `androidx.compose.ui:ui` | 1.8.2（BOM が決める） |
 | `androidx.compose.material3:material3` | 1.3.2（BOM が決める） |
 | Compose のコンパイラ | Kotlin 2.2.0 のプラグイン `org.jetbrains.kotlin.plugin.compose` |

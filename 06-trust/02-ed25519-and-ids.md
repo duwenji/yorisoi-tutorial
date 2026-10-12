@@ -31,7 +31,7 @@
 管理システムの `packages/protocol` を使って、鍵を作り、署名し、確かめてみましょう。スクリプトは [scripts/try-ed25519.ts](scripts/try-ed25519.ts) にあります。
 
 ```sh
-cd /c/Dev/apps/sanpo-channel-console
+cd /c/Dev/apps/michizure-console
 mkdir -p .local
 cp ../sanpo-tutorial/06-trust/scripts/try-ed25519.ts .local/
 npx tsx .local/try-ed25519.ts
@@ -63,7 +63,7 @@ npx tsx .local/try-ed25519.ts
 
 base64 は 3 バイトを 4 文字（英大小文字・数字・2 つの記号）で表す方法です。普通の base64 は記号に `+` と `/` を使い、末尾を `=` で埋めますが、これらは URL の中で特別な意味を持ちます。base64url は記号を `-` と `_` に替え、`=` を付けません。だから URL や QR コードにそのまま入れられます。
 
-`packages/protocol` の [encoding.ts](../../sanpo-channel-console/packages/protocol/src/encoding.ts) にある `b64url` を見てみましょう。
+`packages/protocol` の [encoding.ts](../../michizure-console/packages/protocol/src/encoding.ts) にある `b64url` を見てみましょう。
 
 ```ts
 export const b64url = {
@@ -78,7 +78,7 @@ export const b64url = {
 
 `decode` は、変換の前に **正規表現で文字の種類を確かめて** います。Node.js の `Buffer.from(…, 'base64url')` は寛容で、知らない文字を黙って読み飛ばしてしまいます。署名を確かめるコードでは「なんとなく読めた」は危険なので、決まった形以外は拒みます。セキュリティに関わるコードでは、**入力は厳しく確かめる** のが基本です。
 
-Kotlin 側の [PublisherSignature.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/PublisherSignature.kt) にある `decodeBase64Url` も、同じように正規表現で確かめてから変換します。
+Kotlin 側の [PublisherSignature.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/PublisherSignature.kt) にある `decodeBase64Url` も、同じように正規表現で確かめてから変換します。
 
 ```kotlin
 private val BASE64URL = Regex("[A-Za-z0-9_-]*")
@@ -111,7 +111,7 @@ internal fun decodeBase64Url(text: String): ByteArray? =
 ID = 接頭辞 + base32( SHA-256(公開鍵 32 バイト) ) の先頭 32 文字
 ```
 
-[encoding.ts](../../sanpo-channel-console/packages/protocol/src/encoding.ts) では次のように書かれています。
+[encoding.ts](../../michizure-console/packages/protocol/src/encoding.ts) では次のように書かれています。
 
 ```ts
 /** An id that is also a key fingerprint: prefix + base32(SHA-256(public key)), first 32 characters. */
@@ -149,7 +149,7 @@ API-002 は、ID を **URL から自動で取ってはいけない** と決め�
 - **32 文字** は 32 × 5 = 160 ビットです。SHA-256 の 256 ビットのうち 160 ビットを使います。同じ ID になる別の鍵を探すには、およそ 2 の 160 乗回の試行が要り、現実には不可能です
 - **接頭辞の `sc1`・`sg1`** は、ID の種類と形式の版を示します。種類の違う ID を取り違えても、接頭辞で気づけます
 
-base32 の変換は [encoding.ts](../../sanpo-channel-console/packages/protocol/src/encoding.ts) の `base32` にあり、Kotlin 側の [PublisherSignature.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/PublisherSignature.kt) の `base32` とほとんど同じ形をしています。2 つを並べて読み比べてみてください。ビットを 8 ずつためて 5 ずつ取り出す、という同じ手順が見えるはずです。
+base32 の変換は [encoding.ts](../../michizure-console/packages/protocol/src/encoding.ts) の `base32` にあり、Kotlin 側の [PublisherSignature.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/PublisherSignature.kt) の `base32` とほとんど同じ形をしています。2 つを並べて読み比べてみてください。ビットを 8 ずつためて 5 ずつ取り出す、という同じ手順が見えるはずです。
 
 ## 生の鍵と DER: 環境ごとの鍵の形
 
@@ -162,8 +162,8 @@ const SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
 
 API-002 では、公開鍵を **生の 32 バイト** で扱います。ところが Node.js の `crypto` や Java の `KeyFactory` は、公開鍵を **DER（SubjectPublicKeyInfo）** という、鍵の種類などの情報を前に付けた形で受け取ります。Ed25519 の場合、その「前に付ける情報」はいつも同じ 12 バイトなので、生の鍵の前にくっつければ DER になります。
 
-- TypeScript: [ed25519.ts](../../sanpo-channel-console/packages/protocol/src/ed25519.ts) の `publicKeyFromRaw` と `rawPublicKey`
-- Kotlin: [PublisherSignature.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/PublisherSignature.kt) の `JcaEd25519`
+- TypeScript: [ed25519.ts](../../michizure-console/packages/protocol/src/ed25519.ts) の `publicKeyFromRaw` と `rawPublicKey`
+- Kotlin: [PublisherSignature.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/PublisherSignature.kt) の `JcaEd25519`
 
 Tink（アプリ）やブラウザの WebCrypto は生の 32 バイトをそのまま受け取れるので、この変換は要りません。**同じ鍵でも、ライブラリによって受け取る形が違う** ことは、暗号のコードでよくつまずく点です。
 

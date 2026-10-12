@@ -64,7 +64,7 @@ infra/
 
 ### 入口: bin/app.ts
 
-[infra/bin/app.ts](../../sanpo-channel-console/infra/bin/app.ts):
+[infra/bin/app.ts](../../michizure-console/infra/bin/app.ts):
 
 ```ts
 // npx cdk synth -c env=dev -c rootPublicKey=<base64url of the dev root key>
@@ -78,7 +78,7 @@ if (!rootPublicKey) {
 }
 const config: EnvConfig = { ...base, rootPublicKey, /* … */ };
 
-const stack = new ConsoleStack(app, `SanpoChannelConsole-${name}`, {
+const stack = new ConsoleStack(app, `MichizureConsole-${name}`, {
   config,
   env: { region: config.region, ...(config.account ? { account: config.account } : {}) },
   description: `SanpoGuide channel management system (${name})`,
@@ -87,13 +87,13 @@ const stack = new ConsoleStack(app, `SanpoChannelConsole-${name}`, {
 
 - `-c env=dev` のように、コマンドから渡す値を **コンテキスト** と呼ぶ。`tryGetContext` で読む
 - **ルート鍵の公開鍵** は、必ず外から渡させる。渡し忘れたら止まる。公開の処理は、この鍵につながる鍵セットだけを使う（[6-4](../06-trust/04-two-tier-keys.md)）。本物の鍵はリポジトリに入れない
-- スタックの名前は `SanpoChannelConsole-dev` のように環境ごとに分ける
+- スタックの名前は `MichizureConsole-dev` のように環境ごとに分ける
 
 `cdk.json` の `"app": "npx tsx bin/app.ts"` が、`cdk synth` のたびに、この入口を tsx で動かす、という設定です。
 
 ### 環境ごとの設定: lib/config.ts
 
-[infra/lib/config.ts](../../sanpo-channel-console/infra/lib/config.ts) は、開発用と本番用の違いを 1 か所にまとめています。
+[infra/lib/config.ts](../../michizure-console/infra/lib/config.ts) は、開発用と本番用の違いを 1 か所にまとめています。
 
 ```ts
 export interface EnvConfig {
@@ -105,11 +105,16 @@ export interface EnvConfig {
   signingKeyIds: string[];
   notify: { mode: 'log' } | { mode: 'ses'; from: string; configurationSet?: string };
   /**
-   * The app version (versionCode) each app stage of material needs (API-001 C-21, DES-008 K-6):
-   * 0 no material, 1 text and images, 2 audio, 3 video. Changed here, through a pull request, as
-   * app versions ship; until then material needs a version no app has.
+   * By app id (`KNOWN_APPS` in packages/protocol; DES-011 N-4): the version (versionCode) that first
+   * shows each app stage of material (API-001 C-21, DES-008 K-6): 0 no material, 1 text and
+   * images, 2 audio, 3 video. Changed here, through a pull request, as app versions ship; until
+   * then material needs a version no app has.
    */
-  appStageVersions: Record<number, number>;
+  appStageVersions: Record<string, Record<number, number>>;
+  /** … (DES-011 N-2) */
+  format1AcceptUntil?: string;
+  /** By app id: the version (versionCode) that first labels promotion (DES-012 R-5, …). */
+  promotionalMinAppVersions: Record<string, number>;
   cost: {
     waf: boolean;
     pointInTimeRecovery: boolean;
@@ -128,11 +133,12 @@ export interface EnvConfig {
 | `cost.waf` | なし | あり |
 | `cost.pointInTimeRecovery` | なし | あり |
 | `cost.logRetentionDays` | 14 日 | 消さない |
-| `appStageVersions` | `{ 0: 1, 1: 2, 2: 9999, 3: 9999 }` | 同じ |
+| `appStageVersions` | `{ sanpoguide: { 0: 1, 1: 2, 2: 9999, 3: 9999 } }` | 同じ |
+| `promotionalMinAppVersions` | `{ sanpoguide: 3 }`（エミュレータで試すため） | `{}`（versionCode 3 を Google Play に出したら 3 に） |
 
 `notify` の型に注目してください。`{ mode: 'log' } | { mode: 'ses'; from: string; … }` は、[7-1](../07-typescript/01-typescript-syntax.md) の **判別できるユニオン** です。`ses` にしたのに送り主（`from`）を書き忘れると、コンパイルエラーになります。インフラの設定も、型で守られています。
 
-`appStageVersions` は、素材の段（[5-2](../05-station-format/02-package-format.md)）ごとに、どの版のアプリ（`versionCode`）から使えるかの表です。チャンネルを承認するとき、管理システムはこれを見て、リストの `minAppVersion` を決めます。文字と画像（段 1）は `versionCode` 2 のアプリから。音声・映像（段 2・3）を出せるアプリはまだないので、`9999`（どのアプリも届かない版）にしてあります。新しいアプリを出したら、ここをプルリクエストで書き換えます。
+`appStageVersions` は、アプリの ID ごとに、素材の段（[5-2](../05-station-format/02-package-format.md)）ごとに、どの版のアプリ（`versionCode`）から使えるかの表です。チャンネルを承認するとき、管理システムはこれを見て、リストの `minAppVersions`（アプリごと）と `minAppVersion`（古い SanpoGuide のための、SanpoGuide の値）を決めます（DES-011）。文字と画像（段 1）は `versionCode` 2 のアプリから。音声・映像（段 2・3）を出せるアプリはまだないので、`9999`（どのアプリも届かない版）にしてあります。新しいアプリを出したら、ここをプルリクエストで書き換えます。`promotionalMinAppVersions` も同じ考え方で、宣伝を「宣伝を含む」と示せる版（[5-4](../05-station-format/04-materials-cues.md)）を書きます。
 
 ### スタックとコンストラクト
 
@@ -155,7 +161,7 @@ flowchart TB
     CA --> Q["NotifyQueue（SQS）"]
 ```
 
-[console-stack.ts](../../sanpo-channel-console/infra/lib/console-stack.ts) が公開に要る部品を、[console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts) が管理の面（ログイン・API・画面）の部品を作っています。`ConsoleApp` は、部品をまとめた **自作のコンストラクト** です。
+[console-stack.ts](../../michizure-console/infra/lib/console-stack.ts) が公開に要る部品を、[console-app.ts](../../michizure-console/infra/lib/console-app.ts) が管理の面（ログイン・API・画面）の部品を作っています。`ConsoleApp` は、部品をまとめた **自作のコンストラクト** です。
 
 ```ts
 export class ConsoleApp extends Construct {
@@ -225,8 +231,8 @@ if (!existsSync(props.validatorZip)) throw new Error(`build the machine review f
 
 | ファイル | 中身 |
 |---|---|
-| `SanpoChannelConsole-dev.template.json` | CloudFormation のテンプレート（部品 80 個） |
-| `SanpoChannelConsole-dev.assets.json` | アセットの一覧（どこに上げるか） |
+| `MichizureConsole-dev.template.json` | CloudFormation のテンプレート（部品 80 個） |
+| `MichizureConsole-dev.assets.json` | アセットの一覧（どこに上げるか） |
 | `asset.…/` | Lambda のまとめたファイル、画面のファイル、機械審査の zip など |
 
 ### Lambda のまとめたファイル
@@ -269,7 +275,7 @@ AWS の SDK（`@aws-sdk/…`）は含まれていません。Node.js 22 の Lamb
 
 ## CDK の定義をテストする
 
-インフラの定義も、テストできます。[infra/test/console-stack.test.ts](../../sanpo-channel-console/infra/test/console-stack.test.ts) は、合成したテンプレートに、大事な設定が入っているかを確かめています。
+インフラの定義も、テストできます。[infra/test/console-stack.test.ts](../../michizure-console/infra/test/console-stack.test.ts) は、合成したテンプレートに、大事な設定が入っているかを確かめています。
 
 ```ts
 import { Match, Template } from 'aws-cdk-lib/assertions';
@@ -311,7 +317,7 @@ ADR-001 で決めた設計（A-4・A-7・A-8・A-10 など）が、テストで�
 ### 1. CDK のテストを流す
 
 ```sh
-cd /c/Dev/apps/sanpo-channel-console
+cd /c/Dev/apps/michizure-console
 npx vitest run infra
 ```
 
@@ -324,7 +330,7 @@ npx vitest run infra
 
 ### 2. 「同時に 1 つだけ」を壊す
 
-[infra/lib/console-stack.ts](../../sanpo-channel-console/infra/lib/console-stack.ts) の公開の Lambda で、
+[infra/lib/console-stack.ts](../../michizure-console/infra/lib/console-stack.ts) の公開の Lambda で、
 
 ```ts
 // A-10: one run at a time; the conditional write on seq guards the rest.
@@ -352,7 +358,7 @@ git status
 ```sh
 python -X utf8 - <<'EOF'
 import json
-t = json.load(open('.local/cdkout/SanpoChannelConsole-dev.template.json', encoding='utf-8'))
+t = json.load(open('.local/cdkout/MichizureConsole-dev.template.json', encoding='utf-8'))
 for lid, r in t['Resources'].items():
     p = r['Properties']
     if r['Type'] == 'AWS::Lambda::Function' and p.get('ReservedConcurrentExecutions'):

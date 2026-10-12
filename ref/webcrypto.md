@@ -80,7 +80,7 @@ const wrapping = await subtle.deriveKey(
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [web/src/publisher-crypto.ts](../../sanpo-channel-console/web/src/publisher-crypto.ts) | チャンネル提供者の鍵をブラウザの中で作る。秘密鍵を PBKDF2 ＋ AES-GCM で包んでファイルに。使う鍵は取り出せない鍵として読み込み直す | [9-3](../09-console/03-keys-in-browser.md) |
+| [web/src/publisher-crypto.ts](../../michizure-console/web/src/publisher-crypto.ts) | チャンネル提供者の鍵をブラウザの中で作る。秘密鍵を PBKDF2 ＋ AES-GCM で包んでファイルに。使う鍵は取り出せない鍵として読み込み直す | [9-3](../09-console/03-keys-in-browser.md) |
 | 同 `openKeyFile` | 開いた秘密鍵で試しに署名し、ファイルの公開鍵で確かめる | [9-3](../09-console/03-keys-in-browser.md) |
 | 同 `signPackage` | パッケージのファイルごとの SHA-256 と、Ed25519 の署名 | [9-3](../09-console/03-keys-in-browser.md)、[5-2](../05-station-format/02-package-format.md) |
 | oidc-client-ts の中 | ログインの PKCE の `code_challenge`（SHA-256） | [9-2](../09-console/02-browser-login.md) |

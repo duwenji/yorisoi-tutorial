@@ -49,7 +49,7 @@ const lengthLabel2 = (meters: number): string => `${meters}m`;   // アロー関
 
 ## 型: interface と type
 
-[packages/protocol/src/types.ts](../../sanpo-channel-console/packages/protocol/src/types.ts) から:
+[packages/protocol/src/types.ts](../../michizure-console/packages/protocol/src/types.ts) から:
 
 ```ts
 /** API-002: the signed document form (P-3). */
@@ -86,7 +86,7 @@ Kotlin では、同じ項目を持っていても、宣言したクラスが違�
 
 ## 取りうる値を絞る: ユニオン型
 
-[api/src/console/http.ts](../../sanpo-channel-console/api/src/console/http.ts) から:
+[api/src/console/http.ts](../../michizure-console/api/src/console/http.ts) から:
 
 ```ts
 export interface Caller {
@@ -99,7 +99,7 @@ export interface Caller {
 
 ### 判別できるユニオン
 
-[packages/protocol/src/verify.ts](../../sanpo-channel-console/packages/protocol/src/verify.ts) のエラーコードは、ユニオン型で書かれています。
+[packages/protocol/src/verify.ts](../../michizure-console/packages/protocol/src/verify.ts) のエラーコードは、ユニオン型で書かれています。
 
 ```ts
 export type ErrorCode =
@@ -143,7 +143,7 @@ JavaScript には「値がない」が 2 種類あります。
 | null なら全体を undefined に | `a?.b` | `a?.b` |
 | 「null ではない」と断言 | `a!` | `a!!` |
 
-さらに `"noUncheckedIndexedAccess": true` も指定しています。配列や表から取り出した値（`list[0]`、`record['x']`）を「ないかもしれない」（`| undefined`）として扱う設定です。[router.ts](../../sanpo-channel-console/api/src/console/router.ts) の `match` に `want[i]!` のような `!` があるのは、そのためです。
+さらに `"noUncheckedIndexedAccess": true` も指定しています。配列や表から取り出した値（`list[0]`、`record['x']`）を「ないかもしれない」（`| undefined`）として扱う設定です。[router.ts](../../michizure-console/api/src/console/router.ts) の `match` に `want[i]!` のような `!` があるのは、そのためです。
 
 ```ts
 for (let i = 0; i < want.length; i++) {
@@ -156,7 +156,7 @@ for (let i = 0; i < want.length; i++) {
 
 外から来たデータ（HTTP の要求の本文、`JSON.parse` の結果）は、どんな形か分かりません。TypeScript では、そういう値を **`unknown`** として受け取り、**確かめてから** 使います。
 
-[api/src/console/http.ts](../../sanpo-channel-console/api/src/console/http.ts):
+[api/src/console/http.ts](../../michizure-console/api/src/console/http.ts):
 
 ```ts
 export interface Request {
@@ -231,7 +231,7 @@ export function verifyChannelList(…) { … }
 - 1 つのファイルが 1 つの **モジュール**。`export` したものだけが、ほかのファイルから `import` できる
 - `import type` は型だけを取り込む（実行するときには消える）。`tsconfig` の `"verbatimModuleSyntax": true` で、型だけの取り込みには `import type` と書くよう決めている
 - 中身は `.ts` なのに `'./encoding.js'` と書くのは、Node.js の ES モジュールの決まり（実行するときのファイル名で書く）です。最初は戸惑うところですが、そういうものと覚えてください
-- `'@sanpo-console/protocol'` のような名前は、同じリポジトリのほかのパッケージ（[7-2](02-workspaces.md)）
+- `'@michizure-console/protocol'` のような名前は、同じリポジトリのほかのパッケージ（[7-2](02-workspaces.md)）
 
 ## async と await
 
@@ -258,7 +258,7 @@ export async function signDocument(content: object, signer: Signer): Promise<Sig
 
 大きな違いは、TypeScript では呼ぶ側に **`await` が要る** ことです。`await` を忘れると、結果ではなく `Promise`（「あとで結果が入る入れ物」）を受け取ってしまいます。
 
-[publisher.ts](../../sanpo-channel-console/api/src/publish/publisher.ts) の `publish` には、同時に待つ例があります。
+[publisher.ts](../../michizure-console/api/src/publish/publisher.ts) の `publish` には、同時に待つ例があります。
 
 ```ts
 const since = new Date(now.getTime() - (config.revokedDays ?? 7) * DAY);
@@ -281,7 +281,7 @@ JavaScript は、基本的に 1 本のスレッドで動きます。`await` で�
 [scripts/ts-practice.ts](scripts/ts-practice.ts) を、管理システムの `.local/`（Git の対象外、[6-2](../06-trust/02-ed25519-and-ids.md)）にコピーして動かします。
 
 ```sh
-cd /c/Dev/apps/sanpo-channel-console
+cd /c/Dev/apps/michizure-console
 mkdir -p .local
 cp ../sanpo-tutorial/07-typescript/scripts/ts-practice.ts .local/
 npx tsx .local/ts-practice.ts

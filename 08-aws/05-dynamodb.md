@@ -35,7 +35,7 @@ SQL のように、あとから「この条件で探して」とは言えませ�
 
 ## 読み方を先に決める: アクセスパターン
 
-管理システムのデータの設計は、[DM-001（data-model.md）](../../sanpo-channel-console/docs/data-model.md) に書かれています。その中心が **アクセスパターン**（だれが、何を、どう読むか）の一覧です。
+管理システムのデータの設計は、[DM-001（data-model.md）](../../michizure-console/docs/data-model.md) に書かれています。その中心が **アクセスパターン**（だれが、何を、どう読むか）の一覧です。
 
 | No. | だれが | 何をする | 使うキー |
 |---|---|---|---|
@@ -101,7 +101,7 @@ SK は文字列の順に並びます。この性質を、キーの付け方で�
 - **公開の履歴の `seq` は 10 桁で 0 埋め**（`SEQ#0000000129`）: 0 で埋めないと、文字列の順では `SEQ#10` が `SEQ#9` より前に来てしまう
 - **操作の記録の SK は時刻から始まる**（`{at}#{eventId}`）: 時刻の順に並ぶ
 
-[api/src/console/util.ts](../../sanpo-channel-console/api/src/console/util.ts) の `ulid`:
+[api/src/console/util.ts](../../michizure-console/api/src/console/util.ts) の `ulid`:
 
 ```ts
 /** A ULID: sorts by creation time (DM-001 M-12). */
@@ -149,7 +149,7 @@ GSI には、**GSI のキーを持っている項目だけ** が入ります。�
 
 [7-3](../07-typescript/03-openapi.md) で、`If-Match` と `rev` による **楽観的ロック** を見ました。データベースの側では、それを **条件つき書き込み** で行います（DM-001 M-11）。
 
-[api/src/console/operator.ts](../../sanpo-channel-console/api/src/console/operator.ts) の書き込みから:
+[api/src/console/operator.ts](../../michizure-console/api/src/console/operator.ts) の書き込みから:
 
 ```ts
 ConditionExpression: 'rev = :rev AND #status = :from',
@@ -157,7 +157,7 @@ ConditionExpression: 'rev = :rev AND #status = :from',
 
 「今の `rev` が、画面が読んだときの `rev` と同じで、状態が想定どおりのときだけ書く」という条件です。だれかが先に書き換えていたら（`rev` が増えていたら）、DynamoDB は書き込みを **断り**、`ConditionalCheckFailedException` という例外を返します。
 
-管理 API は、それを `412`（`precondition_failed`）に直しています（[api/src/console/deps.ts](../../sanpo-channel-console/api/src/console/deps.ts)）。
+管理 API は、それを `412`（`precondition_failed`）に直しています（[api/src/console/deps.ts](../../michizure-console/api/src/console/deps.ts)）。
 
 ```ts
 export async function guarded<T>(write: () => Promise<T>): Promise<T> {
@@ -214,7 +214,7 @@ DM-001 の決まりは「操作の記録は、状態を変えるトランザク�
 
 ## 1 日の上限を数える
 
-チャンネル提供者の申請は 1 日 20 回まで、試用チケットは 1 日 10 回まで（DM-001 M-2）。これも条件つき書き込みで数えます（[api/src/console/publisher.ts](../../sanpo-channel-console/api/src/console/publisher.ts)）。
+チャンネル提供者の申請は 1 日 20 回まで、試用チケットは 1 日 10 回まで（DM-001 M-2）。これも条件つき書き込みで数えます（[api/src/console/publisher.ts](../../michizure-console/api/src/console/publisher.ts)）。
 
 ```ts
 {
@@ -240,7 +240,7 @@ DM-001 の決まりは「操作の記録は、状態を変えるトランザク�
 
 一覧（チャンネル提供者の一覧、操作の記録など）は、20 件ずつ（`limit`）返し、続きは **カーソル** で取ります。DynamoDB は、続きの位置を `LastEvaluatedKey`（最後に読んだ項目のキー）で返します。
 
-これをそのまま画面に渡すと、テーブルのキーの形が外から見え、書き換えて送られることもあります。管理システムは、それを **AES-GCM で暗号化して** から渡しています（[api/src/console/util.ts](../../sanpo-channel-console/api/src/console/util.ts)、API-001 C-9）。
+これをそのまま画面に渡すと、テーブルのキーの形が外から見え、書き換えて送られることもあります。管理システムは、それを **AES-GCM で暗号化して** から渡しています（[api/src/console/util.ts](../../michizure-console/api/src/console/util.ts)、API-001 C-9）。
 
 ```ts
 /**
@@ -270,7 +270,7 @@ Docker の DynamoDB Local で、管理システムと同じキーの付け方・
 [scripts/single-table.mjs](scripts/single-table.mjs) をコピーします。
 
 ```sh
-cd /c/Dev/apps/sanpo-channel-console
+cd /c/Dev/apps/michizure-console
 cp ../sanpo-tutorial/08-aws/scripts/single-table.mjs .local/
 ID=$(docker run -d --rm -p 127.0.0.1::8000 amazon/dynamodb-local:latest -jar DynamoDBLocal.jar -inMemory)
 PORT=$(docker port $ID 8000/tcp | head -1 | sed 's/.*://')

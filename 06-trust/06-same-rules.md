@@ -32,7 +32,7 @@
 flowchart TB
     C["① 契約書 API-002<br/>規則を文章で決める<br/>（確認観点 V-01〜V-18）"]
     C --> TS["TypeScript<br/>packages/protocol"]
-    C --> KT["Kotlin<br/>station-format"]
+    C --> KT["Kotlin<br/>core-format"]
     TS -->|"② テストベクタ<br/>固定の鍵で署名した文書"| KT
     TS --> CF["③ 準拠テスト<br/>conformance"]
     CF -->|任意のリストの発行元の URL に流す| ANY["公開されたリスト"]
@@ -52,7 +52,7 @@ flowchart TB
 
 ### 作る側
 
-[conformance/src/app-vectors.ts](../../sanpo-channel-console/conformance/src/app-vectors.ts) が、検出の文書・リスト・試用チケットを作ります。
+[conformance/src/app-vectors.ts](../../michizure-console/conformance/src/app-vectors.ts) が、検出の文書・リスト・試用チケットを作ります。
 
 ```ts
 const PKCS8_ED25519 = Buffer.from('302e020100300506032b657004220420', 'hex');
@@ -69,17 +69,17 @@ const signing = fromSeed(2);
 出力先は SanpoGuide のテスト用のファイルです。
 
 ```sh
-npm run vectors -w conformance -- ../SanpoGuide/station-format/src/test/resources/provider-vectors.json
+npm run vectors -w conformance -- ../SanpoGuide/platform/core-format/src/test/resources/provider-vectors.json
 ```
 
 ### 確かめる側
 
-SanpoGuide の [ProviderDocumentsTest.kt](../../SanpoGuide/station-format/src/test/kotlin/io/github/duwenji/sanpoguide/station/format/ProviderDocumentsTest.kt) が、そのファイルを読みます。
+SanpoGuide の [ProviderDocumentsTest.kt](../../SanpoGuide/platform/core-format/src/test/kotlin/io/github/duwenji/michizure/core/format/ProviderDocumentsTest.kt) が、そのファイルを読みます。
 
 ```kotlin
 /**
  * API-002 as the app checks it, against documents the channel management system's own code signed
- * (`provider-vectors.json`, from sanpo-channel-console `conformance/src/app-vectors.ts`). The
+ * (`provider-vectors.json`, from michizure-console `conformance/src/app-vectors.ts`). The
  * rejections re-sign altered documents with the same fixed, public seeds (1 = root, 2 = signing).
  */
 class ProviderDocumentsTest {
@@ -105,7 +105,7 @@ class ProviderDocumentsTest {
 
 ## ③ 準拠テスト: 公開されたものを外から確かめる
 
-テストベクタは「コードどうし」の食い違いを防ぎます。もう 1 つ、**実際に公開されているもの** が契約書どおりかを確かめる道具があります。それが **準拠テスト**（[conformance/src/check.ts](../../sanpo-channel-console/conformance/src/check.ts)）です。
+テストベクタは「コードどうし」の食い違いを防ぎます。もう 1 つ、**実際に公開されているもの** が契約書どおりかを確かめる道具があります。それが **準拠テスト**（[conformance/src/check.ts](../../michizure-console/conformance/src/check.ts)）です。
 
 ```sh
 npm run check -w conformance -- https://channels.example.com --provider sc1…
@@ -123,13 +123,14 @@ URL を渡すと、アプリと同じように検出の文書・リスト・パ�
 
 食い違いを防ぐいちばん確かな方法は、**同じコードを使う** ことです。
 
-チャンネルのパッケージの確認（API-003）では、実際にそうしています。アプリの `:station-format` を GitHub Packages にライブラリとして公開し、管理システムの機械審査（`validator`、Kotlin の Lambda）がそれを使います。
+チャンネルのパッケージの確認（API-003）では、実際にそうしています。アプリのコア（`core-format`）とプロンプト・パックを GitHub Packages にライブラリとして公開し、管理システムの機械審査（`validator`、Kotlin の Lambda）がそれを使います。
 
 ```kotlin
-// sanpo-channel-console/validator/build.gradle.kts
+// michizure-console/validator/build.gradle.kts
 dependencies {
-    implementation("io.github.duwenji.sanpoguide:station-format:2.1.0")
-    // station-format leaves org.json to its users (Android ships one).
+    implementation("io.github.duwenji.michizure:core-format:1.2.0")
+    implementation("io.github.duwenji.sanpoguide:prompts:1.1.0")
+    // core-format leaves org.json to its users (Android ships one).
     implementation("org.json:json:20240303")
     // …
 }
@@ -139,7 +140,7 @@ dependencies {
 
 では、なぜ承認済みチャンネル・リストは TypeScript と Kotlin で 2 回書いたのでしょう。管理システムの公開の処理や画面は TypeScript で書かれていて、そこから Kotlin のコードを呼ぶのは大がかりだからです。その代わりに、テストベクタと準拠テストで食い違いを防いでいます。**同じコードを使えるなら使い、使えないならテストでつなぐ**、という使い分けです。
 
-`:station-format` が Android に依存しない素の Kotlin（JVM）のモジュールになっているのも、この共有のためです。`org.json` を `compileOnly`（コンパイルのときだけ使い、配らない）にしているのは、Android が `org.json` を標準で持っていて、二重に入れるとぶつかるからです。こうしたライブラリの作り方は第 5 部で扱います。
+コアが Android に依存しない素の Kotlin（JVM）のモジュールになっているのも、この共有のためです。`org.json` を `compileOnly`（コンパイルのときだけ使い、配らない）にしているのは、Android が `org.json` を標準で持っていて、二重に入れるとぶつかるからです。こうしたライブラリの作り方は第 5 部で扱います。
 
 ## つまずきやすいところ
 
@@ -165,7 +166,7 @@ Ed25519 は決定的なので、固定の鍵なら出力のファイルが毎回
 <details>
 <summary>問 3. パッケージの確認では同じコードを使い、リストの確認では 2 つの言語で書いているのはなぜですか。</summary>
 
-パッケージを確かめる機械審査は Kotlin で書けるので、アプリの `:station-format` をそのまま使えます。リストを作る公開の処理や画面は TypeScript なので、Kotlin のコードを使うのは大がかりです。その代わりに、テストベクタと準拠テストで食い違いを防いでいます。
+パッケージを確かめる機械審査は Kotlin で書けるので、アプリのコアをそのまま使えます。リストを作る公開の処理や画面は TypeScript なので、Kotlin のコードを使うのは大がかりです。その代わりに、テストベクタと準拠テストで食い違いを防いでいます。
 
 </details>
 

@@ -82,7 +82,7 @@ flowchart TB
 
 ## ルート鍵の CLI
 
-ルート鍵は、管理システムとは別の CLI（コマンドで使う道具）で扱います。[tools/root-key/src/root-key.ts](../../sanpo-channel-console/tools/root-key/src/root-key.ts) を見ます。
+ルート鍵は、管理システムとは別の CLI（コマンドで使う道具）で扱います。[tools/root-key/src/root-key.ts](../../michizure-console/tools/root-key/src/root-key.ts) を見ます。
 
 ### 作る
 
@@ -127,7 +127,7 @@ export async function signKeyset(input: KeysetInput, privatePem: string, passphr
 
 ### CDK での定義
 
-KMS の鍵は、インフラを定義する CDK のコード（[infra/lib/console-stack.ts](../../sanpo-channel-console/infra/lib/console-stack.ts)）で作ります。
+KMS の鍵は、インフラを定義する CDK のコード（[infra/lib/console-stack.ts](../../michizure-console/infra/lib/console-stack.ts)）で作ります。
 
 ```ts
 // A-8: Ed25519 keys that never leave KMS; one per period, replaced through the root-signed keyset.
@@ -160,7 +160,7 @@ key.addToResourcePolicy(
 
 ### 署名を頼むコード
 
-[api/src/publish/aws.ts](../../sanpo-channel-console/api/src/publish/aws.ts) の末尾にある KMS の `Signer`:
+[api/src/publish/aws.ts](../../michizure-console/api/src/publish/aws.ts) の末尾にある KMS の `Signer`:
 
 ```ts
 sign: async (message) => {
@@ -206,7 +206,7 @@ flowchart LR
 
 ### リストを作って署名するコード
 
-[packages/protocol/src/list.ts](../../sanpo-channel-console/packages/protocol/src/list.ts) の `signChannelList`:
+[packages/protocol/src/list.ts](../../michizure-console/packages/protocol/src/list.ts) の `signChannelList`:
 
 ```ts
 export async function signChannelList(content: ListContent, signer: Signer) {
@@ -240,7 +240,7 @@ export async function signChannelList(content: ListContent, signer: Signer) {
 
 ## 公開の処理
 
-最後に、これらを組み合わせて公開する [api/src/publish/publisher.ts](../../sanpo-channel-console/api/src/publish/publisher.ts) の `publish` を見ます。承認・取り下げ・鍵セットの登録・毎日 03:00 の作り直しのたびに、この関数が動きます。
+最後に、これらを組み合わせて公開する [api/src/publish/publisher.ts](../../michizure-console/api/src/publish/publisher.ts) の `publish` を見ます。承認・取り下げ・鍵セットの登録・毎日 03:00 の作り直しのたびに、この関数が動きます。
 
 ```mermaid
 flowchart TB
@@ -260,7 +260,7 @@ flowchart TB
 - **`seq` を二重に使わない**（手順 7）: 同時に 2 回公開が走ると、同じ `seq` で中身の違うリストができてしまいます。アプリはこれを `rollback` として拒むので、困ったことになります。そこで、DynamoDB への書き込みを「前回の `seq` が変わっていなければ」という条件つきにし、さらに Lambda の同時実行数を 1 に絞っています（CDK の `reservedConcurrentExecutions: 1`）
 - **キャッシュは 5 分**（手順 8）: `Cache-Control: public, max-age=300` で置き、CloudFront のキャッシュも消します
 
-`publish` は、保存先（`store`・`storage`）・CDN・署名（`signerFor`）をすべて引数（`deps`）で受け取ります。だから [0-3](../00-overview/03-setup.md) の `publish:local` は、同じ `publish` に、メモリの保存・フォルダへの書き出し・手元の鍵を渡すだけで動きます（[api/src/publish/local-cli.ts](../../sanpo-channel-console/api/src/publish/local-cli.ts)）。このように **依存するものを外から渡す** 作りは、第 7 部でもう一度扱います。
+`publish` は、保存先（`store`・`storage`）・CDN・署名（`signerFor`）をすべて引数（`deps`）で受け取ります。だから [0-3](../00-overview/03-setup.md) の `publish:local` は、同じ `publish` に、メモリの保存・フォルダへの書き出し・手元の鍵を渡すだけで動きます（[api/src/publish/local-cli.ts](../../michizure-console/api/src/publish/local-cli.ts)）。このように **依存するものを外から渡す** 作りは、第 7 部でもう一度扱います。
 
 ## つまずきやすいところ
 

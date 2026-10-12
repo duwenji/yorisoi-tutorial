@@ -126,10 +126,10 @@ error TS2339: Property 'kind' does not exist on type '{ id: string; name: string
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [docs/api/console.openapi.yaml](../../sanpo-channel-console/docs/api/console.openapi.yaml) | 管理 API の 66 の操作。正本は契約書（console-api.md）と明記 | [7-3](../07-typescript/03-openapi.md) |
-| [packages/api-types](../../sanpo-channel-console/packages/api-types/package.json) | `npm run generate` で `schema.ts` を作る。手では直さない | [7-3](../07-typescript/03-openapi.md) |
-| [api/src/console/http.ts](../../sanpo-channel-console/api/src/console/http.ts) | `Record<ProblemCode, number>`：エラーコードの HTTP ステータスを決め忘れるとコンパイルエラー | [7-3](../07-typescript/03-openapi.md) |
-| [web/src/api.ts](../../sanpo-channel-console/web/src/api.ts) | `createClient<paths>`（openapi-fetch）。全部の呼び出しに型がつく | [7-3](../07-typescript/03-openapi.md) |
+| [docs/api/console.openapi.yaml](../../michizure-console/docs/api/console.openapi.yaml) | 管理 API の 66 の操作。正本は契約書（console-api.md）と明記 | [7-3](../07-typescript/03-openapi.md) |
+| [packages/api-types](../../michizure-console/packages/api-types/package.json) | `npm run generate` で `schema.ts` を作る。手では直さない | [7-3](../07-typescript/03-openapi.md) |
+| [api/src/console/http.ts](../../michizure-console/api/src/console/http.ts) | `Record<ProblemCode, number>`：エラーコードの HTTP ステータスを決め忘れるとコンパイルエラー | [7-3](../07-typescript/03-openapi.md) |
+| [web/src/api.ts](../../michizure-console/web/src/api.ts) | `createClient<paths>`（openapi-fetch）。全部の呼び出しに型がつく | [7-3](../07-typescript/03-openapi.md) |
 | [SanpoGuide/docs/api/](../../SanpoGuide/docs/api/) | SanpoGuide 側の秘密メッセージ API の OpenAPI と、Redoc で表示する設定 | — |
 
 ## よくある間違い

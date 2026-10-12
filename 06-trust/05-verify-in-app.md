@@ -14,21 +14,21 @@
 
 | ファイル | 役割 | モジュール |
 |---|---|---|
-| [ProviderDocuments.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/ProviderDocuments.kt) | 検出の文書・鍵セット・リスト・試用チケットを確かめる | `:station-format` |
-| [PublisherSignature.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/PublisherSignature.kt) | Ed25519 の差し替え口、ID の計算 | `:station-format` |
-| [TinkEd25519.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/TinkEd25519.kt) | Tink による Ed25519 の実装 | `:app` |
-| [ChannelSync.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ChannelSync.kt) | 取得・確認・保存の流れ | `:app` |
-| [ThirdPartyChannels.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ThirdPartyChannels.kt) | `ChannelSync` を Android の上で動かす（スレッド、画面への通知） | `:app` |
+| [ProviderDocuments.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/ProviderDocuments.kt) | 検出の文書・鍵セット・リスト・試用チケットを確かめる | コア（`core-format`） |
+| [PublisherSignature.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/PublisherSignature.kt) | Ed25519 の差し替え口、ID の計算 | コア（`core-format`） |
+| [TinkEd25519.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/TinkEd25519.kt) | Tink による Ed25519 の実装 | `:app` |
+| [ChannelSync.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ChannelSync.kt) | 取得・確認・保存の流れ | `:app` |
+| [ThirdPartyChannels.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ThirdPartyChannels.kt) | `ChannelSync` を Android の上で動かす（スレッド、画面への通知） | `:app` |
 
-**確かめる規則そのもの** は `:station-format` にあり、**Android に依存する部分**（Tink、通信、ファイル、スレッド）は `:app` にあります。この分け方には理由があり、[6-6](06-same-rules.md) で見ます。
+**確かめる規則そのもの** はコア（`core-format`）にあり、**Android に依存する部分**（Tink、通信、ファイル、スレッド）はアプリにあります。この分け方には理由があり、[6-6](06-same-rules.md) で見ます。
 
 ## 差し替え口: Ed25519Verifier
 
 > Tink そのものの仕組みと使い方は [技術カード: Tink](../ref/tink.md) にあります。
 
-[6-2](02-ed25519-and-ids.md) で触れたように、Android が Ed25519 を標準で持つのは 13 からです。散策ガイドは Android 8 から動かしたい。一方、`:station-format` は管理システムの機械審査（普通の JVM、Java 17）でも使います。
+[6-2](02-ed25519-and-ids.md) で触れたように、Android が Ed25519 を標準で持つのは 13 からです。散策ガイドは Android 8 から動かしたい。一方、コア（`core-format`） は管理システムの機械審査（普通の JVM、Java 17）でも使います。
 
-そこで、`:station-format` は「Ed25519 の署名を確かめる」という約束だけを決めています。
+そこで、コア（`core-format`） は「Ed25519 の署名を確かめる」という約束だけを決めています。
 
 ```kotlin
 fun interface Ed25519Verifier {
@@ -40,8 +40,8 @@ fun interface Ed25519Verifier {
 
 | 実装 | どこにあるか | 使う場所 |
 |---|---|---|
-| `JcaEd25519` | `:station-format`（Java 標準の暗号） | 管理システムの機械審査、`:station-format` のテスト |
-| `TinkEd25519` | `:app`（Google の Tink） | アプリ（Android 8 以上） |
+| `JcaEd25519` | `core-format`（Java 標準の暗号） | 管理システムの機械審査、コアのテスト |
+| `TinkEd25519` | アプリ（Google の Tink） | アプリ（Android 8 以上） |
 
 ```kotlin
 /** Pure Ed25519 (RFC 8032) from Tink, which works from Android 8; the platform has it only from 13. */
@@ -224,9 +224,12 @@ when {
 ```kotlin
 val bytes = http.get(url, minOf(entry.pkg.size, ProviderDocuments.MAX_PACKAGE_BYTES))
 if (bytes.size != entry.pkg.size || sha256(bytes) != entry.pkg.sha256) throw ChannelSyncException("パッケージがリストと一致しません（hash_mismatch）")
-val check = StationValidator.checkArchive(bytes, ListedAs(entry.id, entry.version, entry.publisher), verifier, mediaStage)
+val listedAs = ListedAs(entry.id, entry.version, entry.publisher, entry.activities, entry.genres, entry.requires)
+val check = StationValidator.checkArchive(bytes, listedAs, verifier, mediaStage, Strictness.APP)
 if (check is StationCheck.Rejected) throw ChannelSyncException("パッケージの確認に失敗しました（package_rejected: ${check.code.json}）")
 check as StationCheck.Ok
+// What the package holds may rule out this app where the list's copy couldn't (an unknown restriction).
+if (Compatibility.reasons(check.station.manifest, profile).isNotEmpty()) throw ChannelSyncException("このアプリでは使えないチャンネルです")
 
 store.writePackage(entry.pkg.sha256, bytes)
 // …
@@ -235,9 +238,10 @@ fetchMaterials(providerId, list, check.station, entry.publisher, unmetered)
 
 1. **大きさの上限つきで取得する**: リストに書かれた大きさ（と 2MB）を超えたら途中で打ち切る。巨大なファイルで端末を埋められないように
 2. **大きさと SHA-256 をリストと比べる**: [6-1](01-why-signatures.md) の「署名つきのリストのハッシュがパッケージを守る」がここです
-3. **中身を確かめる**（`StationValidator.checkArchive`）: パッケージの形式（API-003）と、**チャンネル提供者の署名**。`mediaStage` はこのアプリが出せる素材の段（[5-2](../05-station-format/02-package-format.md)）
-4. **確かめてから保存する**（`store.writePackage`）
-5. **素材を前もって取る**（`fetchMaterials`）: チャンネルが使う素材集や外の素材を、選んだときにまとめて取る。散歩の途中でスポットに近づいてから取りに行くと、どこにいるかが相手に伝わってしまうからです（API-003 F-10）。基準（`selectors`）で今いる地域の素材集を集める分だけは、Wi-Fi のとき（`unmetered`）に限って取ります
+3. **中身を確かめる**（`StationValidator.checkArchive`）: パッケージの形式（API-003）と、**チャンネル提供者の署名**。`mediaStage` はこのアプリが出せる素材の段、`Strictness.APP` はアプリとしての読み方（[5-2](../05-station-format/02-package-format.md)）。`ListedAs` にはリストに載った `activities`・`genres`・`requires` も入っていて、パッケージの値と一致するかも確かめる（API-002 P-19）
+4. **このアプリで使えるかを、パッケージの値でもう一度判定する**（`Compatibility.reasons`、[5-2](../05-station-format/02-package-format.md)）: リストの値では分からない、知らない制限の項目があるかもしれないため
+5. **確かめてから保存する**（`store.writePackage`）
+6. **素材を前もって取る**（`fetchMaterials`）: チャンネルが使う素材集や外の素材を、選んだときにまとめて取る。散歩の途中でスポットに近づいてから取りに行くと、どこにいるかが相手に伝わってしまうからです（API-003 F-10）。基準（`selectors`）で今いる地域の素材集を集める分だけは、Wi-Fi のとき（`unmetered`）に限って取ります
 
 ### チャンネル提供者の署名
 
@@ -259,7 +263,7 @@ fetchMaterials(providerId, list, check.station, entry.publisher, unmetered)
 val bytes = http.get(checkedUrl(listed.pkg.url), minOf(listed.pkg.size, ProviderDocuments.MAX_PACKAGE_BYTES))
 if (bytes.size != listed.pkg.size || sha256(bytes) != listed.pkg.sha256) throw IOException("hash_mismatch")
 val listedAs = CollectionListedAs(listed.id, listed.version, listed.producer, list.formerProducerIds(listed.producer))
-if (CollectionValidator.checkArchive(bytes, listedAs, verifier) !is CollectionCheck.Ok) throw IOException("collection_invalid")
+if (CollectionValidator.checkArchive(bytes, listedAs, verifier, Strictness.APP) !is CollectionCheck.Ok) throw IOException("collection_invalid")
 store.writeCollection(listed.pkg.sha256, bytes)
 ```
 
@@ -273,9 +277,9 @@ store.writeCollection(listed.pkg.sha256, bytes)
 ## 確認問題
 
 <details>
-<summary>問 1. <code>:station-format</code> が Tink を直接使わず、<code>Ed25519Verifier</code> を受け取るのはなぜですか。</summary>
+<summary>問 1. コア（<code>core-format</code>）が Tink を直接使わず、<code>Ed25519Verifier</code> を受け取るのはなぜですか。</summary>
 
-`:station-format` はアプリ（Android 8 以上、Ed25519 は Tink が要る）と管理システムの機械審査（普通の JVM、Java 標準の暗号で足りる）の両方で使うからです。確かめ方の約束だけを決め、実装は使う側が渡します。
+コア（`core-format`） はアプリ（Android 8 以上、Ed25519 は Tink が要る）と管理システムの機械審査（普通の JVM、Java 標準の暗号で足りる）の両方で使うからです。確かめ方の約束だけを決め、実装は使う側が渡します。
 
 </details>
 

@@ -30,7 +30,7 @@
 
 ### どのバケットも公開しない
 
-[console-stack.ts](../../sanpo-channel-console/infra/lib/console-stack.ts):
+[console-stack.ts](../../michizure-console/infra/lib/console-stack.ts):
 
 ```ts
 const bucketDefaults: s3.BucketProps = {
@@ -63,7 +63,7 @@ const publicBucket = new s3.Bucket(this, 'PublicBucket', {
 const recordsBucket = new s3.Bucket(this, 'RecordsBucket', { ...bucketDefaults, versioned: true });
 ```
 
-受付用のバケット（[console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts)）:
+受付用のバケット（[console-app.ts](../../michizure-console/infra/lib/console-app.ts)）:
 
 ```ts
 lifecycleRules: [
@@ -107,7 +107,7 @@ sequenceDiagram
     S->>V: ファイルが届いた（S3 のイベント、8-8）
 ```
 
-[api/src/console/handler.ts](../../sanpo-channel-console/api/src/console/handler.ts) の `presignUpload`:
+[api/src/console/handler.ts](../../michizure-console/api/src/console/handler.ts) の `presignUpload`:
 
 ```ts
 presignUpload: async (key, contentType, maxBytes) => {
@@ -141,7 +141,7 @@ presignUpload: async (key, contentType, maxBytes) => {
 
 ### 公開用の配信: OAC
 
-[console-stack.ts](../../sanpo-channel-console/infra/lib/console-stack.ts):
+[console-stack.ts](../../michizure-console/infra/lib/console-stack.ts):
 
 ```ts
 const distribution = new cloudfront.Distribution(this, 'PublicDistribution', {
@@ -200,7 +200,7 @@ publishApproved: async ({ packageKey, packageSha256, iconKey, iconSha256 }) => {
 
 ## 画面と API を 1 つの CloudFront から
 
-管理画面の CloudFront（[console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts)）は、画面のファイルと API の両方の入口です（API-001 C-5）。
+管理画面の CloudFront（[console-app.ts](../../michizure-console/infra/lib/console-app.ts)）は、画面のファイルと API の両方の入口です（API-001 C-5）。
 
 ```ts
 const consoleDistribution = new cloudfront.Distribution(this, 'ConsoleDistribution', {
@@ -314,7 +314,7 @@ new s3deploy.BucketDeployment(this, 'DeployWeb', {
 [scripts/presigned-post.mjs](scripts/presigned-post.mjs) をコピーして動かします。
 
 ```sh
-cd /c/Dev/apps/sanpo-channel-console
+cd /c/Dev/apps/michizure-console
 cp ../sanpo-tutorial/08-aws/scripts/presigned-post.mjs .local/
 node .local/presigned-post.mjs
 ```
@@ -351,7 +351,7 @@ node .local/presigned-post.mjs
 ```sh
 python -X utf8 - <<'EOF'
 import json
-t = json.load(open('.local/cdkout/SanpoChannelConsole-dev.template.json', encoding='utf-8'))
+t = json.load(open('.local/cdkout/MichizureConsole-dev.template.json', encoding='utf-8'))
 for lid, r in t['Resources'].items():
     if r['Type'] == 'AWS::S3::Bucket':
         p = r['Properties']

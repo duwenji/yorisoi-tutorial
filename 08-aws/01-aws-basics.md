@@ -41,11 +41,11 @@
 | OS の更新・故障への備え | 自分で | AWS が |
 | 利用者が増えたとき | サーバーを足す設定を自分で | 自動で増える |
 
-管理システムは、使う人が運営とチャンネル提供者だけで、1 日に数回しか使われないこともあります。アプリが取りに来るのは、CDN に置いた静的なファイルだけです（[0-1](../00-overview/01-what-we-build.md)）。こうした使われ方には、使った分だけ払うサーバーレスがよく合います。開発用の環境の費用は、月に約 1.5 USD です（[docs/operations/cost.md](../../sanpo-channel-console/docs/operations/cost.md)）。
+管理システムは、使う人が運営とチャンネル提供者だけで、1 日に数回しか使われないこともあります。アプリが取りに来るのは、CDN に置いた静的なファイルだけです（[0-1](../00-overview/01-what-we-build.md)）。こうした使われ方には、使った分だけ払うサーバーレスがよく合います。開発用の環境の費用は、月に約 1.5 USD です（[docs/operations/cost.md](../../michizure-console/docs/operations/cost.md)）。
 
 ## 管理システムが使う AWS のサービス
 
-[構成図（architecture.md）](../../sanpo-channel-console/docs/architecture.md) の図 1 を思い出しながら見てください。
+[構成図（architecture.md）](../../michizure-console/docs/architecture.md) の図 1 を思い出しながら見てください。
 
 | サービス | 何をするものか | 管理システムでの役割 | 章 |
 |---|---|---|---|
@@ -89,7 +89,7 @@ flowchart LR
 
 IAM の大原則は **最小の権限**（least privilege）です。部品には、仕事に要る **最小限** の許可だけを与えます。乗っ取られたり、プログラムに誤りがあったりしても、被害がその範囲に収まるからです。
 
-CDK では、`grant…` という関数で許可を与えます。[infra/lib/console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts) から:
+CDK では、`grant…` という関数で許可を与えます。[infra/lib/console-app.ts](../../michizure-console/infra/lib/console-app.ts) から:
 
 ```ts
 // Presigning needs the right to put; moving to archive/ needs read, put and delete.
@@ -148,7 +148,7 @@ S3 のバケットの許可（バケットポリシー）や、Lambda を呼ん�
 
 ### タグと予算
 
-[infra/bin/app.ts](../../sanpo-channel-console/infra/bin/app.ts):
+[infra/bin/app.ts](../../michizure-console/infra/bin/app.ts):
 
 ```ts
 // Cost allocation tags: activate `project` once in the Billing console so the budget can count it.
@@ -156,11 +156,11 @@ Tags.of(stack).add('project', PROJECT_TAG);
 Tags.of(stack).add('environment', name);
 ```
 
-すべてのリソースに `project=sanpo-channel-console` と `environment=dev`（または `prod`）の **タグ**（名札）を付けています。同じアカウントにほかのプロジェクトがあっても、タグで絞れば、このプロジェクトの費用だけを見られます。
+すべてのリソースに `project=michizure-console` と `environment=dev`（または `prod`）の **タグ**（名札）を付けています。同じアカウントにほかのプロジェクトがあっても、タグで絞れば、このプロジェクトの費用だけを見られます。
 
 開発用では、そのタグで絞った費用の **予算**（AWS Budgets）を月 5 USD にし、実績が 80% を超えたとき、または予測が 100% を超えたときにメールで知らせます（`console-stack.ts` の `MonthlyBudget`）。
 
-[docs/operations/cost.md](../../sanpo-channel-console/docs/operations/cost.md) には、開発用で外したもの（WAF、DynamoDB の PITR など）と、その理由、採らなかった案まで書かれています。**費用も設計の一部として、理由とともに記録する** のが、この管理システムの進め方です。
+[docs/operations/cost.md](../../michizure-console/docs/operations/cost.md) には、開発用で外したもの（WAF、DynamoDB の PITR など）と、その理由、採らなかった案まで書かれています。**費用も設計の一部として、理由とともに記録する** のが、この管理システムの進め方です。
 
 ## ハンズオン: 部品の一覧と権限を見る
 
@@ -171,9 +171,9 @@ AWS のアカウントは要りません。CDK でテンプレートを手元に
 画面のビルド結果（`web/dist`）と機械審査の zip（`validator/build/lambda/validator.zip`）が要ります。ないときは、先に作ります。
 
 ```sh
-cd /c/Dev/apps/sanpo-channel-console
+cd /c/Dev/apps/michizure-console
 npm run build -w web                              # web/dist がなければ
-(cd validator && ./gradlew lambdaZip)             # validator.zip がなければ（station-format の取得が要る。5-3）
+(cd validator && ./gradlew lambdaZip)             # validator.zip がなければ（コアとプロンプト・パックの取得が要る。5-3）
 ```
 
 使い捨てのルート鍵の公開鍵を渡して、テンプレートを作ります（AWS にはつながりません）。
@@ -185,14 +185,14 @@ npx cdk synth -c env=dev -c rootPublicKey=$KEY -o ../.local/cdkout --quiet
 cd ..
 ```
 
-`.local/cdkout/SanpoChannelConsole-dev.template.json` ができます（4,000 行ほどの JSON）。`.local/` は Git の対象外です。以下のコマンドは、いちばん上のフォルダ（`sanpo-channel-console`）で実行します。
+`.local/cdkout/MichizureConsole-dev.template.json` ができます（4,000 行ほどの JSON）。`.local/` は Git の対象外です。以下のコマンドは、いちばん上のフォルダ（`michizure-console`）で実行します。
 
 ### 2. 部品の一覧を数える
 
 ```sh
 python -X utf8 - <<'EOF'
 import json, collections
-t = json.load(open('.local/cdkout/SanpoChannelConsole-dev.template.json', encoding='utf-8'))
+t = json.load(open('.local/cdkout/MichizureConsole-dev.template.json', encoding='utf-8'))
 c = collections.Counter(r['Type'] for r in t['Resources'].values())
 print(len(t['Resources']), 'resources')
 for k, v in sorted(c.items(), key=lambda x: -x[1]): print(v, k)
@@ -219,7 +219,7 @@ EOF
 ```sh
 python -X utf8 - <<'EOF'
 import json
-t = json.load(open('.local/cdkout/SanpoChannelConsole-dev.template.json', encoding='utf-8'))
+t = json.load(open('.local/cdkout/MichizureConsole-dev.template.json', encoding='utf-8'))
 R = t['Resources']
 fn = [k for k, v in R.items() if v['Type'] == 'AWS::Lambda::Function' and k.startswith('ConsoleConsoleApi')][0]
 role = R[fn]['Properties']['Role']['Fn::GetAtt'][0]

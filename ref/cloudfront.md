@@ -51,9 +51,9 @@ await cf.send(new CreateInvalidationCommand({
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [infra/lib/console-stack.ts](../../sanpo-channel-console/infra/lib/console-stack.ts) の `PublicDistribution` | 公開用のバケットを OAC で。HTTPS だけ、読むだけ | [8-6](../08-aws/06-s3-cloudfront.md) |
-| [api/src/publish/publisher.ts](../../sanpo-channel-console/api/src/publish/publisher.ts) | リストは 5 分、置いたらキャッシュを消す。ハッシュの名前のファイルは 1 年・`immutable` | [6-4](../06-trust/04-two-tier-keys.md)、[8-6](../08-aws/06-s3-cloudfront.md) |
-| [infra/lib/console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts) の `ConsoleDistribution` | 画面と `api/*`（キャッシュしない）を 1 つに。SPA の道の振り分け（CloudFront Functions）。CSP・HSTS | [8-6](../08-aws/06-s3-cloudfront.md) |
+| [infra/lib/console-stack.ts](../../michizure-console/infra/lib/console-stack.ts) の `PublicDistribution` | 公開用のバケットを OAC で。HTTPS だけ、読むだけ | [8-6](../08-aws/06-s3-cloudfront.md) |
+| [api/src/publish/publisher.ts](../../michizure-console/api/src/publish/publisher.ts) | リストは 5 分、置いたらキャッシュを消す。ハッシュの名前のファイルは 1 年・`immutable` | [6-4](../06-trust/04-two-tier-keys.md)、[8-6](../08-aws/06-s3-cloudfront.md) |
+| [infra/lib/console-app.ts](../../michizure-console/infra/lib/console-app.ts) の `ConsoleDistribution` | 画面と `api/*`（キャッシュしない）を 1 つに。SPA の道の振り分け（CloudFront Functions）。CSP・HSTS | [8-6](../08-aws/06-s3-cloudfront.md) |
 
 ## よくある間違い
 

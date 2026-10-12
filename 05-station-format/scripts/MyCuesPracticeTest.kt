@@ -1,11 +1,11 @@
-package io.github.duwenji.sanpoguide.station.format
+package io.github.duwenji.michizure.core.format
 
-import io.github.duwenji.sanpoguide.material.format.BuiltInProducers
-import io.github.duwenji.sanpoguide.material.format.Exposure
-import io.github.duwenji.sanpoguide.material.format.Fetch
-import io.github.duwenji.sanpoguide.material.format.ProducerPolicy
-import io.github.duwenji.sanpoguide.material.format.Regions
-import io.github.duwenji.sanpoguide.material.format.Trust
+import io.github.duwenji.michizure.core.format.material.BuiltInProducers
+import io.github.duwenji.michizure.core.format.material.Exposure
+import io.github.duwenji.michizure.core.format.material.Fetch
+import io.github.duwenji.michizure.core.format.material.ProducerPolicy
+import io.github.duwenji.michizure.core.format.material.Regions
+import io.github.duwenji.michizure.core.format.material.Trust
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -19,7 +19,7 @@ class MyCuesPracticeTest {
     private fun manifest() = JSONObject(
         """
         {
-          "format": 1, "id": "my-cafe-walk", "version": 1,
+          "format": 2, "activities": ["walk"], "id": "my-cafe-walk", "version": 1,
           "name": "喫茶店さんぽ", "summary": "古い喫茶店と、そのまわりの路地を、のんびり語る", "lang": "ja",
           "greeting": "ここからは、喫茶店めぐりの気分で歩きましょう。",
           "talk": { "level": "normal",

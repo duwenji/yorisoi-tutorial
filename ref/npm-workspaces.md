@@ -111,9 +111,9 @@ greeting -> …/ws-min/packages/greeting
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [sanpo-channel-console/package.json](../../sanpo-channel-console/package.json) | 8 つのパッケージ、共通の道具（`typescript`・`vitest`・`tsx`）はいちばん上に 1 回 | [7-2](../07-typescript/02-workspaces.md) |
-| [packages/protocol/package.json](../../sanpo-channel-console/packages/protocol/package.json) | `exports` が `.ts` のソースを直接指す。テスト用の入口 `./testing` を分ける | [7-2](../07-typescript/02-workspaces.md) |
-| [api/package.json](../../sanpo-channel-console/api/package.json) | `"@sanpo-console/protocol": "0.1.0"` のように、同じリポジトリのパッケージに依存 | [7-2](../07-typescript/02-workspaces.md) |
+| [michizure-console/package.json](../../michizure-console/package.json) | 8 つのパッケージ、共通の道具（`typescript`・`vitest`・`tsx`）はいちばん上に 1 回 | [7-2](../07-typescript/02-workspaces.md) |
+| [packages/protocol/package.json](../../michizure-console/packages/protocol/package.json) | `exports` が `.ts` のソースを直接指す。テスト用の入口 `./testing` を分ける | [7-2](../07-typescript/02-workspaces.md) |
+| [api/package.json](../../michizure-console/api/package.json) | `"@michizure-console/protocol": "0.1.0"` のように、同じリポジトリのパッケージに依存 | [7-2](../07-typescript/02-workspaces.md) |
 | 第 6 部のハンズオン | `npm run publish:local -w api`・`npm run check -w conformance -- …` | [6-7](../06-trust/07-hands-on.md) |
 
 ## よくある間違い
@@ -129,7 +129,7 @@ greeting -> …/ws-min/packages/greeting
 
 | 項目 | 版 |
 |---|---|
-| Node.js | 22 以上（sanpo-channel-console の `engines`。npm workspaces は npm 7 から） |
+| Node.js | 22 以上（michizure-console の `engines`。npm workspaces は npm 7 から） |
 
 - [npm workspaces（公式）](https://docs.npmjs.com/cli/using-npm/workspaces)
 - [package.json の exports（Node.js）](https://nodejs.org/api/packages.html#exports)

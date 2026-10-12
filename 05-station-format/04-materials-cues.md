@@ -46,7 +46,7 @@ flowchart LR
 | 第三者の素材集 | 観光協会の解説と写真 | 審査で固定。前もって取得する |
 | チャンネルに同梱の素材 | `channel.json` の `resources` | 審査で固定。パッケージに入っている |
 
-ばらばらに見えますが、アプリはすべてを **同じ形** で扱います（API-004 I-1）。アプリの側の形は [Producer.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/material/Producer.kt) の `Producer` です。
+ばらばらに見えますが、アプリはすべてを **同じ形** で扱います（API-004 I-1）。アプリの側の形は [Producer.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/material/Producer.kt) の `Producer` です。
 
 ```kotlin
 interface Producer {
@@ -89,7 +89,7 @@ sealed interface MaterialResult {
 
 組み込みの AI と第三者の素材集では、許してよいことがまるで違います。AI は散策者の位置（スポット名）を外の AI サービスに送りますが、第三者の素材集にそれを許すと、散策者の居場所が第三者に伝わります。
 
-この違いを、散策ガイドは **クラスの種類ではなく、記述の属性** で表します（API-004 I-2）。[Producers.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/material/format/Producers.kt) の `ProducerDescriptor`:
+この違いを、散策ガイドは **クラスの種類ではなく、記述の属性** で表します（API-004 I-2）。[Producers.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/material/Producers.kt) の `ProducerDescriptor`:
 
 | 属性 | 値 | 意味 |
 |---|---|---|
@@ -129,7 +129,7 @@ val AI_GUIDE = ProducerDescriptor(
 )
 ```
 
-この一覧は `:station-format` にあるので、管理システムの機械審査も同じものを読み、チャンネルが書いた `builtin:…` の参照が実在するかを確かめられます。
+この一覧はコア（`core-format` の `material` パッケージ）にあるので、管理システムの機械審査も同じものを読み、チャンネルが書いた `builtin:…` の参照が実在するかを確かめられます。
 
 ## 候補を前から順に試す
 
@@ -145,8 +145,8 @@ val AI_GUIDE = ProducerDescriptor(
 
 | 場所 | 何の候補か |
 |---|---|
-| `Producers.first`（[Producer.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/material/Producer.kt)） | きっかけのないふだんの解説と話しかけ（`Narration` の `Shorthand`、[4-3](../04-outside/03-ai.md)） |
-| `CuePresenter`（[Cues.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/material/Cues.kt)） | きっかけの見せ方ごとの候補 |
+| `Producers.first`（[Producer.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/material/Producer.kt)） | きっかけのないふだんの解説と話しかけ（`Narration` の `Shorthand`、[4-3](../04-outside/03-ai.md)） |
+| `CuePresenter`（[Cues.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/material/Cues.kt)） | きっかけの見せ方ごとの候補 |
 
 ふだんの解説も「`builtin:ai-guide` → `builtin:fallback-text`」という候補の並びとして書かれています（API-004「省略形の展開」）。きっかけを持たない組み込みのチャンネルも、同じ仕組みの上で動いているわけです。
 
@@ -157,7 +157,7 @@ val AI_GUIDE = ProducerDescriptor(
 
 ## きっかけ: いつ出すか
 
-きっかけの条件（`trigger`）は 4 種類です（[Cues.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/Cues.kt) の `Trigger`）。
+きっかけの条件（`trigger`）は 4 種類です（[Cues.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/Cues.kt) の `Trigger`）。
 
 ```kotlin
 sealed interface Trigger {
@@ -266,7 +266,7 @@ enum class PresentAs(override val json: String, val types: Set<MaterialType>) : 
 
 ### 使えるかどうかは、リストで決まる
 
-宣言した素材集が使えるかは、`CollectionReferences.resolve`（[CollectionReferences.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/CollectionReferences.kt)）がリストと照らして決めます（API-004 確かめる手順 3・4）。
+宣言した素材集が使えるかは、`CollectionReferences.resolve`（[CollectionReferences.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/CollectionReferences.kt)）がリストと照らして決めます（API-004 確かめる手順 3・4）。
 
 ```kotlin
 sealed interface CollectionStatus {
@@ -302,13 +302,30 @@ sealed interface CollectionStatus {
 
 ここで問題になるのが取得の時期です。日本中の素材集を前もって全部取るわけにはいきません。かといって、スポットに近づいてから取りに行けば、散策者の居場所が伝わります。そこで、**今いる大まかな地域とその周り** の素材集だけを、Wi-Fi のときに取ります（API-004 P-6）。
 
-地域は **ジオハッシュ** の 3 文字で表します（[技術カード: ジオハッシュ](../ref/geohash.md)）。3 文字で約 150km 四方です。[Regions.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/material/format/Regions.kt) の `around` は、今いるマスと周りの 8 マスを返します。
+地域は **ジオハッシュ** の 3 文字で表します（[技術カード: ジオハッシュ](../ref/geohash.md)）。3 文字で約 150km 四方です。[Regions.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/material/Regions.kt) の `around` は、今いるマスと周りの 8 マスを返します。
 
 - 管理システムは、素材集の素材の `about` の位置から、その素材集の地域（`regions`）を計算してリストに載せる
 - アプリは、自分のまわり 9 マスに地域が重なる素材集だけを取る
 - だから素材集の置き場所に伝わるのは「どの 150km 四方の素材集を取ったか」まで。どのスポットにいるかは伝わらない
 
-管理システム（TypeScript の [geo.ts](../../sanpo-channel-console/packages/protocol/src/geo.ts)）とアプリ（Kotlin の `Regions.geohash`）は、同じ計算を別の言語で書いています。食い違いを防ぐため、Kotlin のテスト（`RegionsTest`）には鎌倉が `xn7` になることを書き、管理システムの準拠テストの V-25 は、リストに載った地域（Kotlin の機械審査が計算したもの）を TypeScript で計算し直して照らします。[6-6](../06-trust/06-same-rules.md) と同じ考え方です。
+管理システム（TypeScript の [geo.ts](../../michizure-console/packages/protocol/src/geo.ts)）とアプリ（Kotlin の `Regions.geohash`）は、同じ計算を別の言語で書いています。食い違いを防ぐため、Kotlin のテスト（`RegionsTest`）には鎌倉が `xn7` になることを書き、管理システムの準拠テストの V-25 は、リストに載った地域（Kotlin の機械審査が計算したもの）を TypeScript で計算し直して照らします。[6-6](../06-trust/06-same-rules.md) と同じ考え方です。
+
+## 宣伝: 表示つきで認める
+
+店舗・施設・商品の紹介が主な目的のチャンネル・素材集も、**表示つきで** 認めています（[ADR-002](../../SanpoGuide/docs/adr/ADR-002-material-producers.md) の D-29〜D-36、2026-10-11 の開発者の決定）。決まりは 4 つです。
+
+| 決まり | 中身 |
+|---|---|
+| 出せる場所（D-30） | 素材（審査した固定の文・画像）の中だけ。AI への指示（スロット）で宣伝させることは認めない。AI の発言は審査で確かめきれないため |
+| 印（D-31） | 申請のときに「宣伝を含む」と申告し、運営が確かめる。リストでは素材集とチャンネルに `promotional: true`。宣伝の素材集を `collections` で宣言したチャンネルにも付く（API-002 1.3 の P-16） |
+| 見せ方（D-32） | 一覧と選ぶ画面に「宣伝を含む」。素材の出典の行に「宣伝: 名前」、読み上げる前に「ここからは〇〇の宣伝です」 |
+| 止め方（D-33・D-34） | 宣伝の素材集は **基準では選ばない**（名指しされたときだけ）。散策者は設定「宣伝の素材を出さない」で止められ、そのときは次の候補へ進む |
+
+止め方は、[候補を前から順に試す](#候補を前から順に試す) 仕組みをそのまま使っています。アプリの `ResourceProducer` は、宣伝の素材で設定がオンなら「出せない」（`MaterialResult.None`）を返すだけで、候補の並びの次（AI の解説など）に代わります。
+
+印は、パッケージには書きません。申請の項目で、管理システムの公開の Lambda がリストを作るときに付けます（[8-3](../08-aws/03-lambda-apigw.md)、管理システムの DES-012）。素材集があとから宣伝の版になっても、それを宣言したチャンネルの印は、次にリストを作るときに付きます。
+
+古いアプリへの備えもあります（P-17・D-36）。`promotional` を知らないアプリが表示なしで宣伝を出さないよう、宣伝を含むものの必要なアプリの版（`minAppVersions`）を、表示に対応した版（SanpoGuide は versionCode 3）以上に上げます。その版を Google Play に出すまでは、どのアプリにもない版にしておきます。
 
 ## 段階: アプリが出せるものだけ
 
@@ -336,8 +353,8 @@ sealed interface CollectionStatus {
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../sanpo-tutorial/05-station-format/scripts/MyCuesPracticeTest.kt station-format/src/test/kotlin/io/github/duwenji/sanpoguide/station/format/
-./gradlew :station-format:test --tests '*MyCuesPracticeTest*'
+cp ../sanpo-tutorial/05-station-format/scripts/MyCuesPracticeTest.kt platform/core-format/src/test/kotlin/io/github/duwenji/michizure/core/format/
+./gradlew :platform:core-format:test --tests '*MyCuesPracticeTest*'
 ```
 
 6 件のテストが通ります。
@@ -353,7 +370,7 @@ cp ../sanpo-tutorial/05-station-format/scripts/MyCuesPracticeTest.kt station-for
 
 ### 2. 出力を見る
 
-テストのレポート（`station-format/build/reports/tests/test/index.html`）を開き、`MyCuesPracticeTest` の「Standard output」を見てください。
+テストのレポート（`platform/core-format/build/reports/tests/test/index.html`）を開き、`MyCuesPracticeTest` の「Standard output」を見てください。
 
 ```
 rejected: Rejected(code=BAD_CUE, detail=old-cafe: card can't show audio "voice")
@@ -373,7 +390,7 @@ xn7 [xn4, xn5, xn6, xn7, xnd, xne, xnh, xnk, xns]
 ### 3. 管理システムでも同じ地域になるか
 
 ```sh
-cd /c/Dev/apps/sanpo-channel-console
+cd /c/Dev/apps/michizure-console
 npx tsx -e "import { geohash } from './packages/protocol/src/geo.ts'; console.log(geohash(35.3260, 139.5565), geohash(35.6812, 139.7671))"
 ```
 
@@ -404,7 +421,7 @@ TypeScript でも `xn7` です。2 つ目は東京駅です。鎌倉と同じマ
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-rm station-format/src/test/kotlin/io/github/duwenji/sanpoguide/station/format/MyCuesPracticeTest.kt
+rm platform/core-format/src/test/kotlin/io/github/duwenji/michizure/core/format/MyCuesPracticeTest.kt
 git status
 ```
 

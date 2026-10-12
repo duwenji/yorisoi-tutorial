@@ -108,12 +108,12 @@ Android では、マニフェストに `<uses-permission android:name="android.p
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [OverpassClient.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/data/OverpassClient.kt) | POST、読み取りのタイムアウトを 30 秒に延ばした理由、混んでいたら次のサーバーへ | [4-1](../04-outside/01-http-json.md) |
-| [WeatherClient.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherClient.kt) | GET の基本形、15 秒のタイムアウト | [4-1](../04-outside/01-http-json.md) |
-| [RouteClient.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/data/RouteClient.kt) | User-Agent、経度が先の URL | [4-1](../04-outside/01-http-json.md) |
-| [OpenAiCompatibleClient.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/guide/OpenAiCompatibleClient.kt) | JSON の POST、`Authorization` ヘッダー、90 秒のタイムアウト | [4-3](../04-outside/03-ai.md) |
-| [GoogleMapTiles.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/data/GoogleMapTiles.kt) | `toHttpUrl().newBuilder()` で URL を組み立てる | [4-2](../04-outside/02-map.md) |
-| [ChannelSync.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ChannelSync.kt) の `ProviderHttp` | 通信を `fun interface` の後ろに隠し、テストで代役に替える | [2-3](../02-compose/03-manual-di.md) |
+| [OverpassClient.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/OverpassClient.kt) | POST、読み取りのタイムアウトを 30 秒に延ばした理由、混んでいたら次のサーバーへ | [4-1](../04-outside/01-http-json.md) |
+| [WeatherClient.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/weather/WeatherClient.kt) | GET の基本形、15 秒のタイムアウト | [4-1](../04-outside/01-http-json.md) |
+| [RouteClient.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/RouteClient.kt) | User-Agent、経度が先の URL | [4-1](../04-outside/01-http-json.md) |
+| [OpenAiCompatibleClient.kt](../../SanpoGuide/platform/kit-llm/src/main/java/io/github/duwenji/michizure/kit/llm/OpenAiCompatibleClient.kt) | JSON の POST、`Authorization` ヘッダー、90 秒のタイムアウト | [4-3](../04-outside/03-ai.md) |
+| [GoogleMapTiles.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/map/GoogleMapTiles.kt) | `toHttpUrl().newBuilder()` で URL を組み立てる | [4-2](../04-outside/02-map.md) |
+| [ChannelSync.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ChannelSync.kt) の `ProviderHttp` | 通信を `fun interface` の後ろに隠し、テストで代役に替える | [2-3](../02-compose/03-manual-di.md) |
 
 ## よくある間違い
 
@@ -131,7 +131,7 @@ Android では、マニフェストに `<uses-permission android:name="android.p
 
 | 項目 | 版 |
 |---|---|
-| `com.squareup.okhttp3:okhttp` | 4.12.0（SanpoGuide の `app/build.gradle.kts`） |
+| `com.squareup.okhttp3:okhttp` | 4.12.0（SanpoGuide の `apps/sanpoguide/app/build.gradle.kts`） |
 
 - [OkHttp の公式サイト](https://square.github.io/okhttp/)
 - [レシピ集（よく使う書き方）](https://square.github.io/okhttp/recipes/)
