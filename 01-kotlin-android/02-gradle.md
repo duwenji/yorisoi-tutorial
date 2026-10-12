@@ -7,8 +7,8 @@
 ## この章で学ぶこと
 
 - 散策ガイドのビルドの設定ファイルが、それぞれ何を決めているか
-- 2 つのモジュール（`:app` と `:station-format`）の関係
-- 依存ライブラリの書き方と、版の決まり方
+- モジュール（アプリ・プロンプト・パック・コア・キット）の関係
+- 依存ライブラリの書き方と、版の決まり方（バージョンカタログ）
 - 自分で作ったタスク（`channelIndex`）が何をしているか
 
 ## ビルドの設定ファイル
@@ -18,13 +18,21 @@ SanpoGuide/
 ├── settings.gradle.kts          どのモジュールがあるか、ライブラリをどこから取るか
 ├── build.gradle.kts             全体: プラグインの版
 ├── gradle.properties            Gradle の設定と、自分で決めた値
+├── gradle/libs.versions.toml    依存ライブラリとプラグインの版の一覧（バージョンカタログ）
 ├── gradle/wrapper/              Gradle 本体の版（Gradle Wrapper）
 ├── gradlew, gradlew.bat         Gradle を動かす入口
-├── apps/sanpoguide/app/build.gradle.kts         :app（Android アプリ）の設定
-└── station-format/build.gradle.kts   :station-format（JVM ライブラリ）の設定
+├── apps/sanpoguide/
+│   ├── app/build.gradle.kts     :apps:sanpoguide:app（Android アプリ）
+│   └── prompts/build.gradle.kts :apps:sanpoguide:prompts（プロンプト・パック、JVM ライブラリ）
+└── platform/
+    ├── core-format/…            :platform:core-format（コア、JVM ライブラリ）
+    ├── core-prompt/…            :platform:core-prompt（コア、JVM ライブラリ）
+    └── kit-voice/… など         :platform:kit-*（キット。kit-companion 以外は Android ライブラリ）
 ```
 
 ファイル名が `.kts` で終わるのは、設定を **Kotlin で書いている**（Kotlin DSL）からです。1-1 の文法がそのまま使えます。
+
+> 最初は `:app` と `:station-format` の 2 つのモジュールでした。2026-10-12 に、付き添いアプリのエコシステム（[ADR-003](../../SanpoGuide/docs/adr/ADR-003-companion-app-platform.md)）のために今の形に分けています（[RFC-002](../../SanpoGuide/docs/refactoring/RFC-002-platform-stage1.md)、[5-1](../05-station-format/01-jvm-library.md)）。
 
 ## settings.gradle.kts: 全体の地図
 
@@ -46,13 +54,26 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "SanpoGuide"
-include(":app")
-include(":station-format")
+// The platform (ADR-003): core libraries (plain JVM) and Android kits.
+include(":platform:core-format")
+include(":platform:core-prompt")
+include(":platform:kit-voice")
+// … kit-llm・kit-geo・kit-mood・kit-companion
+// SanpoGuide: the app and its prompt pack.
+include(":apps:sanpoguide:app")
+include(":apps:sanpoguide:prompts")
 ```
 
-- `include(":app")`・`include(":station-format")`: このリポジトリには **2 つのモジュール** がある。`:` で始まる名前は、フォルダの名前に対応します
+- `include(…)`: このリポジトリには **9 つのモジュール** がある。`:` で区切った名前は、フォルダの階層に対応します（`:apps:sanpoguide:app` は `apps/sanpoguide/app/`）
 - `repositories`: ライブラリを取ってくる場所。`google()` は Google の Maven リポジトリ（AndroidX など）、`mavenCentral()` は Java・Kotlin のライブラリの集積所です
 - `FAIL_ON_PROJECT_REPOS`: 取ってくる場所をここ 1 か所で決め、モジュールごとに勝手に足すのを禁止しています。どこからライブラリが来るかを把握しやすくするためです
+
+| 種類 | モジュール | 中身 |
+|---|---|---|
+| アプリ | `:apps:sanpoguide:app` | 画面・散策のサービス・設定など、SanpoGuide そのもの |
+| プロンプト・パック | `:apps:sanpoguide:prompts` | SanpoGuide のプロンプトの文面と組み込みのチャンネル（素の JVM） |
+| コア | `:platform:core-format`・`:platform:core-prompt` | チャンネルの形式と確認、テンプレートの仕組み（素の JVM。アプリをまたいで使う） |
+| キット | `:platform:kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`・`kit-companion` | 音声・AI の呼び出し・地図と天気・雰囲気（Android のライブラリ）、話す判断のルールとゲート（`kit-companion` だけは素の JVM。RFC-003） |
 
 ## build.gradle.kts（全体）: プラグインの版
 
@@ -60,21 +81,25 @@ include(":station-format")
 
 ```kotlin
 plugins {
-    id("com.android.application") version "8.11.1" apply false
-    id("org.jetbrains.kotlin.android") version "2.2.0" apply false
-    id("org.jetbrains.kotlin.plugin.compose") version "2.2.0" apply false
-    id("org.jetbrains.kotlin.jvm") version "2.2.0" apply false
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
 }
 ```
 
-**プラグイン** は、Gradle に「Android アプリのビルドの仕方」「Kotlin のコンパイルの仕方」などを教える部品です。ここでは版だけを決め、`apply false`（ここでは使わない）としています。実際に使うのは各モジュールです。こうすると、2 つのモジュールで Kotlin の版がずれません。
+**プラグイン** は、Gradle に「Android アプリのビルドの仕方」「Kotlin のコンパイルの仕方」などを教える部品です。ここでは版だけを決め、`apply false`（ここでは使わない）としています。実際に使うのは各モジュールです。こうすると、モジュールの間で Kotlin の版がずれません。
+
+`libs.plugins.…` は、版を `gradle/libs.versions.toml`（**バージョンカタログ**）から読む書き方です（下の「版を 1 か所に集める」）。
 
 | プラグイン | 役割 | 使うモジュール |
 |---|---|---|
-| `com.android.application`（AGP） | Android アプリのビルド | `:app` |
-| `org.jetbrains.kotlin.android` | Android 向けの Kotlin | `:app` |
-| `org.jetbrains.kotlin.plugin.compose` | Jetpack Compose のコンパイラ | `:app` |
-| `org.jetbrains.kotlin.jvm` | 普通の JVM 向けの Kotlin | `:station-format` |
+| `com.android.application`（AGP） | Android アプリのビルド | アプリ |
+| `com.android.library`（AGP） | Android のライブラリのビルド | キット（`kit-companion` を除く） |
+| `org.jetbrains.kotlin.android` | Android 向けの Kotlin | アプリ・キット |
+| `org.jetbrains.kotlin.plugin.compose` | Jetpack Compose のコンパイラ | アプリ・画面の部品を持つキット（`kit-geo`・`kit-mood`） |
+| `org.jetbrains.kotlin.jvm` | 普通の JVM 向けの Kotlin | コア・プロンプト・パック・`kit-companion` |
 
 ## apps/sanpoguide/app/build.gradle.kts: アプリの設定
 
@@ -90,8 +115,8 @@ android {
         applicationId = "io.github.duwenji.sanpoguide"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "0.3.0"
     }
     // … signingConfigs・buildTypes（1-4 で見ます）…
     compileOptions {
@@ -112,11 +137,11 @@ android {
 | `minSdk` | 26 | 動く最低の Android の版。26 は Android 8.0 |
 | `targetSdk` | 35 | どの版の振る舞いに合わせて作ったか。35 は Android 15 |
 | `compileSdk` | 35 | コンパイルに使う Android の API の版 |
-| `versionCode` | 2 | 更新のたびに増やす整数。端末は大きい方を新しいと判断する。素材の第 1 段を出したときに 1 から 2 にした |
-| `versionName` | `0.2.0` | 人に見せる版 |
+| `versionCode` | 3 | 更新のたびに増やす整数。端末は大きい方を新しいと判断する。素材の第 1 段で 2、宣伝の表示（ADR-002 T-14）で 3 にした |
+| `versionName` | `0.3.0` | 人に見せる版 |
 | `buildConfig = true` | — | `BuildConfig.VERSION_CODE`・`BuildConfig.DEBUG` などをコードから使えるようにする |
 
-`applicationId` は、逆さにしたドメイン名で、世界で重ならない名前にします。Android Studio の雛形が入れる `com.example.…` は仮の名前で、Google Play には上げられません。散策ガイドは Play に上げる前に、自分の GitHub のアドレス（`duwenji.github.io`）を逆さにした `io.github.duwenji.sanpoguide` に変えました。あわせて `namespace`・Kotlin のパッケージ・`station-format` の公開の名前（[5-3](../05-station-format/03-publish.md)）も同じ名前に揃えています。`applicationId` は公開後に変えられませんが、パッケージ名は後からでも変えられます。ただ、使う人が増えるほど手間が増えるので、最初に揃えておきました。
+`applicationId` は、逆さにしたドメイン名で、世界で重ならない名前にします。Android Studio の雛形が入れる `com.example.…` は仮の名前で、Google Play には上げられません。散策ガイドは Play に上げる前に、自分の GitHub のアドレス（`duwenji.github.io`）を逆さにした `io.github.duwenji.sanpoguide` に変えました。あわせて `namespace`・Kotlin のパッケージ・当時の `station-format` の公開の名前（[5-3](../05-station-format/03-publish.md)）も同じ名前に揃えています（その後、アプリをまたぐコアとキットは `io.github.duwenji.michizure` になりました）。`applicationId` は公開後に変えられませんが、パッケージ名は後からでも変えられます。ただ、使う人が増えるほど手間が増えるので、最初に揃えておきました。
 
 `minSdk = 26` は、第 6 部で何度も出てきた「Android 8 から動かしたい」の正体です。Ed25519 のために Tink を入れた（[技術カード: Tink](../ref/tink.md)）のも、base64url に `java.util.Base64` を使える（API 26 から）のも、この値が決めています。
 
@@ -126,27 +151,41 @@ android {
 
 ```kotlin
 dependencies {
-    val composeBom = platform("androidx.compose:compose-bom:2025.06.00")
+    val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.material3:material3")
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    implementation(libs.compose.ui)
+    implementation(libs.compose.material3)
+    debugImplementation(libs.compose.ui.tooling)
 
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.anthropic:anthropic-java:2.34.0")
-    implementation(project(":station-format"))
-    implementation("com.google.crypto.tink:tink-android:1.23.0")
+    implementation(libs.okhttp)
+    implementation(libs.anthropic.java)
+    implementation(project(":apps:sanpoguide:prompts"))
+    implementation(project(":platform:kit-voice"))
+    // … kit-llm・kit-geo・kit-mood・kit-companion
+    implementation(libs.tink.android)
     // …
 
-    testImplementation("junit:junit:4.13.2")
+    testImplementation(libs.junit)
     // The real org.json; Android's is a stub in local unit tests.
-    testImplementation("org.json:json:20240303")
+    testImplementation(libs.json)
 }
+```
+
+`libs.okhttp` のような名前は、バージョンカタログの `[libraries]` に書いた 1 行を指しています。
+
+```toml
+# gradle/libs.versions.toml
+[versions]
+okhttp = "4.12.0"
+json = "20240303"
+
+[libraries]
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 ```
 
 ### 書き方: `グループ:名前:版`
 
-`"com.squareup.okhttp3:okhttp:4.12.0"` は「`com.squareup.okhttp3` という組織の `okhttp` というライブラリの 4.12.0」という意味です。Gradle は `settings.gradle.kts` に書いた場所からこれを探して取ってきます。
+`com.squareup.okhttp3:okhttp` と版 `4.12.0` を合わせた `com.squareup.okhttp3:okhttp:4.12.0` は、「`com.squareup.okhttp3` という組織の `okhttp` というライブラリの 4.12.0」という意味です。カタログを使わずに `implementation("com.squareup.okhttp3:okhttp:4.12.0")` と直接書くこともできます（管理システムの `validator` はこの書き方です）。Gradle は `settings.gradle.kts` に書いた場所からこれを探して取ってきます。
 
 ### 依存の種類（configuration）
 
@@ -155,13 +194,13 @@ dependencies {
 | `implementation` | アプリ本体のコンパイルと実行 | OkHttp、Tink |
 | `debugImplementation` | デバッグビルドだけ | Compose のプレビューの道具 |
 | `testImplementation` | 単体テストだけ | JUnit、本物の `org.json` |
-| `compileOnly` | コンパイルのときだけ。配らない | `:station-format` の `org.json`（下で説明） |
+| `compileOnly` | コンパイルのときだけ。配らない | コアの `org.json`（下で説明） |
 
 `testImplementation("org.json:json:…")` のコメントに注目してください。Android の `org.json` は端末の中にありますが、パソコンで流す単体テストでは **中身のない代役（stub）** になっていて、呼ぶとエラーになります。そこで、テストのときだけ本物を入れています。
 
 ### 版を決める: BOM
 
-Compose のライブラリには版が書いてありません（`"androidx.compose.ui:ui"`）。代わりに `platform("androidx.compose:compose-bom:2025.06.00")` があります。**BOM**（Bill of Materials）は「互いに組み合わせて動くことを確かめた版の一覧」です。BOM の版を 1 つ決めれば、Compose の各ライブラリの版が決まります。
+Compose のライブラリには版が書いてありません（カタログの `compose-ui = { module = "androidx.compose.ui:ui" }`）。代わりに `platform(libs.compose.bom)`（`androidx.compose:compose-bom:2025.06.00`）があります。**BOM**（Bill of Materials）は「互いに組み合わせて動くことを確かめた版の一覧」です。BOM の版を 1 つ決めれば、Compose の各ライブラリの版が決まります。
 
 実際にどの版になったかは、ハンズオンで確かめます（`ui -> 1.8.2` のように表示されます）。
 
@@ -170,39 +209,55 @@ Compose のライブラリには版が書いてありません（`"androidx.comp
 ```kotlin
 // A dependency pulls in a Fragment older than 1.3, too old for the ActivityResult API
 // (lint fails release builds with InvalidFragmentVersionForActivityResult).
-implementation("androidx.fragment:fragment:1.8.8")
+implementation(libs.androidx.fragment)   // androidx.fragment:fragment:1.8.8
 ```
 
 アプリは Fragment を直接使っていません。でも、ほかのライブラリが **古い Fragment を連れてくる**（推移的依存）ため、リリースビルドの検査（lint）が失敗しました。そこで、新しい版を明示して上書きしています。依存ライブラリは、さらに別のライブラリに依存していることを覚えておいてください。
 
+### 版を 1 か所に集める: バージョンカタログ
+
+モジュールが増えると、同じライブラリ（OkHttp や `org.json`）を何か所にも書くことになり、版がずれやすくなります。そこで、版を [gradle/libs.versions.toml](../../SanpoGuide/gradle/libs.versions.toml) にまとめ、どのモジュールも `libs.…` の名前で参照しています（RFC-002 の R-10）。版を上げるときは、このファイルの 1 行を直すだけです。
+
 ### モジュールへの依存
 
-`implementation(project(":station-format"))` は、同じリポジトリの `:station-format` モジュールに依存するという意味です。アプリをビルドすると、先に `:station-format` がビルドされます。
+`implementation(project(":apps:sanpoguide:prompts"))` は、同じリポジトリのプロンプト・パックに依存するという意味です。アプリをビルドすると、先にプロンプト・パック（とそれが使うコア）がビルドされます。
 
-## station-format/build.gradle.kts: JVM ライブラリ
+プロンプト・パックは、コアに `api` で依存しています。
 
-[station-format/build.gradle.kts](../../SanpoGuide/platform/core-format/build.gradle.kts) は、Android ではなく **普通の JVM のライブラリ** の設定です。
+```kotlin
+// apps/sanpoguide/prompts/build.gradle.kts
+dependencies {
+    api(project(":platform:core-format"))
+    api(project(":platform:core-prompt"))
+}
+```
+
+`implementation` で依存したものは、自分を使う側からは見えません。`api` にすると、自分を使う側（アプリ）からも見えます。プロンプト・パックの関数は、引数や戻り値にコアの型（`StationPackage` など）を使うので、使う側にもコアが見えていなければなりません。だから `api` です。
+
+## コアの build.gradle.kts: JVM ライブラリ
+
+[platform/core-format/build.gradle.kts](../../SanpoGuide/platform/core-format/build.gradle.kts) は、Android ではなく **普通の JVM のライブラリ** の設定です。
 
 ```kotlin
 plugins {
-    id("org.jetbrains.kotlin.jvm")
+    alias(libs.plugins.kotlin.jvm)
     `maven-publish`
 }
 
-group = "io.github.duwenji.sanpoguide"
-version = providers.gradleProperty("stationFormatVersion").get()
+group = "io.github.duwenji.michizure"
+version = providers.gradleProperty("michizureCoreVersion").get()
 
 dependencies {
     // Android ships org.json; bundling the jar into the app would clash with it
     // (lint: DuplicatePlatformClasses). Other users add it themselves.
-    compileOnly("org.json:json:20240303")
+    compileOnly(libs.json)
     // …
 }
 ```
 
 - `kotlin.jvm` プラグインなので、Android の SDK がなくてもビルド・テストできます（[0-3](../00-overview/03-setup.md) で最初に流したのはこれです）
 - `org.json` は `compileOnly`: Android は `org.json` を標準で持っているので、ライブラリに同梱すると重複して lint に叱られます。使う側（管理システムの `validator`）が自分で足します
-- 版は `gradle.properties` の `stationFormatVersion` から読みます。アプリの版（`0.2.0`）とは別に管理しています
+- 版は `gradle.properties` の `michizureCoreVersion` から読みます。アプリの版（`0.3.0`）とは別に管理しています
 - `maven-publish` で GitHub Packages に公開します（[5-3](../05-station-format/03-publish.md)）
 
 [gradle.properties](../../SanpoGuide/gradle.properties):
@@ -210,11 +265,15 @@ dependencies {
 ```properties
 org.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8
 android.useAndroidX=true
-# Version of :station-format as published to GitHub Packages …
-stationFormatVersion=2.1.0
+# …
+michizureCoreVersion=1.3.0
+# …
+sanpoguidePromptsVersion=1.1.0
 ```
 
 ### 自分で作ったタスク: channelIndex
+
+プロンプト・パックの [build.gradle.kts](../../SanpoGuide/apps/sanpoguide/prompts/build.gradle.kts) には、自分で作ったタスクがあります。
 
 ```kotlin
 // A jar (or the APK) can't list a resource folder, so the built-in channels come with a list of
@@ -249,9 +308,21 @@ cd /c/Dev/apps/SanpoGuide
 
 ```
 Root project 'SanpoGuide'
-+--- Project ':app'
-\--- Project ':station-format'
++--- Project ':apps'
+|    \--- Project ':apps:sanpoguide'
+|         +--- Project ':apps:sanpoguide:app'
+|         \--- Project ':apps:sanpoguide:prompts'
+\--- Project ':platform'
+     +--- Project ':platform:core-format'
+     +--- Project ':platform:core-prompt'
+     +--- Project ':platform:kit-companion'
+     +--- Project ':platform:kit-geo'
+     +--- Project ':platform:kit-llm'
+     +--- Project ':platform:kit-mood'
+     \--- Project ':platform:kit-voice'
 ```
+
+`:apps`・`:apps:sanpoguide`・`:platform` は、フォルダの階層から Gradle が自動で作る入れ物で、中身はありません。
 
 ### 2. アプリが使うライブラリと、実際の版
 
@@ -266,7 +337,10 @@ Root project 'SanpoGuide'
 +--- androidx.compose.material3:material3 -> 1.3.2
 …
 +--- com.anthropic:anthropic-java:2.34.0
-+--- project :station-format
++--- project :apps:sanpoguide:prompts
++--- project :platform:kit-voice
+…
++--- project :platform:kit-companion
 +--- com.google.crypto.tink:tink-android:1.23.0
 \--- com.google.android.gms:play-services-code-scanner:16.1.0
 ```
@@ -276,19 +350,19 @@ Root project 'SanpoGuide'
 ### 3. 自分で作ったタスクを動かす
 
 ```sh
-./gradlew :station-format:channelIndex
-head -5 station-format/build/generated/channel-index/sanpoguide/channels/index.txt
+./gradlew :apps:sanpoguide:prompts:channelIndex
+head -5 apps/sanpoguide/prompts/build/generated/channel-index/sanpoguide/channels/index.txt
 ```
 
 ```
-history/channel.json
-history/prompts/companion/persona.md
-history/prompts/companion/topics.md
-history/prompts/guide/focus.md
-history/prompts/guide/persona.md
+gourmet/channel.json
+gourmet/prompts/companion/persona.md
+gourmet/prompts/companion/topics.md
+gourmet/prompts/guide/focus.md
+gourmet/prompts/guide/persona.md
 ```
 
-もう一度 `./gradlew :station-format:channelIndex --console=plain` を実行すると、今度は `> Task :station-format:channelIndex UP-TO-DATE` と表示され、何もしません。入力が変わっていないからです。
+もう一度 `./gradlew :apps:sanpoguide:prompts:channelIndex --console=plain` を実行すると、今度は `> Task :apps:sanpoguide:prompts:channelIndex UP-TO-DATE` と表示され、何もしません。入力が変わっていないからです。
 
 ### 4. デバッグ版の APK を作る
 
@@ -304,11 +378,12 @@ ls -la apps/sanpoguide/app/build/outputs/apk/debug/
 - **Gradle の同期を待つ**: Android Studio で設定ファイルを変えたら、上に出る「Sync Now」を押します。同期が終わるまで、コードの補完やエラー表示が正しくありません
 - **版を上げるときは BOM ごと**: Compose の個々のライブラリの版を BOM と別に指定すると、組み合わせが崩れることがあります
 - **`applicationId` を変えない**: 変えると、端末からは別のアプリに見え、更新ではなく新しいアプリとして入ります
+- **版はカタログで**: モジュールの `build.gradle.kts` に版を直接書くと、モジュールごとに版がずれていきます
 
 ## 確認問題
 
 <details>
-<summary>問 1. <code>:station-format</code> が Android のプラグインではなく <code>kotlin.jvm</code> を使うのはなぜですか。</summary>
+<summary>問 1. コア（<code>:platform:core-format</code>）が Android のプラグインではなく <code>kotlin.jvm</code> を使うのはなぜですか。</summary>
 
 管理システムの機械審査（普通の JVM で動く Lambda）でも同じライブラリを使うためです。Android に依存しないので、Android の SDK がなくてもビルド・テストでき、JVM のどこでも使えます。
 
@@ -324,7 +399,15 @@ ls -la apps/sanpoguide/app/build/outputs/apk/debug/
 <details>
 <summary>問 3. <code>minSdk</code> を 33（Android 13）に上げたら、散策ガイドのどこが簡単になりますか。</summary>
 
-Ed25519 を Android の標準の暗号機能で扱えるようになるので、Tink がなくても署名を確かめられます（`:station-format` の `JcaEd25519` を使える）。その代わり、Android 8〜12 の端末では動かなくなります。
+Ed25519 を Android の標準の暗号機能で扱えるようになるので、Tink がなくても署名を確かめられます（コアの `JcaEd25519` を使える）。その代わり、Android 8〜12 の端末では動かなくなります。
+
+</details>
+
+
+<details>
+<summary>問 4. プロンプト・パックがコアに <code>implementation</code> ではなく <code>api</code> で依存しているのはなぜですか。</summary>
+
+プロンプト・パックの関数が、引数や戻り値にコアの型を使うからです。`implementation` だと、プロンプト・パックを使うアプリからコアの型が見えず、その関数を呼べません。`api` にすると、使う側にもコアが見えます。
 
 </details>
 

@@ -57,7 +57,7 @@ flowchart LR
 
 > コアとキットは `io.github.duwenji.michizure.core.*`・`io.github.duwenji.michizure.kit.*`（ADR-003 E-22）。（…）プロンプト・パックとアプリは `io.github.duwenji.sanpoguide.*` のまま（RFC-002 の R-3）
 
-Android の部品（音声・地図・AI の呼び出しなど）は、同じく `platform/` の下の **キット**（`kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`・`kit-companion`）に分けました。キットは Android のライブラリで、同じリポジトリのアプリだけが使い、公開しません（RFC-002 の R-11）。
+Android の部品（音声・地図・AI の呼び出しなど）は、同じく `platform/` の下の **キット**（`kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`）に分けました。話す判断のルールとゲート（`kit-companion`、RFC-003）もキットです（これだけは素の JVM）。キットは同じリポジトリのアプリだけが使い、公開しません（RFC-002 の R-11）。
 
 ## Android に依存しないための 3 つの工夫
 
