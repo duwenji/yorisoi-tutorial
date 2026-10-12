@@ -116,7 +116,7 @@ class MainActivity : ComponentActivity() {
 
 | 項目 | 版 |
 |---|---|
-| Compose BOM | 2025.06.00（SanpoGuide の `app/build.gradle.kts`） |
+| Compose BOM | 2025.06.00（SanpoGuide の `apps/sanpoguide/app/build.gradle.kts`） |
 | `androidx.compose.ui:ui` | 1.8.2（BOM が決める） |
 | `androidx.compose.material3:material3` | 1.3.2（BOM が決める） |
 | Compose のコンパイラ | Kotlin 2.2.0 のプラグイン `org.jetbrains.kotlin.plugin.compose` |

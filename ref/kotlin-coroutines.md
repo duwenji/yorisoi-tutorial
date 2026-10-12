@@ -137,7 +137,7 @@ tick 3
 
 | 項目 | 版 |
 |---|---|
-| `kotlinx-coroutines-android` | 1.10.2（SanpoGuide の `app/build.gradle.kts`） |
+| `kotlinx-coroutines-android` | 1.10.2（SanpoGuide の `apps/sanpoguide/app/build.gradle.kts`） |
 | `kotlinx-coroutines-play-services` | 1.10.2（Google の `Task` を `await()` で待つ） |
 
 - [Kotlin のコルーチン（公式）](https://kotlinlang.org/docs/coroutines-overview.html)

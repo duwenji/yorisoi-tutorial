@@ -311,9 +311,9 @@ private val worker = thread(name = "ambient", isDaemon = true) {
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../sanpo-tutorial/04-outside/scripts/SoundscapeWavExport.kt app/src/test/java/io/github/duwenji/sanpoguide/sound/
-./gradlew :app:testDebugUnitTest --tests '*SoundscapeWavExport*'
-ls -la app/build/soundscapes/
+cp ../sanpo-tutorial/04-outside/scripts/SoundscapeWavExport.kt platform/kit-voice/src/test/java/io/github/duwenji/michizure/kit/voice/
+./gradlew :platform:kit-voice:testDebugUnitTest --tests '*SoundscapeWavExport*'
+ls -la platform/kit-voice/build/soundscapes/
 ```
 
 ```
@@ -357,10 +357,10 @@ val dropsPerSample = 14f / sr
 
 を `140f / sr`（1 秒に 140 粒）に変えて、もう一度手順 1 を実行し、`rain.wav` を聞き比べてください。雨脚が強くなったように聞こえるはずです。
 
-音のテストも流してみましょう。音の大きさの範囲を確かめるテストは、[SoundscapeTest.kt](../../SanpoGuide/platform/kit-mood/src/test/java/io/github/duwenji/michizure/kit/mood/SoundscapeTest.kt) の中の `VoicesTest` というクラスにあります。
+音のテストも流してみましょう。音の大きさの範囲を確かめるテストは、[VoicesTest.kt](../../SanpoGuide/platform/kit-voice/src/test/java/io/github/duwenji/michizure/kit/voice/VoicesTest.kt) にあります（音の部品は、RFC-002 でキット `kit-voice` に移りました）。
 
 ```sh
-./gradlew :app:testDebugUnitTest --tests '*VoicesTest*'
+./gradlew :platform:kit-voice:testDebugUnitTest --tests '*VoicesTest*'
 ```
 
 雨粒を 10 倍にしても、テストは通ります。粒は短く消えるので、全体の大きさは範囲に収まっているからです。
@@ -382,8 +382,8 @@ val bed = (band - low.lp(band)) * 0.35f
 ### 4. 片付け
 
 ```sh
-git checkout -- app/src/main/java/io/github/duwenji/sanpoguide/sound/Voices.kt
-rm app/src/test/java/io/github/duwenji/sanpoguide/sound/SoundscapeWavExport.kt
+git checkout -- platform/kit-voice/src/main/java/io/github/duwenji/michizure/kit/voice/Voices.kt
+rm platform/kit-voice/src/test/java/io/github/duwenji/michizure/kit/voice/SoundscapeWavExport.kt
 git status
 ```
 

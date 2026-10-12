@@ -151,7 +151,7 @@ adb shell dumpsys notification                       # 通知とチャンネル�
 
 | 項目 | 版 |
 |---|---|
-| `androidx.core:core-ktx`（`NotificationCompat`・`ServiceCompat`） | 1.16.0（SanpoGuide の `app/build.gradle.kts`） |
+| `androidx.core:core-ktx`（`NotificationCompat`・`ServiceCompat`） | 1.16.0（SanpoGuide の `apps/sanpoguide/app/build.gradle.kts`） |
 | `androidx.lifecycle:lifecycle-service`（`LifecycleService`） | 2.9.1 |
 | `targetSdk` | 35 |
 

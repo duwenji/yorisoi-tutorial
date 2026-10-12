@@ -277,10 +277,10 @@ ViewModel と Service は、それらを呼んで結果を画面や声にする�
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-./gradlew :app:testDebugUnitTest --tests '*ChannelSyncTest*'
+./gradlew :apps:sanpoguide:app:testDebugUnitTest --tests '*ChannelSyncTest*'
 ```
 
-11 件のテストが通ります。レポート（`app/build/reports/tests/testDebugUnitTest/index.html`）の `ChannelSyncTest` を開くと、全体で 1 秒かからずに終わっているのが分かります。
+11 件のテストが通ります。レポート（`apps/sanpoguide/app/build/reports/tests/testDebugUnitTest/index.html`）の `ChannelSyncTest` を開くと、全体で 1 秒かからずに終わっているのが分かります。
 
 ### 2. テストの名前を眺める
 
@@ -306,7 +306,7 @@ clock = clock.plus(Duration.ofDays(15))
 確かめたら元に戻します。
 
 ```sh
-git checkout -- app/src/test/java/io/github/duwenji/sanpoguide/station/remote/ChannelSyncTest.kt
+git checkout -- apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/station/remote/ChannelSyncTest.kt
 git status
 ```
 

@@ -286,7 +286,7 @@ private fun JSONObject.str(key: String): String? = if (has(key) && !isNull(key))
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-./gradlew :app:testDebugUnitTest --tests '*FacilityAdvisorTest*'
+./gradlew :apps:sanpoguide:app:testDebugUnitTest --tests '*FacilityAdvisorTest*'
 ```
 
 `BUILD SUCCESSFUL` になれば、9 件のテストが通っています。
@@ -323,14 +323,14 @@ TOILET_RADIUS_M("トイレの案内", "案内する距離", "m", 100, 20, 500),
 9 tests completed, 1 failed
 ```
 
-レポート（`app/build/reports/tests/testDebugUnitTest/index.html`）を開くと、`a close toilet comes up after walking a while` が **NullPointerException** で落ちています。
+レポート（`apps/sanpoguide/app/build/reports/tests/testDebugUnitTest/index.html`）を開くと、`a close toilet comes up after walking a while` が **NullPointerException** で落ちています。
 
 案内する距離が 80m になったので、90m 先のトイレは案内されなくなり、`pick(…)` が null を返しました。そこに `!!` が付いていたので、その場で落ちたのです。`!!` が「null ならここで落ちる」という宣言であることが、よく分かる例です。
 
 ### 4. 元に戻す
 
 ```sh
-git checkout -- app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt
+git checkout -- apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt
 git status
 ```
 

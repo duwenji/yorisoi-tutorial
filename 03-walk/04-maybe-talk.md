@@ -340,7 +340,7 @@ enum の値は、書いた順に大小を比べられます（`THUNDER < HEAVY_R
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-./gradlew :app:testDebugUnitTest --tests '*WeatherChangeDetectorTest*'
+./gradlew :apps:sanpoguide:app:testDebugUnitTest --tests '*WeatherChangeDetectorTest*'
 ```
 
 8 件のテストが通ります。テストの名前を [WeatherChangeDetectorTest.kt](../../SanpoGuide/apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/companion/WeatherChangeDetectorTest.kt) で見てみてください。
@@ -377,7 +377,7 @@ enum class WeatherChangeKind {
 ### 3. 元に戻す
 
 ```sh
-git checkout -- app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherChange.kt
+git checkout -- apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherChange.kt
 git status
 ```
 

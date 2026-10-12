@@ -250,7 +250,7 @@ Android Studio には、アプリを動かさずに Composable を描いて見�
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../sanpo-tutorial/02-compose/scripts/TutorialPreviews.kt app/src/main/java/io/github/duwenji/sanpoguide/ui/
+cp ../sanpo-tutorial/02-compose/scripts/TutorialPreviews.kt apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/
 ```
 
 中身の一部です。
@@ -277,7 +277,7 @@ private fun CompanionCardAutumnEvening() {
 
 プレビューの中でも、カードをクリックする操作は「Interactive mode」（プレビューの上のボタン）で試せます。広げると過去の発言が出るはずです。
 
-> コマンドだけで確かめたいときは、`./gradlew :app:compileDebugKotlin` でコンパイルが通ることを確かめられます（絵は出ません）。
+> コマンドだけで確かめたいときは、`./gradlew :apps:sanpoguide:app:compileDebugKotlin` でコンパイルが通ることを確かめられます（絵は出ません）。
 
 ### 3. 自分で場面を足す
 
@@ -286,7 +286,7 @@ private fun CompanionCardAutumnEvening() {
 ### 4. 片付け
 
 ```sh
-rm app/src/main/java/io/github/duwenji/sanpoguide/ui/TutorialPreviews.kt
+rm apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/TutorialPreviews.kt
 git status
 ```
 

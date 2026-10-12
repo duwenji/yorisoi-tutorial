@@ -20,7 +20,7 @@ SanpoGuide/
 ├── gradle.properties            Gradle の設定と、自分で決めた値
 ├── gradle/wrapper/              Gradle 本体の版（Gradle Wrapper）
 ├── gradlew, gradlew.bat         Gradle を動かす入口
-├── app/build.gradle.kts         :app（Android アプリ）の設定
+├── apps/sanpoguide/app/build.gradle.kts         :app（Android アプリ）の設定
 └── station-format/build.gradle.kts   :station-format（JVM ライブラリ）の設定
 ```
 
@@ -76,9 +76,9 @@ plugins {
 | `org.jetbrains.kotlin.plugin.compose` | Jetpack Compose のコンパイラ | `:app` |
 | `org.jetbrains.kotlin.jvm` | 普通の JVM 向けの Kotlin | `:station-format` |
 
-## app/build.gradle.kts: アプリの設定
+## apps/sanpoguide/app/build.gradle.kts: アプリの設定
 
-[app/build.gradle.kts](../../SanpoGuide/apps/sanpoguide/app/build.gradle.kts) の中心部分です。
+[apps/sanpoguide/app/build.gradle.kts](../../SanpoGuide/apps/sanpoguide/app/build.gradle.kts) の中心部分です。
 
 ```kotlin
 android {
@@ -256,7 +256,7 @@ Root project 'SanpoGuide'
 ### 2. アプリが使うライブラリと、実際の版
 
 ```sh
-./gradlew :app:dependencies --configuration releaseRuntimeClasspath | grep -E '^[+\\]--- '
+./gradlew :apps:sanpoguide:app:dependencies --configuration releaseRuntimeClasspath | grep -E '^[+\\]--- '
 ```
 
 ```
@@ -293,8 +293,8 @@ history/prompts/guide/persona.md
 ### 4. デバッグ版の APK を作る
 
 ```sh
-./gradlew :app:assembleDebug
-ls -la app/build/outputs/apk/debug/
+./gradlew :apps:sanpoguide:app:assembleDebug
+ls -la apps/sanpoguide/app/build/outputs/apk/debug/
 ```
 
 `app-debug.apk` ができます（40MB 近くあります）。エミュレータや実機にそのまま入れるには `./gradlew installDebug` です。

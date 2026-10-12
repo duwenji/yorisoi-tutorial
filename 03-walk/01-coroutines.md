@@ -256,8 +256,8 @@ private fun startAmbient() = lifecycleScope.launch {
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../sanpo-tutorial/03-walk/scripts/CoroutinePracticeTest.kt app/src/test/java/io/github/duwenji/sanpoguide/
-./gradlew :app:testDebugUnitTest --tests '*CoroutinePracticeTest*'
+cp ../sanpo-tutorial/03-walk/scripts/CoroutinePracticeTest.kt apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/
+./gradlew :apps:sanpoguide:app:testDebugUnitTest --tests '*CoroutinePracticeTest*'
 ```
 
 5 件のテストが通ります。中身は次のとおりです。
@@ -321,7 +321,7 @@ assertEquals(listOf("話す: スポットの案内", "見送り: 雑談", "話�
 ### 4. 片付け
 
 ```sh
-rm app/src/test/java/io/github/duwenji/sanpoguide/CoroutinePracticeTest.kt
+rm apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/CoroutinePracticeTest.kt
 git status
 ```
 

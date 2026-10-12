@@ -279,8 +279,8 @@ StateFlow の性質を、小さなテストで確かめます。Android の端�
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../sanpo-tutorial/02-compose/scripts/StateFlowPracticeTest.kt app/src/test/java/io/github/duwenji/sanpoguide/
-./gradlew :app:testDebugUnitTest --tests '*StateFlowPracticeTest*'
+cp ../sanpo-tutorial/02-compose/scripts/StateFlowPracticeTest.kt apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/
+./gradlew :apps:sanpoguide:app:testDebugUnitTest --tests '*StateFlowPracticeTest*'
 ```
 
 4 件のテストが通ります。
@@ -342,7 +342,7 @@ e: …/StateFlowPracticeTest.kt:24:30 Unresolved reference 'copy'.
 ### 5. 片付け
 
 ```sh
-rm app/src/test/java/io/github/duwenji/sanpoguide/StateFlowPracticeTest.kt
+rm apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/StateFlowPracticeTest.kt
 git status
 ```
 

@@ -123,7 +123,7 @@ map.overlays += line
 
 | 項目 | 版 |
 |---|---|
-| `org.osmdroid:osmdroid-android` | 6.1.20（SanpoGuide の `app/build.gradle.kts`） |
+| `org.osmdroid:osmdroid-android` | 6.1.20（SanpoGuide の `apps/sanpoguide/app/build.gradle.kts`） |
 
 - [osmdroid（GitHub）](https://github.com/osmdroid/osmdroid)
 - [osmdroid の wiki（使い方）](https://github.com/osmdroid/osmdroid/wiki)

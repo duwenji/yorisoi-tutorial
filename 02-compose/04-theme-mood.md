@@ -312,8 +312,8 @@ private fun CompanionCardAutumnEveningDark() {
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-rm app/src/main/java/io/github/duwenji/sanpoguide/ui/TutorialPreviews.kt
-git checkout -- app/src/main/java/io/github/duwenji/sanpoguide/ui/MoodTheme.kt
+rm apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/TutorialPreviews.kt
+git checkout -- platform/kit-mood/src/main/java/io/github/duwenji/michizure/kit/mood/MoodTheme.kt
 git status
 ```
 

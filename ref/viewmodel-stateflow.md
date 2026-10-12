@@ -149,7 +149,7 @@ val label: StateFlow<String> = combine(stationId, names) { id, n -> n[id] ?: "?"
 
 | 項目 | 版 |
 |---|---|
-| `androidx.lifecycle:lifecycle-viewmodel-compose` | 2.9.1（SanpoGuide の `app/build.gradle.kts`） |
+| `androidx.lifecycle:lifecycle-viewmodel-compose` | 2.9.1（SanpoGuide の `apps/sanpoguide/app/build.gradle.kts`） |
 | `androidx.lifecycle:lifecycle-runtime-compose` | 2.9.1（`collectAsStateWithLifecycle`） |
 | `kotlinx-coroutines-android` | 1.10.2（StateFlow を含む） |
 

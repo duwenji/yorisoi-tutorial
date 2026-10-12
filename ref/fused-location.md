@@ -124,7 +124,7 @@ Android Studio のエミュレータの「Extended controls」→「Location」�
 
 | 項目 | 版 |
 |---|---|
-| `com.google.android.gms:play-services-location` | 21.3.0（SanpoGuide の `app/build.gradle.kts`） |
+| `com.google.android.gms:play-services-location` | 21.3.0（SanpoGuide の `apps/sanpoguide/app/build.gradle.kts`） |
 | `kotlinx-coroutines-play-services` | 1.10.2 |
 
 - [位置情報の概要](https://developer.android.com/develop/sensors-and-location/location?hl=ja)

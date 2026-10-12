@@ -131,7 +131,7 @@ Android では、マニフェストに `<uses-permission android:name="android.p
 
 | 項目 | 版 |
 |---|---|
-| `com.squareup.okhttp3:okhttp` | 4.12.0（SanpoGuide の `app/build.gradle.kts`） |
+| `com.squareup.okhttp3:okhttp` | 4.12.0（SanpoGuide の `apps/sanpoguide/app/build.gradle.kts`） |
 
 - [OkHttp の公式サイト](https://square.github.io/okhttp/)
 - [レシピ集（よく使う書き方）](https://square.github.io/okhttp/recipes/)

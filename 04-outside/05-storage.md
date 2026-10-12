@@ -331,7 +331,7 @@ internal object KeyCipher {
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-./gradlew :app:testDebugUnitTest --tests '*WalkJsonTest*'
+./gradlew :apps:sanpoguide:app:testDebugUnitTest --tests '*WalkJsonTest*'
 ```
 
 2 件のテストが通ります。1 つは「保存して読み直すと同じものになる」、もう 1 つは「チャンネルより前の記録も読める」です。
@@ -361,7 +361,7 @@ val stations = o.getJSONArray("stations")
 ### 3. 元に戻す
 
 ```sh
-git checkout -- app/src/main/java/io/github/duwenji/sanpoguide/history/HistoryStore.kt
+git checkout -- apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/history/HistoryStore.kt
 git status
 ```
 

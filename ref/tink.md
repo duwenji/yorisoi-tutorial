@@ -108,7 +108,7 @@ Tink は高水準の API（キーセットとプリミティブ）を勧めて�
 
 | 項目 | 版 |
 |---|---|
-| `com.google.crypto.tink:tink-android` | 1.23.0（SanpoGuide の `app/build.gradle.kts`） |
+| `com.google.crypto.tink:tink-android` | 1.23.0（SanpoGuide の `apps/sanpoguide/app/build.gradle.kts`） |
 
 - [Tink の公式サイト](https://developers.google.com/tink)
 - [Tink（GitHub、Java と Android）](https://github.com/tink-crypto/tink-java)

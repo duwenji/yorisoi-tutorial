@@ -338,7 +338,7 @@ val diff = bearing - heading
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-./gradlew :app:testDebugUnitTest --tests '*FacilityAdvisorTest*'
+./gradlew :apps:sanpoguide:app:testDebugUnitTest --tests '*FacilityAdvisorTest*'
 ```
 
 ```
@@ -350,7 +350,7 @@ cd /c/Dev/apps/SanpoGuide
 ### 3. 元に戻す
 
 ```sh
-git checkout -- app/src/main/java/io/github/duwenji/sanpoguide/companion/FacilityAdvisor.kt
+git checkout -- apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/FacilityAdvisor.kt
 git status
 ```
 

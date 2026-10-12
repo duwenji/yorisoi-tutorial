@@ -83,7 +83,7 @@ OS は、アプリにどんな部品があり、何をしたいのかを **マ�
 | `android:exported` | ほかのアプリから呼べるか。入口の Activity は `true`、Service は `false`（自分だけが使う） |
 | `foregroundServiceType="location"` | この Service は、位置情報のためのフォアグラウンドサービスだと宣言する |
 
-`@drawable/ic_walk`・`@string/app_name` は **リソース**（`app/src/main/res/` の下の画像や文字列）を指す書き方です。
+`@drawable/ic_walk`・`@string/app_name` は **リソース**（`apps/sanpoguide/app/src/main/res/` の下の画像や文字列）を指す書き方です。
 
 ### ライブラリもマニフェストを持ち込む
 
@@ -282,11 +282,11 @@ private fun requestPermissions() {
 
 ## ハンズオン: 合体後のマニフェストを見る
 
-1-2 のハンズオンで `./gradlew :app:assembleDebug` を実行していれば、合体後のマニフェストができています。
+1-2 のハンズオンで `./gradlew :apps:sanpoguide:app:assembleDebug` を実行していれば、合体後のマニフェストができています。
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-M=app/build/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml
+M=apps/sanpoguide/app/build/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml
 grep -o 'uses-permission[^>]*android:name="[^"]*"' "$M" | sed 's/.*name="//;s/"//'
 ```
 
