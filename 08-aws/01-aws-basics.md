@@ -173,7 +173,7 @@ AWS のアカウントは要りません。CDK でテンプレートを手元に
 ```sh
 cd /c/Dev/apps/michizure-console
 npm run build -w web                              # web/dist がなければ
-(cd validator && ./gradlew lambdaZip)             # validator.zip がなければ（station-format の取得が要る。5-3）
+(cd validator && ./gradlew lambdaZip)             # validator.zip がなければ（コアとプロンプト・パックの取得が要る。5-3）
 ```
 
 使い捨てのルート鍵の公開鍵を渡して、テンプレートを作ります（AWS にはつながりません）。

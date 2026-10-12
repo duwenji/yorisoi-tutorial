@@ -212,7 +212,7 @@ A-4 の改訂（1.2）は、運営の画面を作ったコミット `a5ceaa8` �
 |---|---|
 | 第 0 部 | 何を作っているか、技術の地図、手元の準備 |
 | 第 1〜4 部 | Kotlin と Android、Compose、散策の仕組み、外の世界とのやりとり |
-| 第 5 部 | アプリと管理システムが共有する形式（station-format） |
+| 第 5 部 | アプリと管理システムが共有する形式（コアとプロンプト・パック。もとは station-format） |
 | 第 6 部 | 署名と信頼: なぜ、どう確かめるか |
 | 第 7 部 | TypeScript のモノレポ、契約から始める作り方、テスト |
 | 第 8 部 | AWS のサーバーレス: CDK・Lambda・Cognito・DynamoDB・S3・CloudFront・SQS・Kotlin の Lambda |

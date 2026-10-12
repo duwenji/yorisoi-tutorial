@@ -12,28 +12,33 @@
 
 ```
 SanpoGuide/
-├── app/                         Android アプリ本体（モジュール :app）
-│   └── src/
-│       ├── main/java/io/github/duwenji/sanpoguide/
-│       │   ├── ui/              画面（Compose）と ViewModel
-│       │   ├── walk/            常駐サービス WalkService
-│       │   ├── companion/       話しかけの判断（天気・施設・スポットの選び方）
-│       │   ├── guide/           AI の呼び出し、読み上げ
-│       │   ├── material/        素材の出どころ（Producer）、チャンネルのきっかけ
-│       │   ├── data/            スポット・施設・ルート・写真の取得
-│       │   ├── station/         チャンネル（remote/ は第三者のチャンネル）
-│       │   ├── mood/            雰囲気
-│       │   ├── sound/           背景音
-│       │   ├── history/         散歩の記録
-│       │   └── settings/        設定、API キーの暗号化
-│       └── test/                単体テスト
-├── station-format/              共有ライブラリ（モジュール :station-format）
-│   └── src/main/
-│       ├── kotlin/…/station/format/  チャンネル・パッケージの形式、署名の確認、リストの文書
-│       ├── kotlin/…/material/format/ 素材集の形式、素材提供者の共通の形
-│       ├── kotlin/…/prompt/          プロンプトの組み立て
-│       └── resources/sanpoguide/     組み込みのチャンネルとプロンプトの文面
+├── apps/sanpoguide/
+│   ├── app/                     Android アプリ本体（モジュール :apps:sanpoguide:app）
+│   │   └── src/
+│   │       ├── main/java/io/github/duwenji/sanpoguide/
+│   │       │   ├── ui/          画面（Compose）と ViewModel
+│   │       │   ├── walk/        常駐サービス WalkService、きっかけの見せ方
+│   │       │   ├── companion/   話しかけの判断（TalkDecider・天気・施設・スポットの選び方）
+│   │       │   ├── guide/       AI への解説の頼み方
+│   │       │   ├── material/    素材の出どころ（Producer）、チャンネルのきっかけ
+│   │       │   ├── station/     チャンネル（remote/ は第三者のチャンネル）、アプリのプロファイル
+│   │       │   ├── history/     散歩の記録
+│   │       │   └── settings/    設定
+│   │       └── test/            単体テスト
+│   └── prompts/                 プロンプト・パック（:apps:sanpoguide:prompts、素の JVM）
+│       └── src/main/
+│           ├── kotlin/…/prompt/          プロンプトの組み立て、組み込みのチャンネル、審査の見本
+│           └── resources/sanpoguide/     組み込みのチャンネルとプロンプトの文面
+├── platform/                    アプリをまたいで使う部品（michizure、ADR-003）
+│   ├── core-format/             コア: チャンネル・パッケージと素材集の形式、署名の確認、リストの文書（素の JVM）
+│   ├── core-prompt/             コア: プロンプトのテンプレートの仕組み（素の JVM）
+│   ├── kit-voice/               キット: 読み上げ、背景音
+│   ├── kit-llm/                 キット: AI の呼び出し、API キーの暗号化
+│   ├── kit-geo/                 キット: スポット・施設・ルート・写真・天気の取得、地図
+│   ├── kit-mood/                キット: 雰囲気
+│   └── kit-companion/           キット: 話す判断のルールとゲート（素の JVM）
 ├── docs/                        文書
+├── gradle/libs.versions.toml    依存ライブラリの版の一覧
 ├── build.gradle.kts             ビルドの設定（全体）
 └── settings.gradle.kts          どのモジュールがあるか
 ```

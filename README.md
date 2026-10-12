@@ -70,7 +70,7 @@ flowchart LR
 | [4-4 声と音](04-outside/04-voice-sound.md) | TTS とオーディオフォーカス、背景音の合成（ノイズとフィルター）、AudioTrack、専用のスレッドと `@Volatile`。WAV に書き出して聞く |
 | [4-5 端末にデータを置く](04-outside/05-storage.md) | SharedPreferences と変えた値だけの保存、設定の移行、`AtomicFile`、古い記録を読めるようにする、Android Keystore での暗号化 |
 
-### 第 5 部 共有ライブラリ station-format ✅
+### 第 5 部 共有ライブラリ（コアとプロンプト・パック。もとは station-format） ✅
 
 | 章 | 内容 |
 |---|---|

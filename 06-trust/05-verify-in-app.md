@@ -14,21 +14,21 @@
 
 | ファイル | 役割 | モジュール |
 |---|---|---|
-| [ProviderDocuments.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/ProviderDocuments.kt) | 検出の文書・鍵セット・リスト・試用チケットを確かめる | `:station-format` |
-| [PublisherSignature.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/PublisherSignature.kt) | Ed25519 の差し替え口、ID の計算 | `:station-format` |
+| [ProviderDocuments.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/ProviderDocuments.kt) | 検出の文書・鍵セット・リスト・試用チケットを確かめる | コア（`core-format`） |
+| [PublisherSignature.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/PublisherSignature.kt) | Ed25519 の差し替え口、ID の計算 | コア（`core-format`） |
 | [TinkEd25519.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/TinkEd25519.kt) | Tink による Ed25519 の実装 | `:app` |
 | [ChannelSync.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ChannelSync.kt) | 取得・確認・保存の流れ | `:app` |
 | [ThirdPartyChannels.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ThirdPartyChannels.kt) | `ChannelSync` を Android の上で動かす（スレッド、画面への通知） | `:app` |
 
-**確かめる規則そのもの** は `:station-format` にあり、**Android に依存する部分**（Tink、通信、ファイル、スレッド）は `:app` にあります。この分け方には理由があり、[6-6](06-same-rules.md) で見ます。
+**確かめる規則そのもの** はコア（`core-format`）にあり、**Android に依存する部分**（Tink、通信、ファイル、スレッド）はアプリにあります。この分け方には理由があり、[6-6](06-same-rules.md) で見ます。
 
 ## 差し替え口: Ed25519Verifier
 
 > Tink そのものの仕組みと使い方は [技術カード: Tink](../ref/tink.md) にあります。
 
-[6-2](02-ed25519-and-ids.md) で触れたように、Android が Ed25519 を標準で持つのは 13 からです。散策ガイドは Android 8 から動かしたい。一方、`:station-format` は管理システムの機械審査（普通の JVM、Java 17）でも使います。
+[6-2](02-ed25519-and-ids.md) で触れたように、Android が Ed25519 を標準で持つのは 13 からです。散策ガイドは Android 8 から動かしたい。一方、コア（`core-format`） は管理システムの機械審査（普通の JVM、Java 17）でも使います。
 
-そこで、`:station-format` は「Ed25519 の署名を確かめる」という約束だけを決めています。
+そこで、コア（`core-format`） は「Ed25519 の署名を確かめる」という約束だけを決めています。
 
 ```kotlin
 fun interface Ed25519Verifier {
@@ -40,8 +40,8 @@ fun interface Ed25519Verifier {
 
 | 実装 | どこにあるか | 使う場所 |
 |---|---|---|
-| `JcaEd25519` | `:station-format`（Java 標準の暗号） | 管理システムの機械審査、`:station-format` のテスト |
-| `TinkEd25519` | `:app`（Google の Tink） | アプリ（Android 8 以上） |
+| `JcaEd25519` | `core-format`（Java 標準の暗号） | 管理システムの機械審査、コアのテスト |
+| `TinkEd25519` | アプリ（Google の Tink） | アプリ（Android 8 以上） |
 
 ```kotlin
 /** Pure Ed25519 (RFC 8032) from Tink, which works from Android 8; the platform has it only from 13. */
@@ -273,9 +273,9 @@ store.writeCollection(listed.pkg.sha256, bytes)
 ## 確認問題
 
 <details>
-<summary>問 1. <code>:station-format</code> が Tink を直接使わず、<code>Ed25519Verifier</code> を受け取るのはなぜですか。</summary>
+<summary>問 1. コア（<code>core-format</code>）が Tink を直接使わず、<code>Ed25519Verifier</code> を受け取るのはなぜですか。</summary>
 
-`:station-format` はアプリ（Android 8 以上、Ed25519 は Tink が要る）と管理システムの機械審査（普通の JVM、Java 標準の暗号で足りる）の両方で使うからです。確かめ方の約束だけを決め、実装は使う側が渡します。
+コア（`core-format`） はアプリ（Android 8 以上、Ed25519 は Tink が要る）と管理システムの機械審査（普通の JVM、Java 標準の暗号で足りる）の両方で使うからです。確かめ方の約束だけを決め、実装は使う側が渡します。
 
 </details>
 

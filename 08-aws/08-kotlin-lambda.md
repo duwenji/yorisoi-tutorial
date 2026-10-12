@@ -14,12 +14,12 @@
 
 管理システムは TypeScript で書かれていますが、**機械審査の Lambda**（[validator/](../../michizure-console/validator/)）だけは Kotlin です。
 
-チャンネル提供者が上げたチャンネルのパッケージや、素材提供者が上げた素材集を確かめるとき、**アプリと同じ確認** をしなければなりません。管理システムで合格したのにアプリで読み込めない、ということが起きないようにするためです（[6-6](../06-trust/06-same-rules.md)）。アプリの確認は、Kotlin で書かれた `station-format` のライブラリにあります（第 5 部）。それを **そのまま使う** ために、機械審査は Kotlin（JVM）で書いています。
+チャンネル提供者が上げたチャンネルのパッケージや、素材提供者が上げた素材集を確かめるとき、**アプリと同じ確認** をしなければなりません。管理システムで合格したのにアプリで読み込めない、ということが起きないようにするためです（[6-6](../06-trust/06-same-rules.md)）。アプリの確認は、Kotlin で書かれたコア（`core-format`）のライブラリにあります（第 5 部）。それを **そのまま使う** ために、機械審査は Kotlin（JVM）で書いています。
 
 ```mermaid
 flowchart LR
-    SG["SanpoGuide<br/>station-format（Kotlin）"] -->|"GitHub Packages<br/>io.github.duwenji.sanpoguide:station-format:2.1.0"| V["validator<br/>機械審査の Lambda（Kotlin）"]
-    SG -->|"project(':station-format')"| APP["アプリ"]
+    SG["SanpoGuide<br/>core-format・prompts（Kotlin）"] -->|"GitHub Packages<br/>io.github.duwenji.michizure:core-format:1.2.0<br/>io.github.duwenji.sanpoguide:prompts:1.1.0"| V["validator<br/>機械審査の Lambda（Kotlin）"]
+    SG -->|"project(...)"| APP["アプリ"]
 ```
 
 Lambda は、Node.js だけでなく、Java（JVM）など、いくつもの言語で書けます。言語を部品ごとに選べるのも、Lambda の良いところです。
@@ -41,7 +41,7 @@ sequenceDiagram
     S->>V: intake/… にファイルが届いた
     V->>D: 申請を引く（状態は uploading？）
     V->>S: 2 つのファイルを読む（そろっていなければ待つ）
-    V->>V: MachineReview.review（station-format の確認など）
+    V->>V: MachineReview.review（core-format の確認など）
     alt 合格
         V->>R: 審査の見本のプロンプトを置く
         V->>D: 申請を awaiting_review に（審査待ち）
@@ -67,12 +67,12 @@ sequenceDiagram
 ```kotlin
 /**
  * The machine review (ADR-001 A-11, API-003 確認の手順 2〜10, API-004 確かめる手順 1〜4):
- * station-format's checks, the same the app runs, plus what only the console knows (which channel or
+ * core-format's checks, the same the app runs, plus what only the console knows (which channel or
  * collection, which account, which version came before, which channels use a collection) and the
  * icon. Pure: the Lambda reads and writes, this decides.
  */
 object MachineReview {
-    const val VALIDATOR = "station-format 2.1.0"
+    const val VALIDATOR = "core-format 1.2.0, prompts 1.1.0"
     // …
     fun review(upload: Upload, zip: ByteArray, icon: ByteArray, catalog: Catalog = Catalog.NONE): Outcome {
         // …
@@ -182,8 +182,9 @@ intakeBucket.addEventNotification(s3.EventType.OBJECT_CREATED, new s3n.LambdaDes
 
 ```kotlin
 dependencies {
-    implementation("io.github.duwenji.sanpoguide:station-format:2.1.0")
-    // station-format leaves org.json to its users (Android ships one).
+    implementation("io.github.duwenji.michizure:core-format:1.2.0")
+    implementation("io.github.duwenji.sanpoguide:prompts:1.1.0")
+    // core-format leaves org.json to its users (Android ships one).
     implementation("org.json:json:20240303")
     implementation("com.amazonaws:aws-lambda-java-core:1.4.0")
     implementation("com.amazonaws:aws-lambda-java-events:3.16.1")
@@ -295,7 +296,9 @@ unzip -l build/lambda/validator.zip | awk '{print $4}' | grep '^lib/' | head -8
 console/validator/AddressGuard.class
 console/validator/Catalog$Companion$NONE$1.class
 …
-lib/station-format-2.1.0.jar
+lib/core-format-1.2.0.jar
+lib/core-prompt-1.2.0.jar
+lib/prompts-1.1.0.jar
 lib/kotlin-stdlib-2.2.0.jar
 lib/json-20240303.jar
 lib/aws-lambda-java-core-1.4.0.jar
@@ -306,7 +309,7 @@ lib/url-connection-client-2.55.11.jar
 …
 ```
 
-いちばん上に自分のクラス、`lib/` に依存の jar が並んでいます。`lib/station-format-2.1.0.jar` が、アプリと同じ確認のコードです。
+いちばん上に自分のクラス、`lib/` に依存の jar が並んでいます。`lib/core-format-1.2.0.jar` が、アプリと同じ確認のコードです（見本のプロンプトは `lib/prompts-1.1.0.jar` から）。
 
 ### 3. テストを読む
 
@@ -314,7 +317,7 @@ lib/url-connection-client-2.55.11.jar
 
 - a signed package by the publisher, newer than the approved one, passes with its samples（チャンネル提供者が署名した、承認済みより新しいパッケージは、見本つきで合格する）
 - the package must be for this channel, by this publisher, and newer（このチャンネルの、このチャンネル提供者の、より新しい版でなければならない）
-- station-format's own checks come through with their codes（station-format の確認の結果が、そのコードのまま出てくる）
+- station-format's own checks come through with their codes（コアの確認の結果が、そのコードのまま出てくる。テストの名前は station-format のころのまま）
 - the icon must be a small PNG, and both problems are reported（アイコンは小さな PNG でなければならず、問題は両方とも伝える）
 
 `MachineReview` が純粋な関数なので、テストは S3 も DynamoDB も使わず、パッケージとアイコンのバイト列を渡すだけで書けています。
@@ -365,7 +368,7 @@ git status
 <details>
 <summary>問 1. 機械審査だけを Kotlin で書いたのはなぜですか。</summary>
 
-アプリと同じ確認をするために、アプリの確認のコード（Kotlin の `station-format`）をそのまま使うためです。同じコードで確かめれば、管理システムで合格したのにアプリで読み込めない、ということが起きません。
+アプリと同じ確認をするために、アプリの確認のコード（Kotlin のコア `core-format`）をそのまま使うためです。同じコードで確かめれば、管理システムで合格したのにアプリで読み込めない、ということが起きません。
 
 </details>
 

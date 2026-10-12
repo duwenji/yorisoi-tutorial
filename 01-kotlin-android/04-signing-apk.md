@@ -121,7 +121,7 @@ APK は、実は **ZIP** です。中には次のようなものが入ってい�
 | `classes.dex`・`classes2.dex`… | Kotlin のコードを、Android 用に変換したもの（デバッグ版は 10 個以上に分かれる） |
 | `AndroidManifest.xml` | 合体後のマニフェスト（1-3） |
 | `res/`・`resources.arsc` | 画像・文字列などのリソース |
-| `sanpoguide/` | `:station-format` のリソース。組み込みのチャンネルとプロンプトの文面、1-2 で見た `index.txt` |
+| `sanpoguide/` | プロンプト・パックのリソース。組み込みのチャンネルとプロンプトの文面、1-2 で見た `index.txt` |
 | `lib/` | ライブラリが持ち込んだ、端末の CPU ごとのネイティブのコード |
 | `META-INF/` | ライブラリの付属情報など |
 

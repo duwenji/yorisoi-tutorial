@@ -120,7 +120,7 @@ flowchart TB
 4. 秘密鍵を AES-GCM で暗号化する
 5. 使うための秘密鍵は **取り出せない鍵として読み込み直す**（`false`、使い道は `sign` だけ）。このあと、画面のどこかに悪いスクリプトが入っても、`exportKey` で秘密鍵を抜き出せない
 
-アカウントID は、サーバーや station-format と **同じ計算** です（`sg1` ＋ SHA-256 の base32 の先頭 32 文字、[6-2](../06-trust/02-ed25519-and-ids.md)）。[web/test/publisher-crypto.test.ts](../../michizure-console/web/test/publisher-crypto.test.ts) は、決まった公開鍵から決まった ID になることを確かめています。
+アカウントID は、サーバーやコア（`core-format`）と **同じ計算** です（`sg1` ＋ SHA-256 の base32 の先頭 32 文字、[6-2](../06-trust/02-ed25519-and-ids.md)）。[web/test/publisher-crypto.test.ts](../../michizure-console/web/test/publisher-crypto.test.ts) は、決まった公開鍵から決まった ID になることを確かめています。
 
 ### 合言葉から鍵を作る: PBKDF2
 

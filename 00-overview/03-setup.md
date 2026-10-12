@@ -57,11 +57,11 @@ Git for Windows の既定（`core.autocrlf=true`）では、取得したファ�
 
 ### 1. SanpoGuide（Kotlin）
 
-`station-format` のテストを流します。Android の SDK がなくても動く、素の Kotlin のモジュールです。
+コア（`core-format`）のテストを流します。Android の SDK がなくても動く、素の Kotlin のモジュールです。
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-./gradlew :station-format:test
+./gradlew :platform:core-format:test
 ```
 
 初回は Gradle と依存ライブラリのダウンロードで数分かかります。最後に `BUILD SUCCESSFUL` と出れば成功です。

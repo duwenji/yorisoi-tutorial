@@ -20,7 +20,7 @@ flowchart TB
         VM["状態<br/>ViewModel・StateFlow"]
         SVC["常駐サービス<br/>Coroutines・位置情報・通知"]
         NET["外部とつながる<br/>OkHttp・osmdroid・AI の SDK・TTS"]
-        SF["station-format<br/>素の Kotlin（JVM）ライブラリ"]
+        SF["コア・プロンプト・パック<br/>素の Kotlin（JVM）ライブラリ"]
         UI --> VM --> SVC --> NET
         SVC --> SF
     end
@@ -44,7 +44,7 @@ flowchart TB
 | 分野 | 技術 | 何に使っているか | 学ぶ部 |
 |---|---|---|---|
 | 言語 | Kotlin 2.2 | アプリのすべてのコード | 1 |
-| ビルド | Gradle（Kotlin DSL）、Android Gradle Plugin | ビルド、依存関係、`:app` と `:station-format` の 2 モジュール | 1 |
+| ビルド | Gradle（Kotlin DSL）、Android Gradle Plugin、バージョンカタログ | ビルド、依存関係、アプリ・プロンプト・パック・コア・キットの 9 モジュール | 1 |
 | 画面 | Jetpack Compose、Material3 | メイン・設定・記録・チャンネルの画面 | 2 |
 | 状態 | ViewModel、StateFlow | 画面に出すデータの保持 | 2 |
 | 非同期 | Kotlin Coroutines、Flow | 通信や待ち合わせを、画面を止めずに行う | 3 |
@@ -56,7 +56,7 @@ flowchart TB
 | 保存 | JSON ファイル、Android Keystore | 散歩の記録、API キーの暗号化 | 4 |
 | 暗号 | Tink（Ed25519） | 第三者のチャンネルの署名を確かめる | 6 |
 | 読み取り | Google Code Scanner | 試用チケットの QR コード | 6 |
-| 公開 | maven-publish、GitHub Packages、GitHub Actions | `station-format` を管理システムに渡す | 5 |
+| 公開 | maven-publish、GitHub Packages、GitHub Actions | コアとプロンプト・パックを管理システムに渡す | 5 |
 | テスト | JUnit 4 | 判定のロジック、形式の確認 | 各部 |
 
 ## michizure-console で使われている技術
@@ -77,7 +77,7 @@ flowchart TB
 | 非同期 | Amazon SQS | メールを送る処理の待ち行列 | 8 |
 | メール | Amazon SES | チャンネル提供者・素材提供者への通知 | 8 |
 | 鍵 | AWS KMS | 承認済みチャンネル・リストへの署名 | 6・8 |
-| 機械審査 | Kotlin の Lambda、station-format | 申請されたパッケージと素材集をアプリと同じ規則で確かめる | 8 |
+| 機械審査 | Kotlin の Lambda、コア・プロンプト・パック | 申請されたパッケージと素材集をアプリと同じ規則で確かめる | 8 |
 | 画面 | React 19、Vite、react-router | 運営・チャンネル提供者・素材提供者の画面 | 9 |
 | ログイン（画面） | oidc-client-ts | ブラウザから Cognito にログインする | 9 |
 | 暗号（画面） | WebCrypto | チャンネル提供者の秘密鍵をブラウザの中で作る | 9 |
@@ -154,7 +154,7 @@ flowchart TB
 <details>
 <summary>問 1. 管理システムの中で Kotlin が使われている場所はどこですか。なぜそこだけ Kotlin なのでしょうか。</summary>
 
-機械審査の Lambda（`validator`）です。アプリと同じ `station-format`（Kotlin のライブラリ）を使ってパッケージを確かめるためです。同じコードで確かめれば、管理システムとアプリで判定が食い違いません。
+機械審査の Lambda（`validator`）です。アプリと同じコア（`core-format`、Kotlin のライブラリ）を使ってパッケージを確かめるためです。同じコードで確かめれば、管理システムとアプリで判定が食い違いません。
 
 </details>
 
