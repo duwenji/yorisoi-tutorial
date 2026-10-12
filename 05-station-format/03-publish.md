@@ -15,7 +15,7 @@
 
 ## なぜ公開するのか
 
-同じリポジトリの中なら、`:app` は `implementation(project(":station-format"))` で `:station-format` を使えます（[1-2](../01-kotlin-android/02-gradle.md)）。でも管理システム（michizure-console）は **別のリポジトリ** です。`project(…)` では参照できません。
+同じリポジトリの中なら、アプリは `implementation(project(":apps:sanpoguide:prompts"))` でプロンプト・パック（とそれが連れてくるコア）を使えます（[1-2](../01-kotlin-android/02-gradle.md)、[5-1](01-jvm-library.md)）。でも管理システム（michizure-console）は **別のリポジトリ** です。`project(…)` では参照できません。
 
 方法はいくつか考えられます。
 
@@ -25,51 +25,66 @@
 | Git のサブモジュールで取り込む | 両方のビルドの仕組みが絡み合い、版の管理も難しい |
 | **ライブラリとして公開し、版を指定して使う** | 散策ガイドが選んだ方法 |
 
-ライブラリを **パッケージのリポジトリ**（Maven リポジトリ）に置き、使う側は OkHttp や Tink と同じように `implementation("グループ:名前:版")` と書いて取ってきます。散策ガイドは、置き場所に **GitHub Packages**（GitHub が用意している Maven リポジトリ）を使っています。この決定は管理システムの ADR-001 の T-4 と、[RFC-001](../../SanpoGuide/docs/refactoring/RFC-001-prompts-to-station-format.md) の R-3 に記録されています。
+ライブラリを **パッケージのリポジトリ**（Maven リポジトリ）に置き、使う側は OkHttp や Tink と同じように `implementation("グループ:名前:版")` と書いて取ってきます。散策ガイドは、置き場所に **GitHub Packages**（GitHub が用意している Maven リポジトリ）を使っています。この決定は管理システムの ADR-001 の T-4 と、[RFC-001](../../SanpoGuide/docs/refactoring/RFC-001-prompts-to-station-format.md) の R-3、コアとプロンプト・パックに分けたあとの公開は [RFC-002](../../SanpoGuide/docs/refactoring/RFC-002-platform-stage1.md) の R-11 に記録されています。
 
 ## Maven の座標
 
 ライブラリは 3 つの値で決まります。これを **座標** と呼びます。
 
 ```
-io.github.duwenji.sanpoguide : station-format : 2.1.0
-└───────── グループ ───────┘   └─── 名前 ───┘   └ 版 ┘
+io.github.duwenji.michizure : core-format : 1.3.0
+└──────── グループ ────────┘   └─ 名前 ──┘   └ 版 ┘
 ```
 
-[station-format/build.gradle.kts](../../SanpoGuide/platform/core-format/build.gradle.kts):
+SanpoGuide が公開しているのは 3 つです（RFC-002 の R-11）。
+
+| 座標 | モジュール | 版を決める値（`gradle.properties`） |
+|---|---|---|
+| `io.github.duwenji.michizure:core-format` | `:platform:core-format` | `michizureCoreVersion` |
+| `io.github.duwenji.michizure:core-prompt` | `:platform:core-prompt` | `michizureCoreVersion`（コアの 2 つは同じ版） |
+| `io.github.duwenji.sanpoguide:prompts` | `:apps:sanpoguide:prompts` | `sanpoguidePromptsVersion` |
+
+グループが 2 つあるのは、コアがエコシステム（michizure）のもので、プロンプト・パックが SanpoGuide のものだからです。キット（Android のライブラリ）は公開しません。
+
+[platform/core-format/build.gradle.kts](../../SanpoGuide/platform/core-format/build.gradle.kts):
 
 ```kotlin
-group = "io.github.duwenji.sanpoguide"
-version = providers.gradleProperty("stationFormatVersion").get()
+group = "io.github.duwenji.michizure"
+version = providers.gradleProperty("michizureCoreVersion").get()
 ```
 
-名前は `publishing` の設定で `artifactId = "station-format"` と決めています（下で見ます）。
+名前は `publishing` の設定で `artifactId = "core-format"` と決めています（下で見ます）。
 
 ### 版はアプリと別に管理する
 
 版は `gradle.properties` に書いています。
 
 ```properties
-# Version of :station-format as published to GitHub Packages (io.github.duwenji.sanpoguide:station-format).
-# Independent of the app's version: bump it when the format, the prompts or the built-in channels
-# change, then push the tag station-format-v<version> (.github/workflows/publish-station-format.yml).
-stationFormatVersion=2.1.0
+# Versions published to GitHub Packages (.github/workflows/publish.yml), independent of the app's.
+# The core libraries (io.github.duwenji.michizure:core-format, core-prompt): bump when the formats
+# or the template engine change, then push the tag michizure-core-v<version>.
+michizureCoreVersion=1.3.0
+# SanpoGuide's prompt pack (io.github.duwenji.sanpoguide:prompts): bump when the prompts or the
+# built-in channels change, then push the tag sanpoguide-prompts-v<version> (after the core it uses).
+sanpoguidePromptsVersion=1.1.0
 ```
 
-アプリの版（`versionName = "0.2.0"`）とは **別** です。アプリの画面を直しても、`:station-format` は変わらないので、版を上げる必要はありません。逆に、プロンプトの文面を直したら、アプリの版はそのままでも `:station-format` の版は上げます。管理システムの見本が、新しい文面で作られるようにするためです。
+アプリの版（`versionName = "0.3.0"`）とは **別** です。アプリの画面を直しても、コアもプロンプト・パックも変わらないので、版を上げる必要はありません。逆に、プロンプトの文面を直したら、アプリの版はそのままでもプロンプト・パックの版は上げます。管理システムの見本が、新しい文面で作られるようにするためです。コアとプロンプト・パックの版を分けたのも同じ理由で、プロンプトの文面を直すたびに、形式の確認（コア）の版まで上げずに済みます。
 
 これまでの版:
 
-| 版 | 主な変更 |
-|---|---|
-| 1.0.0 | プロンプトと組み込みのチャンネルを移した最初の版（RFC-001） |
-| 1.1.0 | ZIP の展開とチャンネル提供者の署名の確認（[5-2](02-package-format.md)） |
-| 1.2.0 | リストの文書の確認（`ProviderDocuments`、[6-5](../06-trust/05-verify-in-app.md)） |
-| 1.3.0 | 店の種類 7 つ（飲食・買い物）と、組み込みのチャンネル「グルメの旅」「ショッピング」（API-003 1.1）。公開はせず、2.0.0 に含めた |
-| 2.0.0 | グループと Kotlin のパッケージを `com.example.sanpoguide` から `io.github.duwenji.sanpoguide` に変えた（RFC-001 1.1） |
-| 2.1.0 | 素材・きっかけ・素材集の確認、リストの素材集の読み込み、スポットの題材の位置と地域の計算（ADR-002 T-5、API-004 1.3） |
+| 座標 | 版 | 主な変更 |
+|---|---|---|
+| `core-format`・`core-prompt` | 1.0.0 | `station-format` 2.1.0 からコアを切り出した最初の版（RFC-002 手順 1） |
+| 〃 | 1.1.0 | format 2（`activities`・`genres`・`requires`）、語彙、2 段の確かめ方、互換性の判定（API-003 2.0・API-002 1.4・API-004 1.5） |
+| 〃 | 1.2.0 | アプリのプロファイルと、リストの値での絞り込み |
+| 〃 | 1.3.0 | リストの `promotional`（宣伝の印、API-002 1.3。ADR-002 T-12） |
+| `prompts` | 1.0.0 | プロンプトと組み込みのチャンネルを切り出した最初の版（RFC-002 手順 1） |
+| 〃 | 1.1.0 | 組み込みの 6 つのチャンネルを format 2 に |
 
-機能を足したら真ん中の数字を、互換性のない変更をしたら最初の数字を上げる、という決まり（セマンティック バージョニング）に近い付け方です。2.0.0 は最初の数字を、2.1.0 は真ん中の数字を上げた例です。中身の動きは 1.3.0 と同じですが、パッケージ名が変わったので、使う側は `import` と依存の座標を書き換えないとビルドできません。だから「互換性のない変更」です。
+この前は 1 つのライブラリ `io.github.duwenji.sanpoguide:station-format` で、1.0.0（RFC-001）から 2.1.0 まで公開しました。2.0.0 はグループと Kotlin のパッケージを `com.example.sanpoguide` から `io.github.duwenji.sanpoguide` に変えた版です。`station-format` は 2.1.0 を最後に公開をやめています。
+
+機能を足したら真ん中の数字を、互換性のない変更をしたら最初の数字を上げる、という決まり（セマンティック バージョニング）に近い付け方です。`station-format` 2.0.0 は、中身の動きは前と同じでもパッケージ名が変わったので、使う側は `import` と依存の座標を書き換えないとビルドできません。だから「互換性のない変更」として最初の数字を上げました。コアの 1.1.0〜1.3.0 は、どれも足しただけなので真ん中の数字です。
 
 ### 一度公開した版は変えない
 
@@ -77,9 +92,11 @@ stationFormatVersion=2.1.0
 
 ## maven-publish の設定
 
+[platform/core-format/build.gradle.kts](../../SanpoGuide/platform/core-format/build.gradle.kts) の設定です（`core-prompt` とプロンプト・パックも同じ形）。
+
 ```kotlin
 plugins {
-    id("org.jetbrains.kotlin.jvm")
+    alias(libs.plugins.kotlin.jvm)
     `maven-publish`
 }
 
@@ -88,18 +105,18 @@ java {
     withSourcesJar()
 }
 
-// Published to GitHub Packages for the channel management system (michizure-console,
-// ADR-001 T-4). Users add org.json themselves (see the dependency note above).
+// Published to GitHub Packages for the channel management system (RFC-002 R-11, R-12).
+// Users add org.json themselves (see the dependency note above).
 publishing {
     publications {
-        create<MavenPublication>("stationFormat") {
-            artifactId = "station-format"
+        create<MavenPublication>("coreFormat") {
+            artifactId = "core-format"
             from(components["java"])
             pom {
-                name.set("SanpoGuide station-format")
+                name.set("michizure core-format")
                 description.set(
-                    "SanpoGuide channel package format (API-003): checks, PromptTemplates, the app's prompts " +
-                        "and the built-in channels. Requires org.json on the classpath.",
+                    "Channel and collection package formats, their checks and the channel list (API-002/003/004). " +
+                        "Requires org.json on the classpath.",
                 )
                 url.set("https://github.com/duwenji/SanpoGuide")
             }
@@ -132,17 +149,20 @@ POM の説明文に "Requires org.json on the classpath."（クラスパスに o
 
 ## タグを押すと公開される
 
-公開は、手元のパソコンではなく **GitHub Actions**（GitHub の上でコマンドを自動で実行する仕組み）で行います。[.github/workflows/publish-station-format.yml](../../SanpoGuide/.github/workflows/publish.yml):
+公開は、手元のパソコンではなく **GitHub Actions**（GitHub の上でコマンドを自動で実行する仕組み）で行います。[.github/workflows/publish.yml](../../SanpoGuide/.github/workflows/publish.yml):
 
 ```yaml
-# Publishes :station-format to GitHub Packages when a tag station-format-v<version> is pushed.
-# The tag must match stationFormatVersion in gradle.properties.
-name: Publish station-format
+# Publishes to GitHub Packages when a tag is pushed (RFC-002 R-11):
+# - michizure-core-v<version>:     :platform:core-format and :platform:core-prompt (michizureCoreVersion)
+# - sanpoguide-prompts-v<version>: :apps:sanpoguide:prompts (sanpoguidePromptsVersion)
+# The tag must match the version in gradle.properties. Publish the core a prompt pack uses first.
+name: Publish
 
 on:
   push:
     tags:
-      - 'station-format-v*'
+      - 'michizure-core-v*'
+      - 'sanpoguide-prompts-v*'
 
 permissions:
   contents: read
@@ -153,24 +173,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # … Java 17 と Gradle の準備
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - uses: gradle/actions/setup-gradle@v4
-
-      - name: Check the tag matches the version
+      - name: Choose what to publish
+        id: what
         run: |
-          version=$(grep '^stationFormatVersion=' gradle.properties | cut -d= -f2)
-          if [ "${GITHUB_REF_NAME}" != "station-format-v${version}" ]; then
-            echo "Tag ${GITHUB_REF_NAME} does not match stationFormatVersion=${version}" >&2
+          case "${GITHUB_REF_NAME}" in
+            michizure-core-v*)
+              property=michizureCoreVersion
+              tasks=":platform:core-format:test :platform:core-prompt:test :platform:core-format:publish :platform:core-prompt:publish"
+              ;;
+            sanpoguide-prompts-v*)
+              property=sanpoguidePromptsVersion
+              tasks=":apps:sanpoguide:prompts:test :apps:sanpoguide:prompts:publish"
+              ;;
+          esac
+          version=$(grep "^${property}=" gradle.properties | cut -d= -f2)
+          if [ "${GITHUB_REF_NAME##*-v}" != "${version}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match ${property}=${version}" >&2
             exit 1
           fi
+          echo "tasks=${tasks}" >> "$GITHUB_OUTPUT"
 
       - name: Test and publish
-        run: ./gradlew :station-format:test :station-format:publish --console=plain
+        run: ./gradlew ${{ steps.what.outputs.tasks }} --console=plain
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -178,33 +204,36 @@ jobs:
 
 ```mermaid
 flowchart LR
-    A["gradle.properties の<br/>版を上げてマージ"] --> B["タグ station-format-v2.1.0<br/>を push"]
+    A["gradle.properties の<br/>版を上げてマージ"] --> B["タグ michizure-core-v1.3.0<br/>を push"]
     B --> C["GitHub Actions が起動"]
-    C --> D{"タグと版が一致？"}
+    C --> D{"タグの種類と版が一致？"}
     D -->|いいえ| X["失敗（公開しない）"]
-    D -->|はい| E["テスト"]
+    D -->|はい| E["そのモジュールのテスト"]
     E -->|失敗| X
     E -->|成功| F["GitHub Packages に公開"]
 ```
 
 工夫を見ておきましょう。
 
-- **タグで公開する**: `main` にマージするたびではなく、`station-format-v…` のタグを押したときだけ公開します。公開は「この版を出す」という意思を持って行うものだからです
-- **タグと版の一致を確かめる**: タグ `station-format-v2.2.0` を押したのに、`gradle.properties` が `2.1.0` のままだったら、`2.1.0` を公開し直そうとしてしまいます。公開の前に、2 つが一致しているかを確かめて止めます
-- **テストに通ってから公開する**: `:station-format:test` と `:station-format:publish` を同じコマンドで実行するので、テストが落ちれば公開されません
+- **タグで公開する**: `main` にマージするたびではなく、タグを押したときだけ公開します。公開は「この版を出す」という意思を持って行うものだからです
+- **タグの名前で何を公開するかを決める**: `michizure-core-v…` ならコアの 2 つ、`sanpoguide-prompts-v…` ならプロンプト・パック。`${GITHUB_REF_NAME##*-v}` は、タグの名前から最後の `-v` より後ろ（版の数字）を取り出すシェルの書き方です
+- **タグと版の一致を確かめる**: タグ `michizure-core-v1.4.0` を押したのに、`gradle.properties` が `1.3.0` のままだったら、`1.3.0` を公開し直そうとしてしまいます。公開の前に、2 つが一致しているかを確かめて止めます
+- **テストに通ってから公開する**: テストと公開を同じコマンドで実行するので、テストが落ちれば公開されません
+- **コアを先に公開する**: プロンプト・パックはコアに依存するので、新しいコアを使うプロンプト・パックは、そのコアを公開してからタグを押します（冒頭のコメント）
 - **権限を最小にする**: `permissions` で、リポジトリの読み取り（`contents: read`）とパッケージの書き込み（`packages: write`）だけを許します。それ以上の権限をワークフローに与えません
 
 ## 使う側: validator の設定
 
-管理システムの [validator/settings.gradle.kts](../../michizure-console/validator/settings.gradle.kts) は、GitHub Packages から `station-format` を取ってくる設定をしています。
+管理システムの [validator/settings.gradle.kts](../../michizure-console/validator/settings.gradle.kts) は、GitHub Packages からコアとプロンプト・パックを取ってくる設定をしています。
 
 ```kotlin
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
-        // station-format, published by SanpoGuide (ADR-001 T-4). Reading GitHub Packages needs a token
-        // with read:packages: $GITHUB_TOKEN in CI, or gpr.user / gpr.key in ~/.gradle/gradle.properties.
-        // Without one, only a locally published station-format is used (asking without a token fails).
+        // core-format and SanpoGuide's prompt pack, published by SanpoGuide (ADR-001 T-4, SanpoGuide
+        // RFC-002 R-11). Reading GitHub Packages needs a token with read:packages: $GITHUB_TOKEN in CI,
+        // or gpr.user / gpr.key in ~/.gradle/gradle.properties. Without one, only locally published
+        // ones are used (asking without a token fails).
         val gprUser = providers.gradleProperty("gpr.user").orElse(providers.environmentVariable("GITHUB_ACTOR")).orNull
         val gprKey = providers.gradleProperty("gpr.key").orElse(providers.environmentVariable("GITHUB_TOKEN")).orNull
         if (gprUser != null && gprKey != null) {
@@ -215,32 +244,41 @@ dependencyResolutionManagement {
                     username = gprUser
                     password = gprKey
                 }
-                content { includeGroup("io.github.duwenji.sanpoguide") }
+                content {
+                    includeGroup("io.github.duwenji.michizure")
+                    includeGroup("io.github.duwenji.sanpoguide")
+                }
             }
         }
-        // A station-format built locally (`./gradlew :station-format:publishToMavenLocal` in SanpoGuide).
-        mavenLocal { content { includeGroup("io.github.duwenji.sanpoguide") } }
+        // Built locally (`./gradlew publishToMavenLocal` in SanpoGuide).
+        mavenLocal {
+            content {
+                includeGroup("io.github.duwenji.michizure")
+                includeGroup("io.github.duwenji.sanpoguide")
+            }
+        }
     }
 }
 ```
 
-- **GitHub Packages は、公開のリポジトリでも読むのにトークンが要る**: CI では `GITHUB_TOKEN`、手元では `~/.gradle/gradle.properties` に書いた `gpr.user`・`gpr.key`（`read:packages` の権限のトークン）
-- **トークンがなければ、手元に公開したものを使う**（`mavenLocal`）: SanpoGuide で `./gradlew :station-format:publishToMavenLocal` を実行すると、パソコンの `~/.m2/repository` に公開され、それを使える
-- **`includeGroup("io.github.duwenji.sanpoguide")`**: このリポジトリからは、このグループのライブラリだけを取る。ほかのライブラリを、思わぬ場所から取ってこないように
+- **GitHub Packages は、公開のリポジトリでも読むのにトークンが要る**: CI では `GITHUB_TOKEN`、手元では `~/.gradle/gradle.properties` に書いた `gpr.user`・`gpr.key`（`read:packages` の権限のトークン）。`gh auth token` で出るトークンは、ふつう `read:packages` の権限を持たないので、そのままでは使えません
+- **トークンがなければ、手元に公開したものを使う**（`mavenLocal`）: SanpoGuide で `./gradlew :platform:core-format:publishToMavenLocal :platform:core-prompt:publishToMavenLocal :apps:sanpoguide:prompts:publishToMavenLocal` を実行すると、パソコンの `~/.m2/repository` に公開され、それを使える。版を合わせるため、validator が使う版のコミット（タグなど）で実行する
+- **`includeGroup(…)`**: このリポジトリからは、この 2 つのグループのライブラリだけを取る。ほかのライブラリを、思わぬ場所から取ってこないように
 
 `validator/build.gradle.kts` の依存は、版を固定しています。
 
 ```kotlin
-implementation("io.github.duwenji.sanpoguide:station-format:2.1.0")
+implementation("io.github.duwenji.michizure:core-format:1.2.0")
+implementation("io.github.duwenji.sanpoguide:prompts:1.1.0")
 ```
 
-SanpoGuide が新しい版（たとえば `2.2.0`）を出しても、管理システムは `2.1.0` を使い続けます。実際、SanpoGuide が `1.2.0` を出したあとも、管理システムは `2.0.0` に上げるまで `1.1.0` を使っていました。`2.1.0` も、素材集の機械審査を作るとき（実装の順番 4a）に、それを使うコードと一緒に上げています。新しい版を使うのは、管理システムの側で版を書き換えて確かめたときです。**使う側が、上げる時期を自分で決められる** のが、版を固定する利点です。
+SanpoGuide が新しい版（たとえば `core-format` 1.3.0）を出しても、管理システムは `1.2.0` を使い続けます。1.3.0 で足したのはリストの読み方（アプリのため）で、機械審査には要らないからです。新しい版を使うのは、管理システムの側で版を書き換えて確かめたときです。`station-format` のころも、SanpoGuide が `1.2.0` を出したあと、管理システムは `2.0.0` に上げるまで `1.1.0` を使っていました。**使う側が、上げる時期を自分で決められる** のが、版を固定する利点です。
 
-管理システムの CI（[ci.yml](../../michizure-console/.github/workflows/ci.yml)）も、`packages: read` の権限と `GITHUB_TOKEN` で `station-format` を取ってきて、`validator` をビルドしています。
+管理システムの CI（[ci.yml](../../michizure-console/.github/workflows/ci.yml)）も、`packages: read` の権限と `GITHUB_TOKEN` でコアとプロンプト・パックを取ってきて、`validator` をビルドしています。
 
 ## 実際に起きた失敗: Permission denied
 
-最初の公開（`station-format-v1.0.0`）は、11 秒で失敗しました。GitHub Actions のログ:
+`station-format` の最初の公開（`station-format-v1.0.0`）は、11 秒で失敗しました。GitHub Actions のログ:
 
 ```
 ./gradlew: Permission denied
@@ -272,15 +310,15 @@ SanpoGuide の `.gitattributes` に `gradlew text eol=lf` とあるのも、`gra
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-./gradlew :station-format:generatePomFileForStationFormatPublication
-cat station-format/build/publications/stationFormat/pom-default.xml
+./gradlew :platform:core-format:generatePomFileForCoreFormatPublication
+cat platform/core-format/build/publications/coreFormat/pom-default.xml
 ```
 
 ```xml
-  <groupId>io.github.duwenji.sanpoguide</groupId>
-  <artifactId>station-format</artifactId>
-  <version>2.1.0</version>
-  <name>SanpoGuide station-format</name>
+  <groupId>io.github.duwenji.michizure</groupId>
+  <artifactId>core-format</artifactId>
+  <version>1.3.0</version>
+  <name>michizure core-format</name>
   <description>… Requires org.json on the classpath.</description>
   …
   <dependencies>
@@ -296,29 +334,34 @@ cat station-format/build/publications/stationFormat/pom-default.xml
 - 座標（`groupId`・`artifactId`・`version`）と説明が入っている
 - 依存は `kotlin-stdlib` だけ。`compileOnly` の `org.json` は **入っていない**。使う側に `org.json` が連れてこられないことが分かる
 
-タスクの名前 `generatePomFileForStationFormatPublication` の `StationFormat` は、`create<MavenPublication>("stationFormat")` の名前から来ています。
+タスクの名前 `generatePomFileForCoreFormatPublication` の `CoreFormat` は、`create<MavenPublication>("coreFormat")` の名前から来ています。プロンプト・パックの POM なら `:apps:sanpoguide:prompts:generatePomFileForPromptsPublication` で、依存に `core-format`・`core-prompt` が入っていることを確かめられます。
 
 ### 2. タグと版の照合を手元で再現する
 
-ワークフローの「Check the tag matches the version」と同じ処理を、手元で動かしてみます。
+ワークフローの「Choose what to publish」と同じ処理を、手元で動かしてみます。
 
 ```sh
-for tag in station-format-v2.1.0 station-format-v2.2.0; do
+for tag in michizure-core-v1.3.0 michizure-core-v1.4.0 sanpoguide-prompts-v1.1.0; do
   GITHUB_REF_NAME=$tag bash -c '
-    version=$(grep "^stationFormatVersion=" gradle.properties | cut -d= -f2)
-    if [ "${GITHUB_REF_NAME}" != "station-format-v${version}" ]; then
-      echo "Tag ${GITHUB_REF_NAME} does not match stationFormatVersion=${version}" >&2; exit 1
+    case "${GITHUB_REF_NAME}" in
+      michizure-core-v*) property=michizureCoreVersion ;;
+      sanpoguide-prompts-v*) property=sanpoguidePromptsVersion ;;
+    esac
+    version=$(grep "^${property}=" gradle.properties | cut -d= -f2)
+    if [ "${GITHUB_REF_NAME##*-v}" != "${version}" ]; then
+      echo "Tag ${GITHUB_REF_NAME} does not match ${property}=${version}" >&2; exit 1
     fi
     echo "OK $GITHUB_REF_NAME"'
 done
 ```
 
 ```
-OK station-format-v2.1.0
-Tag station-format-v2.2.0 does not match stationFormatVersion=2.1.0
+OK michizure-core-v1.3.0
+Tag michizure-core-v1.4.0 does not match michizureCoreVersion=1.3.0
+OK sanpoguide-prompts-v1.1.0
 ```
 
-版を上げずにタグだけ `2.2.0` を押すと、ここで止まることが分かります。
+版を上げずにタグだけ `1.4.0` を押すと、ここで止まることが分かります。
 
 ### 3. gradlew の権限を確かめる
 
@@ -337,12 +380,12 @@ git ls-files -s gradlew
 GitHub の CLI（`gh`）が使えるなら、公開のワークフローの実行の記録を見られます。
 
 ```sh
-gh run list --workflow publish-station-format.yml --limit 5
+gh run list --workflow publish.yml --limit 8
 ```
 
-`station-format-v1.0.0` の失敗（11 秒）と成功、`v1.1.0`・`v1.2.0`・`v2.0.0`・`v2.1.0` の成功が並んでいるはずです（1.3.0 は公開していません）。失敗した実行のログは `gh run view <実行のID> --log-failed` で読めます。
+`michizure-core-v1.0.0`〜`v1.3.0` と `sanpoguide-prompts-v1.0.0`・`v1.1.0` の成功が並んでいるはずです。`station-format` のころの記録（`v1.0.0` の 11 秒の失敗など）は、`gh run list --workflow publish-station-format.yml` で見られます（ワークフローのファイルは消えても、記録は残ります）。失敗した実行のログは `gh run view <実行のID> --log-failed` で読めます。
 
-> 手元への公開（`./gradlew :station-format:publishToMavenLocal`）も試せますが、パソコンの `~/.m2/repository` にファイルが書き込まれ、管理システムの `validator` のビルドがそれを使うことがあります（`mavenLocal`）。試したあとは `~/.m2/repository/io/github/duwenji/sanpoguide/` を消すと元に戻ります。
+> 手元への公開（`./gradlew publishToMavenLocal`）も試せますが、パソコンの `~/.m2/repository` にファイルが書き込まれ、管理システムの `validator` のビルドがそれを使うことがあります（`mavenLocal`）。試したあとは `~/.m2/repository/io/github/duwenji/michizure/` と `…/sanpoguide/` を消すと元に戻ります。
 
 ## つまずきやすいところ
 
@@ -350,26 +393,34 @@ gh run list --workflow publish-station-format.yml --limit 5
 - **タグと版をそろえる**: CI で照合して止める
 - **トークンをファイルに書かない**: 環境変数や、リポジトリの外の `~/.gradle/gradle.properties` に
 - **使う側は版を固定する**: 上げる時期を自分で決められる
+- **依存されるもの（コア）から先に公開する**: プロンプト・パックは、使うコアが公開されてから
 - **Windows で作ったスクリプトの実行権限**: `git update-index --chmod=+x`。改行も LF に
 
 ## 確認問題
 
 <details>
-<summary>問 1. 管理システムが <code>station-format</code> のコードを写して持っていかず、公開されたライブラリを使うのはなぜですか。</summary>
+<summary>問 1. 管理システムがコアのコードを写して持っていかず、公開されたライブラリを使うのはなぜですか。</summary>
 
 写した瞬間から、アプリのコードと食い違い始めるからです。同じコードで確かめる、という目的が果たせなくなります。公開されたライブラリなら、版で中身が決まり、アプリと同じコードを使えます。
 
 </details>
 
 <details>
-<summary>問 2. SanpoGuide が <code>station-format</code> の 2.2.0 を公開しました。管理システムの <code>validator</code> は、すぐに 2.2.0 を使い始めますか。</summary>
+<summary>問 2. SanpoGuide が <code>core-format</code> の 1.3.0 を公開しました。管理システムの <code>validator</code> は、すぐに 1.3.0 を使い始めますか。</summary>
 
-使い始めません。`validator/build.gradle.kts` が `2.1.0` に固定しているからです。管理システムの側で版を書き換え、テストで確かめてから上げます。
+使い始めません。`validator/build.gradle.kts` が `1.2.0` に固定しているからです。管理システムの側で版を書き換え、テストで確かめてから上げます。
 
 </details>
 
 <details>
-<summary>問 3. 最初の公開が <code>./gradlew: Permission denied</code> で失敗したのはなぜですか。どう直しましたか。</summary>
+<summary>問 3. コアとプロンプト・パックの版を、1 つにまとめずに分けているのはなぜですか。</summary>
+
+変わる理由が違うからです。プロンプトの文面や組み込みのチャンネルを直すたびに、形式の確認（コア）の版まで上げると、コアを使うほかのアプリや管理システムが、中身の変わらない新しい版を追いかけることになります。分けておけば、それぞれ変わったときだけ版を上げられます。
+
+</details>
+
+<details>
+<summary>問 4. 最初の公開が <code>./gradlew: Permission denied</code> で失敗したのはなぜですか。どう直しましたか。</summary>
 
 Windows で作った `gradlew` が、実行の権限なしで Git に記録されていて、GitHub Actions の Linux の環境で実行できなかったからです。`git update-index --chmod=+x gradlew` で、Git に実行の権限を記録して直しました。
 

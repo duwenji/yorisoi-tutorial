@@ -22,7 +22,7 @@ flowchart LR
     P --> SG["signature.json<br/>チャンネル提供者の署名"]
 ```
 
-この約束を、アプリ（読み込むとき）と管理システム（機械審査）が、**同じコード**（`:station-format` の `StationValidator`、[5-1](01-jvm-library.md)）で確かめます。
+この約束を、アプリ（読み込むとき）と管理システム（機械審査）が、**同じコード**（コア `core-format` の `StationValidator`、[5-1](01-jvm-library.md)）で確かめます。
 
 ## パッケージの中身
 
@@ -52,7 +52,7 @@ resources/                   パッケージに入れる素材（任意。第三
 - **これ以外のファイルを入れると拒む**（API-003 F-5）
 - テキストは UTF-8（BOM なし）、改行は LF
 
-組み込みの 6 つのチャンネル（[station-format/src/main/resources/sanpoguide/channels/](../../SanpoGuide/apps/sanpoguide/prompts/src/main/resources/sanpoguide/channels/)）も、`signature.json` がないだけで同じ形です。「しずかに」チャンネル（`quiet/`）は `channel.json` だけで、スロットは全部「標準」のものを使っています。
+組み込みの 6 つのチャンネル（プロンプト・パックの [sanpoguide/channels/](../../SanpoGuide/apps/sanpoguide/prompts/src/main/resources/sanpoguide/channels/)）も、`signature.json` がないだけで同じ形です。「しずかに」チャンネル（`quiet/`）は `channel.json` だけで、スロットは全部「標準」のものを使っています。
 
 ## channel.json: 選択肢から選ぶ設定
 
@@ -60,12 +60,14 @@ resources/                   パッケージに入れる素材（任意。第三
 
 ```json
 {
-  "format": 1,
+  "format": 2,
   "id": "quiet",
   "version": 1,
   "name": "しずかに",
   "summary": "天気の急変・日の入り・施設など大事なお知らせと、開始・終了のあいさつだけ",
   "lang": "ja",
+  "activities": ["walk"],
+  "genres": ["general"],
   "greeting": "ここからは静かに歩きます。大事なことだけお知らせしますね。",
   "talk": {
     "level": "quiet",
@@ -96,6 +98,10 @@ data class StationManifest(
     val guideLength: GuideLength,
     val moodTone: Boolean,
     val sound: SoundChoice,
+    // …
+    val activities: Set<Activity> = setOf(Activity.WALK),
+    val genres: Set<Genre> = emptySet(),
+    val requires: Set<Feature> = emptySet(),
 )
 ```
 
@@ -134,6 +140,46 @@ enum class TalkLevel(override val json: String) : JsonValue { QUIET("quiet"), NO
 ### 止められない出来事
 
 `talk.events` には、`spot`・`revisit`・`milestone`・`rest`・`start`・`finish` の 6 つしかありません。**天気の急変・日の入り・施設の案内は、項目そのものがない** ので、止める書き方がありません（F-4）。安全に関わる知らせは、どのチャンネルでも必ず話されます（[3-4](../03-walk/04-maybe-talk.md)）。
+
+## format 2: どのアプリで使えるチャンネルか
+
+`"format": 2` は、format 1 に 3 つの項目を足したものです（API-003 2.0 の G-1）。チャンネルは特定のアプリに結びつかず、「どんな過ごし方に合い、何が要るか」だけを書きます。
+
+| 項目 | 書けるもの | 意味 |
+|---|---|---|
+| `activities` | `walk`・`cycle` から 1〜4 個（format 2 では必須） | このチャンネルが合う過ごし方 |
+| `genres` | `general`・`history`・`nature`・`food`・`shopping` から 0〜3 個 | 散策者が探すときの分類 |
+| `requires.features` | `slot:guide`・`present:card` など 0〜20 個 | これがないアプリでは成り立たない機能 |
+
+語彙はエコシステムで 1 つで、コアの [Ecosystem.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/Ecosystem.kt) にあります（`Activity`・`Genre`・`Feature`）。format 1 のパッケージは、`activities: ["walk"]`・`genres: []`・`requires` なしとして読みます（G-6）。今ある format 1 のチャンネルは、書き換えなくてもそのまま散歩のチャンネルとして動きます。
+
+### 確かめ方は 2 段
+
+同じ `StationValidator` でも、読む側によって厳しさを変えます（G-3、`Strictness`）。
+
+| 読む側 | `Strictness` | 一覧にない値 |
+|---|---|---|
+| 管理システムの機械審査 | `REVIEW`（既定） | 拒む。審査に通ったチャンネルには、そのときの語彙しか入らない |
+| アプリ | `APP` | 古いアプリが知らない新しい値は、安全側に倒して扱う（`activities`・`genres` の知らない値は無視、`requires` の知らない値があればそのチャンネルを使わない） |
+
+語彙はあとから増えます（コアのマイナー版で足す。G-2）。審査は新しいコアで厳しく確かめ、古いアプリは知らない値を「足りない機能」として扱って使わないので、どちらに転んでも散策者に壊れたチャンネルは届きません。
+
+### アプリが使えるかの判定
+
+アプリは自分の過ごし方と、実装している機能（`AppProfile`）を持っていて、チャンネルを使えるかを `Compatibility.reasons` で判定します（G-4）。
+
+```kotlin
+/** Why [app] can't use the channel [manifest] describes; empty when it can. */
+fun reasons(manifest: StationManifest, app: AppProfile): List<String> = buildList {
+    if (app.activity !in manifest.activities) add("not for ${app.activity.json} (${manifest.activities.joinToString { it.json }})")
+    (manifest.requires - app.features).forEach { add("needs ${it.json}") }
+    manifest.unknownRestrictions.forEach { add("unknown $it") }
+}
+```
+
+SanpoGuide のプロファイル（`SanpoProfile`）は「散歩（`walk`）と、録音した音を流す見せ方（`present:play`・`present:ambient`）を除くすべての機能」です。だから `cycle` だけのチャンネルは、リストに載っていても SanpoGuide の一覧には出ません。同じ判定をリストの値（パッケージを取る前）にも行います（[6-5](../06-trust/05-verify-in-app.md)、API-002 P-19）。
+
+組み込みの 6 つのチャンネルも、2026-10-12 に format 2 にしました（`activities: ["walk"]` と、それぞれのジャンル）。
 
 ## スロット: 差し込めるのは文章だけ
 
@@ -381,12 +427,12 @@ ZIP の中に書かれた「展開後の大きさ」は信用せず（いくら�
 
 ### 1. 練習用のテストを置いて流す
 
-[scripts/MyChannelPracticeTest.kt](scripts/MyChannelPracticeTest.kt) をコピーして流します。
+[scripts/MyChannelPracticeTest.kt](scripts/MyChannelPracticeTest.kt) をコピーして流します。確認（コアの `StationValidator`）とプロンプトの組み立て（プロンプト・パックの `StationPrompts`）の両方を使うので、プロンプト・パックのテストに置きます。コアは、プロンプト・パックから `api` で見えます（[5-1](01-jvm-library.md)）。format 2 で書いているので、`activities`・`genres` も確かめられます。
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../sanpo-tutorial/05-station-format/scripts/MyChannelPracticeTest.kt station-format/src/test/kotlin/io/github/duwenji/sanpoguide/station/format/
-./gradlew :station-format:test --tests '*MyChannelPracticeTest*'
+cp ../sanpo-tutorial/05-station-format/scripts/MyChannelPracticeTest.kt apps/sanpoguide/prompts/src/test/kotlin/io/github/duwenji/sanpoguide/prompt/
+./gradlew :apps:sanpoguide:prompts:test --tests '*MyChannelPracticeTest*'
 ```
 
 5 件のテストが通ります。
@@ -406,7 +452,9 @@ cp ../sanpo-tutorial/05-station-format/scripts/MyChannelPracticeTest.kt station-
 ```kotlin
 private val manifest = """
     {
-      "format": 1,
+      "format": 2,
+      "activities": ["walk"],
+      "genres": ["history"],
       "id": "my-cafe-walk",
       "version": 1,
       "name": "喫茶店さんぽ",
@@ -423,7 +471,7 @@ private val persona = "あなたは、町の古い喫茶店を何十年も見て
 
 ### 3. 組み立てられたシステムプロンプトを見る
 
-2 つ目のテストは、組み立てたシステムプロンプトを表示（`println`）しています。テストのレポート（`station-format/build/reports/tests/test/index.html`）を開き、`MyChannelPracticeTest` の「Standard output」を見てください。
+2 つ目のテストは、組み立てたシステムプロンプトを表示（`println`）しています。テストのレポート（`apps/sanpoguide/prompts/build/reports/tests/test/index.html`）を開き、`MyChannelPracticeTest` の「Standard output」を見てください。
 
 ```
 # 役割
@@ -476,7 +524,7 @@ private val persona = "あなたは、町の古い喫茶店を何十年も見て
 ### 5. 片付け
 
 ```sh
-rm station-format/src/test/kotlin/io/github/duwenji/sanpoguide/station/format/MyChannelPracticeTest.kt
+rm apps/sanpoguide/prompts/src/test/kotlin/io/github/duwenji/sanpoguide/prompt/MyChannelPracticeTest.kt
 git status
 ```
 
