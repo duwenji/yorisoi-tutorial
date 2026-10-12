@@ -129,7 +129,7 @@ val AI_GUIDE = ProducerDescriptor(
 )
 ```
 
-この一覧は `:station-format` にあるので、管理システムの機械審査も同じものを読み、チャンネルが書いた `builtin:…` の参照が実在するかを確かめられます。
+この一覧はコア（`core-format` の `material` パッケージ）にあるので、管理システムの機械審査も同じものを読み、チャンネルが書いた `builtin:…` の参照が実在するかを確かめられます。
 
 ## 候補を前から順に試す
 
@@ -310,6 +310,23 @@ sealed interface CollectionStatus {
 
 管理システム（TypeScript の [geo.ts](../../michizure-console/packages/protocol/src/geo.ts)）とアプリ（Kotlin の `Regions.geohash`）は、同じ計算を別の言語で書いています。食い違いを防ぐため、Kotlin のテスト（`RegionsTest`）には鎌倉が `xn7` になることを書き、管理システムの準拠テストの V-25 は、リストに載った地域（Kotlin の機械審査が計算したもの）を TypeScript で計算し直して照らします。[6-6](../06-trust/06-same-rules.md) と同じ考え方です。
 
+## 宣伝: 表示つきで認める
+
+店舗・施設・商品の紹介が主な目的のチャンネル・素材集も、**表示つきで** 認めています（[ADR-002](../../SanpoGuide/docs/adr/ADR-002-material-producers.md) の D-29〜D-36、2026-10-11 の開発者の決定）。決まりは 4 つです。
+
+| 決まり | 中身 |
+|---|---|
+| 出せる場所（D-30） | 素材（審査した固定の文・画像）の中だけ。AI への指示（スロット）で宣伝させることは認めない。AI の発言は審査で確かめきれないため |
+| 印（D-31） | 申請のときに「宣伝を含む」と申告し、運営が確かめる。リストでは素材集とチャンネルに `promotional: true`。宣伝の素材集を `collections` で宣言したチャンネルにも付く（API-002 1.3 の P-16） |
+| 見せ方（D-32） | 一覧と選ぶ画面に「宣伝を含む」。素材の出典の行に「宣伝: 名前」、読み上げる前に「ここからは〇〇の宣伝です」 |
+| 止め方（D-33・D-34） | 宣伝の素材集は **基準では選ばない**（名指しされたときだけ）。散策者は設定「宣伝の素材を出さない」で止められ、そのときは次の候補へ進む |
+
+止め方は、[候補を前から順に試す](#候補を前から順に試す) 仕組みをそのまま使っています。アプリの `ResourceProducer` は、宣伝の素材で設定がオンなら「出せない」（`MaterialResult.None`）を返すだけで、候補の並びの次（AI の解説など）に代わります。
+
+印は、パッケージには書きません。申請の項目で、管理システムの公開の Lambda がリストを作るときに付けます（[8-3](../08-aws/03-lambda-apigw.md)、管理システムの DES-012）。素材集があとから宣伝の版になっても、それを宣言したチャンネルの印は、次にリストを作るときに付きます。
+
+古いアプリへの備えもあります（P-17・D-36）。`promotional` を知らないアプリが表示なしで宣伝を出さないよう、宣伝を含むものの必要なアプリの版（`minAppVersions`）を、表示に対応した版（SanpoGuide は versionCode 3）以上に上げます。その版を Google Play に出すまでは、どのアプリにもない版にしておきます。
+
 ## 段階: アプリが出せるものだけ
 
 アプリは素材の種類を段階的に増やしています（API-003 M-1）。
@@ -336,8 +353,8 @@ sealed interface CollectionStatus {
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../sanpo-tutorial/05-station-format/scripts/MyCuesPracticeTest.kt station-format/src/test/kotlin/io/github/duwenji/sanpoguide/station/format/
-./gradlew :station-format:test --tests '*MyCuesPracticeTest*'
+cp ../sanpo-tutorial/05-station-format/scripts/MyCuesPracticeTest.kt platform/core-format/src/test/kotlin/io/github/duwenji/michizure/core/format/
+./gradlew :platform:core-format:test --tests '*MyCuesPracticeTest*'
 ```
 
 6 件のテストが通ります。
@@ -353,7 +370,7 @@ cp ../sanpo-tutorial/05-station-format/scripts/MyCuesPracticeTest.kt station-for
 
 ### 2. 出力を見る
 
-テストのレポート（`station-format/build/reports/tests/test/index.html`）を開き、`MyCuesPracticeTest` の「Standard output」を見てください。
+テストのレポート（`platform/core-format/build/reports/tests/test/index.html`）を開き、`MyCuesPracticeTest` の「Standard output」を見てください。
 
 ```
 rejected: Rejected(code=BAD_CUE, detail=old-cafe: card can't show audio "voice")
@@ -404,7 +421,7 @@ TypeScript でも `xn7` です。2 つ目は東京駅です。鎌倉と同じマ
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-rm station-format/src/test/kotlin/io/github/duwenji/sanpoguide/station/format/MyCuesPracticeTest.kt
+rm platform/core-format/src/test/kotlin/io/github/duwenji/michizure/core/format/MyCuesPracticeTest.kt
 git status
 ```
 
