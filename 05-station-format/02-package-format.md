@@ -260,11 +260,11 @@ if (HEADING_PATTERN.containsMatchIn(text)) reject(RejectCode.FORBIDDEN_TEXT, "${
 
 ### アプリの段階に合わせて確かめる
 
-アプリは、素材の種類を段階的に増やしています（API-003 M-1）。今のアプリ（`versionCode` 2）は第 1 段で、文字と画像だけを出せます。音声は第 2 段、映像は第 3 段です。`StationValidator.check` は、呼ぶ側が出せる段（`mediaStage`）を受け取ります。
+アプリは、素材の種類を段階的に増やしています（API-003 M-1）。今のアプリ（`versionCode` 3）は第 1 段で、文字と画像だけを出せます。音声は第 2 段、映像は第 3 段です。`StationValidator.check` は、呼ぶ側が出せる段（`mediaStage`）を受け取ります。
 
 ```kotlin
 /** The material (手順 8・9・10). Without any stage, a channel that has some can't be shown and isn't read. */
-private fun readMedia(json: JSONObject, files: StationFiles, paths: List<String>, mediaStage: Int): StationMedia {
+private fun readMedia(json: JSONObject, files: StationFiles, paths: List<String>, mediaStage: Int, lenient: Boolean): StationMedia {
     if (mediaStage <= 0) {
         MEDIA_FIELDS.firstOrNull { json.optList(it).isNotEmpty() }?.let { reject(RejectCode.UNSUPPORTED_RESOURCE, "$it are not supported yet") }
         // …
@@ -272,7 +272,7 @@ private fun readMedia(json: JSONObject, files: StationFiles, paths: List<String>
     }
     val resources = ResourceReader.read(json, files, inCollection = false)
     // …
-    val media = CueReader.read(json, resources)
+    val media = CueReader.read(json, resources, lenient)
     // Collections are known only from the list, so what they bring is counted when they are (API-004 手順 3・4).
     val needed = MediaStage.required(media)
     if (needed > mediaStage) reject(RejectCode.UNSUPPORTED_RESOURCE, "needs app stage $needed (this one shows up to $mediaStage)")
@@ -280,11 +280,12 @@ private fun readMedia(json: JSONObject, files: StationFiles, paths: List<String>
 }
 ```
 
+- 引数の `lenient` は、[format 2](#format-2-どのアプリで使えるチャンネルか) の 2 段の確かめ方で、アプリとして読む（`Strictness.APP`）format 2 のパッケージで真になる（`val lenient = strictness == Strictness.APP && format >= 2`）。アプリが知らない新しいきっかけ・見せ方を、拒まずに飛ばすため。format 1 では、今までどおり知らない値を拒む（G-3）
 - アプリは `ChannelSync.MEDIA_STAGE`（今は 1）を渡す。音声を使うチャンネルは `unsupported_resource` で取り込まない
-- 管理システムの機械審査は `StationValidator.ALL_STAGES`（3）を渡し、すべてを確かめる（[8-8](../08-aws/08-kotlin-lambda.md)）。どの版のアプリから使えるかは、リストの `minAppVersion` で伝える
+- 管理システムの機械審査は `StationValidator.ALL_STAGES`（3）を渡し、すべてを確かめる（[8-8](../08-aws/08-kotlin-lambda.md)）。どの版のアプリから使えるかは、リストの `minAppVersions`（アプリごと）と `minAppVersion`（古い SanpoGuide のため）で伝える
 - 素材集の中身は、パッケージだけでは分からない（リストに載った素材集を取ってきて初めて分かる）。そのため、素材集が持ち込む素材の段は、取り込むときに別に数える（`CollectionReferences`）
 
-素材集そのものの形式（API-004）と確認は、`material/format` パッケージの `CollectionValidator` にあります。素材集も ZIP で、素材提供者の署名（次の `signature.json` と同じ形）が付きます。 素材の出どころの共通の形、きっかけと見せ方の安全、素材集の借り方は [5-4](04-materials-cues.md) でくわしく見ます。
+素材集そのものの形式（API-004）と確認は、コアの `material` パッケージ（`Collections.kt`）の `CollectionValidator` にあります。素材集も ZIP で、素材提供者の署名（次の `signature.json` と同じ形）が付きます。 素材の出どころの共通の形、きっかけと見せ方の安全、素材集の借り方は [5-4](04-materials-cues.md) でくわしく見ます。
 
 ## signature.json: だれが作ったか
 
@@ -347,8 +348,9 @@ sealed interface StationCheck {
 
 fun check(
     files: StationFiles, origin: StationOrigin, listedAs: ListedAs? = null, verifier: Ed25519Verifier? = null, mediaStage: Int = 0,
+    strictness: Strictness = Strictness.REVIEW,
 ): StationCheck = try {
-    StationCheck.Ok(validate(files, origin, listedAs, verifier, mediaStage))
+    StationCheck.Ok(validate(files, origin, listedAs, verifier, mediaStage, strictness))
 } catch (e: Reject) {
     StationCheck.Rejected(e.code, e.message.orEmpty())
 }

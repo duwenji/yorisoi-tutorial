@@ -151,8 +151,7 @@ android {
 
 ```kotlin
 dependencies {
-    val composeBom = platform(libs.compose.bom)
-    implementation(composeBom)
+    implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.material3)
     debugImplementation(libs.compose.ui.tooling)

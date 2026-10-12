@@ -112,14 +112,14 @@ fun forMood(mood: Mood): Soundscape {
     val night = mood.time.isDark
     val insectSeason = mood.season == Season.SUMMER || mood.season == Season.AUTUMN
     return when {
-        mood.sky == Sky.RAIN || mood.sky == Sky.THUNDER -> RAIN
-        mood.sky == Sky.SNOW -> WIND
-        mood.place == Place.WATERSIDE -> WAVES
-        night -> if (insectSeason) INSECTS else WIND
-        mood.place == Place.SHRINE_TEMPLE -> TEMPLE
-        mood.season == Season.WINTER -> WIND
-        mood.place == Place.TOWN -> WIND
-        else -> BIRDS
+        mood.sky == Sky.RAIN || mood.sky == Sky.THUNDER -> Soundscape.RAIN
+        mood.sky == Sky.SNOW -> Soundscape.WIND
+        mood.place == Place.WATERSIDE -> Soundscape.WAVES
+        night -> if (insectSeason) Soundscape.INSECTS else Soundscape.WIND
+        mood.place == Place.SHRINE_TEMPLE -> Soundscape.TEMPLE
+        mood.season == Season.WINTER -> Soundscape.WIND
+        mood.place == Place.TOWN -> Soundscape.WIND
+        else -> Soundscape.BIRDS
     }
 }
 ```
