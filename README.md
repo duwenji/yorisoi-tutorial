@@ -157,5 +157,5 @@ flowchart LR
 
 | 項目 | 値 |
 |---|---|
-| 最後に照合した日 | 2026-10-12 |
-| 照合したコミット | SanpoGuide `bd71c0a`、michizure-console `51cef1f`（どちらも `main`） |
+| 最後に照合した日 | 2026-10-13 |
+| 照合したコミット | SanpoGuide `ac66b5d`、michizure-console `68e7852`（どちらも `main`）。マージ前の SanpoGuide #51（宣伝の表示、versionCode 3）と michizure-console #32（開発用の宣伝の版）・#34（改名）の内容も反映している |
