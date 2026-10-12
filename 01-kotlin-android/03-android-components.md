@@ -18,7 +18,7 @@
 | 部品 | 散策ガイドでは | 役割 |
 |---|---|---|
 | **Application** | [`SanpoApp`](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) | アプリ全体で 1 つ。いちばん最初に作られる |
-| **Activity** | [`MainActivity`](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainActivity.kt) | 画面の入れ物。利用者が操作する |
+| **Activity** | [`MainActivity`](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainActivity.kt) | 画面の入れ物。散策者が操作する |
 | **Service** | [`WalkService`](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) | 画面がなくても動き続ける処理。散歩の追跡 |
 
 ほかに、ほかのアプリや OS からの知らせを受け取る Broadcast Receiver、データをほかのアプリに渡す Content Provider がありますが、散策ガイドは自分では使っていません。
@@ -101,12 +101,12 @@ class SanpoApp : Application() {
         private set
     lateinit var spots: SpotRepository
         private set
-    // … stations・channels・guides・speaker・history・companion・mood・photos …
+    // … stations・channels・guides・speaker・history・companion・mood・photos・narration・cueFinder・cues・cueShow …
 
     override fun onCreate() {
         super.onCreate()
         settings = SettingsRepository(this)
-        spots = SpotRepository(OverpassClient())
+        spots = SpotRepository(OverpassClient(), shops = { stations.current.value.searchedKinds })
         // … 部品を 1 つずつ作る …
         getSystemService(NotificationManager::class.java).apply {
             createNotificationChannel(NotificationChannel(CHANNEL_WALK, "散策モード", NotificationManager.IMPORTANCE_LOW))
@@ -120,7 +120,7 @@ class SanpoApp : Application() {
 
 - `lateinit var`: 「あとで（`onCreate` で）必ず入れる」という宣言です。Kotlin の `var` は作るときに値が要りますが、Application の部品は `onCreate` まで作れないので、こう書きます。入れる前に読むと例外になります
 - `private set`: 外からは読めるが、書き換えられるのはこのクラスの中だけ
-- `createNotificationChannel`: Android 8 からは、通知を出す前に **通知のチャンネル**（「散策モード」「スポット案内」「雷雨の予報」）を作る必要があります。利用者は、設定画面でチャンネルごとに通知のオン・オフや音を変えられます
+- `createNotificationChannel`: Android 8 からは、通知を出す前に **通知のチャンネル**（「チャンネルの案内」「散策モード」「スポット案内」「雷雨の予報」）を作る必要があります。散策者は、設定画面でチャンネルごとに通知のオン・オフや音を変えられます
 
 画面や Service は、`(application as SanpoApp).spots` のように部品を取り出して使います。部品を外から渡す専用のライブラリ（DI ライブラリ）は使っていません。この作りの良し悪しは第 2 部で考えます。
 
@@ -179,7 +179,7 @@ stateDiagram-v2
     隠れた --> [*]: onDestroy（回転・メモリ不足・閉じた）
 ```
 
-`MainActivity` は `onResume`（画面に戻ってきたとき）で、位置情報の設定がオンになったかを確かめ直しています。利用者が設定画面で位置情報をオンにして戻ってきた場面を想定しています。
+`MainActivity` は `onResume`（画面に戻ってきたとき）で、位置情報の設定がオンになったかを確かめ直しています。散策者が設定画面で位置情報をオンにして戻ってきた場面を想定しています。
 
 `onCreate` の `savedInstanceState` は、作り直されたときに前の状態が入っている引数です。`MainActivity` は「初回だけスポットを取りに行く」（`if (savedInstanceState == null) viewModel.refresh()`）ために使っています。回転するたびにネットワークへ取りに行かないようにするためです。
 
@@ -338,7 +338,7 @@ Activity は、画面を閉じたり端末を回転させたりするだけで O
 </details>
 
 <details>
-<summary>問 2. 利用者が「大まかな位置だけ」を許可しました。散策ガイドは位置を使えますか。</summary>
+<summary>問 2. 散策者が「大まかな位置だけ」を許可しました。散策ガイドは位置を使えますか。</summary>
 
 使えます。`ACCESS_FINE_LOCATION` と `ACCESS_COARSE_LOCATION` のどちらかが許可されていれば `hasLocationPermission` が `true` になります。ただし位置の精度は下がります。
 

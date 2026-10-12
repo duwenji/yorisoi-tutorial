@@ -123,7 +123,7 @@ fun distanceFrom(location: Location): Float {
 operator fun get(t: Threshold): Int = (values[t] ?: t.default).coerceIn(t.min, t.max)
 ```
 
-利用者が設定した値（`values[t]`、設定していなければ null）があればそれを、なければ既定値を使い、範囲に収めます。
+散策者が設定した値（`values[t]`、設定していなければ null）があればそれを、なければ既定値を使い、範囲に収めます。
 
 ### `!!` は「ここで落ちてよい」という宣言
 

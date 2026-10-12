@@ -7,7 +7,7 @@
 ## この章で学ぶこと
 
 - Cognito のユーザープールで、ログインの仕組みを丸ごと借りる
-- 運用者と配信元を、グループで分ける。だれが運用者になれるか
+- 運営とチャンネル提供者を、グループで分ける。だれが運営になれるか
 - 全員に MFA（2 段階の確認）を求める
 - 画面（SPA）のためのログインの流れ（認可コード ＋ PKCE）と、秘密を持たないクライアント
 - JWT（ログインのトークン）の中身と、API Gateway がそれを確かめる仕組み
@@ -49,27 +49,29 @@ const userPool = new cognito.UserPool(this, 'UserPool', {
 
 | 設定 | 意味 |
 |---|---|
-| `selfSignUpEnabled: true` | 自分で登録できる（配信元のため） |
+| `selfSignUpEnabled: true` | 自分で登録できる（チャンネル提供者のため） |
 | `signInAliases: { email: true }` | メールアドレスでログインする |
 | `autoVerify: { email: true }` | 登録のとき、メールアドレスに確認のコードを送る |
 | `mfa: REQUIRED`、`otp: true`・`sms: false` | **全員に MFA を求める**。スマートフォンの認証アプリ（TOTP）で。SMS は使わない |
 | `passwordPolicy` | 12 文字以上、大文字・小文字・数字・記号を含む |
 | `accountRecovery: EMAIL_ONLY` | パスワードを忘れたら、メールで |
 
-ADR-001 の A-4（1.2 で改訂）は「MFA（TOTP）は全員に必須」としています。Cognito の MFA はユーザープールの単位で決まるので、運用者だけに求めることはできません。運用者が署名を出す操作（承認・取り下げ・鍵セットの登録）を担う以上、運用者の MFA は外せない。だから全員に求める、という判断です。
+ADR-001 の A-4（1.2 で改訂）は「MFA（TOTP）は全員に必須」としています。Cognito の MFA はユーザープールの単位で決まるので、運営だけに求めることはできません。運営が署名を出す操作（承認・取り下げ・鍵セットの登録）を担う以上、運営の MFA は外せない。だから全員に求める、という判断です。
 
-## グループで分ける: 運用者と配信元
+## グループで分ける: 運営とチャンネル提供者
 
 ```ts
 new cognito.UserPoolGroup(this, 'OperatorGroup', { userPool, groupName: 'operator', precedence: 0, description: 'Operators (added by an administrator only)' });
 new cognito.UserPoolGroup(this, 'PublisherGroup', { userPool, groupName: 'publisher', precedence: 10, description: 'Publishers (added on sign-up)' });
 ```
 
-利用者は `operator`（運用者）か `publisher`（配信元）の **グループ** に入ります。グループは、ログインのトークンの `cognito:groups` に入り、管理 API はそれで役割を判断します（[8-3](03-lambda-apigw.md) の `callerFrom`・`requireOperator`）。
+利用者は `operator`（運営）か `publisher`（チャンネル提供者）の **グループ** に入ります。グループは、ログインのトークンの `cognito:groups` に入り、管理 API はそれで役割を判断します（[8-3](03-lambda-apigw.md) の `callerFrom`・`requireOperator`）。
 
-### だれが運用者になれるか
+素材提供者（[0-1](../00-overview/01-what-we-build.md)）のグループはありません。素材提供者は、チャンネル提供者と **同じアカウント** で、画面の「素材提供者として始める」を押すと、データベースのアカウントの項目の `roles` に `producer` が足されます（DM-001 M-16）。Cognito のグループは「運営か、そうでないか」という守りの境目にだけ使い、そうでない人の中の役割の違いはアプリのデータで持つ、という分け方です。
 
-ここが大事です。自分で登録できるのに、運用者に **なれてしまっては困ります**。
+### だれが運営になれるか
+
+ここが大事です。自分で登録できるのに、運営に **なれてしまっては困ります**。
 
 ```ts
 // Everyone who signs up is a publisher; operators are never made this way.
@@ -92,9 +94,9 @@ export async function handler(event: PostConfirmationTriggerEvent) {
 }
 ```
 
-- 登録した人は、必ず配信元になる
-- 運用者のグループに入れる道は、AWS の管理者が手で入れることだけ（[docs/operations/deploy.md](../../sanpo-channel-console/docs/operations/deploy.md) の「運用者を足す」）
-- だから、どんな登録も、運用者の API には届かない
+- 登録した人は、必ずチャンネル提供者になる
+- 運営のグループに入れる道は、AWS の管理者が手で入れることだけ（[docs/operations/deploy.md](../../sanpo-channel-console/docs/operations/deploy.md) の「運営の担当者を足す」）
+- だから、どんな登録も、運営の API には届かない
 
 この Lambda に許しているのは `cognito-idp:AdminAddUserToGroup` だけです。コメントのとおり、許可のリソースを `userpool/*` にしているのは、ユーザープールとトリガーが互いを参照する **循環** を避けるためです（ユーザープールはトリガーを名指しし、トリガーの許可がユーザープールを名指しすると、どちらを先に作ればよいか決まらない）。
 
@@ -132,7 +134,7 @@ const client = userPool.addClient('WebClient', {
 
 ```mermaid
 sequenceDiagram
-    participant U as 運用者（ブラウザ）
+    participant U as 運営（ブラウザ）
     participant S as 画面（SPA）
     participant C as Cognito（ログインの画面）
     participant A as API Gateway・管理 API
@@ -189,13 +191,13 @@ authorizer: new authorizers.HttpJwtAuthorizer('Jwt', issuer, { jwtAudience: [cli
 
 ## 登録を開くことへの備え
 
-配信元は自分で登録できます（ADR-001 D-7）。だれでも登録できるということは、悪意のある大量の登録や、パスワードの総当たりも来うる、ということです。ADR-001 の A-18 は、そのための備えを決めています。
+チャンネル提供者は自分で登録できます（ADR-001 D-7）。だれでも登録できるということは、悪意のある大量の登録や、パスワードの総当たりも来うる、ということです。ADR-001 の A-18 は、そのための備えを決めています。
 
 | 備え | 場所 |
 |---|---|
 | ① ユーザープールに **AWS WAF** を付け、送信元の IP ごとに、5 分で 300 回を超える要求を止める。評判の悪い IP（AWS が管理する一覧）も止める | `console-app.ts` の `UserPoolWaf`（本番だけ） |
 | ② API Gateway の流量の制限（1 秒 20 回） | [8-3](03-lambda-apigw.md) |
-| ③ 配信元ごとの上限（チャンネルは 5 つ、申請は 1 日 20 回、試用チケットは 1 日 10 回） | DM-001 M-2、[8-5](05-dynamodb.md) |
+| ③ チャンネル提供者ごとの上限（チャンネルは 5 つ、申請は 1 日 20 回、試用チケットは 1 日 10 回） | DM-001 M-2、[8-5](05-dynamodb.md) |
 | ④ 全員に MFA | この章 |
 
 WAF は月に約 7 USD かかるので、登録を公開していない開発用では外しています（`config.cost.waf`、[docs/operations/cost.md](../../sanpo-channel-console/docs/operations/cost.md)）。
@@ -269,13 +271,13 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6ImV4YW1wbGUta2V5LWlkIn0.eyJzdWIi…
 - **画面（SPA）に秘密を置かない**: 公開クライアント（`generateSecret: false`）と、認可コード ＋ PKCE
 - **登録できる人が、強い権限に届かないようにする**: 登録した人が入るグループは、トリガーで決める。強い権限は管理者が手で
 - **JWT の中身は読める**: 秘密を入れない。書き換えられないのは、署名があるから
-- **トークンを確かめるのは入口で、役割を確かめるのはアプリで**: API Gateway は「ログインしているか」、Lambda は「運用者か」
+- **トークンを確かめるのは入口で、役割を確かめるのはアプリで**: API Gateway は「ログインしているか」、Lambda は「運営か」
 - **ユーザープールとトリガーの循環**: 許可を `userpool/*` にするなどで避ける
 
 ## 確認問題
 
 <details>
-<summary>問 1. 自分で登録した人が、運用者のグループに入ることはありますか。</summary>
+<summary>問 1. 自分で登録した人が、運営のグループに入ることはありますか。</summary>
 
 ありません。登録が確かめられたあとのトリガーの Lambda が、その人を `publisher` のグループにだけ入れます。`operator` のグループに入れるのは、AWS の管理者が手で行うときだけです。
 

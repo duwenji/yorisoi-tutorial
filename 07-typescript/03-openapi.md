@@ -28,14 +28,14 @@ flowchart LR
 | 文書 | 役割 |
 |---|---|
 | [API-001（console-api.md）](../../sanpo-channel-console/docs/console-api.md) | 人が読む契約書。決定事項（C-1・C-2…）、状態の移り変わり、権限、エラーの意味。**正本** |
-| [console.openapi.yaml](../../sanpo-channel-console/docs/api/console.openapi.yaml) | 同じ内容を、機械が読める形にしたもの。操作 48 個、データの形、エラーコード |
+| [console.openapi.yaml](../../sanpo-channel-console/docs/api/console.openapi.yaml) | 同じ内容を、機械が読める形にしたもの。操作 66 個、データの形、エラーコード |
 | [packages/api-types/src/schema.ts](../../sanpo-channel-console/packages/api-types/src/schema.ts) | OpenAPI から **生成した** TypeScript の型。手で書かない |
 
 OpenAPI の冒頭には、正本がどちらかが書いてあります。
 
 ```yaml
 description: |
-  [console-api.md](../console-api.md)（API-001 1.0）を機械で読める形にしたもの。
+  [console-api.md](../console-api.md)（API-001 1.1）を機械で読める形にしたもの。
   方針・状態・権限の根拠は契約書が正本で、食い違いがあれば契約書に合わせてこのファイルを直す。
 ```
 
@@ -72,7 +72,7 @@ paths:
 | `parameters` | パスやヘッダーやクエリの値（ここでは `If-Match` のヘッダー） |
 | `requestBody` | 要求の本文の形 |
 | `responses` | 応答の形。`'200'` は成功、`default` はそれ以外（エラー） |
-| `$ref` | ほかの場所の定義を参照する。同じ形を何度も書かずに済む |
+| `$ref` | ほかの場所の定義を参照する。同じ形を何度も書かずに済む（素材集の取り下げ `revokeCollection` も、同じ `RevokeInput` を参照している） |
 
 参照先の `RevokeInput`（`components/schemas` の下）:
 
@@ -85,7 +85,7 @@ RevokeInput:
       type: array
       items: { type: integer, minimum: 1 }
       description: 省くとすべての版
-    reason: { type: string, minLength: 1, maxLength: 200, description: 利用者に見せる理由 }
+    reason: { type: string, minLength: 1, maxLength: 200, description: 散策者に見せる理由 }
     severity: { type: string, enum: [high, low] }
 ```
 
@@ -105,13 +105,13 @@ RevokeInput:
 }
 ```
 
-`npm run generate -w packages/api-types` を実行すると、**openapi-typescript** が OpenAPI を読んで、TypeScript の型（`schema.ts`、約 2,300 行）を書き出します。上の `RevokeInput` は、次のような型になります。
+`npm run generate -w packages/api-types` を実行すると、**openapi-typescript** が OpenAPI を読んで、TypeScript の型（`schema.ts`、約 3,200 行）を書き出します。上の `RevokeInput` は、次のような型になります。
 
 ```ts
 RevokeInput: {
   /** @description 省くとすべての版 */
   versions?: number[];
-  /** @description 利用者に見せる理由 */
+  /** @description 散策者に見せる理由 */
   reason: string;
   /** @enum {string} */
   severity: "high" | "low";
@@ -271,7 +271,7 @@ const MESSAGES: Partial<Record<Problem['code'], string>> = {
 
 ## 同時の書き込みを防ぐ: ETag と If-Match
 
-運用者が 2 人いて、同じチャンネルを同時に操作したらどうなるでしょう。
+運営の担当者が 2 人いて、同じチャンネルを同時に操作したらどうなるでしょう。
 
 1. A さんがチャンネルの画面を開く（このとき `rev` は 4）
 2. B さんも同じ画面を開く（`rev` は 4）
@@ -280,7 +280,7 @@ const MESSAGES: Partial<Record<Problem['code'], string>> = {
 
 A さんは、B さんの変更を知らずに操作しています。API-001 の C-8 は、これを防ぐ決まりです。
 
-> 状態が変わるもの（配信元・チャンネル・申請・鍵の移し替え）は、応答に `ETag`（DM-001 の `rev`）を付ける。それを変える操作は `If-Match` が必須で、ないと 428、違うと 412。
+> 状態が変わるもの（チャンネル提供者・チャンネル・申請・鍵の移し替え）は、応答に `ETag`（DM-001 の `rev`）を付ける。それを変える操作は `If-Match` が必須で、ないと 428、違うと 412。
 
 ```mermaid
 sequenceDiagram

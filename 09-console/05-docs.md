@@ -32,30 +32,34 @@ export const ifMatch = (rev: number) => ({ 'If-Match': `"${rev}"` });
 | ADR（設計の決定の記録） | [ADR-001](../../sanpo-channel-console/docs/adr/ADR-001-aws-architecture.md) | 何を、なぜ選んだか。ほかの案はなぜ捨てたか |
 | API 契約書 | [API-001](../../sanpo-channel-console/docs/console-api.md) ＋ [OpenAPI](../../sanpo-channel-console/docs/api/console.openapi.yaml) | 画面と API の間で、何をどんな形でやりとりするか（[7-3](../07-typescript/03-openapi.md)） |
 | データモデル | [DM-001](../../sanpo-channel-console/docs/data-model.md) | 何をどんなキーで保存し、どう取り出すか（[8-5](../08-aws/05-dynamodb.md)） |
-| 機能設計書 | [DES-001〜006](../../sanpo-channel-console/docs/design/) | 実装の 1 段ごとに、どう作り、どう確かめたか |
-| 利用ガイド | [guide/](../../sanpo-channel-console/docs/guide/README.md) | 運用者・配信元・保守する人は、どう使うか |
+| 機能設計書 | [DES-001〜010](../../sanpo-channel-console/docs/design/) | 実装の 1 段ごとに、どう作り、どう確かめたか（DES-007〜010 は素材集） |
+| 利用ガイド | [guide/](../../sanpo-channel-console/docs/guide/README.md) | 運営・チャンネル提供者・素材提供者・保守する人は、どう使うか |
 | 運用の手順 | [operations/](../../sanpo-channel-console/docs/operations/) | 配備の手順（[deploy.md](../../sanpo-channel-console/docs/operations/deploy.md)）、費用（[cost.md](../../sanpo-channel-console/docs/operations/cost.md)） |
 | 構成図 | [architecture.md](../../sanpo-channel-console/docs/architecture.md) | 全体がどうつながっているか |
 | TODO | [TODO.md](../../sanpo-channel-console/docs/TODO.md) | 次に何をするか。決めたことの一覧 |
 | 作業の記録 | [skill-logs/](../../sanpo-channel-console/docs/skill-logs/) | 文書や実装を、どんな段取りで作り、何に気づいたか |
 
-SanpoGuide の [docs/](../../SanpoGuide/docs/) にも、同じ種類の文書があります。アプリと管理システムの境界を決める文書（API-002 [channel-list-api.md](../../SanpoGuide/docs/channel-list-api.md)・API-003 [channel-package-format.md](../../SanpoGuide/docs/channel-package-format.md)）は、アプリの側に置いています（[0-1](../00-overview/01-what-we-build.md)）。アプリが受け取るものの形は、アプリが決めるからです。
+SanpoGuide の [docs/](../../SanpoGuide/docs/) にも、同じ種類の文書があります。アプリと管理システムの境界を決める文書（API-002 [channel-list-api.md](../../SanpoGuide/docs/channel-list-api.md)・API-003 [channel-package-format.md](../../SanpoGuide/docs/channel-package-format.md)・API-004 [material-producer-api.md](../../SanpoGuide/docs/material-producer-api.md)）は、アプリの側に置いています（[0-1](../00-overview/01-what-we-build.md)）。アプリが受け取るものの形は、アプリが決めるからです。素材提供者を切り出す決定（[ADR-002](../../SanpoGuide/docs/adr/ADR-002-material-producers.md)）と、2 つのリポジトリに共通する関係者の呼び方（[stakeholders.md](../../SanpoGuide/docs/stakeholders.md)）も、SanpoGuide の側にあります。
 
 ```mermaid
 flowchart TB
     subgraph SG["SanpoGuide"]
         SADR["ADR-001<br/>第三者のチャンネルを審査して取り込む"] --> API2["API-002<br/>承認済みチャンネル・リスト"]
         SADR --> API3["API-003<br/>チャンネルのパッケージ"]
+        SADR2["ADR-002<br/>素材提供者を切り出す"] --> API4["API-004<br/>素材集と素材提供者の共通の形"]
+        SADR2 --> API2
+        SADR2 --> API3
     end
     subgraph CC["sanpo-channel-console"]
         ADR["ADR-001<br/>AWS の構成"] --> API1["API-001 ＋ OpenAPI<br/>管理 API"]
         ADR --> DM["DM-001<br/>データモデル"]
         API1 --> DM
-        API1 --> DES["DES-001〜006<br/>実装の段ごとの設計"]
+        API1 --> DES["DES-001〜010<br/>実装の段ごとの設計"]
         DM --> DES
     end
     API2 --> ADR
     API3 --> ADR
+    API4 --> ADR
     DES --> CODE["コードとテスト<br/>（コメントに文書の ID）"]
 ```
 
@@ -86,7 +90,7 @@ flowchart TB
 | 公開 1. API Gateway と Lambda でリストを返す | 管理システムが止まるとアプリが取得できない（P-7 に反する）。呼ばれるたびに費用がかかる → **不採用** |
 | 公開 2. S3 と CloudFront で静的ファイルとして出す | P-7 のとおり。費用はほぼ配信量だけ → **採用（A-7）** |
 | 署名 C. 秘密鍵を KMS で暗号化して保管し、Lambda で署名 | 契約は変わらない。秘密鍵が Lambda のメモリに出る → **不採用** |
-| ログイン 1. 配信元の鍵だけで入る（署名でログイン） | パスワードが要らない。鍵をなくすとログインもできず、移し替えの本人確認ができない → **不採用** |
+| ログイン 1. チャンネル提供者の鍵だけで入る（署名でログイン） | パスワードが要らない。鍵をなくすとログインもできず、移し替えの本人確認ができない → **不採用** |
 
 「Lambda で返したほうが簡単では？」「鍵でログインさせればパスワードは要らないのでは？」と思った人は、ここを読めば、同じことを考えて捨てた理由が分かります。
 
@@ -94,7 +98,7 @@ flowchart TB
 
 決定事項は、1 行ずつ ID を持ちます。
 
-- `D-1`〜: 開発者が決めたこと（「審査の見本は、運用者の API キーでブラウザから AI を呼ぶ」= D-4）
+- `D-1`〜: 開発者が決めたこと（「審査の見本は、運営の API キーでブラウザから AI を呼ぶ」= D-4）
 - `A-1`〜: 構成の決定（Claude が提案し、開発者が承認したもの。「審査の見本の作り方」= A-14）
 - `T-1`〜: 追従タスク（「ルート鍵の手順書」= T-5）
 
@@ -106,7 +110,7 @@ ID があるので、ほかの文書やコードのコメントから **1 行単
 
 ```mermaid
 flowchart LR
-    D4["ADR-001 D-4<br/>運用者の API キーで<br/>ブラウザから AI を呼ぶ"] --> A14["ADR-001 A-14<br/>キーはブラウザのメモリだけ<br/>CSP で通信先を限る"]
+    D4["ADR-001 D-4<br/>運営の API キーで<br/>ブラウザから AI を呼ぶ"] --> A14["ADR-001 A-14<br/>キーはブラウザのメモリだけ<br/>CSP で通信先を限る"]
     A14 --> DES5["DES-005<br/>対応元ID に D-4"]
     DES5 --> AI["web/src/ai.ts<br/>(ADR-001 D-4, DES-005)"]
     DES5 --> CSP["infra/lib/console-app.ts<br/>connect-src に AI の API"]
@@ -114,7 +118,7 @@ flowchart LR
 ```
 
 - [ADR-001](../../sanpo-channel-console/docs/adr/ADR-001-aws-architecture.md) の D-4 と A-14 が決める
-- [DES-005](../../sanpo-channel-console/docs/design/DES-005-review.md) の「対応元ID（トレーサビリティ）」の表が、`ADR-001 … D-4（AI の見本は運用者のキーでブラウザから） | 実装` と、応えたことを記録する
+- [DES-005](../../sanpo-channel-console/docs/design/DES-005-review.md) の「対応元ID（トレーサビリティ）」の表が、`ADR-001 … D-4（AI の見本は運営のキーでブラウザから） | 実装` と、応えたことを記録する
 - [web/src/ai.ts](../../sanpo-channel-console/web/src/ai.ts) の先頭のコメント `The review samples' AI (ADR-001 D-4, DES-005)` が、どの決定を実装したかを示す
 - [infra/lib/console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts) の CSP にも同じ ID のコメント
 - [web/test/ai.test.ts](../../sanpo-channel-console/web/test/ai.test.ts) が、決めた窓口とキーで呼ぶことを確かめる
@@ -125,14 +129,14 @@ flowchart LR
 
 決めたことが、実装してみて合わないと分かることもあります。そのときは、**文書を黙って無視せず、文書を直してから（または同時に）コードを変えます**。
 
-実際に起きた例です。ADR-001 の A-4 は、最初「運用者だけ MFA を必須にする」と決めていました。ところが運用者の画面を作る段で、Cognito の MFA は **ユーザープール単位** でしか決められないと分かりました（[8-4](../08-aws/04-cognito.md)）。
+実際に起きた例です。ADR-001 の A-4 は、最初「運営だけ MFA を必須にする」と決めていました。ところが運営の画面を作る段で、Cognito の MFA は **ユーザープール単位** でしか決められないと分かりました（[8-4](../08-aws/04-cognito.md)）。
 
-1. 作業の記録（[skill-logs/feature_implementation_2026-10-04.md](../../sanpo-channel-console/docs/skill-logs/feature_implementation_2026-10-04.md)）に、気づいたことを書く: 「ADR-001 A-4 の『運用者だけ MFA 必須』は、Cognito の MFA がプール単位のためそのままでは作れない」
+1. 作業の記録（[skill-logs/feature_implementation_2026-10-04.md](../../sanpo-channel-console/docs/skill-logs/feature_implementation_2026-10-04.md)）に、気づいたことを書く: 「ADR-001 A-4 の『運営だけ MFA 必須』は、Cognito の MFA がプール単位のためそのままでは作れない」
 2. 開発者に判断を仰ぐ → 「全員に MFA を求める」と決める
 3. ADR-001 の A-4 を書き換え（「（1.2 で改訂）」と明記）、版を 1.2 に上げ、変更履歴に「A-4 を改訂: MFA は全員に必須（ユーザープール単位でしか決められないため）… Claude（決定: 開発者）」と残す
 4. コードのコメントも `(ADR-001 A-4, 1.2: one pool, TOTP MFA for everyone)` と、改訂後の版を指す
 
-こうしておけば、「ADR には運用者だけと書いてあるのに、コードは全員に MFA を求めている。どちらが正しい？」という混乱が起きません。
+こうしておけば、「ADR には運営だけと書いてあるのに、コードは全員に MFA を求めている。どちらが正しい？」という混乱が起きません。
 
 ### 承認とステータス
 
@@ -146,24 +150,29 @@ flowchart LR
 
 ```sh
 cd /c/Dev/apps/sanpo-channel-console
-grep -rhoE "\b(ADR-001|API-00[0-9]|DM-001|DES-00[0-9])" api/src web/src infra/lib infra/bin validator/src packages \
+grep -rhoE "\b(ADR-001|API-00[0-9]|DM-001|DES-0[0-9][0-9])" api/src web/src infra/lib infra/bin validator/src packages \
   --include=*.ts --include=*.tsx --include=*.kt | sort | uniq -c | sort -rn
 ```
 
 ```text
+     64 DM-001
+     50 API-001
+     37 API-002
      37 ADR-001
-     35 DM-001
-     35 API-001
-     23 API-002
-      9 API-003
+     24 DES-007
+     19 DES-008
+     16 DES-009
+     10 API-003
+      6 API-004
+      5 DES-010
       4 DES-006
-      3 DES-005
+      2 DES-005
       1 DES-003
 ```
 
-（2026-10-05 の main で数えたもの。コードが変われば数も変わります）
+（2026-10-12 の main で数えたもの。コードが変われば数も変わります）
 
-ADR・API 契約書・データモデルが、ほぼ同じくらい指されています。SanpoGuide の文書（API-002・API-003）も、管理システムのコードから指されています。アプリとの境界を守るコードだからです。
+データモデル・API 契約書・ADR がよく指されています。SanpoGuide の文書（API-002・API-003・API-004）も、管理システムのコードから指されています。アプリとの境界を守るコードだからです。素材集を足した段（DES-007〜010）の設計書が多く指されているのは、新しく書いたコードほど、どの決定に従ったかをコメントに残しているからです。
 
 ### 2. 1 つの決定をたどる
 
@@ -182,13 +191,18 @@ git log --oneline -- docs/adr/ADR-001-aws-architecture.md
 ```
 
 ```text
+8be2b12 docs: 提供元・提供元ID は「リスト・リストID」と呼ぶ
+20a7e69 docs: 関係者の呼び方を「散策者・チャンネル提供者・素材提供者・運営」にそろえる
+76ff284 docs: 素材集と制作元（実装の順番 4）と PR #23 に文書を追従させる
 a5ceaa8 feat: 運用者の画面（Cognito・管理 API・SPA）を追加（実装の順番 2）
 404fe6d docs: station-format の公開（ADR-001 T-4）の完了を記録
 97d4575 docs: 管理 API の契約書 API-001 と OpenAPI を追加し、DM-001・ADR-001 を 1.1 に改訂
 52e10e1 docs: チャンネル管理システムの AWS 構成（ADR-001）と進め方
 ```
 
-A-4 の改訂（1.2）は、運用者の画面を作ったコミット `a5ceaa8` に入っています。`git show a5ceaa8 -- docs/adr/ADR-001-aws-architecture.md` で、何が書き換わったかを見られます。決定の変更と、それに合わせた実装が、同じコミットで入っています。
+古いコミットのメッセージには、前の呼び方（運用者・提供元・制作元）が残っています。コミットのメッセージはあとから書き換えないので、呼び方を変えた記録（`20a7e69`・`8be2b12`）と一緒に読みます。
+
+A-4 の改訂（1.2）は、運営の画面を作ったコミット `a5ceaa8` に入っています。`git show a5ceaa8 -- docs/adr/ADR-001-aws-architecture.md` で、何が書き換わったかを見られます。決定の変更と、それに合わせた実装が、同じコミットで入っています。
 
 ## チュートリアルのおわりに
 
@@ -232,7 +246,7 @@ A-4 の改訂（1.2）は、運用者の画面を作ったコミット `a5ceaa8`
 <details>
 <summary>問 2. コードに (ADR-001 A-4, 1.2: …) と、版まで書いてあるのはなぜですか。</summary>
 
-A-4 が 1.2 で改訂されたからです。改訂前の「運用者だけ MFA 必須」と区別し、改訂後の決定（全員に MFA）を実装していることを示しています。
+A-4 が 1.2 で改訂されたからです。改訂前の「運営だけ MFA 必須」と区別し、改訂後の決定（全員に MFA）を実装していることを示しています。
 
 </details>
 

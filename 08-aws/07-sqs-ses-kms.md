@@ -13,13 +13,13 @@
 - 個人情報（メールアドレス）を、記録に残さない
 - KMS のふりかえり: 管理システムの中での位置づけ
 
-## 配信元への知らせ
+## チャンネル提供者への知らせ
 
-運用者が申請を承認・差し戻し・却下したとき、チャンネルを取り下げたとき、鍵の移し替えを判断したとき、配信元にメールで知らせます（ADR-001 A-19、API-001 C-14）。
+運営が申請を承認・差し戻し・却下したとき、チャンネルを取り下げたとき、鍵の移し替えを判断したとき、チャンネル提供者にメールで知らせます（ADR-001 A-19、API-001 C-14）。
 
 ```mermaid
 sequenceDiagram
-    participant O as 運用者
+    participant O as 運営
     participant A as 管理 API の Lambda
     participant D as DynamoDB
     participant Q as SQS（NotifyQueue）
@@ -27,7 +27,7 @@ sequenceDiagram
     participant S as SES
     O->>A: 承認
     A->>D: 状態を変える（トランザクション、8-5）
-    A->>Q: 知らせ（noticeId・出来事・配信元）を送る
+    A->>Q: 知らせ（noticeId・出来事・チャンネル提供者）を送る
     A-->>O: 200（メールを待たない）
     Q->>N: 知らせ（まとめて最大 10 件）
     N->>D: 送ったことがあるか（NOTICE#…）
@@ -43,7 +43,7 @@ sequenceDiagram
 
 なぜ、管理 API から直接 SES でメールを送らないのでしょうか。
 
-- **運用者を待たせない**: メールの送信は、相手のサービスの都合で遅れることがある。待ち行列に入れるだけなら一瞬
+- **運営を待たせない**: メールの送信は、相手のサービスの都合で遅れることがある。待ち行列に入れるだけなら一瞬
 - **メールの失敗で、承認を失敗させない**: 承認はデータベースで済んでいる。メールが一時的に送れなくても、承認は取り消したくない
 - **やり直しを任せられる**: 送れなかったら、SQS がメッセージを残しておき、あとでもう一度渡してくれる
 
@@ -110,7 +110,7 @@ export async function handler(event: SQSEvent): Promise<SQSBatchResponse> {
 
 ### 何度やってもだめなら: デッドレターキューと警報
 
-3 回渡しても送れなかったメッセージは、デッドレターキューに移ります。そして、デッドレターキューにメッセージがたまったら、運用者に知らせます。
+3 回渡しても送れなかったメッセージは、デッドレターキューに移ります。そして、デッドレターキューにメッセージがたまったら、運営に知らせます。
 
 ```ts
 new cloudwatch.Alarm(this, 'NoticesNotSent', {
@@ -127,7 +127,7 @@ new cloudwatch.Alarm(this, 'NoticesNotSent', {
 
 SQS は、メッセージを **少なくとも 1 回** 渡すことを約束します。裏を返すと、**まれに同じメッセージを 2 回渡す** ことがあります。また、メールは送れたのに、その直後に Lambda が止まって「完了」を伝えられず、渡し直される、ということも起こりえます。
 
-何も備えなければ、配信元に同じメールが 2 通届きます。そこで、メールの処理を **冪等**（何回行っても、1 回行ったのと同じ結果になる）にしています。[api/src/notify/notify.ts](../../sanpo-channel-console/api/src/notify/notify.ts) の `deliver`:
+何も備えなければ、チャンネル提供者に同じメールが 2 通届きます。そこで、メールの処理を **冪等**（何回行っても、1 回行ったのと同じ結果になる）にしています。[api/src/notify/notify.ts](../../sanpo-channel-console/api/src/notify/notify.ts) の `deliver`:
 
 ```ts
 export async function deliver(ports: NotifyPorts, notice: Notice, attempt: number, maxAttempts: number): Promise<'sent' | 'skipped' | 'duplicate'> {
@@ -197,14 +197,14 @@ SES でメールを送るには、準備が要ります。
 
 ### 個人情報を残さない
 
-- 送り先は、データベースに **持っていません**。送るたびに Cognito から、確認済みのメールアドレスを引きます（`emailOf`）。確認していないアドレスや、退会した配信元には送りません（`skipped`）
+- 送り先は、データベースに **持っていません**。送るたびに Cognito から、確認済みのメールアドレスを引きます（`emailOf`）。確認していないアドレスや、退会したチャンネル提供者には送りません（`skipped`）
 - 操作の記録には、送ったこと（`notification.sent`）と、SES のメッセージ ID だけを残し、宛先は書きません
 
 テスト（[api/test/notify.test.ts](../../sanpo-channel-console/api/test/notify.test.ts)）の名前が、この決まりを表しています。
 
 - sends once to the verified address and records it without the address（確認済みのアドレスに 1 回だけ送り、宛先なしで記録する）
 - retries a failed send and records the failure on the last attempt（失敗したらやり直し、最後の挑戦で失敗を記録する）
-- skips a publisher with no verified address, or one that has left（確認済みのアドレスがない、退会した配信元には送らない）
+- skips a publisher with no verified address, or one that has left（確認済みのアドレスがない、退会したチャンネル提供者には送らない）
 
 1 つ目のテストには、`expect(JSON.stringify(log)).not.toContain('alice@example.com')` という確かめもあります。**記録にメールアドレスが入っていないこと** を、テストで守っています。
 
@@ -217,7 +217,7 @@ KMS（署名の鍵）は、第 6 部で中心に扱いました。第 8 部の�
 | CDK | `ECC_NIST_EDWARDS25519` の鍵を作る。`RemovalPolicy.RETAIN`（消さない） | [8-2](02-cdk.md) |
 | IAM（鍵ポリシー） | 署名してよいのは公開の Lambda と管理 API の Lambda だけ、`ED25519_SHA_512`・`RAW` だけ | [8-1](01-aws-basics.md)、[6-4](../06-trust/04-two-tier-keys.md) |
 | Lambda | 公開の Lambda がリストの要約に、管理 API が試用チケットに署名する | [8-3](03-lambda-apigw.md) |
-| 管理 API | 運用者が署名鍵を登録するとき、`GetPublicKey` で鍵の種類を確かめ、公開鍵を取り出す | [技術カード: AWS KMS](../ref/aws-kms.md) |
+| 管理 API | 運営が署名鍵を登録するとき、`GetPublicKey` で鍵の種類を確かめ、公開鍵を取り出す | [技術カード: AWS KMS](../ref/aws-kms.md) |
 | テスト | aws-sdk-client-mock で、頼み方（`RAW`・`ED25519_SHA_512`）を確かめる | [7-4](../07-typescript/04-testing.md) |
 | 費用 | 鍵 1 つにつき月 1 USD。開発用の費用のほとんど | [8-1](01-aws-basics.md) |
 
@@ -251,7 +251,7 @@ Received: "sent"
       Tests  1 failed | 3 passed (4)
 ```
 
-同じ知らせ（同じ `noticeId`）を 2 回渡すと、2 回とも送ってしまうことを、テストが見つけました。SQS がまれに同じメッセージを 2 回渡すと、配信元に同じメールが 2 通届く不具合です。元に戻します。
+同じ知らせ（同じ `noticeId`）を 2 回渡すと、2 回とも送ってしまうことを、テストが見つけました。SQS がまれに同じメッセージを 2 回渡すと、チャンネル提供者に同じメールが 2 通届く不具合です。元に戻します。
 
 ```sh
 git checkout -- api/src/notify/notify.ts
@@ -272,19 +272,19 @@ git status
 <details>
 <summary>問 1. 承認の操作のあと、管理 API の Lambda が SES で直接メールを送らないのはなぜですか。</summary>
 
-メールの送信の遅れや一時的な失敗で、運用者を待たせたり、承認そのものを失敗させたりしないためです。待ち行列に入れるだけなら一瞬で、送れなかったときのやり直しも SQS に任せられます。
+メールの送信の遅れや一時的な失敗で、運営を待たせたり、承認そのものを失敗させたりしないためです。待ち行列に入れるだけなら一瞬で、送れなかったときのやり直しも SQS に任せられます。
 
 </details>
 
 <details>
-<summary>問 2. 同じ知らせが SQS から 2 回届いたとき、配信元にメールは何通届きますか。</summary>
+<summary>問 2. 同じ知らせが SQS から 2 回届いたとき、チャンネル提供者にメールは何通届きますか。</summary>
 
 1 通です。1 回目に送ったあと、`NOTICE#{noticeId}` の印を書いているので、2 回目はそれを見つけて送らずに終えます（`duplicate`）。
 
 </details>
 
 <details>
-<summary>問 3. 開発用では、配信元へのメールはどうなっていますか。</summary>
+<summary>問 3. 開発用では、チャンネル提供者へのメールはどうなっていますか。</summary>
 
 送られません。送信のドメインがまだないため `log` モードで動いていて、何を送るはずだったか（件名と本文の長さ）だけをログに残します。宛先と本文はログに書きません。
 

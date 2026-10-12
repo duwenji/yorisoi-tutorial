@@ -35,7 +35,7 @@ Android の画面は **メインスレッド** という 1 本の流れで描か
 散策ガイドの AI の呼び出し（[GuideRepository.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/guide/GuideRepository.kt)）は、こう宣言されています。
 
 ```kotlin
-suspend fun guideFor(poi: Poi, distanceM: Int?): String
+suspend fun guideFor(poi: Poi, distanceM: Int?, channel: Station): String
 ```
 
 `suspend` は「この関数は途中で **一時停止（中断）** することがある」という印です。
@@ -44,20 +44,35 @@ suspend fun guideFor(poi: Poi, distanceM: Int?): String
 - 返事が来たら、止まったところから続きを実行する
 - 呼ぶ側から見ると、普通の関数のように結果（`String`）が返ってくる
 
-[MainViewModel.select](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainViewModel.kt) を思い出してください（[2-2](../02-compose/02-state-viewmodel.md)）。
+[MainViewModel.select](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainViewModel.kt) を思い出してください（[2-2](../02-compose/02-state-viewmodel.md)）。`guideFor` は、間に入る `narration`（`suspend` 関数）を通して呼ばれます。
 
 ```kotlin
 viewModelScope.launch {
-    val state = try {
-        GuideState.Ready(app.guides.guideFor(item.poi, item.distanceM))
-    } catch (e: Exception) {
-        GuideState.Failed("解説の生成に失敗しました: ${e.message}")
+    val state = when (val result = app.narration.sheetGuide(item.poi, item.distanceM)) {
+        is MaterialResult.Ready -> GuideState.Ready((result.material.content as Content.Text).text)
+        is MaterialResult.Unavailable -> GuideState.Failed("解説の生成に失敗しました: ${result.detail}")
+        MaterialResult.None -> GuideState.Failed("解説の生成に失敗しました")
     }
     updateSelected(item) { it.copy(guide = state) }
 }
 ```
 
-10 秒かかる AI の呼び出しが、ただの 1 行です。失敗も普通の `try`/`catch` で受け止められます。コールバックはどこにもありません。
+10 秒かかる AI の呼び出しが、ただの 1 行です。コールバックはどこにもありません。
+
+失敗は、普通の `try`/`catch` で受け止められます。この例では、素材の出どころを順に試す `Producers.first`（[Producer.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/material/Producer.kt)）が受け止めて、`MaterialResult.Unavailable` という値に直して返しています。
+
+```kotlin
+val result = try {
+    producer.produce(request.copy(context = request.context.copy(after = after)))
+} catch (e: CancellationException) {
+    throw e
+} catch (e: Exception) {
+    log("Producer $id failed", e)
+    MaterialResult.Unavailable(MaterialResult.Reason.FAILED, e.message)
+}
+```
+
+`CancellationException` だけを先に捕まえて投げ直している理由は、この章の「つまずきやすいところ」で見ます。
 
 `suspend` 関数は、コルーチンの中か、ほかの `suspend` 関数の中からしか呼べません。
 
@@ -196,7 +211,7 @@ private inline fun talk(block: () -> Unit) {
 
 `finally` で必ず `unlock` しているのは、`block` の中で例外が起きても鍵を返すためです。返し忘れると、二度と話せなくなります。
 
-`talk` が `inline` なのには理由があります。`talk` 自体は `suspend` ではありませんが、`inline` にするとブロックの中身が呼んだ場所に埋め込まれるので、ブロックの中で `app.companion.say(…)`（`suspend` 関数）を呼べます。
+`talk` が `inline` なのには理由があります。`talk` 自体は `suspend` ではありませんが、`inline` にするとブロックの中身が呼んだ場所に埋め込まれるので、ブロックの中で `app.narration.line(…)`（`suspend` 関数）を呼べます。
 
 ## Flow: 値の流れ
 
@@ -315,7 +330,7 @@ git status
 - **メインスレッドで止まる処理を呼ばない**: OkHttp の `execute()` やファイルの読み書きは、`withContext(Dispatchers.IO)` の中で
 - **スコープを選ぶ**: 画面に結びつく処理は `viewModelScope`、Service に結びつく処理は `lifecycleScope`、途中で打ち切られては困る保存は `appScope`
 - **`GlobalScope` を使わない**: どこにも結びつかないので、だれも止めてくれません
-- **`CancellationException` を握りつぶさない**: `catch (e: Exception)` はキャンセルの知らせも捕まえてしまいます。散策ガイドの `MainViewModel` は、キャンセルを捕まえたら投げ直しています（`catch (e: CancellationException) { throw e }`）
+- **`CancellationException` を握りつぶさない**: `catch (e: Exception)` はキャンセルの知らせも捕まえてしまいます。散策ガイドの `MainViewModel` や `Producers.first` は、キャンセルを捕まえたら投げ直しています（`catch (e: CancellationException) { throw e }`）
 
 ## 確認問題
 

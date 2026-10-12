@@ -117,7 +117,7 @@ finishSignIn: async (): Promise<string> => {
 },
 ```
 
-- ログインに出かけるとき、今いた道（`/review/kamakura-history/01J…` など）を `state` に預ける。戻ってきたら、そこへ連れて行く（運用者がメールのリンクから来ても、ログインのあとに目的の画面へ着く）
+- ログインに出かけるとき、今いた道（`/review/kamakura-history/01J…` など）を `state` に預ける。戻ってきたら、そこへ連れて行く（運営がメールのリンクから来ても、ログインのあとに目的の画面へ着く）
 - 戻り先が `/` で始まるときだけ使う。`https://evil.example` のような外の場所へ飛ばされないため（オープンリダイレクトの防止）
 - [9-1](01-react-vite.md) の `Callback` の部品が `finishSignIn` を呼ぶ。コードは 1 回しか引き換えられないので、StrictMode で 2 回呼ばれても 1 回にしている
 
@@ -172,7 +172,7 @@ Cognito の `/logout` は、`client_id` と `logout_uri`（ログアウトのあ
 | アクセストークンの期限が近い | `automaticSilentRenew` がリフレッシュトークンで取り直す（画面は何も変わらない） |
 | API が `401` を返した | [api.ts](../../sanpo-channel-console/web/src/api.ts) のミドルウェアが `signIn()` を呼び、Cognito へ。戻ったら同じ道へ |
 | タブを閉じた | `sessionStorage` ごと消える。次に開いたらログインから |
-| 運用者のグループから外された | API は役割を、トークンの中の `cognito:groups` から決める（[router.ts](../../sanpo-channel-console/api/src/console/router.ts)）。トークンを取り直すまでは古いままなので、グループの変更が効くのは次にトークンを取ったとき（最長 60 分） |
+| 運営のグループから外された | API は役割を、トークンの中の `cognito:groups` から決める（[router.ts](../../sanpo-channel-console/api/src/console/router.ts)）。トークンを取り直すまでは古いままなので、グループの変更が効くのは次にトークンを取ったとき（最長 60 分） |
 
 ## ハンズオン: PKCE を手で作る
 

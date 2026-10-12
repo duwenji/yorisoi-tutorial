@@ -20,9 +20,9 @@
 | **FOSSGIS OSRM** | 徒歩のルート | 要らない | [RouteClient.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/data/RouteClient.kt) |
 | **Wikimedia Commons** | スポットの写真 | 要らない | [SpotPhotos.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/data/SpotPhotos.kt) |
 | 国土地理院・Google Map Tiles | 地図の画像 | Google だけ要る | [4-2](02-map.md) |
-| Claude・OpenAI 互換の AI | 解説と話しかけ | 要る（利用者のキー） | [4-3](03-ai.md) |
+| Claude・OpenAI 互換の AI | 解説と話しかけ | 要る（散策者のキー） | [4-3](03-ai.md) |
 
-キーの要らない無料のサービスを中心に組み立てているので、利用者は AI のキーさえ用意すれば使い始められます（AI のキーがなくても、定型文で動きます）。
+キーの要らない無料のサービスを中心に組み立てているので、散策者は AI のキーさえ用意すれば使い始められます（AI のキーがなくても、定型文で動きます）。
 
 ## HTTP の要求と応答
 
@@ -361,7 +361,7 @@ Overpass は問い合わせの処理に最大 25 秒かかり、その間は何�
 <details>
 <summary>問 3. Overpass の結果で、同じ寺が「点」と「範囲」の両方で返ってきました。散策ガイドはどちらを残しますか。それはなぜですか。</summary>
 
-範囲を残し、点のタグ（Wikipedia へのリンクなど）を足し合わせます。範囲があれば、利用者が境界から 60m 以内に来たかを判定できるからです。
+範囲を残し、点のタグ（Wikipedia へのリンクなど）を足し合わせます。範囲があれば、散策者が境界から 60m 以内に来たかを判定できるからです。
 
 </details>
 

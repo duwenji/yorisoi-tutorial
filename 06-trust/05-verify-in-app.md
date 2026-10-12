@@ -4,11 +4,11 @@
 
 ## この章で学ぶこと
 
-- アプリ（Kotlin）が、提供元の文書をどの順番で確かめるか
+- アプリ（Kotlin）が、リストの文書をどの順番で確かめるか
 - Android 8 から Ed25519 を使うための Tink と、差し替え口 `Ed25519Verifier`
 - 巻き戻し・期限切れ・端末の時計のずれへの備え
 - 確かめに失敗したときの振る舞い（前回のリストで動き続ける）
-- パッケージの確認と、配信元の署名
+- パッケージの確認と、チャンネル提供者の署名
 
 ## 関わるファイル
 
@@ -73,8 +73,8 @@ Tink の `verify` は、合わないときに例外を投げます。それを `
 ```mermaid
 flowchart TB
     subgraph D["1. 検出の文書（ProviderDocuments.discovery）"]
-        D1["versions に v1 があるか"] --> D2["rootKey から提供元ID を計算<br/>文書の provider と、利用者が登録した ID の両方と一致するか"]
-        D2 --> D3["鍵セットの keyId がルート鍵（= 提供元ID）か"]
+        D1["versions に v1 があるか"] --> D2["rootKey からリストID を計算<br/>文書の provider と、散策者が登録した ID の両方と一致するか"]
+        D2 --> D3["鍵セットの keyId がルート鍵（= リストID）か"]
         D3 --> D4["鍵セットの署名をルート鍵で確かめ、type = keyset か"]
         D4 --> D5["鍵セットの seq が前回より小さくないか"]
         D5 --> D6["各署名鍵が 32 バイトで、有効期間が 1 年以内か"]
@@ -88,7 +88,7 @@ flowchart TB
         L6 --> L7["seq が前回より小さくないか<br/>同じ seq なら中身も同じか"]
     end
     D --> L
-    L --> P["3. パッケージ（選ばれたときだけ）<br/>大きさと SHA-256 → 中身と配信元の署名"]
+    L --> P["3. パッケージ（選ばれたときだけ）<br/>大きさと SHA-256 → 中身とチャンネル提供者の署名"]
 ```
 
 どこかで合わなければ、その段階のエラーコードで止まります。エラーコードは API-002 の「エラー表」のとおりで、Kotlin では `ProviderError` という `enum` になっています。
@@ -114,7 +114,7 @@ fun discovery(json: String, expectedProvider: String, minKeysetSeq: Int? = null)
 }
 ```
 
-`expectedProvider` は **利用者が登録した提供元ID** です。[6-2](02-ed25519-and-ids.md) で見たとおり、サーバーが返す ID ではなく、利用者が別の経路で得た ID と照合するのが要点です。
+`expectedProvider` は **散策者が登録したリストID** です。[6-2](02-ed25519-and-ids.md) で見たとおり、サーバーが返す ID ではなく、散策者が別の経路で得た ID と照合するのが要点です。
 
 `minKeysetSeq` は前回受け取った鍵セットの `seq` です。[6-4](04-two-tier-keys.md) で見たように、古い鍵セットを配られて失効を取り消されるのを防ぎます。
 
@@ -151,9 +151,9 @@ if (previousSeq != null && (seq < previousSeq || (seq == previousSeq && previous
 
 - **期限**: リストの期限は発行から最長 14 日。期限の長すぎるリストも拒みます。そうしないと、管理システムを乗っ取った攻撃者が「期限 10 年」のリストを作れてしまいます
 - **`seq` の巻き戻し**: 前回より小さい `seq` を拒みます
-- **同じ `seq` で中身が違う**: これも `rollback` です。本物の提供元は、同じ `seq` で違うリストを出しません（[6-4](04-two-tier-keys.md) で見た、`seq` を二重に使わない工夫）。出てきたら、何かがおかしいということです
+- **同じ `seq` で中身が違う**: これも `rollback` です。本物のリストの発行元は、同じ `seq` で違うリストを出しません（[6-4](04-two-tier-keys.md) で見た、`seq` を二重に使わない工夫）。出てきたら、何かがおかしいということです
 
-前回の `seq` とハッシュ（`previousSeq`・`previousSha256`）は、`ChannelSync` が提供元ごとに端末に保存しています。
+前回の `seq` とハッシュ（`previousSeq`・`previousSha256`）は、`ChannelSync` がリストごとに端末に保存しています。
 
 ### 端末の時計がずれていたら
 
@@ -193,9 +193,9 @@ fun refresh(providerId: String, unmetered: Boolean) {
 ```
 
 - 確かめに **成功したときだけ**、新しい文書を保存し、`seq` とハッシュを更新する
-- 失敗したら、エラーの理由だけを記録する（設定画面の提供元の欄に出る）。**保存してある前回の文書には手を付けない**
+- 失敗したら、エラーの理由だけを記録する（設定画面のリストの欄に出る）。**保存してある前回の文書には手を付けない**
 
-だから、通信に失敗しても、偽のリストを配られても、アプリは前回の正しいリストで動き続けます（API-002「確認に失敗したとき」）。前回のリストも期限が切れたら、その提供元のチャンネルは次の散歩から使いません。
+だから、通信に失敗しても、偽のリストを配られても、アプリは前回の正しいリストで動き続けます（API-002「確認に失敗したとき」）。前回のリストも期限が切れたら、そのリストのチャンネルは次の散歩から使いません。
 
 取得するのは、アプリの起動時と散歩の開始時に、前回から 24 時間以上たっているときだけです（`refreshDue`）。散歩の途中では取得しません。
 
@@ -211,7 +211,7 @@ when {
         store.deletePackage(c.sha256)
         // … 端末の一覧から外し、理由を知らせる …
     }
-    listed != null && listed.version > c.version && unmetered -> runCatching { download(providerId, listed, c) }
+    listed != null && listed.version > c.version && unmetered -> runCatching { download(providerId, listed, c, list, unmetered) }
 }
 ```
 
@@ -219,30 +219,51 @@ when {
 
 ## パッケージの確認
 
-利用者がチャンネルを選ぶと、`download` がパッケージを取ってきます。
+散策者がチャンネルを選ぶと、`download` がパッケージを取ってきます。
 
 ```kotlin
 val bytes = http.get(url, minOf(entry.pkg.size, ProviderDocuments.MAX_PACKAGE_BYTES))
 if (bytes.size != entry.pkg.size || sha256(bytes) != entry.pkg.sha256) throw ChannelSyncException("パッケージがリストと一致しません（hash_mismatch）")
-val check = StationValidator.checkArchive(bytes, ListedAs(entry.id, entry.version, entry.publisher), verifier)
+val check = StationValidator.checkArchive(bytes, ListedAs(entry.id, entry.version, entry.publisher), verifier, mediaStage)
 if (check is StationCheck.Rejected) throw ChannelSyncException("パッケージの確認に失敗しました（package_rejected: ${check.code.json}）")
+check as StationCheck.Ok
+
+store.writePackage(entry.pkg.sha256, bytes)
+// …
+fetchMaterials(providerId, list, check.station, entry.publisher, unmetered)
 ```
 
 1. **大きさの上限つきで取得する**: リストに書かれた大きさ（と 2MB）を超えたら途中で打ち切る。巨大なファイルで端末を埋められないように
 2. **大きさと SHA-256 をリストと比べる**: [6-1](01-why-signatures.md) の「署名つきのリストのハッシュがパッケージを守る」がここです
-3. **中身を確かめる**（`StationValidator.checkArchive`）: パッケージの形式（API-003）と、**配信元の署名**
+3. **中身を確かめる**（`StationValidator.checkArchive`）: パッケージの形式（API-003）と、**チャンネル提供者の署名**。`mediaStage` はこのアプリが出せる素材の段（[5-2](../05-station-format/02-package-format.md)）
+4. **確かめてから保存する**（`store.writePackage`）
+5. **素材を前もって取る**（`fetchMaterials`）: チャンネルが使う素材集や外の素材を、選んだときにまとめて取る。散歩の途中でスポットに近づいてから取りに行くと、どこにいるかが相手に伝わってしまうからです（API-003 F-10）。基準（`selectors`）で今いる地域の素材集を集める分だけは、Wi-Fi のとき（`unmetered`）に限って取ります
 
-### 配信元の署名
+### チャンネル提供者の署名
 
-パッケージには、それを作った **配信元の署名**（`signature.json`）も付いています（API-003 F-6）。配信元は自分の秘密鍵で、パッケージの `signature.json` 以外のすべてのファイルの SHA-256 の一覧に署名します（これも [6-3](03-signed-documents.md) と同じ `payload`・`sig` の形で、`type` は `channel-package`）。`StationValidator` は、
+パッケージには、それを作った **チャンネル提供者の署名**（`signature.json`）も付いています（API-003 F-6）。チャンネル提供者は自分の秘密鍵で、パッケージの `signature.json` 以外のすべてのファイルの SHA-256 の一覧に署名します（これも [6-3](03-signed-documents.md) と同じ `payload`・`sig` の形で、`type` は `channel-package`）。`StationValidator` は、
 
-- 署名を、パッケージに入っている配信元の公開鍵で確かめる
+- 署名を、パッケージに入っているチャンネル提供者の公開鍵で確かめる
 - 一覧に載ったファイルと実際のファイルが過不足なく一致し、それぞれの SHA-256 が合う
-- その公開鍵から計算したアカウントID（`sg1…`）が、パッケージの `channel.json` の配信元とも、**リストに書かれた配信元** とも一致する
+- その公開鍵から計算したアカウントID（`sg1…`）が、パッケージの `channel.json` のチャンネル提供者とも、**リストに書かれたチャンネル提供者** とも一致する
 
-ことを確かめます。提供元の署名が「審査に通った」ことを、配信元の署名が「だれが作ったか」を示す、という役割分担です。配信元の鍵の作り方（ブラウザの中で作る）は [9-3](../09-console/03-keys-in-browser.md) で扱います。
+ことを確かめます。運営の署名が「審査に通った」ことを、チャンネル提供者の署名が「だれが作ったか」を示す、という役割分担です。チャンネル提供者の鍵の作り方（ブラウザの中で作る）は [9-3](../09-console/03-keys-in-browser.md) で扱います。
 
-`download` の冒頭には、配信元が変わったときの確認もあります。端末にある版と新しい版で配信元が違うとき、リストに運用者が付けた `publisherChange`（鍵の移し替えの記録）がなければ、新しい版を使いません（`publisher_changed`、API-002 P-9）。
+`download` の冒頭には、チャンネル提供者が変わったときの確認もあります。端末にある版と新しい版でチャンネル提供者が違うとき、リストに運営が付けた `publisherChange`（鍵の移し替えの記録）がなければ、新しい版を使いません（`publisher_changed`、API-002 P-9）。
+
+### 素材集も同じ形で確かめる
+
+リストには、チャンネルのほかに **素材集**（`collections`、API-002 1.2）も載っています。`ProviderDocuments` は、それを `ListedCollection` として読みます（素材集の ID・版・素材提供者・使ってよいチャンネル提供者 `grants`・パッケージの URL と SHA-256 など）。素材集のパッケージを取るときも、チャンネルとまったく同じ順で確かめます（`ChannelSync.fetchCollection`）。
+
+```kotlin
+val bytes = http.get(checkedUrl(listed.pkg.url), minOf(listed.pkg.size, ProviderDocuments.MAX_PACKAGE_BYTES))
+if (bytes.size != listed.pkg.size || sha256(bytes) != listed.pkg.sha256) throw IOException("hash_mismatch")
+val listedAs = CollectionListedAs(listed.id, listed.version, listed.producer, list.formerProducerIds(listed.producer))
+if (CollectionValidator.checkArchive(bytes, listedAs, verifier) !is CollectionCheck.Ok) throw IOException("collection_invalid")
+store.writeCollection(listed.pkg.sha256, bytes)
+```
+
+運営の署名（リスト）が「審査に通った」ことを、素材提供者の署名（素材集の `signature.json`）が「だれが作ったか」を示す、という役割分担もチャンネルと同じです。素材集の取り下げはチャンネルとは別の欄（`revokedCollections`）に載り、取り下げられた素材集は「出せない」として次の候補に進みます。チャンネルそのものは止まりません（ADR-002 D-12）。
 
 ## つまずきやすいところ
 
@@ -259,7 +280,7 @@ if (check is StationCheck.Rejected) throw ChannelSyncException("パッケージ�
 </details>
 
 <details>
-<summary>問 2. 提供元が、同じ <code>seq</code> で中身の違うリストを 2 つ出してしまいました。前のリストを受け取っていたアプリはどうしますか。</summary>
+<summary>問 2. リストの発行元が、同じ <code>seq</code> で中身の違うリストを 2 つ出してしまいました。前のリストを受け取っていたアプリはどうしますか。</summary>
 
 `rollback` で新しい方を拒み、前のリストを使い続けます。アプリは前回の `seq` とハッシュを覚えていて、同じ `seq` でハッシュが違うものを拒みます。
 

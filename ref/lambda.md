@@ -68,10 +68,10 @@ fn.addEventSource(new SqsEventSource(queue, { batchSize: 10, reportBatchItemFail
 
 | Lambda | きっかけ | 見どころ | 章 |
 |---|---|---|---|
-| 管理 API | API Gateway | 48 の操作を 1 つの Lambda に。`deps ??= await load()` | [8-3](../08-aws/03-lambda-apigw.md) |
+| 管理 API | API Gateway | 66 の操作を 1 つの Lambda に。`deps ??= await load()` | [8-3](../08-aws/03-lambda-apigw.md) |
 | 公開の処理 | 管理 API（非同期）・Scheduler | 同時実行 1、`SeqConflictError` で 1 回だけやり直し | [8-3](../08-aws/03-lambda-apigw.md) |
 | メール | SQS | 失敗したものだけを返す（`batchItemFailures`） | [8-7](../08-aws/07-sqs-ses-kms.md) |
-| 登録の後処理 | Cognito のトリガー | 登録した人を配信元のグループにだけ入れる | [8-4](../08-aws/04-cognito.md) |
+| 登録の後処理 | Cognito のトリガー | 登録した人をチャンネル提供者のグループにだけ入れる | [8-4](../08-aws/04-cognito.md) |
 | 機械審査（Java 21） | S3 | Kotlin・`RequestHandler`・zip の形・起動の工夫 | [8-8](../08-aws/08-kotlin-lambda.md) |
 
 ## よくある間違い

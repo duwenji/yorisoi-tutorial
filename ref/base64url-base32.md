@@ -89,7 +89,7 @@ Node.js は、違う方式の文字も、知らない文字も、黙って受け
 | 方式 | 使い道 | 章 |
 |---|---|---|
 | base64url | 署名つき文書の `payload`・`sig`、公開鍵（`rootKey`・`publicKey`） | [6-2](../06-trust/02-ed25519-and-ids.md)、[6-3](../06-trust/03-signed-documents.md) |
-| base32（小文字・パディングなし） | 提供元ID `sc1…`・アカウントID `sg1…`（SHA-256 の先頭 160 ビット = 32 文字） | [6-2](../06-trust/02-ed25519-and-ids.md) |
+| base32（小文字・パディングなし） | リストID `sc1…`・アカウントID `sg1…`（SHA-256 の先頭 160 ビット = 32 文字） | [6-2](../06-trust/02-ed25519-and-ids.md) |
 | 16 進数（小文字） | パッケージ・リストの SHA-256（`sha256` の項目） | [6-4](../06-trust/04-two-tier-keys.md) |
 
 ## よくある間違い

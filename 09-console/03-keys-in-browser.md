@@ -6,38 +6,38 @@
 
 ## この章で学ぶこと
 
-- 配信元の秘密鍵を、サーバーに一度も送らない設計
+- チャンネル提供者の秘密鍵を、サーバーに一度も送らない設計
 - ブラウザの暗号の道具 WebCrypto（`crypto.subtle`）: 鍵の作成・署名・暗号化
 - 取り出せない鍵（`extractable: false`）
 - 合言葉で秘密鍵を暗号化して、ファイルに保存する（PBKDF2 ＋ AES-GCM）
 - 「この鍵を持っている」ことをサーバーに示す（チャレンジへの署名）
 - パッケージにブラウザの中で署名し、S3 に直接送る
-- 運用者の AI の API キーも、同じ考え方でサーバーに送らない
+- 運営の AI の API キーも、同じ考え方でサーバーに送らない
 
 ## なぜブラウザの中で作るのか
 
-第 6 部で見たとおり、チャンネルのパッケージには **配信元の署名** が付きます（[6-5](../06-trust/05-verify-in-app.md)）。アプリは、その署名で「だれが作ったか」を確かめます。
+第 6 部で見たとおり、チャンネルのパッケージには **チャンネル提供者の署名** が付きます（[6-5](../06-trust/05-verify-in-app.md)）。アプリは、その署名で「だれが作ったか」を確かめます。
 
-ここで、もし管理システムが配信元の秘密鍵を預かっていたらどうでしょう。管理システムが乗っ取られれば、だれでも好きな配信元になりすませます。運用者でさえ、配信元の名前で勝手にパッケージを作れてしまいます。それでは「配信元の署名」が意味をなしません。
+ここで、もし管理システムがチャンネル提供者の秘密鍵を預かっていたらどうでしょう。管理システムが乗っ取られれば、だれでも好きなチャンネル提供者になりすませます。運営でさえ、チャンネル提供者の名前で勝手にパッケージを作れてしまいます。それでは「チャンネル提供者の署名」が意味をなしません。
 
-そこで DES-003（[配信元の画面の設計](../../sanpo-channel-console/docs/design/DES-003-publisher-console.md)）は、こう決めています。
+そこで DES-003（[チャンネル提供者の画面の設計](../../sanpo-channel-console/docs/design/DES-003-publisher-console.md)）は、こう決めています。
 
-- 鍵は **配信元のブラウザの中で作る**
-- 秘密鍵は **サーバーに送らない**。合言葉で暗号化したファイルとして、配信元が自分で保存する
+- 鍵は **チャンネル提供者のブラウザの中で作る**
+- 秘密鍵は **サーバーに送らない**。合言葉で暗号化したファイルとして、チャンネル提供者が自分で保存する
 - サーバーが知るのは **公開鍵**（とそこから計算したアカウントID）だけ
 
 ```mermaid
 flowchart LR
-    subgraph B["配信元のブラウザ"]
+    subgraph B["チャンネル提供者のブラウザ"]
         K["鍵を作る<br/>秘密鍵・公開鍵"] --> F["鍵のファイル<br/>（合言葉で暗号化）"]
         K --> S["パッケージに署名"]
     end
-    F -->|"保存"| D["配信元のパソコン"]
+    F -->|"保存"| D["チャンネル提供者のパソコン"]
     K -->|"公開鍵とチャレンジへの署名だけ"| API["管理 API"]
     S -->|"署名したパッケージ"| S3["S3（署名つき POST）"]
 ```
 
-これは [6-4](../06-trust/04-two-tier-keys.md) の提供元のルート鍵（オフラインの端末に置く）と同じ考え方です。**鍵を持つ人の手元から、秘密鍵を出さない**。
+これは [6-4](../06-trust/04-two-tier-keys.md) の運営のルート鍵（オフラインの端末に置く）と同じ考え方です。**鍵を持つ人の手元から、秘密鍵を出さない**。
 
 ## WebCrypto
 
@@ -133,7 +133,7 @@ async function wrappingKey(passphrase: string, salt: Uint8Array, iterations: num
 }
 ```
 
-- **わざと遅くする**: ハッシュを 600,000 回重ねる。1 回試すのに時間がかかるので、鍵のファイルを盗んだ人が合言葉を総当たりするのに、とても時間がかかる。本物の配信元は、開くときに一度待つだけ
+- **わざと遅くする**: ハッシュを 600,000 回重ねる。1 回試すのに時間がかかるので、鍵のファイルを盗んだ人が合言葉を総当たりするのに、とても時間がかかる。本物のチャンネル提供者は、開くときに一度待つだけ
 - **salt**（16 バイトの乱数）: 同じ合言葉でも、ファイルごとに違う鍵になる。あらかじめ作った表で一度に破られない
 - 合言葉は 12 文字以上（`MIN_PASSPHRASE`）
 
@@ -182,13 +182,13 @@ if (!(await subtle.verify(ED25519, publicCrypto, signature, buf(probe)))) throw 
 
 ## 「この鍵を持っている」と示す
 
-鍵を作ったら、配信元のアカウントに **紐づけ** ます。でも、公開鍵を送るだけでは足りません。他人の公開鍵（アプリやパッケージから誰でも手に入る）を送って、「これは自分の鍵だ」と言い張れてしまうからです。
+鍵を作ったら、チャンネル提供者のアカウントに **紐づけ** ます。でも、公開鍵を送るだけでは足りません。他人の公開鍵（アプリやパッケージから誰でも手に入る）を送って、「これは自分の鍵だ」と言い張れてしまうからです。
 
 そこで、**サーバーが出した一度きりの文字列（チャレンジ）に署名させます**（ADR-001 A-5）。
 
 ```mermaid
 sequenceDiagram
-    participant B as 配信元のブラウザ
+    participant B as チャンネル提供者のブラウザ
     participant API as 管理 API
     B->>API: POST /api/publisher/keys/challenge
     API-->>B: nonce と message（10 分だけ有効・1 回だけ）
@@ -200,11 +200,11 @@ sequenceDiagram
 
 秘密鍵を持っている人にしか、その場で出された文字列に署名できません。サーバーは秘密鍵を見ないまま、持っていることだけを確かめられます。チャレンジは DynamoDB に TTL つきで置かれ（[8-5](../08-aws/05-dynamodb.md)）、使ったら消えるので、同じ署名を使い回せません。
 
-鍵をなくしたり漏れたりしたときの **移し替え**（[pages/publisher/keys.tsx](../../sanpo-channel-console/web/src/pages/publisher/keys.tsx)、ADR-001 A-15）も、同じように新しい鍵でチャレンジに署名して申し出ます。ただし、鍵をなくした人は古い鍵で証明できないので、運用者が **鍵とは別の経路**（登録した連絡先など）で本人を確かめてから承認します。
+鍵をなくしたり漏れたりしたときの **移し替え**（[pages/publisher/keys.tsx](../../sanpo-channel-console/web/src/pages/publisher/keys.tsx)、ADR-001 A-15）も、同じように新しい鍵でチャレンジに署名して申し出ます。ただし、鍵をなくした人は古い鍵で証明できないので、運営が **鍵とは別の経路**（登録した連絡先など）で本人を確かめてから承認します。
 
 ## パッケージに署名して送る
 
-配信元が新しい版を申請するとき（[pages/publisher/channels.tsx](../../sanpo-channel-console/web/src/pages/publisher/channels.tsx)）、画面の中でこう進みます。
+チャンネル提供者が新しい版を申請するとき（[pages/publisher/channels.tsx](../../sanpo-channel-console/web/src/pages/publisher/channels.tsx)）、画面の中でこう進みます。
 
 ```ts
 setProgress('鍵を開いています…');
@@ -229,11 +229,26 @@ await upload(data.uploads.package, new Blob([new Uint8Array(signed.zip)], { type
 - `version` が整数か
 - `publisher` が、**自分のアカウントID** か
 
-間違ったまま署名して送ると、機械審査（[8-8](../08-aws/08-kotlin-lambda.md)）で落ちるまで分かりません。手元で先に分かるほうが、配信元にとって親切です。古い `signature.json` が入っていれば、署名の対象から外して作り直します。
+間違ったまま署名して送ると、機械審査（[8-8](../08-aws/08-kotlin-lambda.md)）で落ちるまで分かりません。手元で先に分かるほうが、チャンネル提供者にとって親切です。古い `signature.json` が入っていれば、署名の対象から外して作り直します。
+
+素材提供者が素材集に署名するときも、同じ鍵とほぼ同じ処理です（`signCollectionPackage`）。違いは「何の」「だれの」を表す項目の名前だけなので、[publisher-crypto.ts](../../sanpo-channel-console/web/src/publisher-crypto.ts) は違いを 1 つの値にまとめて、共通の関数（`signAs`）に渡しています。
+
+```ts
+/** A channel package (API-003 F-6). */
+export async function signPackage(zip: Uint8Array, key: PublisherKey, expect: { channel: string }): Promise<SignedPackage> {
+  const signed = await signAs(
+    { manifest: 'channel.json', type: 'channel-package', subjectKey: 'channel', ownerKey: 'publisher', what: 'チャンネル' },
+    zip, key, expect.channel,
+  );
+  return { ...signed, channel: expect.channel };
+}
+```
+
+素材集では `collection.json`・`collection-package`・`collection`・`producer` を渡します。アプリの側（Kotlin）も、同じ違いを `SignedKind` という enum で表して、確かめる関数を 1 つにしています（[5-2](../05-station-format/02-package-format.md)）。2 つの言語で、同じところで分けているわけです。
 
 ## もう 1 つの「サーバーに送らない秘密」: AI の API キー
 
-運用者の審査の画面は、申請されたプロンプトで AI に話させた見本を作ります（DES-005、[ai.ts](../../sanpo-channel-console/web/src/ai.ts)）。そのための OpenAI・DeepSeek の API キーは **運用者のもの** で、管理システムには預けません（ADR-001 D-4・A-14）。
+運営の審査の画面は、申請されたプロンプトで AI に話させた見本を作ります（DES-005、[ai.ts](../../sanpo-channel-console/web/src/ai.ts)）。そのための OpenAI・DeepSeek の API キーは **運営のもの** で、管理システムには預けません（ADR-001 D-4・A-14）。
 
 ```ts
 const [keys, setKeys] = useState<Record<string, string>>({});
@@ -245,9 +260,9 @@ const [keys, setKeys] = useState<Record<string, string>>({});
 - AI はブラウザから直接呼ぶ。CSP の `connect-src` に `https://api.openai.com` と `https://api.deepseek.com` を入れてあるのはそのため（[8-6](../08-aws/06-s3-cloudfront.md)）
 - 入力欄は `type="password" autoComplete="off"`（ブラウザに覚えさせない）
 
-配信元の秘密鍵と同じく、「サーバーが持たなければ、サーバーから漏れない」という設計です。
+チャンネル提供者の秘密鍵と同じく、「サーバーが持たなければ、サーバーから漏れない」という設計です。
 
-## ハンズオン: 配信元の鍵を Node.js で作る
+## ハンズオン: チャンネル提供者の鍵を Node.js で作る
 
 WebCrypto は Node.js にも入っています。画面と **同じ** [publisher-crypto.ts](../../sanpo-channel-console/web/src/publisher-crypto.ts) を、Node.js から呼んでみます。
 
@@ -286,7 +301,7 @@ npx tsx ../.local/key-in-browser.ts
 
 - 2: 使うための秘密鍵は取り出せない。WebCrypto が断る（エラーの名前は Node.js とブラウザで違う。ブラウザでは `InvalidAccessError`）
 - 3: 合言葉が違うと、AES-GCM が戻すのを断る
-- 4: 署名の中身は、ファイルごとの SHA-256 と、チャンネル・版・配信元。[5-2](../05-station-format/02-package-format.md) の形
+- 4: 署名の中身は、ファイルごとの SHA-256 と、チャンネル・版・チャンネル提供者。[5-2](../05-station-format/02-package-format.md) の形
 - 5: 受け取る側は、`signature.json` の中の公開鍵だけで確かめられる
 - 6: 自分の ID でないパッケージには、署名する前に止まる
 
@@ -309,7 +324,7 @@ npx vitest run web
      × refuse a key file whose public key was swapped 223ms
  FAIL  web/test/publisher-crypto.test.ts > publisher keys in the browser > refuse a key file whose public key was swapped
 AssertionError: promise resolved "{ …(3) }" instead of rejecting
-      Tests  1 failed | 8 passed (9)
+      Tests  1 failed | 10 passed (11)
 ```
 
 公開鍵の欄を別の鍵のものに書き換えたファイルを、開けてしまうようになりました。こうしたファイルで署名すると、ファイルに書いてあるアカウントID と、実際に署名した鍵が食い違います。確かめたら `git checkout web/src/publisher-crypto.ts` で元に戻し、`git status` が空になったことを確かめます。
@@ -322,14 +337,14 @@ AssertionError: promise resolved "{ …(3) }" instead of rejecting
 - **AES-GCM の iv は毎回新しく**: 同じ鍵で使い回すと、暗号が破れる
 - **公開鍵を送るだけでは、持っている証明にならない**: その場で出されたチャレンジに署名させる
 - **WebCrypto は安全な場所（HTTPS か localhost）でしか使えない**: [9-2](02-browser-login.md) と同じ
-- **鍵のファイルをなくすと、自分では取り戻せない**: 画面は「保存しました」の確認を取ってから紐づけさせる。取り戻すには、運用者の本人確認を経た移し替えが要る
+- **鍵のファイルをなくすと、自分では取り戻せない**: 画面は「保存しました」の確認を取ってから紐づけさせる。取り戻すには、運営の本人確認を経た移し替えが要る
 
 ## 確認問題
 
 <details>
-<summary>問 1. 管理システムのデータベースがまるごと盗まれました。配信元になりすましてパッケージに署名できますか。</summary>
+<summary>問 1. 管理システムのデータベースがまるごと盗まれました。チャンネル提供者になりすましてパッケージに署名できますか。</summary>
 
-できません。管理システムが持っているのは配信元の公開鍵とアカウントID だけで、秘密鍵は配信元の手元の、合言葉で暗号化したファイルにしかないからです。
+できません。管理システムが持っているのはチャンネル提供者の公開鍵とアカウントID だけで、秘密鍵はチャンネル提供者の手元の、合言葉で暗号化したファイルにしかないからです。
 
 </details>
 

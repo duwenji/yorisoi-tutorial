@@ -17,8 +17,8 @@
 [README.md](README.md) の「照合したコミット」から今の `main` までの差分を見ます。
 
 ```sh
-cd ../SanpoGuide && git pull && git log --oneline cf71e95..main
-cd ../sanpo-channel-console && git pull && git log --oneline 77bfd96..main
+cd ../SanpoGuide && git pull && git log --oneline bd71c0a..main
+cd ../sanpo-channel-console && git pull && git log --oneline 51cef1f..main
 ```
 
 ファイル名だけを見るなら `git diff --stat <前回>..main` が便利です。
@@ -66,8 +66,8 @@ grep -rn "fun channelList\|export function verifyChannelList\|export async funct
 依存ライブラリの版が上がっていたら、該当する技術カード（`ref/`）の「版と公式ドキュメント」の表を直し、「最小の使い方」が今の版でも動くかを確かめます。AWS のサービスは、上限（例: KMS の Sign は 4,096 バイト）や料金が変わることがあるので、公式ドキュメントと料金のページも見直します。
 
 ```sh
-cd ../SanpoGuide && git diff cf71e95..main -- '*.gradle.kts' gradle/
-cd ../sanpo-channel-console && git diff 77bfd96..main -- '**/package.json'
+cd ../SanpoGuide && git diff bd71c0a..main -- '*.gradle.kts' gradle/
+cd ../sanpo-channel-console && git diff 51cef1f..main -- '**/package.json'
 ```
 
 ### 7. 記録を更新する
@@ -80,3 +80,4 @@ cd ../sanpo-channel-console && git diff 77bfd96..main -- '**/package.json'
 - コードの断片は、説明に要る部分だけを短く引用する。省いたところは `// …` と書く
 - 契約書の決定事項（P-1、V-03 など）を引くときは、番号も添える。読者が元の文書で根拠をたどれるようにする
 - 未実装の機能に触れるときは、両リポジトリの文書にならって 🚧 を付ける
+- 人の呼び方は SanpoGuide の [docs/stakeholders.md](../SanpoGuide/docs/stakeholders.md) に従う（散策者・チャンネル提供者・素材提供者・運営、リスト・リストID）。コードや JSON の名前（`publisher`・`producer`・`provider`）はそのまま書き、地の文の呼び方とは分ける。プロンプトやコミットのメッセージを引用するときは、元の言葉（「利用者」など）のまま写す

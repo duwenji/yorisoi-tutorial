@@ -98,10 +98,10 @@ fun select(item: SpotItem) {
     val photo = initialPhotoState(item.poi)
     _selected.value = SelectedSpot(item, GuideState.Loading, photo)
     viewModelScope.launch {
-        val state = try {
-            GuideState.Ready(app.guides.guideFor(item.poi, item.distanceM))
-        } catch (e: Exception) {
-            GuideState.Failed("解説の生成に失敗しました: ${e.message}")
+        val state = when (val result = app.narration.sheetGuide(item.poi, item.distanceM)) {
+            is MaterialResult.Ready -> GuideState.Ready((result.material.content as Content.Text).text)
+            is MaterialResult.Unavailable -> GuideState.Failed("解説の生成に失敗しました: ${result.detail}")
+            MaterialResult.None -> GuideState.Failed("解説の生成に失敗しました")
         }
         updateSelected(item) { it.copy(guide = state) }
     }
@@ -114,10 +114,10 @@ private fun updateSelected(item: SpotItem, change: (SelectedSpot) -> SelectedSpo
 ```
 
 1. まず「生成中」の状態にする。画面はすぐに「生成中」を表示できる
-2. `viewModelScope.launch` で、裏で AI に解説を頼む（コルーチン、第 3 部）。`viewModelScope` は、ViewModel が片付けられると自動で止まる
-3. 結果が来たら、「できた」か「失敗した」に書き換える
+2. `viewModelScope.launch` で、裏で解説を頼む（コルーチン、第 3 部）。`viewModelScope` は、ViewModel が片付けられると自動で止まる。頼む先の `narration` は、AI（キーがなければ定型文）に解説を作らせ、結果を `MaterialResult` で返す（素材の共通の形。[2-3](03-manual-di.md)）
+3. 結果が来たら、「できた」か「失敗した」に書き換える。`MaterialResult` は sealed（[1-1](../01-kotlin-android/01-kotlin-syntax.md)）なので、`when` で 3 つの場合を漏れなく書き分けられる
 
-`updateSelected` の工夫に注目してください。AI の解説には数秒かかります。その間に利用者が **別のスポットを選び直していたら**、遅れて届いた前のスポットの解説で上書きしてはいけません。そこで、今選ばれているスポットと、結果のスポットが同じときだけ書き換えています。非同期の処理では、こうした「結果が届いたときには状況が変わっている」場面への備えが欠かせません。
+`updateSelected` の工夫に注目してください。AI の解説には数秒かかります。その間に散策者が **別のスポットを選び直していたら**、遅れて届いた前のスポットの解説で上書きしてはいけません。そこで、今選ばれているスポットと、結果のスポットが同じときだけ書き換えています。非同期の処理では、こうした「結果が届いたときには状況が変わっている」場面への備えが欠かせません。
 
 `update { … }` は、今の値を受け取って新しい値を返すラムダで、StateFlow を書き換えます。`it.copy(guide = state)` で、ほかの項目はそのままに解説だけを変えた新しい値を作っています（1-1 のデータクラスの `copy`）。
 
@@ -152,7 +152,7 @@ fun MainScreen(
 `MainScreen` の引数を見ると、2 種類あることが分かります。
 
 - **状態**（下へ流れる）: ViewModel の StateFlow から読む値、`hasLocationPermission`
-- **出来事**（上へ流れる）: `onToggleWalk`・`onOpenSettings` などのラムダ。利用者が何かしたときに呼ぶ
+- **出来事**（上へ流れる）: `onToggleWalk`・`onOpenSettings` などのラムダ。散策者が何かしたときに呼ぶ
 
 ```mermaid
 flowchart TB

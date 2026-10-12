@@ -35,7 +35,7 @@ flowchart TB
     C --> KT["Kotlin<br/>station-format"]
     TS -->|"② テストベクタ<br/>固定の鍵で署名した文書"| KT
     TS --> CF["③ 準拠テスト<br/>conformance"]
-    CF -->|任意の提供元の URL に流す| ANY["公開された提供元"]
+    CF -->|任意のリストの発行元の URL に流す| ANY["公開されたリスト"]
 ```
 
 ## ① 契約書: 規則を文章で決める
@@ -64,7 +64,7 @@ const signing = fromSeed(2);
 
 鍵は乱数ではなく、**固定の種**（32 バイトすべてが `1`、すべてが `2`）から作ります。[6-2](02-ed25519-and-ids.md) で見たように Ed25519 は決定的なので、同じ鍵・同じ文書からはいつも同じ署名ができます。だから **出力のファイルは、形式を変えない限り毎回まったく同じ** になります。コメントにも "Ed25519 is deterministic, so the output never changes unless the format does" とあります。
 
-もちろん、この鍵は公開されているので、本物の提供元に使ってはいけません（"never use them for a real provider"）。
+もちろん、この鍵は公開されているので、本物のリストの発行元に使ってはいけません（"never use them for a real provider"）。
 
 出力先は SanpoGuide のテスト用のファイルです。
 
@@ -111,12 +111,12 @@ class ProviderDocumentsTest {
 npm run check -w conformance -- https://channels.example.com --provider sc1…
 ```
 
-URL を渡すと、アプリと同じように検出の文書・リスト・パッケージ・アイコンを取ってきて、API-002 の確認観点のうち提供元が守るべきもの（V-01〜V-09、V-15、V-16）を 1 つずつ確かめ、結果を表示します。
+URL を渡すと、アプリと同じように検出の文書・リスト・パッケージ・アイコンを取ってきて、API-002 の確認観点のうちリストの発行元が守るべきもの（V-01〜V-09、V-15、V-16、素材集の V-19〜V-21・V-25）を 1 つずつ確かめ、結果を表示します。
 
 準拠テストの特徴:
 
-- **任意の提供元に流せる**: この管理システムだけでなく、だれかが別の方法で作った提供元にも流せます。API-002 が「実装方法と置き場所は問わない」としている以上、準拠しているかを外から確かめる手段が要ります
-- **提供元ID は URL から取らない**: `--provider` で、別の経路で得た ID を渡します。アプリと同じ考え方です
+- **任意のリストの発行元に流せる**: この管理システムだけでなく、だれかが別の方法で作ったリストの発行元にも流せます。API-002 が「実装方法と置き場所は問わない」としている以上、準拠しているかを外から確かめる手段が要ります
+- **リストID は URL から取らない**: `--provider` で、別の経路で得た ID を渡します。アプリと同じ考え方です
 - **確かめる規則は `packages/protocol` と同じ**: 中で `verifyDiscovery`・`verifyChannelList` を使っています。公開の処理が外に出す前に使うのと同じ関数です
 
 ## 同じコードを使うという選択
@@ -128,7 +128,7 @@ URL を渡すと、アプリと同じように検出の文書・リスト・パ�
 ```kotlin
 // sanpo-channel-console/validator/build.gradle.kts
 dependencies {
-    implementation("io.github.duwenji.sanpoguide:station-format:2.0.0")
+    implementation("io.github.duwenji.sanpoguide:station-format:2.1.0")
     // station-format leaves org.json to its users (Android ships one).
     implementation("org.json:json:20240303")
     // …

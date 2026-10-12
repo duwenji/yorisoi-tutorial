@@ -21,18 +21,20 @@ npx vitest run
 ```
 
 ```
- Test Files  11 passed (11)
-      Tests  106 passed (106)
-   Duration  10.63s
+ Test Files  13 passed (13)
+      Tests  135 passed (135)
+   Duration  15.11s
 ```
 
-11 個のファイル、106 件のテストが、10 秒ほどで終わります。AWS のアカウントは要りません（Docker は要ります）。
+13 個のファイル、135 件のテストが、15 秒ほどで終わります。AWS のアカウントは要りません（Docker は要ります）。
 
 | ファイル | 何を確かめるか | AWS の代わり |
 |---|---|---|
 | `packages/protocol/test/protocol.test.ts` | 署名つき文書の作成と検証（第 6 部） | 要らない |
 | `api/test/publisher.test.ts` | 公開の処理（[6-4](../06-trust/04-two-tier-keys.md)） | メモリの代役、aws-sdk-client-mock |
-| `api/test/console.test.ts`・`publisher-api.test.ts`・`review.test.ts`・`notify.test.ts` | 管理 API（運用者・配信元・審査）、メールの知らせ | DynamoDB Local（Docker） |
+| `api/test/console.test.ts`・`publisher-api.test.ts`・`review.test.ts`・`notify.test.ts` | 管理 API（運営・チャンネル提供者・審査）、メールの知らせ | DynamoDB Local（Docker） |
+| `api/test/collections.test.ts` | 素材提供者の役割、素材集の申請・審査、素材集を使うチャンネル、素材集を載せた公開 | DynamoDB Local（Docker） |
+| `api/test/external.test.ts` | 素材集の外の素材の毎日の確認、確かめてよい宛先かどうか | 要らない（取ってくる部品を代役に） |
 | `conformance/test/end-to-end.test.ts` | 準拠テスト | 手元の HTTP サーバー |
 | `tools/root-key/test/root-key.test.ts` | ルート鍵の CLI | 要らない |
 | `infra/test/console-stack.test.ts` | CDK の定義（第 8 部） | 要らない |

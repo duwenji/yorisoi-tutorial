@@ -34,8 +34,10 @@ flowchart TB
     W --> P{"② チャンネルを変えた直後のあいさつ"}
     P -->|当たり| TP["あいさつ（AI なし）"]
     P --> S{"③ 60m 以内の未案内のスポット<br/>（止まっていない・切り替え直後でない・スポットの間隔）"}
-    S -->|当たり| TS["解説 または 再訪の一言"]
-    S --> SU{"④ 日の入りの 30〜5 分前"}
+    S -->|当たり| TS["チャンネルのきっかけの素材<br/>または 解説・再訪の一言"]
+    S --> CP{"③b チャンネルが<br/>きっかけを置いた地点"}
+    CP -->|当たり| TCP["きっかけの素材"]
+    CP --> SU{"④ 日の入りの 30〜5 分前"}
     SU -->|当たり| TSU["日の入りの一言"]
     SU --> GAP{"前の発言から<br/>雑談の間隔がたったか"}
     GAP -->|いいえ| X
@@ -93,7 +95,7 @@ if (change != null && (warnedAt == null || now - warnedAt >= limits.ms(Threshold
     talk {
         // A thunderstorm warning also covers the rain that comes with it.
         WeatherChangeKind.entries.filter { it >= change.kind }.forEach { s.weatherWarnedAt[it] = now }
-        val line = app.companion.say(TalkEvent.WeatherTurn(change), s, weather)
+        val line = app.narration.line(TalkEvent.WeatherTurn(change), s, weather)
         // Without earphones the spoken warning goes unheard; lightning is worth a sound.
         if (change.kind == WeatherChangeKind.THUNDER) {
             getSystemService(NotificationManager::class.java).notify(ALERT_NOTIFICATION_ID, alertNotification(line))
@@ -116,12 +118,17 @@ s.pendingGreeting?.let { line ->
     talk {
         s.pendingGreeting = null
         speakLine(line)
+        // A channel chosen mid-walk shows its cues for being chosen after its greeting (API-003 `event: select`).
+        if (s.pendingSelect) {
+            s.pendingSelect = false
+            eventCues(s, CueEvent.SELECT, Subject.None)
+        }
     }
     return
 }
 ```
 
-チャンネルのあいさつは、チャンネルのパッケージに書かれた決まった文（AI を使わない）なので、すぐに話せます。
+チャンネルのあいさつは、チャンネルのパッケージに書かれた決まった文（AI を使わない）なので、すぐに話せます。あいさつのあとに、そのチャンネルが「選ばれたとき」のきっかけ（`event: select`）に決めた素材があれば、続けて出します。
 
 ### ③ 近くのスポット
 
@@ -130,11 +137,25 @@ s.pendingGreeting?.let { line ->
 // the spot they arrived at has been introduced, and a rest remark may be due instead.
 val stationary = s.restMinutes(now) >= STATIONARY_MINUTES
 if (!stationary && !justSwitched && now - s.lastSpotTalkAt >= level.spotGapMs) {
-    // One spot per tick, by distance from the user (spots' distances to each other don't matter).
-    val candidates = app.spots.spots.value
+    val nearby = app.spots.spots.value
         .filter { poi -> poi.id !in s.talkedAbout && s.visits.none { it.matches(poi) } }
         .map { it to it.distanceFrom(location) }
         .filter { (_, d) -> d <= ANNOUNCE_RADIUS_M }
+        .sortedBy { (_, d) -> d }
+    // A spot the channel put a cue on comes first, even of a kind it skips or with spot talk
+    // off: the channel placed it on purpose (API-003「きっかけ」). The spacing still holds.
+    val cued = station.materials?.let { m ->
+        nearby.firstNotNullOfOrNull { (poi, d) -> app.cueFinder.spot(station.id, m.media, poi, d.toInt(), s.shownCues, now)?.let { Triple(poi, d, it) } }
+    }
+    if (cued != null) {
+        talk {
+            s.lastSpotTalkAt = now
+            talkAboutSpot(s, cued.first, cued.second.toInt(), cued.third)
+        }
+        return
+    }
+    // One spot per tick, by distance from the user (spots' distances to each other don't matter).
+    val candidates = nearby
         .map { (poi, d) -> SpotCandidate(poi, d, app.history.visitsTo(poi, excludingWalk = s.id).isNotEmpty()) }
     val spot = SpotChooser.pick(
         candidates, station.preferredCategories, station.skippedCategories,
@@ -153,8 +174,9 @@ if (!stationary && !justSwitched && now - s.lastSpotTalkAt >= level.spotGapMs) {
 コレクションの操作（[1-1](../01-kotlin-android/01-kotlin-syntax.md)）で、候補を絞り込んでいます。
 
 1. この散歩でまだ話していないスポット
-2. 距離を計算して、60m 以内のもの
-3. 過去の散歩で訪れたか（再訪か）を調べる
+2. 距離を計算して、60m 以内のもの。近い順に並べる
+3. **チャンネルがきっかけを置いたスポットがあれば、それを先に**（`cued`）。第三者のチャンネルは「このスポットに来たら、この素材を出す」と決められます（[0-1](../00-overview/01-what-we-build.md)）。チャンネルがわざわざ置いたものなので、ふだんは飛ばす種類のスポットでも出します。ただし、スポットの案内どうしの間隔は守ります
+4. きっかけがなければ、過去の散歩で訪れたか（再訪か）を調べる
 
 そのうえで、どれを話すかは `SpotChooser` に任せます。条件のコメントも大事です。
 
@@ -162,6 +184,23 @@ if (!stationary && !justSwitched && now - s.lastSpotTalkAt >= level.spotGapMs) {
 - **スポットの案内どうしの間隔**（`level.spotGapMs`）: スポットが密集した通りで、講義のようにならないように
 
 `SpotChooser.pick` は、チャンネルの好み（歴史探訪なら寺社を先に、など）と、そのスポットの「話題になりそうか」（Wikipedia の記事があるか、など）で点数をつけ、点数が同じなら近い順に 1 つ選びます。選ばれなかった候補は、間隔がたったあとの判断で、まだ近くにいれば選ばれます。
+
+きっかけを探すのは `CueFinder`、見つかったきっかけの素材を用意するのは `CuePresenter`、通知やカードで見せるのは `CueShow` です（どれも `SanpoApp` が作ります。[2-3](../02-compose/03-manual-di.md)）。「同じきっかけを 1 回の散歩で何度も出さない」などの記録（`s.shownCues`）も、ここで使います。
+
+### ③b チャンネルがきっかけを置いた地点
+
+```kotlin
+// A point the channel put a cue on, as for spots: not while standing still (API-003「きっかけ」).
+if (!stationary && !justSwitched) {
+    val fire = station.materials?.let { app.cueFinder.point(station.id, it.media, location.latitude, location.longitude, s.shownCues, now) }
+    if (fire != null) {
+        talk { show(s, fire, present(s, fire, station), spotName = null) }
+        return
+    }
+}
+```
+
+スポット（地図のデータにある場所）だけでなく、チャンネルは緯度・経度と半径で「この地点に来たら」というきっかけも置けます。条件は ③ と同じく、立ち止まっていないこと・切り替えの直後でないことです。素材を持てるのは第三者のチャンネルだけなので、組み込みのチャンネルでは `station.materials` が null で、ここはいつも素通りします。
 
 ### ④ 日の入り（頻度に関係なく）
 
@@ -185,7 +224,7 @@ if (sunsetAt != null && !s.sunsetWarned) {
 if (now - s.lastSpokeAt < level.minGapMs) return
 ```
 
-①〜④は「伝えるべきこと」でした。ここから下は「言ってもいいこと」なので、前に何か話してから一定の時間（ふつうなら 3 分）がたつまでは何も話しません。
+①〜④（③b を含む）は「伝えるべきこと」でした。ここから下は「言ってもいいこと」なので、前に何か話してから一定の時間（ふつうなら 3 分）がたつまでは何も話しません。
 
 ### ⑤ 施設、⑥ 休憩、⑦ 区切り
 

@@ -91,7 +91,7 @@ const [reason, setReason] = useState('');
 <button disabled={busy || reason.trim() === ''}>{label}</button>
 ```
 
-（[pages/common.tsx](../../sanpo-channel-console/web/src/pages/common.tsx) の `ReasonForm`。運用者の操作には必ず理由を書かせる部品）
+（[pages/common.tsx](../../sanpo-channel-console/web/src/pages/common.tsx) の `ReasonForm`。運営の操作には必ず理由を書かせる部品）
 
 - `useState('')` は「今の値」と「値を変える関数」の組を返す
 - `setReason` を呼ぶと、React は `ReasonForm` の関数をもう一度呼び、新しい `reason` で描き直す
@@ -179,8 +179,8 @@ flowchart TB
     BR --> G["それ以外 → Gate<br/>ログインしていなければ Cognito へ<br/>GET /api/me でだれかを知る"]
     G --> SC["SessionContext<br/>config・auth・api・me"]
     SC --> S["Shell<br/>役割で、メニューと道を選ぶ"]
-    S --> OP["運用者: 概要・審査・公開・署名鍵…"]
-    S --> PB["配信元: 概要・チャンネル・鍵・設定"]
+    S --> OP["運営: 概要・審査・公開・署名鍵…"]
+    S --> PB["チャンネル提供者: 概要・チャンネル・鍵・設定"]
     S --> NO["どちらでもない: 使えません"]
 ```
 
@@ -226,13 +226,15 @@ const publisher = session.me.roles.includes('publisher');
     {/* … */}
   </Routes>
 ) : publisher ? (
-  <Routes>{/* 配信元の画面 */}</Routes>
+  <Routes>{/* チャンネル提供者の画面 */}</Routes>
 ) : (
   <section><h1>このアカウントでは使えません</h1>…</section>
 )}
 ```
 
-役割は、トークンの中身ではなく **API（`GET /api/me`）が答えたもの** を使います。そして、画面で運用者のメニューを隠すのは **使いやすさのため** で、守りではありません。ブラウザのコードは書き換えられるからです。守りは API が、呼ばれるたびにグループを確かめることで行っています（[8-3](../08-aws/03-lambda-apigw.md)、[8-4](../08-aws/04-cognito.md)）。
+チャンネル提供者の画面には、素材集の画面（`/collections`、[pages/publisher/collections.tsx](../../sanpo-channel-console/web/src/pages/publisher/collections.tsx)）もあります。素材提供者は別のアカウントではなく、同じアカウントの役割（`roles` の `producer`）なので、同じ画面の中で「素材提供者として始める」を押して使い始めます（[8-4](../08-aws/04-cognito.md)）。運営の側にも、素材集の審査の画面（`/review/collections/…`、[pages/collection-review.tsx](../../sanpo-channel-console/web/src/pages/collection-review.tsx)）が加わっています。
+
+役割は、トークンの中身ではなく **API（`GET /api/me`）が答えたもの** を使います。そして、画面で運営のメニューを隠すのは **使いやすさのため** で、守りではありません。ブラウザのコードは書き換えられるからです。守りは API が、呼ばれるたびにグループを確かめることで行っています（[8-3](../08-aws/03-lambda-apigw.md)、[8-4](../08-aws/04-cognito.md)）。
 
 ## react-router: 道ごとに描くもの
 
@@ -290,9 +292,9 @@ const bearer: Middleware = {
 
 - 送る前に、アクセストークンを `Authorization` のヘッダーに付ける（API Gateway が確かめる。[8-3](../08-aws/03-lambda-apigw.md)）
 - `401`（ログインが切れた）なら、ログインし直す
-- 失敗の応答が Problem Details（[7-3](../07-typescript/03-openapi.md)）なら、`ApiProblem` という例外にする。画面は `describe(e)` で、運用者に分かる言葉に直して見せる（`precondition_failed` → 「ほかの人が先に変更しました。読み込み直してから…」）
+- 失敗の応答が Problem Details（[7-3](../07-typescript/03-openapi.md)）なら、`ApiProblem` という例外にする。画面は `describe(e)` で、運営に分かる言葉に直して見せる（`precondition_failed` → 「ほかの人が先に変更しました。読み込み直してから…」）
 
-変更の操作には `ifMatch(rev)` で `If-Match` のヘッダーを付けます（[7-3](../07-typescript/03-openapi.md)、[8-5](../08-aws/05-dynamodb.md) の `rev`）。2 人の運用者が同時に同じものを変えても、後の人の操作は `412` で止まり、上書きされません。
+変更の操作には `ifMatch(rev)` で `If-Match` のヘッダーを付けます（[7-3](../07-typescript/03-openapi.md)、[8-5](../08-aws/05-dynamodb.md) の `rev`）。2 人の運営の担当者が同時に同じものを変えても、後の人の操作は `412` で止まり、上書きされません。
 
 ## Vite: 開発用のサーバーとビルド
 
@@ -432,9 +434,9 @@ SPA だからです。届けるのは `index.html` と、まとめた JavaScript
 </details>
 
 <details>
-<summary>問 2. 配信元のアカウントで、ブラウザの開発者ツールを使って運用者のメニューを出せたとします。運用者の操作ができてしまいますか。</summary>
+<summary>問 2. チャンネル提供者のアカウントで、ブラウザの開発者ツールを使って運営のメニューを出せたとします。運営の操作ができてしまいますか。</summary>
 
-できません。メニューを分けているのは使いやすさのためで、運用者の操作の API は、呼ばれるたびにトークンのグループを確かめ、運用者でなければ `403` を返します。
+できません。メニューを分けているのは使いやすさのためで、運営の操作の API は、呼ばれるたびにトークンのグループを確かめ、運営でなければ `403` を返します。
 
 </details>
 
