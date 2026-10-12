@@ -4,10 +4,10 @@
 
 ## この章で学ぶこと
 
-- 散策ガイドの心臓部 `maybeTalk()` が、何をどの順番で判断しているか
-- 優先順位を「上から順に、最初に当たった 1 つだけ」で表す書き方
+- 散策ガイドの心臓部 `maybeTalk()` と `TalkDecider` が、何をどの順番で判断しているか
+- 優先順位を「上から順に、最初に当たった 1 つだけ」で表す書き方（ルールの一覧とゲート）
 - 話しすぎを防ぐしくみ（話している最中・間隔・1 回だけ）
-- 判断のロジックを小さな部品に分けてテストする作り
+- 判断を「場面を値で書いて、決まりを当てる」純粋な部品にして、場面ごとにテストする作り（RFC-003）
 - enum の **並び順** に意味を持たせる書き方と、その危うさ
 
 ## maybeTalk はいつ呼ばれるか
@@ -21,6 +21,8 @@
 | 散歩の途中でチャンネルを変えたとき | `watchStations` | [3-2](02-service.md) |
 
 呼ばれるたびに、「今、話すべきことがあるか」を上から順に調べ、**最初に当たった 1 つだけ** を話します。何も当たらなければ、何も話しません。
+
+調べるのは `maybeTalk` 自身ではなく、[TalkDecider.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/TalkDecider.kt) の `TalkDecider` です。以前は `maybeTalk` の中に判断がそのまま書かれていましたが、2026-10-12 に、場面ごとにテストできるよう外に出しました（[RFC-003](../../SanpoGuide/docs/refactoring/RFC-003-talk-decision.md)）。
 
 ## 全体の流れ
 
@@ -54,34 +56,109 @@ flowchart TB
 
 ## 上から順に、最初の 1 つだけ
 
-コードは、条件が当たったら話して `return` する、という形のくり返しです。
+`maybeTalk` は 3 つのことをします。**今の様子を集める**（`situation`）、**何を話すか決めてもらう**（`TalkDecider.decide`）、**決まったことを実行する**（`when`）。
 
 ```kotlin
-/** Decides whether anything is worth saying right now, most important first. */
 private suspend fun maybeTalk() {
     val s = session ?: return
     val location = lastLocation ?: return
     // Let the current line finish before starting another.
     if (app.speaker.isSpeaking) return
     val station = app.stations.current.value
-    val level = station.talkLevel
-    val limits = app.settings.settings.value.thresholds
     val now = System.currentTimeMillis()
 
-    // A turn in the weather comes first, regardless of the talk level: it's about safety.
-    val change = weather?.let { WeatherChangeDetector.detect(it, now, limits) }
-    // …
-    if (change != null && /* 同じ種類を最近知らせていない */) {
-        talk { /* … 警告を話す … */ }
-        return
+    when (val decision = TalkDecider.decide(situation(s, location, station, now))) {
+        is TalkDecision.WeatherTurn -> talk { /* … 警告を話す … */ }
+        is TalkDecision.Greeting -> talk { /* … あいさつ … */ }
+        is TalkDecision.Spot -> talk {
+            s.lastSpotTalkAt = now
+            talkAboutSpot(s, decision.poi, decision.distanceM)
+        }
+        // … SpotCue・PointCue・Sunset・NearFacility・Rest・Milestone・Checkpoint …
+        TalkDecision.Nothing -> Unit
     }
-    // … ②〜⑦ も同じ形 …
 }
 ```
 
-この書き方の良いところは、**コードの上下の並びが、そのまま優先順位になる** ことです。「天気の急変は、スポットの案内より先」という決まりは、天気の判定がスポットの判定より上に書いてある、という事実だけで表されています。優先順位を変えたければ、ブロックの順番を入れ替えます。
+決める側の `TalkDecider` は、**ルールの一覧** です。上から順に聞いていき、最初に「話す」と答えたルールの結果を返します。
+
+```kotlin
+object TalkDecider {
+    /** The walk's rules, in the order they are asked. [TalkRule.safety]: a channel can't switch it off. */
+    val rules: List<Rule> = listOf(
+        // A turn in the weather comes first, regardless of the talk level: it's about safety.
+        Rule("weather", safety = true) { s -> /* … */ },
+        // The user just switched channels: the new one says hello before anything else. No AI, so it's instant.
+        Rule("greeting") { s -> s.pendingGreeting?.let { TalkDecision.Greeting(it, s.pendingSelect) } },
+        Rule("spot", setOf(WalkGate.SPOT_GAP, WalkGate.MOVING, WalkGate.SETTLED)) { s -> /* … */ },
+        Rule("point", setOf(WalkGate.MOVING, WalkGate.SETTLED)) { s -> s.pointCue?.let(TalkDecision::PointCue) },
+        Rule("sunset", safety = true) { s -> /* … */ },
+        // From here on the small-talk gap holds. Facilities still come up right after a switch.
+        Rule("facility", setOf(WalkGate.CHAT_GAP), safety = true) { s -> /* … */ },
+        Rule("rest", setOf(WalkGate.CHAT_GAP, WalkGate.SETTLED)) { s -> /* … */ },
+        Rule("milestone", setOf(WalkGate.CHAT_GAP, WalkGate.SETTLED)) { s -> /* … */ },
+    )
+
+    private val engine = TalkEngine(rules, TalkDecision.Nothing)
+
+    fun decide(s: TalkSituation): TalkDecision = engine.decide(s)
+}
+```
+
+この書き方の良いところは、**一覧の上下の並びが、そのまま優先順位になる** ことです。「天気の急変は、スポットの案内より先」という決まりは、`weather` のルールが `spot` のルールより上に書いてある、という事実だけで表されています。優先順位を変えたければ、行の順番を入れ替えます。
 
 [2-4](../02-compose/04-theme-mood.md) の `paletteFor` の `when`（上から順に当てはまる色を選ぶ）と同じ考え方を、もっと大きな規模で使っているわけです。
+
+### ルールを聞く仕組み: TalkEngine とゲート
+
+一覧を上から聞く仕組みそのものは、キット `kit-companion` の [TalkEngine.kt](../../SanpoGuide/platform/kit-companion/src/main/kotlin/io/github/duwenji/michizure/kit/companion/TalkEngine.kt) にあります。サイクリングの伴走など、ほかの付き添いアプリでも使えるように、散歩のことを何も知らない形で書いてあります。
+
+```kotlin
+class TalkEngine<S : TalkGates<G>, D : Any, G>(val rules: List<TalkRule<S, D, G>>, private val nothing: D) {
+    fun decide(situation: S): D {
+        for (rule in rules) {
+            if (rule.gates.all(situation::isOpen)) rule.decide(situation)?.let { return it }
+        }
+        return nothing
+    }
+}
+```
+
+**ゲート**（`gates`）は、「このルールを聞いてよいか」の条件です。散歩のゲートは 4 つです（`WalkGate`）。
+
+| ゲート | 開いている条件 | 使うルール |
+|---|---|---|
+| `SPOT_GAP` | 前のスポットの案内から、頻度の設定の間隔がたった | スポット |
+| `CHAT_GAP` | 前に何か話してから、雑談の間隔がたった | 施設・休憩・区切り |
+| `MOVING` | 2 分以上とどまっていない | スポット・地点 |
+| `SETTLED` | チャンネルを変えた直後（1 分）でない | スポット・地点・休憩・区切り |
+
+ゲートの意味（何分を「間隔」とするか）はアプリが決め、`TalkSituation.isOpen` に書きます。エンジンは「全部のゲートが開いているルールだけ聞く」ことしか知りません。
+
+`safety = true` は「チャンネルが止められない」ルールの印です（天気・日の入り・施設）。どのチャンネルでも、安全のための知らせは同じに出ます。
+
+### 様子を値で集める: TalkSituation
+
+`TalkDecider` が読むのは `TalkSituation` という **ただの値** です。今の時刻・天気・チャンネルの設定・近くのスポット（距離・この散歩で話したか・前の散歩で訪れたか・チャンネルのきっかけ）・施設・散歩の記録（距離・休憩の時間・前に話した時刻…）が入っています。`maybeTalk` の `situation(…)` が、毎回これを集めます。
+
+```kotlin
+/**
+ * Everything [TalkDecider] reads, as plain values gathered by the walk service each time (RFC-003
+ * D-2). No Android types, so a scene can be written down in a unit test.
+ */
+data class TalkSituation(
+    val now: Long,
+    val weather: Weather?,
+    val limits: Thresholds,
+    val level: TalkLevel,
+    // …
+    val spots: List<NearbySpot>,
+    // …
+    val justSwitched: Boolean,
+) : TalkGates<WalkGate> { /* … isOpen … */ }
+```
+
+コメントのとおり、Android の型を 1 つも含みません。だから単体テストで「雷雨が 20 分後に来て、近くにスポットもあり、前の発言から 1 分」という **場面を値で書いて**、`TalkDecider.decide` が何を返すかを確かめられます（`TalkDeciderTest`、19 件）。
 
 ## 7 つの判断
 
@@ -89,149 +166,113 @@ private suspend fun maybeTalk() {
 
 ```kotlin
 // A turn in the weather comes first, regardless of the talk level: it's about safety.
-val change = weather?.let { WeatherChangeDetector.detect(it, now, limits) }
-val warnedAt = change?.let { s.weatherWarnedAt[it.kind] }
-if (change != null && (warnedAt == null || now - warnedAt >= limits.ms(Threshold.WEATHER_REPEAT_MIN))) {
-    talk {
-        // A thunderstorm warning also covers the rain that comes with it.
-        WeatherChangeKind.entries.filter { it >= change.kind }.forEach { s.weatherWarnedAt[it] = now }
-        val line = app.narration.line(TalkEvent.WeatherTurn(change), s, weather)
-        // Without earphones the spoken warning goes unheard; lightning is worth a sound.
-        if (change.kind == WeatherChangeKind.THUNDER) {
-            getSystemService(NotificationManager::class.java).notify(ALERT_NOTIFICATION_ID, alertNotification(line))
-        }
-        speakLine(line)
+Rule("weather", safety = true) { s ->
+    val change = s.weather?.let { WeatherChangeDetector.detect(it, s.now, s.limits) }
+    val warnedAt = change?.let { s.weatherWarnedAt[it.kind] }
+    change?.takeIf { warnedAt == null || s.now - warnedAt >= s.limits.ms(Threshold.WEATHER_REPEAT_MIN) }
+        ?.let(TalkDecision::WeatherTurn)
+},
+```
+
+決まったら、`maybeTalk` がこう実行します。
+
+```kotlin
+is TalkDecision.WeatherTurn -> talk {
+    val change = decision.change
+    // A thunderstorm warning also covers the rain that comes with it.
+    WeatherChangeKind.entries.filter { it >= change.kind }.forEach { s.weatherWarnedAt[it] = now }
+    val line = app.narration.line(TalkEvent.WeatherTurn(change), s, weather)
+    // Without earphones the spoken warning goes unheard; lightning is worth a sound.
+    if (change.kind == WeatherChangeKind.THUNDER) {
+        getSystemService(NotificationManager::class.java).notify(ALERT_NOTIFICATION_ID, alertNotification(line))
     }
-    return
+    speakLine(line)
 }
 ```
 
-- 安全に関わるので、**話しかけの頻度の設定（控えめ・ふつう・おしゃべり）に関係なく** 話します
+- 安全に関わるので、ゲートがありません。**話しかけの頻度の設定（控えめ・ふつう・おしゃべり）に関係なく** 話します
 - 同じ種類の予告は、設定の間隔（既定 60 分）をあけます（`weatherWarnedAt`）
 - 「近いうちに崩れるか」の判断は、`WeatherChangeDetector` という別の部品に任せています（下で見ます）
+- 決めるのは `TalkDecider`、記録を書き換え・話し・通知するのは `maybeTalk`、と役割が分かれています
 
 ### ② チャンネルを変えた直後のあいさつ
 
 ```kotlin
 // The user just switched channels: the new one says hello before anything else. No AI, so it's instant.
-s.pendingGreeting?.let { line ->
-    talk {
-        s.pendingGreeting = null
-        speakLine(line)
-        // A channel chosen mid-walk shows its cues for being chosen after its greeting (API-003 `event: select`).
-        if (s.pendingSelect) {
-            s.pendingSelect = false
-            eventCues(s, CueEvent.SELECT, Subject.None)
-        }
-    }
-    return
-}
+Rule("greeting") { s -> s.pendingGreeting?.let { TalkDecision.Greeting(it, s.pendingSelect) } },
 ```
 
-チャンネルのあいさつは、チャンネルのパッケージに書かれた決まった文（AI を使わない）なので、すぐに話せます。あいさつのあとに、そのチャンネルが「選ばれたとき」のきっかけ（`event: select`）に決めた素材があれば、続けて出します。
+チャンネルのあいさつは、チャンネルのパッケージに書かれた決まった文（AI を使わない）なので、すぐに話せます。`maybeTalk` は、あいさつのあとに、そのチャンネルが「選ばれたとき」のきっかけ（`event: select`）に決めた素材があれば、続けて出します（`decision.select`）。
 
 ### ③ 近くのスポット
 
 ```kotlin
-// While the user stands still, don't run through every spot within reach one by one;
-// the spot they arrived at has been introduced, and a rest remark may be due instead.
-val stationary = s.restMinutes(now) >= STATIONARY_MINUTES
-if (!stationary && !justSwitched && now - s.lastSpotTalkAt >= level.spotGapMs) {
-    val nearby = app.spots.spots.value
-        .filter { poi -> poi.id !in s.talkedAbout && s.visits.none { it.matches(poi) } }
-        .map { it to it.distanceFrom(location) }
-        .filter { (_, d) -> d <= ANNOUNCE_RADIUS_M }
-        .sortedBy { (_, d) -> d }
+Rule("spot", setOf(WalkGate.SPOT_GAP, WalkGate.MOVING, WalkGate.SETTLED)) { s ->
+    val nearby = s.spots
+        .filter { !it.alreadyThisWalk && it.distanceM <= ANNOUNCE_RADIUS_M }
+        .sortedBy { it.distanceM }
     // A spot the channel put a cue on comes first, even of a kind it skips or with spot talk
     // off: the channel placed it on purpose (API-003「きっかけ」). The spacing still holds.
-    val cued = station.materials?.let { m ->
-        nearby.firstNotNullOfOrNull { (poi, d) -> app.cueFinder.spot(station.id, m.media, poi, d.toInt(), s.shownCues, now)?.let { Triple(poi, d, it) } }
-    }
-    if (cued != null) {
-        talk {
-            s.lastSpotTalkAt = now
-            talkAboutSpot(s, cued.first, cued.second.toInt(), cued.third)
-        }
-        return
-    }
-    // One spot per tick, by distance from the user (spots' distances to each other don't matter).
-    val candidates = nearby
-        .map { (poi, d) -> SpotCandidate(poi, d, app.history.visitsTo(poi, excludingWalk = s.id).isNotEmpty()) }
-    val spot = SpotChooser.pick(
-        candidates, station.preferredCategories, station.skippedCategories,
-        newSpots = station.talksOn(TalkEventKind.SPOT), revisits = station.talksOn(TalkEventKind.REVISIT),
-    )
-    if (spot != null) {
-        talk {
-            s.lastSpotTalkAt = now
-            talkAboutSpot(s, spot.poi, spot.distanceM.toInt())
-        }
-        return
-    }
-}
+    nearby.firstOrNull { it.cue != null }?.let { TalkDecision.SpotCue(it.poi, it.distanceM.toInt(), it.cue!!) }
+        // One spot per tick, by distance from the user (spots' distances to each other don't matter).
+        ?: SpotChooser.pick(
+            nearby.map { SpotCandidate(it.poi, it.distanceM, it.visitedBefore) },
+            s.preferredCategories, s.skippedCategories,
+            newSpots = TalkEventKind.SPOT in s.events, revisits = TalkEventKind.REVISIT in s.events,
+        )?.let { TalkDecision.Spot(it.poi, it.distanceM.toInt()) }
+},
 ```
 
 コレクションの操作（[1-1](../01-kotlin-android/01-kotlin-syntax.md)）で、候補を絞り込んでいます。
 
-1. この散歩でまだ話していないスポット
-2. 距離を計算して、60m 以内のもの。近い順に並べる
-3. **チャンネルがきっかけを置いたスポットがあれば、それを先に**（`cued`）。第三者のチャンネルは「このスポットに来たら、この素材を出す」と決められます（[0-1](../00-overview/01-what-we-build.md)）。チャンネルがわざわざ置いたものなので、ふだんは飛ばす種類のスポットでも出します。ただし、スポットの案内どうしの間隔は守ります
-4. きっかけがなければ、過去の散歩で訪れたか（再訪か）を調べる
+1. この散歩でまだ話していないスポット（`alreadyThisWalk`）
+2. 60m 以内のもの。近い順に並べる
+3. **チャンネルがきっかけを置いたスポットがあれば、それを先に**（`cue`）。第三者のチャンネルは「このスポットに来たら、この素材を出す」と決められます（[0-1](../00-overview/01-what-we-build.md)）。チャンネルがわざわざ置いたものなので、ふだんは飛ばす種類のスポットでも出します。ただし、スポットの案内どうしの間隔は守ります
+4. きっかけがなければ、どれを話すかは `SpotChooser` に任せる。過去の散歩で訪れたか（再訪か、`visitedBefore`）も渡す
 
-そのうえで、どれを話すかは `SpotChooser` に任せます。条件のコメントも大事です。
+ゲートの意味も大事です。
 
-- **立ち止まっている間は、次々に案内しない**（`stationary`）: 寺の境内で 2 分立ち止まったら、周りのスポットを片っ端から案内するのではなく、休憩の一言の出番かもしれない
-- **スポットの案内どうしの間隔**（`level.spotGapMs`）: スポットが密集した通りで、講義のようにならないように
+- **立ち止まっている間は、次々に案内しない**（`MOVING`）: 寺の境内で 2 分立ち止まったら、周りのスポットを片っ端から案内するのではなく、休憩の一言の出番かもしれない
+- **スポットの案内どうしの間隔**（`SPOT_GAP`）: スポットが密集した通りで、講義のようにならないように
 
 `SpotChooser.pick` は、チャンネルの好み（歴史探訪なら寺社を先に、など）と、そのスポットの「話題になりそうか」（Wikipedia の記事があるか、など）で点数をつけ、点数が同じなら近い順に 1 つ選びます。選ばれなかった候補は、間隔がたったあとの判断で、まだ近くにいれば選ばれます。
 
-きっかけを探すのは `CueFinder`、見つかったきっかけの素材を用意するのは `CuePresenter`、通知やカードで見せるのは `CueShow` です（どれも `SanpoApp` が作ります。[2-3](../02-compose/03-manual-di.md)）。「同じきっかけを 1 回の散歩で何度も出さない」などの記録（`s.shownCues`）も、ここで使います。
+きっかけを探すのは `CueFinder`（`situation` を集めるときに呼ぶ）、見つかったきっかけの素材を用意するのは `CuePresenter`、通知やカードで見せるのは `CueShow` です（どれも `SanpoApp` が作ります。[2-3](../02-compose/03-manual-di.md)）。「同じきっかけを 1 回の散歩で何度も出さない」などの記録（`s.shownCues`）も、ここで使います。
 
 ### ③b チャンネルがきっかけを置いた地点
 
 ```kotlin
 // A point the channel put a cue on, as for spots: not while standing still (API-003「きっかけ」).
-if (!stationary && !justSwitched) {
-    val fire = station.materials?.let { app.cueFinder.point(station.id, it.media, location.latitude, location.longitude, s.shownCues, now) }
-    if (fire != null) {
-        talk { show(s, fire, present(s, fire, station), spotName = null) }
-        return
-    }
-}
+Rule("point", setOf(WalkGate.MOVING, WalkGate.SETTLED)) { s -> s.pointCue?.let(TalkDecision::PointCue) },
 ```
 
-スポット（地図のデータにある場所）だけでなく、チャンネルは緯度・経度と半径で「この地点に来たら」というきっかけも置けます。条件は ③ と同じく、立ち止まっていないこと・切り替えの直後でないことです。素材を持てるのは第三者のチャンネルだけなので、組み込みのチャンネルでは `station.materials` が null で、ここはいつも素通りします。
+スポット（地図のデータにある場所）だけでなく、チャンネルは緯度・経度と半径で「この地点に来たら」というきっかけも置けます。ゲートは ③ と同じく、立ち止まっていないこと・切り替えの直後でないことです。素材を持てるのは第三者のチャンネルだけなので、組み込みのチャンネルでは `pointCue` がいつも null で、ここは素通りします。
 
 ### ④ 日の入り（頻度に関係なく）
 
 ```kotlin
 // Heads-up before dark, regardless of the talk level: it's about getting home, not chat.
-val sunsetAt = weather?.sunsetAt
-if (sunsetAt != null && !s.sunsetWarned) {
-    val minutesLeft = ((sunsetAt - now) / 60_000).toInt()
+Rule("sunset", safety = true) { s ->
+    val sunsetAt = s.weather?.sunsetAt
+    val minutesLeft = sunsetAt?.let { ((it - s.now) / 60_000).toInt() }
     // Too close to be useful below the latest minute; an empty range if the settings cross.
-    if (minutesLeft in limits[Threshold.SUNSET_LATEST_MIN]..limits[Threshold.SUNSET_NOTICE_MIN]) {
-        // … 1 回だけ話す …
-    }
-}
+    minutesLeft?.takeIf { !s.sunsetWarned && it in s.limits[Threshold.SUNSET_LATEST_MIN]..s.limits[Threshold.SUNSET_NOTICE_MIN] }
+        ?.let(TalkDecision::Sunset)
+},
 ```
 
 `in 5..30` は「5 以上 30 以下」という範囲の判定です。コメントの "an empty range if the settings cross" に注目してください。設定で「何分前から」（30）より「何分前を過ぎたら知らせない」（5）を大きくしてしまうと、`35..30` のような **空の範囲** になり、何も当たりません。設定画面がこの組み合わせを保存させないのは、このためです（[Threshold.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt) の `conflicts`）。
 
 ### ここから雑談の間隔を守る
 
-```kotlin
-if (now - s.lastSpokeAt < level.minGapMs) return
-```
-
-①〜④（③b を含む）は「伝えるべきこと」でした。ここから下は「言ってもいいこと」なので、前に何か話してから一定の時間（ふつうなら 3 分）がたつまでは何も話しません。
+①〜④（③b を含む）は「伝えるべきこと」でした。ここから下は「言ってもいいこと」なので、ルールに `CHAT_GAP` のゲートが付いています。前に何か話してから一定の時間（ふつうなら 3 分）がたつまでは、どれも聞かれません。
 
 ### ⑤ 施設、⑥ 休憩、⑦ 区切り
 
-- **⑤ 施設**: `FacilityAdvisor.pick` に任せる（[1-1](../01-kotlin-android/01-kotlin-syntax.md) のハンズオンで読んだ部品）。方向は [3-3](03-location-sensors.md) の `relativeDirection`
-- **切り替えの直後 1 分は、ここで止める**（`if (justSwitched) return`）: 新しいチャンネルのあいさつの直後に雑談が続くと、あいさつがかすむため
+- **⑤ 施設**: `FacilityAdvisor.pick` に任せる（[1-1](../01-kotlin-android/01-kotlin-syntax.md) のハンズオンで読んだ部品）。ゲートは `CHAT_GAP` だけで、切り替えの直後でも案内します（安全に関わるため、`safety = true`）。方向は `maybeTalk` が [3-3](03-location-sensors.md) の `relativeDirection` で付けます
+- **切り替えの直後 1 分は、⑥⑦ を聞かない**（`SETTLED`）: 新しいチャンネルのあいさつの直後に雑談が続くと、あいさつがかすむため
 - **⑥ 休憩**: 4 分とどまったら（[3-3](03-location-sensors.md) の錨の仕組み）、1 回だけ
-- **⑦ 区切り**: 前の区切りから一定の距離を歩いたか、一定の時間がたったら。区切りでは、記録も途中まで保存します（`saveProgress`）。話さないチャンネルでも保存だけはします。コメント: "so a quiet walk isn't lost if the service dies"（Service が止められても、静かな散歩の記録が失われないように）
+- **⑦ 区切り**: 前の区切りから一定の距離を歩いたか、一定の時間がたったら。区切りでは、記録も途中まで保存します（`saveProgress`）。区切りで話さないチャンネルでも、`TalkDecision.Checkpoint` を返して保存だけはします。コメント: "Still a checkpoint for the history on a quiet channel, so the walk isn't lost if the service dies"（Service が止められても、静かな散歩の記録が失われないように）
 
 ## 話しすぎを防ぐしくみ
 
@@ -239,12 +280,12 @@ if (now - s.lastSpokeAt < level.minGapMs) return
 
 | 仕組み | 場所 | 防ぐもの |
 |---|---|---|
-| 話している最中は判断しない | `if (app.speaker.isSpeaking) return` | 話の途中に次の話が割り込む |
+| 話している最中は判断しない | `maybeTalk` の `if (app.speaker.isSpeaking) return` | 話の途中に次の話が割り込む |
 | 1 度に 1 つだけ | `talk { … }` の `tryLock`（[3-1](01-coroutines.md)） | AI が文を作っている間に、別の話が始まる |
-| 最初に当たった 1 つだけ | 当たったら `return` | 1 回の判断で何個も話す |
-| 同じものは 1 回だけ | `talkedAbout`・`mentionedFacilities`・`sunsetWarned`・`restRemarked` | 同じスポットや施設を何度も |
-| 種類ごとの間隔 | `weatherWarnedAt`・`lastSpotTalkAt`・`facilityMentionAt` | 同じ種類の話が続く |
-| 全体の間隔 | `lastSpokeAt` と `level.minGapMs` | 雑談が続く |
+| 最初に当たった 1 つだけ | `TalkEngine.decide` が最初の答えを返す | 1 回の判断で何個も話す |
+| 同じものは 1 回だけ | `alreadyThisWalk`・`mentionedFacilities`・`sunsetWarned`・`restRemarked` | 同じスポットや施設を何度も |
+| 種類ごとの間隔 | `weatherWarnedAt`・`SPOT_GAP`・`facilityMentionAt` | 同じ種類の話が続く |
+| 全体の間隔 | `CHAT_GAP`（`lastSpokeAt` と `level.minGapMs`） | 雑談が続く |
 
 ### 話しかけの頻度: TalkLevel
 
@@ -265,24 +306,26 @@ enum class TalkLevel(
 }
 ```
 
-1-1 で見た「値ごとに項目を持てる enum」の例です。`maybeTalk` は `level.spotGapMs` のように読むだけで、「控えめ」かどうかを `if` で分けていません。頻度の段階を足したいときは、ここに 1 行足すだけです。
+1-1 で見た「値ごとに項目を持てる enum」の例です。`TalkSituation.isOpen` は `level.spotGapMs` のように読むだけで、「控えめ」かどうかを `if` で分けていません。頻度の段階を足したいときは、ここに 1 行足すだけです。
 
 ### 何について話すか: チャンネル
 
-`station.talksOn(TalkEventKind.REST)` のように、チャンネルごとに「どの場面で話すか」も決まっています。「しずかに」チャンネルなら、スポットや休憩の一言を話さない、といった具合です。第三者のチャンネル（第 6 部）も、パッケージの中でこれを決められます。
+`TalkEventKind.REST in s.events` のように、チャンネルごとに「どの場面で話すか」も決まっています。「しずかに」チャンネルなら、スポットや休憩の一言を話さない、といった具合です。第三者のチャンネル（第 6 部）も、パッケージの中でこれを決められます。
 
 ## 判断を小さな部品に分ける
 
-`maybeTalk` 自身は、いわば **交通整理** です。難しい判断は、Android に依存しない小さな部品に任せています（[2-3](../02-compose/03-manual-di.md)）。
+`maybeTalk` 自身は、いわば **交通整理** です。判断は、Android に依存しない部品に任せています（[2-3](../02-compose/03-manual-di.md)）。
 
 | 部品 | 判断すること | テスト |
 |---|---|---|
+| `TalkDecider.decide` | 今の場面で、何を話すか（ルールの順番とゲート） | `TalkDeciderTest`（19 件、場面ごと） |
+| `TalkEngine`（`kit-companion`） | ルールを上から聞き、最初の答えを返す仕組み | `TalkEngineTest`（5 件） |
 | `WeatherChangeDetector.detect` | 近いうちに天気が崩れるか、何分後か | `WeatherChangeDetectorTest`（8 件） |
 | `SpotChooser.pick` | 候補のうち、どのスポットを話すか | `SpotChooserTest`（4 件） |
 | `FacilityAdvisor.pick` | どの施設を、どの理由で案内するか | `FacilityAdvisorTest`（9 件） |
-| `WalkSession` | 距離、休憩の時間、チャンネルの切り替え | `WalkSessionStationTest` |
+| `WalkSession` | 距離、休憩の時間、チャンネルの切り替え | `WalkSessionStationTest`（6 件） |
 
-`maybeTalk` は Service の中にあり、位置・天気・AI・音声・通知に囲まれているので、テストが難しい場所です。だから判断のほうを外に出し、`maybeTalk` には「順番に聞いて、当たったら話す」ことだけを残しています。
+`maybeTalk` は Service の中にあり、位置・天気・AI・音声・通知に囲まれているので、テストが難しい場所です。だから判断のほうを外に出し、`maybeTalk` には「様子を集めて、決めてもらい、実行する」ことだけを残しています。以前は、判断の順番そのものは `maybeTalk` の中にあってテストできませんでした。それを `TalkDecider` に移したことで、「雷雨と日の入りが重なったら雷雨が先」のような **順番の決まり** まで、テストで守れるようになりました（RFC-003）。
 
 ### WeatherChangeDetector を読む
 
@@ -323,7 +366,7 @@ object WeatherChangeDetector {
 
 ### enum の並び順に意味を持たせる
 
-並び順は、`maybeTalk` の中でも使われています。
+並び順は、`maybeTalk` が警告を実行するところでも使われています。
 
 ```kotlin
 // A thunderstorm warning also covers the rain that comes with it.
@@ -340,10 +383,10 @@ enum の値は、書いた順に大小を比べられます（`THUNDER < HEAVY_R
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-./gradlew :apps:sanpoguide:app:testDebugUnitTest --tests '*WeatherChangeDetectorTest*'
+./gradlew :apps:sanpoguide:app:testDebugUnitTest --tests '*WeatherChangeDetectorTest*' --tests '*TalkDeciderTest*'
 ```
 
-8 件のテストが通ります。テストの名前を [WeatherChangeDetectorTest.kt](../../SanpoGuide/apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/companion/WeatherChangeDetectorTest.kt) で見てみてください。
+27 件（天気の判定 8 件と、話す判断の場面 19 件）のテストが通ります。テストの名前を [WeatherChangeDetectorTest.kt](../../SanpoGuide/apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/companion/WeatherChangeDetectorTest.kt) で見てみてください。
 
 - steady weather is no news（天気が変わらなければ、知らせない）
 - rain starting within the hour（1 時間以内に雨が降り出す）
@@ -367,12 +410,20 @@ enum class WeatherChangeKind {
 もう一度テストを流します。
 
 ```
-8 tests completed, 1 failed
+27 tests completed, 3 failed
 ```
 
-落ちるのは `thunder beats rain, and is news even when it is already raining` で、`expected:<THUNDER> but was:<RAIN>` と出ます。雨と雷雨の両方が予報されているとき、雨を先に見つけて返してしまうからです。「雷が来ます、建物に入ってください」と言うべきところで「雨が降りそうです」と言ってしまう、安全に関わる不具合です。
+落ちるのは次の 3 件です。
 
-実は `maybeTalk` の `it >= change.kind` の意味も逆になります（雨の予告が、雷雨の予告を兼ねてしまう）。こちらはテストでは見つかりません。enum の並びに意味を持たせるなら、その約束をコメントに書き、テストで守る必要があります。
+| テスト | 出るエラー |
+|---|---|
+| `WeatherChangeDetectorTest` の thunder beats rain, and is news even when it is already raining | `expected:<THUNDER> but was:<RAIN>` |
+| `TalkDeciderTest` の a coming thunderstorm comes first, whatever else is due | `expected:<THUNDER> but was:<RAIN>` |
+| `TalkDeciderTest` の the same warning waits out its repeat gap | 何も話さないはずが、雨の警告を返す |
+
+雨と雷雨の両方が予報されているとき、雨を先に見つけて返してしまうからです。「雷が来ます、建物に入ってください」と言うべきところで「雨が降りそうです」と言ってしまう、安全に関わる不具合です。判断を `TalkDecider` に移して場面のテストを書いたので、1 つの部品のテストだけでなく、「散歩の場面として何を話すか」のテストでも気づけるようになっています。
+
+ただし、`maybeTalk` が警告を実行するときの `it >= change.kind` の意味も逆になります（雨の予告が、雷雨の予告を兼ねてしまう）。こちらは `maybeTalk` の中なので、テストでは見つかりません。enum の並びに意味を持たせるなら、その約束をコメントに書き、テストで守る必要があります。
 
 ### 3. 元に戻す
 
@@ -383,7 +434,7 @@ git status
 
 ### 4. 考えてみる
 
-`maybeTalk` で、④日の入りの判定を①天気の急変より上に移したら、どんな場面で困るでしょうか。
+`TalkDecider.rules` で、④日の入りのルールを①天気の急変より上に移したら、どんな場面で困るでしょうか。
 
 <details>
 <summary>考え方の例</summary>
@@ -394,17 +445,17 @@ git status
 
 ## つまずきやすいところ
 
-- **優先順位はコードの並びで表す**: 条件をばらばらの場所に書くと、どれが先に判断されるのか分からなくなります
+- **優先順位は一覧の並びで表す**: 条件をばらばらの場所に書くと、どれが先に判断されるのか分からなくなります
 - **「伝えるべきこと」と「言ってもいいこと」を分ける**: 安全に関わる知らせは、頻度の設定や間隔に関係なく話します
 - **enum の並び順に頼るなら、約束をコメントとテストに残す**: 並べ替えただけで意味が変わります
-- **判断のロジックを Service に書き込まない**: テストしやすい小さな部品に出します
+- **判断のロジックを Service に書き込まない**: 様子をただの値に集め、判断は純粋な部品（`TalkDecider`）に出します。場面ごとにテストできます
 
 ## 確認問題
 
 <details>
 <summary>問 1. 「控えめ」のチャンネルで、雷雨が近づきました。前の発言から 1 分しかたっていません。警告は話されますか。</summary>
 
-話されます。天気の急変は `maybeTalk` のいちばん上で判断され、頻度の設定（`level.minGapMs`）による間隔の判定より前にあるからです。ただし、ほかの話をしている最中なら、話し終わってからの判断になります。
+話されます。天気の急変は `TalkDecider.rules` のいちばん上にあり、ゲートがない（頻度の設定 `level.minGapMs` による `CHAT_GAP` に関係しない）からです。ただし、ほかの話をしている最中なら、話し終わってからの判断になります。
 
 </details>
 
@@ -418,7 +469,7 @@ git status
 <details>
 <summary>問 3. 寺の境内で立ち止まっています。周りに 60m 以内のスポットがまだ 3 つあります。次々に案内されますか。</summary>
 
-されません。2 分以上とどまっていると `stationary` になり、スポットの案内の判定を飛ばすからです。代わりに、4 分たてば休憩の一言の出番になります（休憩の一言を話すチャンネルなら）。歩き出せば、間隔をあけて残りのスポットも案内されます。
+されません。2 分以上とどまっていると `MOVING` のゲートが閉じ、スポットのルールが聞かれないからです。代わりに、4 分たてば休憩の一言の出番になります（休憩の一言を話すチャンネルなら）。歩き出せば、間隔をあけて残りのスポットも案内されます。
 
 </details>
 
