@@ -90,8 +90,8 @@ android {
         applicationId = "io.github.duwenji.sanpoguide"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
     }
     // … signingConfigs・buildTypes（1-4 で見ます）…
     compileOptions {
@@ -112,8 +112,8 @@ android {
 | `minSdk` | 26 | 動く最低の Android の版。26 は Android 8.0 |
 | `targetSdk` | 35 | どの版の振る舞いに合わせて作ったか。35 は Android 15 |
 | `compileSdk` | 35 | コンパイルに使う Android の API の版 |
-| `versionCode` | 1 | 更新のたびに増やす整数。端末は大きい方を新しいと判断する |
-| `versionName` | `0.1.0` | 人に見せる版 |
+| `versionCode` | 2 | 更新のたびに増やす整数。端末は大きい方を新しいと判断する。素材の第 1 段を出したときに 1 から 2 にした |
+| `versionName` | `0.2.0` | 人に見せる版 |
 | `buildConfig = true` | — | `BuildConfig.VERSION_CODE`・`BuildConfig.DEBUG` などをコードから使えるようにする |
 
 `applicationId` は、逆さにしたドメイン名で、世界で重ならない名前にします。Android Studio の雛形が入れる `com.example.…` は仮の名前で、Google Play には上げられません。散策ガイドは Play に上げる前に、自分の GitHub のアドレス（`duwenji.github.io`）を逆さにした `io.github.duwenji.sanpoguide` に変えました。あわせて `namespace`・Kotlin のパッケージ・`station-format` の公開の名前（[5-3](../05-station-format/03-publish.md)）も同じ名前に揃えています。`applicationId` は公開後に変えられませんが、パッケージ名は後からでも変えられます。ただ、使う人が増えるほど手間が増えるので、最初に揃えておきました。
@@ -202,7 +202,7 @@ dependencies {
 
 - `kotlin.jvm` プラグインなので、Android の SDK がなくてもビルド・テストできます（[0-3](../00-overview/03-setup.md) で最初に流したのはこれです）
 - `org.json` は `compileOnly`: Android は `org.json` を標準で持っているので、ライブラリに同梱すると重複して lint に叱られます。使う側（管理システムの `validator`）が自分で足します
-- 版は `gradle.properties` の `stationFormatVersion` から読みます。アプリの版（`0.1.0`）とは別に管理しています
+- 版は `gradle.properties` の `stationFormatVersion` から読みます。アプリの版（`0.2.0`）とは別に管理しています
 - `maven-publish` で GitHub Packages に公開します（[5-3](../05-station-format/03-publish.md)）
 
 [gradle.properties](../../SanpoGuide/gradle.properties):
@@ -211,7 +211,7 @@ dependencies {
 org.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8
 android.useAndroidX=true
 # Version of :station-format as published to GitHub Packages …
-stationFormatVersion=2.0.0
+stationFormatVersion=2.1.0
 ```
 
 ### 自分で作ったタスク: channelIndex

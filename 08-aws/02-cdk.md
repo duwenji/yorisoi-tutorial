@@ -104,6 +104,12 @@ export interface EnvConfig {
   /** Signing keys in KMS, one per period (ADR-001 A-8: a new key every six months). */
   signingKeyIds: string[];
   notify: { mode: 'log' } | { mode: 'ses'; from: string; configurationSet?: string };
+  /**
+   * The app version (versionCode) each app stage of material needs (API-001 C-21, DES-008 K-6):
+   * 0 no material, 1 text and images, 2 audio, 3 video. Changed here, through a pull request, as
+   * app versions ship; until then material needs a version no app has.
+   */
+  appStageVersions: Record<number, number>;
   cost: {
     waf: boolean;
     pointInTimeRecovery: boolean;
@@ -122,8 +128,11 @@ export interface EnvConfig {
 | `cost.waf` | なし | あり |
 | `cost.pointInTimeRecovery` | なし | あり |
 | `cost.logRetentionDays` | 14 日 | 消さない |
+| `appStageVersions` | `{ 0: 1, 1: 2, 2: 9999, 3: 9999 }` | 同じ |
 
 `notify` の型に注目してください。`{ mode: 'log' } | { mode: 'ses'; from: string; … }` は、[7-1](../07-typescript/01-typescript-syntax.md) の **判別できるユニオン** です。`ses` にしたのに送り主（`from`）を書き忘れると、コンパイルエラーになります。インフラの設定も、型で守られています。
+
+`appStageVersions` は、素材の段（[5-2](../05-station-format/02-package-format.md)）ごとに、どの版のアプリ（`versionCode`）から使えるかの表です。チャンネルを承認するとき、管理システムはこれを見て、リストの `minAppVersion` を決めます。文字と画像（段 1）は `versionCode` 2 のアプリから。音声・映像（段 2・3）を出せるアプリはまだないので、`9999`（どのアプリも届かない版）にしてあります。新しいアプリを出したら、ここをプルリクエストで書き換えます。
 
 ### スタックとコンストラクト
 
@@ -354,11 +363,11 @@ EOF
 ```
 
 ```
-PublishFunctionB6602567 nodejs22.x ['arm64'] 512 MB 60 秒 同時に 1
+PublishFunctionB6602567 nodejs22.x ['arm64'] 512 MB 360 秒 同時に 1
 DailyPublishF5C111C1 cron(0 18 * * ? *)
 ```
 
-CDK の `Duration.minutes(1)` がテンプレートでは `60`（秒）に、`cron({ minute: '0', hour: '18' })` が `cron(0 18 * * ? *)` になっています。`18` 時は世界標準時（UTC）なので、日本時間の 03:00 です。
+CDK の `Duration.minutes(6)` がテンプレートでは `360`（秒）に、`cron({ minute: '0', hour: '18' })` が `cron(0 18 * * ? *)` になっています。`18` 時は世界標準時（UTC）なので、日本時間の 03:00 です。6 分なのは、リストを出すのに 1 分、毎日の作り直しのあとに素材集の外の素材を確かめるのに最大 5 分とってあるからです（コメント: "A minute to publish; the daily run then checks outside resources for up to 5"、[8-3](03-lambda-apigw.md)）。
 
 確かめたら `rm -rf .local/cdkout` で消してかまいません。
 

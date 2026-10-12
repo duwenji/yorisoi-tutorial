@@ -23,7 +23,7 @@
 |---|---|---|---|---|
 | **公開用**（PublicBucket） | 承認済みチャンネル・リスト、検出の文書、承認したパッケージ・アイコン、試用のパッケージ | 公開の Lambda、管理 API | CloudFront だけ（アプリはその先） | [6-4](../06-trust/04-two-tier-keys.md) |
 | **記録用**（RecordsBucket） | 公開したリストの履歴、審査の見本、審査の記録 | 公開の Lambda、管理 API、機械審査 | 管理 API | DM-001 M-13 |
-| **受付用**（IntakeBucket） | 配信元が上げたパッケージ・アイコン（審査の前） | 配信元のブラウザ（署名つき POST） | 機械審査、管理 API | この章 |
+| **受付用**（IntakeBucket） | チャンネル提供者が上げたパッケージ・アイコン（審査の前） | チャンネル提供者のブラウザ（署名つき POST） | 機械審査、管理 API | この章 |
 | **画面用**（WebBucket） | 管理画面（SPA）のファイル | 配備（CDK） | CloudFront だけ | [9-1](../09-console/01-react-vite.md) |
 
 役割ごとに分けると、権限を役割ごとに絞れます（[8-1](01-aws-basics.md)）。たとえば、審査の前のパッケージ（受付用）が、うっかり公開用に紛れ込むことがありません。
@@ -70,6 +70,9 @@ lifecycleRules: [
   // Settled submissions are kept 90 days (DM-001 M-4); uploads that never got a result go after 30.
   { prefix: 'archive/', expiration: Duration.days(90) },
   { prefix: 'intake/', expiration: Duration.days(30) },
+  // Collections the same way, under their own prefixes (DM-001 1.3: their ids may equal a channel's).
+  { prefix: 'archive-col/', expiration: Duration.days(90) },
+  { prefix: 'intake-col/', expiration: Duration.days(30) },
   { abortIncompleteMultipartUploadAfter: Duration.days(1) },
 ],
 ```
@@ -79,19 +82,20 @@ lifecycleRules: [
 | 公開用の `trial/` | 7 日 | 試用チケットの期限が 7 日（API-002） |
 | 受付用の `archive/` | 90 日 | 承認されなかったパッケージは、結果が出てから 90 日残す（DM-001 M-4） |
 | 受付用の `intake/` | 30 日 | 上げたまま結果が出なかったもの |
+| 受付用の `archive-col/`・`intake-col/` | 90 日・30 日 | 素材集の申請。チャンネルと同じ決まりで、場所だけ分ける（素材集の ID はチャンネルの ID と同じでもよいので、混ざらないように） |
 | 記録用 | 消さない（`versioned: true` で、上書きしても前の版も残す） | 公開の履歴は永く残す（M-13） |
 
 **ライフサイクル** は、決まった日数を過ぎたファイルを、S3 が自動で消す仕組みです。消すための Lambda やスケジュールを作らなくて済みます。
 
 ## 署名つき POST: ブラウザから S3 に直接上げる
 
-配信元は、チャンネルのパッケージ（最大 2MB）とアイコンを上げます。管理 API の Lambda を通して上げると、Lambda が大きなファイルを受け取って S3 に書き直すことになり、時間もお金もかかります。API Gateway には本文の大きさの上限もあります。
+チャンネル提供者は、チャンネルのパッケージ（最大 2MB）とアイコンを上げます。管理 API の Lambda を通して上げると、Lambda が大きなファイルを受け取って S3 に書き直すことになり、時間もお金もかかります。API Gateway には本文の大きさの上限もあります。
 
 そこで、**ブラウザから S3 に直接** 上げさせます（API-001 C-10、ADR-001 A-11）。ただし、だれでも何でも置けては困るので、管理 API が **署名つき POST**（presigned POST）という「この条件でなら置いてよい」という許可証を作って渡します。
 
 ```mermaid
 sequenceDiagram
-    participant B as 配信元のブラウザ
+    participant B as チャンネル提供者のブラウザ
     participant A as 管理 API
     participant S as 受付用のバケット（S3）
     participant V as 機械審査の Lambda
@@ -276,7 +280,7 @@ const headers = new cloudfront.ResponseHeadersPolicy(this, 'ConsoleHeaders', {
 | `frame-ancestors 'none'` | ほかのサイトの中に埋め込ませない（クリックをだます攻撃への備え） |
 | HSTS（Strict-Transport-Security） | 1 年間、このサイトには HTTPS でしかつながないよう、ブラウザに覚えさせる |
 
-`connect-src` に AI のサービスが入っているのは、運用者の画面が、運用者の API キーで **ブラウザから直接** AI を呼んで審査の見本を作るからです（ADR-001 A-14、[9-3](../09-console/03-keys-in-browser.md)）。キーはサーバーに送りません。
+`connect-src` に AI のサービスが入っているのは、運営の画面が、運営の API キーで **ブラウザから直接** AI を呼んで審査の見本を作るからです（ADR-001 A-14、[9-3](../09-console/03-keys-in-browser.md)）。キーはサーバーに送りません。
 
 ### 画面の設定は、配備のときに書く
 
@@ -359,7 +363,7 @@ EOF
 ```
 PublicBucketA6745C15 版の記録: False ／ 自動で消す: [('trial/', 7)] ／ CORS: False
 RecordsBucket880EC200 版の記録: True ／ 自動で消す: [] ／ CORS: False
-ConsoleIntakeBucketB128EAD7 版の記録: False ／ 自動で消す: [('archive/', 90), ('intake/', 30), (None, None)] ／ CORS: True
+ConsoleIntakeBucketB128EAD7 版の記録: False ／ 自動で消す: [('archive/', 90), ('intake/', 30), ('archive-col/', 90), ('intake-col/', 30), (None, None)] ／ CORS: True
 ConsoleWebBucket3DCD9452 版の記録: False ／ 自動で消す: [] ／ CORS: False
 ```
 
@@ -376,7 +380,7 @@ ConsoleWebBucket3DCD9452 版の記録: False ／ 自動で消す: [] ／ CORS: F
 ## 確認問題
 
 <details>
-<summary>問 1. 配信元が 3MB のパッケージを上げようとすると、どこで断られますか。</summary>
+<summary>問 1. チャンネル提供者が 3MB のパッケージを上げようとすると、どこで断られますか。</summary>
 
 S3 で断られます。管理 API が作った署名つき POST のポリシーに `content-length-range` で 2MB までと書かれていて、S3 がそれを確かめるからです。管理 API の Lambda はファイルの中身に触れません。
 

@@ -261,11 +261,16 @@ export async function signDocument(content: object, signer: Signer): Promise<Sig
 [publisher.ts](../../sanpo-channel-console/api/src/publish/publisher.ts) の `publish` には、同時に待つ例があります。
 
 ```ts
-const [channels, revoked] = await Promise.all([
+const since = new Date(now.getTime() - (config.revokedDays ?? 7) * DAY);
+const [listed, collections, revoked, revokedCollections] = await Promise.all([
   store.listedChannels(now),
-  store.revocations(new Date(now.getTime() - (config.revokedDays ?? 7) * DAY)),
+  store.listedCollections(now),
+  store.revocations(since),
+  store.collectionRevocations(since),
 ]);
 ```
+
+リストに載せるチャンネル・素材集と、それぞれの取り下げの 4 つを、データベースに同時に問い合わせています。1 つずつ `await` すると 4 回分待ちますが、`Promise.all` なら一番遅いもの 1 回分で済みます。結果は配列で返るので、分割代入（`const [a, b, …] =`）で受け取ります。
 
 JavaScript は、基本的に 1 本のスレッドで動きます。`await` で待っている間、そのスレッドはほかの仕事をします。Kotlin のコルーチンのような「ディスパッチャ」はなく、通信やファイルの読み書きは、最初から待つ形（`Promise` を返す形）で作られています。
 

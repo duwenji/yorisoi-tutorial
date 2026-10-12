@@ -8,7 +8,7 @@
 
 - 端末の位置を受け取る 2 つの方法（今の位置を 1 回、散歩の間ずっと）
 - GPS の「揺れ」を、距離や休憩の判定に持ち込まない工夫
-- 方位センサーで、利用者が向いている方向を知る方法
+- 方位センサーで、散策者が向いている方向を知る方法
 - 角度を計算するときの落とし穴（359° と 1° は 2° しか違わない）
 
 ## 位置を受け取る: Fused Location Provider
@@ -103,8 +103,10 @@ private fun onLocation(location: Location) {
         if (!greeted) {             // 最初の位置で、天気を取ってあいさつ
             greeted = true
             refreshWeather(location)
-            if (app.stations.current.value.talksOn(TalkEventKind.START)) {
-                talk { speakLine(app.companion.say(TalkEvent.Start, s, weather)) }
+            talk {
+                if (app.stations.current.value.talksOn(TalkEventKind.START)) speakLine(app.narration.line(TalkEvent.Start, s, weather))
+                // The channel's own cues for the start come after the greeting (API-003 `event: start`).
+                eventCues(s, CueEvent.START, Subject.Event(TalkEvent.Start))
             }
         }
         try {
@@ -181,7 +183,7 @@ fun restMinutes(now: Long = System.currentTimeMillis()): Int =
 
 ## 向いている方向: 方位センサー
 
-地図の上の現在地の点には、利用者が向いている方向が扇形で描かれます（[README](../../SanpoGuide/README.md) の「ルートと向き」）。その向きを決めているのが [Heading.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/Heading.kt) の `rememberHeading` です。
+地図の上の現在地の点には、散策者が向いている方向が扇形で描かれます（[README](../../SanpoGuide/README.md) の「ルートと向き」）。その向きを決めているのが [Heading.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/Heading.kt) の `rememberHeading` です。
 
 ```kotlin
 /**

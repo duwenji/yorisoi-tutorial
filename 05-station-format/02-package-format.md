@@ -19,7 +19,7 @@ flowchart LR
     L["承認済みチャンネル・リスト<br/>（API-002・第 6 部）<br/>package.url・sha256・size"] -->|"SHA-256 で固定"| P["パッケージ（ZIP）<br/>（API-003・この章）"]
     P --> CJ["channel.json<br/>設定"]
     P --> SL["prompts/…<br/>スロットの文章"]
-    P --> SG["signature.json<br/>配信元の署名"]
+    P --> SG["signature.json<br/>チャンネル提供者の署名"]
 ```
 
 この約束を、アプリ（読み込むとき）と管理システム（機械審査）が、**同じコード**（`:station-format` の `StationValidator`、[5-1](01-jvm-library.md)）で確かめます。
@@ -28,7 +28,7 @@ flowchart LR
 
 ```
 channel.json                 設定（必須）
-signature.json               配信元の署名（第三者のみ必須）
+signature.json               チャンネル提供者の署名（第三者のみ必須）
 prompts/
 ├── guide/
 │   ├── persona.md           スポット解説の語り手（役割・口調）
@@ -42,9 +42,13 @@ prompts/
         ├── milestone.md
         ├── rest.md
         └── finish.md
+resources/                   パッケージに入れる素材（任意。第三者のみ）
+├── text/*.md
+└── img/*.jpg・*.png・*.webp
 ```
 
 - `prompts/` の下のファイルは **すべて任意**。ないスロットには、組み込みの「標準」チャンネルの文章が入る
+- `resources/` には、`channel.json` の `resources` が指しているファイルだけを置ける（下の「素材・きっかけ・見せ方」）
 - **これ以外のファイルを入れると拒む**（API-003 F-5）
 - テキストは UTF-8（BOM なし）、改行は LF
 
@@ -108,7 +112,7 @@ API-003 の決定事項 F-3:
 
 > 話す量・話す場面・話題の優先・雰囲気・解説の長さを、アプリが決めた選択肢の中から選ぶ。数値を自由に書くことはできない。**選択肢の範囲そのものが上限になる**（話しかけの頻度は最大で「おしゃべり」、解説は最長 450 字）。
 
-もし「話しかけの間隔（秒）」を自由に書けたら、配信元が「5 秒」と書いて、利用者の AI の料金をつり上げられます。選択肢しか書けなければ、どう選んでも「おしゃべり」（2 分に 1 回）が上限です。**危ない値を書けない形にする** ことで、確かめる手間そのものを減らしています。
+もし「話しかけの間隔（秒）」を自由に書けたら、チャンネル提供者が「5 秒」と書いて、散策者の AI の料金をつり上げられます。選択肢しか書けなければ、どう選んでも「おしゃべり」（2 分に 1 回）が上限です。**危ない値を書けない形にする** ことで、確かめる手間そのものを減らしています。
 
 スポットの種類のうち 7 つ（飲食店・カフェ・菓子・パン・食品店・市場・工芸・土産・専門店）は、`prefer` に入れたチャンネルでだけ探します（API-003 1.1）。ふつうの散歩で店ばかり案内しないためです。チェーン店は探しません。組み込みの「グルメの旅」（`gourmet/`）と「ショッピング」（`shopping/`）が、これを使っています。
 
@@ -162,10 +166,12 @@ enum class Slot(val path: String, val maxChars: Int) {
 if (text.startsWith('﻿')) reject(RejectCode.FORBIDDEN_TEXT, "${slot.path}: byte order mark")
 if ('\r' in text) reject(RejectCode.FORBIDDEN_TEXT, "${slot.path}: CR line breaks")
 if ("{{" in text) reject(RejectCode.FORBIDDEN_TEXT, "${slot.path}: \"{{\"")
-URL.find(text)?.let { reject(RejectCode.FORBIDDEN_TEXT, "${slot.path}: URL \"${it.value}\"") }
-if (HEADING.containsMatchIn(text)) reject(RejectCode.FORBIDDEN_TEXT, "${slot.path}: heading")
+URL_PATTERN.find(text)?.let { reject(RejectCode.FORBIDDEN_TEXT, "${slot.path}: URL \"${it.value}\"") }
+if (HEADING_PATTERN.containsMatchIn(text)) reject(RejectCode.FORBIDDEN_TEXT, "${slot.path}: heading")
 // … 文字数の上限、合計 4,000 字 …
 ```
+
+`URL_PATTERN`・`HEADING_PATTERN` や、UTF-8 として読む `decodeUtf8` は、[Checks.kt](../../SanpoGuide/station-format/src/main/kotlin/io/github/duwenji/sanpoguide/station/format/Checks.kt) にまとめてあります。素材の文章や素材集（下で見ます）の確認でも同じ決まりを使うので、チャンネル専用の `StationValidator` から外に出しました。
 
 | 禁止 | 理由 |
 |---|---|
@@ -177,14 +183,71 @@ if (HEADING.containsMatchIn(text)) reject(RejectCode.FORBIDDEN_TEXT, "${slot.pat
 
 文字数は `codePointCount` で数えています（コメント: "one per code point, so emoji and rare kanji count once"）。Kotlin（Java）の `String.length` は、絵文字や一部の漢字を 2 と数えてしまうからです。人が数える字数に合わせています。
 
+## 素材・きっかけ・見せ方（第三者のチャンネル）
+
+ここまでの `channel.json` とスロットは、「AI にどう話させるか」を決めるものでした。第三者のチャンネルは、それに加えて **素材**（文字・画像・音声・映像）を、決まった **きっかけ** に、決まった **見せ方** で出せます（API-003「素材・きっかけ・見せ方」、[0-1](../00-overview/01-what-we-build.md)）。`channel.json` の例（一部）:
+
+```json
+"resources": [
+  { "id": "intro", "type": "text", "file": "resources/text/intro.md" },
+  { "id": "old-photo", "type": "image", "file": "resources/img/hachimangu-1900.jpg",
+    "alt": "明治時代の鶴岡八幡宮の本宮", "credit": { "author": "不明", "license": "PD" } }
+],
+"collections": [ { "as": "kamakura", "id": "kamakura-photos", "minVersion": 1 } ],
+"cues": [
+  { "id": "kotokuin", "trigger": { "type": "spot", "osm": "way/234567", "name": "高徳院" },
+    "present": [ { "as": "speak", "source": ["kamakura", "builtin:ai-guide", "builtin:fallback-text"] },
+                 { "as": "card", "source": ["kamakura#daibutsu-photo", "builtin:commons-photo"] } ] }
+]
+```
+
+| 項目 | 何を決めるか |
+|---|---|
+| `resources` | パッケージに同梱する素材。ファイルは `resources/` に置く |
+| `collections` | 使う第三者の素材集（素材提供者が作り、別に審査されたもの）を、ID と最低の版で宣言する（5 個まで）。`as` は、きっかけの中で使う別名 |
+| `selectors` | 素材集を名指しせず、「寺社の写真」のような基準（種類・タグ）で素材を集める |
+| `cues` | **いつ**（`trigger`: スポット・地点・出来事）、**どの見せ方で**（`as`: 読み上げ・カード・通知・解説の画面…）、**どの素材を**（`source`: 候補を前から順に）出すか |
+
+ここでも「選択肢から選ぶ」考え方が生きています。チャンネルが選べるのは、きっかけの種類・見せ方の種類・候補の並びだけです。「歩いている間（0.5m/s 以上）は全画面を開かない」「解説の画面は、散策者がタップしたときだけ開く」といった **見せ方の安全の決まりは、アプリが強制します**（API-003 F-8）。チャンネルには書く場所がありません。
+
+`source` の候補には、`builtin:ai-guide`（AI の解説）のような **組み込みの素材の出どころ** も並べられます。「観光協会の解説があればそれを、なければ AI の解説、それもだめなら定型文」と書けるわけです。アプリはどの出どころも同じ形（`Producer`）で扱い、前から順に試します（[4-3](../04-outside/03-ai.md)）。
+
+### アプリの段階に合わせて確かめる
+
+アプリは、素材の種類を段階的に増やしています（API-003 M-1）。今のアプリ（`versionCode` 2）は第 1 段で、文字と画像だけを出せます。音声は第 2 段、映像は第 3 段です。`StationValidator.check` は、呼ぶ側が出せる段（`mediaStage`）を受け取ります。
+
+```kotlin
+/** The material (手順 8・9・10). Without any stage, a channel that has some can't be shown and isn't read. */
+private fun readMedia(json: JSONObject, files: StationFiles, paths: List<String>, mediaStage: Int): StationMedia {
+    if (mediaStage <= 0) {
+        MEDIA_FIELDS.firstOrNull { json.optList(it).isNotEmpty() }?.let { reject(RejectCode.UNSUPPORTED_RESOURCE, "$it are not supported yet") }
+        // …
+        return StationMedia.NONE
+    }
+    val resources = ResourceReader.read(json, files, inCollection = false)
+    // …
+    val media = CueReader.read(json, resources)
+    // Collections are known only from the list, so what they bring is counted when they are (API-004 手順 3・4).
+    val needed = MediaStage.required(media)
+    if (needed > mediaStage) reject(RejectCode.UNSUPPORTED_RESOURCE, "needs app stage $needed (this one shows up to $mediaStage)")
+    return media
+}
+```
+
+- アプリは `ChannelSync.MEDIA_STAGE`（今は 1）を渡す。音声を使うチャンネルは `unsupported_resource` で取り込まない
+- 管理システムの機械審査は `StationValidator.ALL_STAGES`（3）を渡し、すべてを確かめる（[8-8](../08-aws/08-kotlin-lambda.md)）。どの版のアプリから使えるかは、リストの `minAppVersion` で伝える
+- 素材集の中身は、パッケージだけでは分からない（リストに載った素材集を取ってきて初めて分かる）。そのため、素材集が持ち込む素材の段は、取り込むときに別に数える（`CollectionReferences`）
+
+素材集そのものの形式（API-004）と確認は、`material/format` パッケージの `CollectionValidator` にあります。素材集も ZIP で、素材提供者の署名（次の `signature.json` と同じ形）が付きます。 素材の出どころの共通の形、きっかけと見せ方の安全、素材集の借り方は [5-4](04-materials-cues.md) でくわしく見ます。
+
 ## signature.json: だれが作ったか
 
-第三者のパッケージには、配信元の署名（`signature.json`）が付きます（F-6）。[6-5](../06-trust/05-verify-in-app.md) で見たとおりです。
+第三者のパッケージには、チャンネル提供者の署名（`signature.json`）が付きます（F-6）。[6-5](../06-trust/05-verify-in-app.md) で見たとおりです。
 
 ```json
 {
   "payload": "<base64url(下の JSON のバイト列)>",
-  "publisherKey": "<base64url(配信元の Ed25519 公開鍵 32 バイト)>",
+  "publisherKey": "<base64url(チャンネル提供者の Ed25519 公開鍵 32 バイト)>",
   "sig": "<base64url(payload のバイト列への Ed25519 署名)>"
 }
 ```
@@ -204,7 +267,7 @@ if (HEADING.containsMatchIn(text)) reject(RejectCode.FORBIDDEN_TEXT, "${slot.pat
 }
 ```
 
-[6-3](../06-trust/03-signed-documents.md) の署名つき文書と同じ形（`payload` をバイト列のまま署名し、`type` で種類を固定）です。違いは、`keyId` の代わりに **公開鍵そのもの**（`publisherKey`）が入っていることです。アプリは、その公開鍵からアカウントID（`sg1…`、[6-2](../06-trust/02-ed25519-and-ids.md)）を計算し、`channel.json` の `publisher` と、**提供元が署名したリストの `publisher`** の両方と一致するかを確かめます。サーバーに問い合わせなくても、だれが作ったかを確かめられます。
+[6-3](../06-trust/03-signed-documents.md) の署名つき文書と同じ形（`payload` をバイト列のまま署名し、`type` で種類を固定）です。素材集の `signature.json` も同じ形で、`type` が `collection-package`、`channel`・`publisher` の代わりに `collection`・`producer` が入ります。確かめるコードは 1 つ（`verifyPackageSignature`）で、種類の違いは `SignedKind` という enum で渡します。違いは、`keyId` の代わりに **公開鍵そのもの**（`publisherKey`）が入っていることです。アプリは、その公開鍵からアカウントID（`sg1…`、[6-2](../06-trust/02-ed25519-and-ids.md)）を計算し、`channel.json` の `publisher` と、**運営が署名したリストの `publisher`** の両方と一致するかを確かめます。サーバーに問い合わせなくても、だれが作ったかを確かめられます。
 
 ## 確かめる順番
 
@@ -215,12 +278,16 @@ API-003 は、確かめる順番も決めています。アプリと管理シス
 | 1 | 大きさ（2MB 以内）と SHA-256（リストの値） | `hash_mismatch` | アプリの `ChannelSync.download`（[6-5](../06-trust/05-verify-in-app.md)） |
 | 2 | ZIP を安全に展開できるか | `bad_archive` | `PackageArchive.open` |
 | 3 | 許可されたファイルだけか | `unexpected_file` | `StationValidator` |
-| 4 | 配信元の署名、アカウントID、`files` の一致（第三者のみ） | `bad_signature`・`publisher_mismatch` | `StationValidator.verifySignature` |
+| 4 | チャンネル提供者の署名、アカウントID、`files` の一致（第三者のみ） | `bad_signature`・`publisher_mismatch` | `verifyPackageSignature`（素材集と共通） |
 | 5 | `channel.json` の項目・型・選択肢・文字数、リストとの一致 | `bad_manifest`・`bad_value`・`unsupported_format` | `StationValidator.readManifest` |
 | 6 | スロットの文字数と、禁止の文字列 | `slot_too_long`・`forbidden_text` | `StationValidator.readSlots` |
 | 7 | 組み立てたプロンプトに未定義の変数がないか | `render_failed` | （下の注） |
+| 8 | 素材の項目・形式・上限、`file` があるか、出典（`credit`）・代替テキスト（`alt`） | `bad_resource` | `ResourceReader.read` |
+| 9 | きっかけの値の範囲、素材の参照先、見せ方と素材の組み合わせ。素材集の宣言と基準（9a） | `bad_cue`・`unresolved_reference` | `CueReader.read` |
+| 9a | 宣言した素材集がリストにあり、使う許しがあるか（取り込むとき） | `collection_not_listed`・`not_granted` | `CollectionReferences.resolve` |
+| 10 | アプリが出せない素材の種類・見せ方を使っていないか | `unsupported_resource` | `StationValidator.readMedia` |
 
-どこかで失敗したら、パッケージ全体を拒みます。
+どこかで失敗したら、パッケージ全体を拒みます。手順 9a だけは、リストを持っている呼ぶ側（アプリの `ChannelSync`、管理システムの機械審査）が行います。
 
 > 手順 7 は契約書に書かれていますが、今の `StationValidator` には入っていません。`RejectCode.RENDER_FAILED` は用意されているものの、まだどこからも使われていません。スロットには `{{` を書けない（手順 6）ので、チャンネルの側から未定義の変数が持ち込まれることは今のところありません。アプリ自身のプロンプトのファイルの変数は、[4-3](../04-outside/03-ai.md) の `PromptFilesTest` がビルドのたびに確かめています。エラーコードは API-003 のエラー表のとおりで、Kotlin では `RejectCode` という enum になっています。
 
@@ -232,8 +299,10 @@ sealed interface StationCheck {
     data class Rejected(val code: RejectCode, val detail: String) : StationCheck
 }
 
-fun check(files: StationFiles, origin: StationOrigin, listedAs: ListedAs? = null, verifier: Ed25519Verifier? = null): StationCheck = try {
-    StationCheck.Ok(validate(files, origin, listedAs, verifier))
+fun check(
+    files: StationFiles, origin: StationOrigin, listedAs: ListedAs? = null, verifier: Ed25519Verifier? = null, mediaStage: Int = 0,
+): StationCheck = try {
+    StationCheck.Ok(validate(files, origin, listedAs, verifier, mediaStage))
 } catch (e: Reject) {
     StationCheck.Rejected(e.code, e.message.orEmpty())
 }
@@ -381,7 +450,7 @@ private val persona = "あなたは、町の古い喫茶店を何十年も見て
 - 「内容」は、自分で書かなかった `guide/focus` の代わりに「標準」チャンネルの文章
 - 「守ること」は、アプリが必ず付け加える部分
 
-これが、アプリが AI に送るシステムプロンプトそのものです。管理システムの運用者も、審査のときに同じものを見ます。
+これが、アプリが AI に送るシステムプロンプトそのものです。運営の担当者も、審査のときに同じものを見ます。
 
 ### 4. 自分で壊してみる
 

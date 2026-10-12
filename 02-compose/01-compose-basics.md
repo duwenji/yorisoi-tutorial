@@ -71,11 +71,11 @@ Compose は、Composable が読んでいるデータが変わると、その Com
 
 ## CompanionCard を読む
 
-散策中、画面の上に出る「話しかけのカード」が [CompanionCard.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/CompanionCard.kt) です。100 行ほどの中に、この章の要素が全部入っています。
+散策中、画面の上に出る「話しかけのカード」が [CompanionCard.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/ui/CompanionCard.kt) です。140 行ほどの中に、この章の要素が全部入っています。
 
 ```kotlin
 @Composable
-fun CompanionCard(live: LiveWalk?, lines: List<Utterance>, scene: Mood? = null) {
+fun CompanionCard(live: LiveWalk?, lines: List<Utterance>, scene: Mood? = null, onOpen: (CueDetail) -> Unit = {}) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val now by produceState(System.currentTimeMillis(), live) {
         while (live != null) {
@@ -107,12 +107,20 @@ fun CompanionCard(live: LiveWalk?, lines: List<Utterance>, scene: Mood? = null) 
                 shown.forEach { line ->
                     Spacer(Modifier.height(6.dp))
                     Text(/* 時刻とスポット名 */)
-                    Text(
-                        line.text,
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = if (expanded) Int.MAX_VALUE else 3,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    if (line.text.isNotBlank()) {
+                        Text(
+                            line.text,
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = if (expanded) Int.MAX_VALUE else 3,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    line.image?.let { image ->
+                        Spacer(Modifier.height(4.dp))
+                        MaterialImage(/* チャンネルの素材の画像 */)
+                    }
+                    // … 画像やテキストの出典（MaterialCredit）…
+                    line.detail?.let { detail -> TextButton(onClick = { onOpen(detail) }) { Text("詳しく見る") } }
                 }
             }
         }
@@ -123,6 +131,8 @@ fun CompanionCard(live: LiveWalk?, lines: List<Utterance>, scene: Mood? = null) 
 ### 引数がデータ、本体が見た目
 
 `CompanionCard` は、散歩の数字（`live`）、話した内容（`lines`）、雰囲気（`scene`）を **引数で受け取るだけ** です。どこからデータを取ってくるかは知りません。取ってくるのは呼ぶ側（`MainScreen`、その元は ViewModel）の仕事です（[2-2](02-state-viewmodel.md)）。
+
+最後の `onOpen` は、データではなく **操作** を受け取る引数です。チャンネルが出した素材（画像つきの発言など、[0-1](../00-overview/01-what-we-build.md)）に「詳しく見る」があるとき、押されたら `onOpen(detail)` を呼ぶだけで、解説の画面をどう開くかは知りません。`MainScreen` が `onOpen = viewModel::openCue` を渡しています。「データは引数で下へ、操作はラムダで上へ」という形は、2-2 でもう一度見ます。既定値 `{}` があるので、プレビューやハンズオンでは省けます。
 
 だから、引数を変えれば、どんな場面のカードでも描けます。ハンズオンでは、これを使って 4 つの場面のカードを並べて表示します。
 

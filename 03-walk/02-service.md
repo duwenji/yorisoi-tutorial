@@ -18,7 +18,7 @@
 
 ```mermaid
 sequenceDiagram
-    participant U as 利用者
+    participant U as 散策者
     participant A as MainActivity
     participant OS as Android
     participant S as WalkService
@@ -102,7 +102,7 @@ private fun watchStations() = lifecycleScope.launch {
 }
 ```
 
-[2-2](../02-compose/02-state-viewmodel.md) で見た「画面と Service が同じ StateFlow を見ている」のが、ここで生きています。利用者が画面でチャンネルを変えると、`StationRepository.current` が変わり、ここの `collect` に届きます。Service と画面は直接やりとりしていません。
+[2-2](../02-compose/02-state-viewmodel.md) で見た「画面と Service が同じ StateFlow を見ている」のが、ここで生きています。散策者が画面でチャンネルを変えると、`StationRepository.current` が変わり、ここの `collect` に届きます。Service と画面は直接やりとりしていません。
 
 `return@collect` は「この `collect` のラムダから抜ける（次の値を待つ）」という意味です。ラムダの中の `return` には、どこから抜けるかを `@名前` で書きます。
 
@@ -142,11 +142,16 @@ override fun onDestroy() {
 
 ## 通知
 
-### 3 つのチャンネル
+### 4 つのチャンネル
 
-[SanpoApp.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) が、起動時に 3 つの通知のチャンネルを作っています（[1-3](../01-kotlin-android/03-android-components.md)）。
+[SanpoApp.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) が、起動時に 4 つの通知のチャンネルを作っています（[1-3](../01-kotlin-android/03-android-components.md)）。
 
 ```kotlin
+createNotificationChannel(
+    NotificationChannel(CHANNEL_CUE, "チャンネルの案内", NotificationManager.IMPORTANCE_HIGH).apply {
+        description = "選んだチャンネルが、場所や散歩の始まり・終わりに合わせて出すお知らせです"
+    }
+)
 createNotificationChannel(NotificationChannel(CHANNEL_WALK, "散策モード", NotificationManager.IMPORTANCE_LOW))
 createNotificationChannel(NotificationChannel(CHANNEL_SPOT, "スポット案内", NotificationManager.IMPORTANCE_HIGH))
 // High importance keeps the default sound and vibration.
@@ -162,8 +167,9 @@ createNotificationChannel(
 | 散策モード（`walk`） | 低 | 散策中であることと、最新の一言 | 散歩の間ずっと出ている。そのたびに音が鳴っては困る |
 | スポット案内（`spot`） | 高 | 近くに来たスポットの解説 | 画面を見ていなくても気づいてほしい |
 | 雷雨の予報（`weather_alert`） | 高 | 雷雨が近づいている | 安全に関わる。イヤホンをしていなくても音で気づかせる |
+| チャンネルの案内（`cue`） | 高 | 選んだチャンネルが、きっかけ（スポット・地点・散歩の始まりなど）に合わせて出す素材（文字・画像） | チャンネルを選んだ人が、出てほしいと思って選んでいる。タップすると解説の画面が開く（[2-1](../02-compose/01-compose-basics.md) の「詳しく見る」と同じ） |
 
-チャンネルを分けておくと、利用者は端末の設定で「スポット案内は音なしにする」「雷雨の予報だけは鳴らす」のように、チャンネルごとに選べます。**一度作ったチャンネルの重要度は、アプリからは変えられません**（利用者の選択を尊重するため）。
+チャンネルを分けておくと、散策者は端末の設定で「スポット案内は音なしにする」「雷雨の予報だけは鳴らす」のように、チャンネルごとに選べます。**一度作ったチャンネルの重要度は、アプリからは変えられません**（散策者の選択を尊重するため）。
 
 ### 通知を作る
 
@@ -214,7 +220,7 @@ private const val ALERT_NOTIFICATION_ID = 3
 
 ### PendingIntent: あとで OS に代わりにやってもらう
 
-通知の「終了」ボタンは、利用者がいつ押すか分かりません。押されたときには、アプリが動いていないかもしれません。そこで **PendingIntent** を使います。
+通知の「終了」ボタンは、散策者がいつ押すか分かりません。押されたときには、アプリが動いていないかもしれません。そこで **PendingIntent** を使います。
 
 PendingIntent は、「この Intent を、あとで、このアプリの代わりに実行してください」と **OS に預けておく依頼書** です。
 
@@ -283,18 +289,19 @@ ADB="$(sed -n 's/^sdk.dir=//p' /c/Dev/apps/SanpoGuide/local.properties | sed 's/
 ### 2. 通知のチャンネルを見る
 
 ```sh
-"$ADB" shell dumpsys notification | grep -o "mId='\(walk\|spot\|weather_alert\)', mName=[^,]*, mDescription=[^,]*, mImportance=[0-9]"
+"$ADB" shell dumpsys notification | grep -o "mId='\(cue\|walk\|spot\|weather_alert\)', mName=[^,]*, mDescription=[^,]*, mImportance=[0-9]"
 ```
 
 ```
+mId='cue', mName=チャンネ..., mDescription=hasDescription , mImportance=4
 mId='spot', mName=スポッ..., mDescription=, mImportance=4
 mId='walk', mName=散策モ..., mDescription=, mImportance=2
 mId='weather_alert', mName=雷雨の..., mDescription=hasDescription , mImportance=4
 ```
 
-`SanpoApp` が作った 3 つのチャンネルです。`mImportance` の 2 が `IMPORTANCE_LOW`、4 が `IMPORTANCE_HIGH` です。雷雨の予報だけ説明文（`description`）があることも分かります。
+`SanpoApp` が作った 4 つのチャンネルです。`mImportance` の 2 が `IMPORTANCE_LOW`、4 が `IMPORTANCE_HIGH` です。チャンネルの案内と雷雨の予報には説明文（`description`）があることも分かります。`cue` の行がなければ、端末のアプリが素材の第 1 段より前の版（`versionCode` 1）です。
 
-端末の「設定」→「アプリ」→「散策ガイド」→「通知」でも、3 つのチャンネルが並んでいるのを見られます。
+端末の「設定」→「アプリ」→「散策ガイド」→「通知」でも、4 つのチャンネルが並んでいるのを見られます。
 
 ### 3. サービスの状態を見る
 

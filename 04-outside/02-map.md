@@ -47,8 +47,8 @@ enum class MapStyle(val label: String, val description: String, val google: Goog
 
 | | 国土地理院（地理院タイル） | Google Map Tiles API |
 |---|---|---|
-| キー | 要らない | 要る（利用者が Google Cloud で用意する） |
-| 料金 | 無料 | 利用者の Google Cloud に請求される |
+| キー | 要らない | 要る（散策者が Google Cloud で用意する） |
+| 料金 | 無料 | 散策者の Google Cloud に請求される |
 | タイルの URL | 固定 | セッションを作ってから（下で説明） |
 | 出典の表示 | 固定の文 | 見ている範囲によって変わる |
 
@@ -99,7 +99,7 @@ suspend fun session(apiKey: String, type: GoogleMapType): GoogleTileSession {
 
 ### 失敗したら国土地理院の地図に戻る
 
-キーが間違っている、Map Tiles API が有効になっていない、利用の上限に達した、といったときは、`GoogleMapsException` に利用者向けの説明を入れて投げ、`MainViewModel` は国土地理院の地図に切り替えて、理由を表示します（`MapState` の `notice`）。地図が真っ白になることはありません。
+キーが間違っている、Map Tiles API が有効になっていない、利用の上限に達した、といったときは、`GoogleMapsException` に散策者向けの説明を入れて投げ、`MainViewModel` は国土地理院の地図に切り替えて、理由を表示します（`MapState` の `notice`）。地図が真っ白になることはありません。
 
 ## 地図の部品: osmdroid
 
@@ -273,7 +273,7 @@ if (last == null || last.distanceTo(location) > 150f) {
 }
 ```
 
-位置が届くたびに地図の真ん中を現在地に戻すと、利用者が指で地図を動かして先の方を見ていても、10 秒ごとに引き戻されてしまいます。そこで、前に真ん中に合わせた位置から **150m 以上動いたときだけ** 合わせ直します。
+位置が届くたびに地図の真ん中を現在地に戻すと、散策者が指で地図を動かして先の方を見ていても、10 秒ごとに引き戻されてしまいます。そこで、前に真ん中に合わせた位置から **150m 以上動いたときだけ** 合わせ直します。
 
 `arrayOfNulls<Location>(1)` を `remember` しているのは、「値を覚えておきたいが、変えても再コンポーズは起こしたくない」ためです。`mutableStateOf` にすると、書き換えるたびに描き直しが起きてしまいます。
 

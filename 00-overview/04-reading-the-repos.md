@@ -19,6 +19,7 @@ SanpoGuide/
 │       │   ├── walk/            常駐サービス WalkService
 │       │   ├── companion/       話しかけの判断（天気・施設・スポットの選び方）
 │       │   ├── guide/           AI の呼び出し、読み上げ
+│       │   ├── material/        素材の出どころ（Producer）、チャンネルのきっかけ
 │       │   ├── data/            スポット・施設・ルート・写真の取得
 │       │   ├── station/         チャンネル（remote/ は第三者のチャンネル）
 │       │   ├── mood/            雰囲気
@@ -28,7 +29,8 @@ SanpoGuide/
 │       └── test/                単体テスト
 ├── station-format/              共有ライブラリ（モジュール :station-format）
 │   └── src/main/
-│       ├── kotlin/…/station/format/  チャンネル・パッケージの形式、署名の確認
+│       ├── kotlin/…/station/format/  チャンネル・パッケージの形式、署名の確認、リストの文書
+│       ├── kotlin/…/material/format/ 素材集の形式、素材提供者の共通の形
 │       ├── kotlin/…/prompt/          プロンプトの組み立て
 │       └── resources/sanpoguide/     組み込みのチャンネルとプロンプトの文面
 ├── docs/                        文書
@@ -50,7 +52,7 @@ sanpo-channel-console/
 ├── api/src/
 │   ├── publish/         公開の処理（リストを作って署名して置く）★第 6 部
 │   ├── console/         管理 API
-│   └── notify/          配信元へのメール
+│   └── notify/          チャンネル提供者・素材提供者へのメール
 ├── web/                 画面（React）
 ├── validator/           機械審査（Kotlin）
 ├── infra/               AWS CDK
@@ -97,7 +99,10 @@ sanpo-channel-console/
 |---|---|---|
 | API-002 | 承認済みチャンネル・リスト 契約書 | [SanpoGuide/docs/channel-list-api.md](../../SanpoGuide/docs/channel-list-api.md) |
 | API-003 | チャンネル・パッケージ形式 | [SanpoGuide/docs/channel-package-format.md](../../SanpoGuide/docs/channel-package-format.md) |
+| API-004 | 素材の素材提供者インタフェース（素材集の形式を含む） | [SanpoGuide/docs/material-producer-api.md](../../SanpoGuide/docs/material-producer-api.md) |
 | ADR-001（SanpoGuide） | 第三者のチャンネルは審査と署名を経たものだけ取り込む | [SanpoGuide/docs/adr/](../../SanpoGuide/docs/adr/) |
+| ADR-002（SanpoGuide） | 素材の素材提供者をチャンネルから切り出し、共通のインタフェースで扱う | [SanpoGuide/docs/adr/](../../SanpoGuide/docs/adr/) |
+| 関係者と呼び方 | 散策者・チャンネル提供者・素材提供者・運営、リスト（呼び方の正本） | [SanpoGuide/docs/stakeholders.md](../../SanpoGuide/docs/stakeholders.md) |
 | ADR-001（console） | AWS の構成 | [sanpo-channel-console/docs/adr/](../../sanpo-channel-console/docs/adr/) |
 | API-001（console） | 管理 API | [sanpo-channel-console/docs/console-api.md](../../sanpo-channel-console/docs/console-api.md) |
 | DM-001 | データモデル | [sanpo-channel-console/docs/data-model.md](../../sanpo-channel-console/docs/data-model.md) |

@@ -125,7 +125,7 @@ import { b64url, payloadBytes, providerId, signChannelList, verifyChannelList, v
 
 ```sh
 npm run publish:local -w api
-npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provider <提供元ID>
+npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provider <リストID>
 ```
 
 `--` のあとは、コマンドにそのまま渡す引数です。

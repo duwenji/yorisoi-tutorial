@@ -56,9 +56,9 @@ flowchart LR
 | 章 | 内容 |
 |---|---|
 | [3-1 Coroutines と Flow](03-walk/01-coroutines.md) | `suspend`、`launch`・`async`、スコープの選び方、`withContext(Dispatchers.IO)`、`Mutex`、Flow。練習用のテストで確かめる |
-| [3-2 常駐サービス](03-walk/02-service.md) | `WalkService` の一生、3 つの通知のチャンネル、PendingIntent、Service と画面の状態の共有。エミュレータでのぞく |
+| [3-2 常駐サービス](03-walk/02-service.md) | `WalkService` の一生、4 つの通知のチャンネル、PendingIntent、Service と画面の状態の共有。エミュレータでのぞく |
 | [3-3 位置情報とセンサー](03-walk/03-location-sensors.md) | Fused Location の 2 つの受け取り方、GPS の揺れを除く工夫、方位センサーと偏角、角度の計算の落とし穴 |
-| [3-4 「いま何を話すか」の判定](03-walk/04-maybe-talk.md) | `maybeTalk()` の 7 つの判断と優先順位、話しすぎを防ぐしくみ、判断を小さな部品に分ける、enum の並び順の危うさ |
+| [3-4 「いま何を話すか」の判定](03-walk/04-maybe-talk.md) | `maybeTalk()` の 7 つの判断（＋チャンネルのきっかけ）と優先順位、話しすぎを防ぐしくみ、判断を小さな部品に分ける、enum の並び順の危うさ |
 
 ### 第 4 部 外の世界とつながる ✅
 
@@ -77,6 +77,7 @@ flowchart LR
 | [5-1 Android に依存しない JVM ライブラリ](05-station-format/01-jvm-library.md) | 切り出した理由、差し替え口・`compileOnly`・クラスパスのリソース、`StationFiles`、動きを変えずに切り出す進め方。jar の中を確かめる |
 | [5-2 チャンネル・パッケージの形式](05-station-format/02-package-format.md) | `channel.json` は選択肢だけ、スロットの決まり、`signature.json`、確かめる順番、ZIP を安全に開く。自分のチャンネルを作って確かめる |
 | [5-3 ライブラリを公開する](05-station-format/03-publish.md) | Maven の座標と版、`maven-publish`、タグで公開する GitHub Actions、使う側の設定、`Permission denied` の実話 |
+| [5-4 素材ときっかけ](05-station-format/04-materials-cues.md) | 素材を切り出した理由、すべての出どころを同じ形（`Producer`）で扱い属性で許可を決める、候補を順に試す、きっかけと見せ方の安全、素材集を名前で借りる、ジオハッシュの地域、アプリの段階。自分のチャンネルにきっかけを足す |
 
 ### 第 6 部 信頼の仕組み（2 つのリポジトリをつなぐ） ✅
 
@@ -105,7 +106,7 @@ flowchart LR
 |---|---|
 | [8-1 AWS の基本](08-aws/01-aws-basics.md) | アカウント・リージョン、サーバーレス、IAM と最小の権限、タグと料金の考え方。合成したテンプレートで許可を読む |
 | [8-2 CDK でインフラを書く](08-aws/02-cdk.md) | CloudFormation と CDK、スタックとコンストラクト、`cdk synth` と `deploy` の違い、`RETAIN`、テストで設定を守る |
-| [8-3 Lambda と API Gateway](08-aws/03-lambda-apigw.md) | ハンドラ、コールドスタート、1 つの Lambda で 48 の操作、HTTP API と JWT の確認、非同期の呼び出しと Scheduler。偽のイベントで手元で呼ぶ |
+| [8-3 Lambda と API Gateway](08-aws/03-lambda-apigw.md) | ハンドラ、コールドスタート、1 つの Lambda で 66 の操作、HTTP API と JWT の確認、非同期の呼び出しと Scheduler。偽のイベントで手元で呼ぶ |
 | [8-4 Cognito でログイン](08-aws/04-cognito.md) | ユーザープール、グループ、全員に MFA、登録の後処理、認可コード ＋ PKCE、JWT の中身 |
 | [8-5 DynamoDB の 1 テーブル設計](08-aws/05-dynamodb.md) | アクセスパターンからキーを決める、疎な GSI、条件つき書き込み、トランザクション、上限と TTL。DynamoDB Local で試す |
 | [8-6 S3 と CloudFront](08-aws/06-s3-cloudfront.md) | 4 つのバケット、署名つき POST、OAC、キャッシュの長さと無効化、画面と API を 1 つの場所に |
@@ -132,7 +133,7 @@ flowchart LR
 | 第 2 部: [Jetpack Compose](ref/jetpack-compose.md)・[ViewModel と StateFlow](ref/viewmodel-stateflow.md) | ✅ |
 | 第 3 部: [Kotlin Coroutines](ref/kotlin-coroutines.md)・[Android のサービスと通知](ref/android-service-notification.md)・[Fused Location](ref/fused-location.md) | ✅ |
 | 第 4 部: [OkHttp](ref/okhttp.md)・[osmdroid](ref/osmdroid.md)・[Android Keystore](ref/android-keystore.md) | ✅ |
-| 第 5 部: [GitHub Actions](ref/github-actions.md) | ✅ |
+| 第 5 部: [GitHub Actions](ref/github-actions.md)・[ジオハッシュ](ref/geohash.md) | ✅ |
 | 第 7 部: [npm workspaces](ref/npm-workspaces.md)・[OpenAPI](ref/openapi.md)・[Vitest](ref/vitest.md)・[Docker](ref/docker.md) | ✅ |
 | 第 6 部の 5 枚: [SHA-256](ref/sha-256.md)・[Ed25519](ref/ed25519.md)・[base64url と base32](ref/base64url-base32.md)・[AWS KMS](ref/aws-kms.md)・[Tink](ref/tink.md) | ✅ |
 | 第 8 部: [IAM](ref/iam.md)・[AWS CDK](ref/aws-cdk.md)・[Lambda](ref/lambda.md)・[API Gateway](ref/api-gateway.md)・[Cognito](ref/cognito.md)・[DynamoDB](ref/dynamodb.md)・[S3](ref/s3.md)・[CloudFront](ref/cloudfront.md)・[SQS](ref/sqs.md)・[SES](ref/ses.md) | ✅ |
@@ -156,5 +157,5 @@ flowchart LR
 
 | 項目 | 値 |
 |---|---|
-| 最後に照合した日 | 2026-10-11 |
-| 照合したコミット | SanpoGuide `cf71e95`、sanpo-channel-console `77bfd96`（どちらも `main`） |
+| 最後に照合した日 | 2026-10-12 |
+| 照合したコミット | SanpoGuide `bd71c0a`、sanpo-channel-console `51cef1f`（どちらも `main`） |

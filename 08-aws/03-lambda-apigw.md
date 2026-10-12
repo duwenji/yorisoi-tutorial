@@ -154,7 +154,7 @@ flowchart LR
     GW -. "確認に失敗" .-> R401["401（Lambda は呼ばれない）"]
 ```
 
-- **`/api/{proxy+}` を `ANY` で 1 つの Lambda に**: 48 の操作を、全部 1 つの Lambda に渡す。振り分けは Lambda の中のルーター（[7-3](../07-typescript/03-openapi.md) の `router.ts`）が行う
+- **`/api/{proxy+}` を `ANY` で 1 つの Lambda に**: 66 の操作を、全部 1 つの Lambda に渡す。振り分けは Lambda の中のルーター（[7-3](../07-typescript/03-openapi.md) の `router.ts`）が行う
 - **JWT の確認**（`HttpJwtAuthorizer`）: 画面が付けてくるログインのトークン（JWT、[8-4](04-cognito.md)）を、API Gateway が確かめる。発行元（`issuer`、この Cognito のユーザープール）と、宛先（`jwtAudience`、この画面のクライアント）と、期限。合わなければ、Lambda を呼ばずに `401` を返す
 - **流量の制限**（throttling）: 1 秒に 20 回（一瞬なら 40 回）まで。超えたら `429`。ログインを開いたときの備え（ADR-001 A-18）
 - 画面と同じ CloudFront の `/api/*` から入る（[8-6](06-s3-cloudfront.md)）。画面と API が同じ場所（オリジン）にあるので、ブラウザの面倒な決まり（CORS）が要らない
@@ -163,7 +163,7 @@ flowchart LR
 
 操作ごとに Lambda を分ける作り方もあります。管理システムが 1 つにまとめているのは、
 
-- 48 の操作が、同じデータベースの部品や、同じ確かめの関数（`ifMatch`・`requireOperator`）を使う
+- 66 の操作が、同じデータベースの部品や、同じ確かめの関数（`ifMatch`・`requireOperator`）を使う
 - 1 つにまとめれば、コールドスタートの回数が減る（どの操作でも同じ実行環境が温まる）
 - テストでは、ルーター（`route`）に要求を渡すだけで、API 全体を確かめられる（[7-4](../07-typescript/04-testing.md)）
 
@@ -213,7 +213,7 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer): P
 4. ルーターに渡す
 5. 思わぬ例外は、ログに残して、利用者には `500`（`internal`）とだけ返す。中の事情を外に漏らさない
 
-「API Gateway がログインを確かめた」あとでも、Lambda の中で **役割を確かめ直します**（`requireOperator`、ADR-001 A-3）。API Gateway が確かめるのは「ログインしているか」までで、「運用者か」はアプリの決まりだからです。
+「API Gateway がログインを確かめた」あとでも、Lambda の中で **役割を確かめ直します**（`requireOperator`、ADR-001 A-3）。API Gateway が確かめるのは「ログインしているか」までで、「運営か」はアプリの決まりだからです。
 
 `callerFrom` が、グループを `[operator publisher]` という文字列でも配列でも読めるようにしているのは、コメントのとおり、HTTP API がグループを文字列で渡してくることがあるからです。
 
@@ -227,7 +227,7 @@ requestPublish: async (trigger) => {
 },
 ```
 
-`InvocationType: 'Event'` は **非同期の呼び出し** です。「頼んだ」ことだけを確かめて、公開の処理が終わるのを待ちません。運用者の画面は、承認の操作のあと、リストの署名や S3 への書き込みを待たずにすぐ戻れます。
+`InvocationType: 'Event'` は **非同期の呼び出し** です。「頼んだ」ことだけを確かめて、公開の処理が終わるのを待ちません。運営の画面は、承認の操作のあと、リストの署名や S3 への書き込みを待たずにすぐ戻れます。
 
 公開の Lambda の入口（[api/src/publish/handler.ts](../../sanpo-channel-console/api/src/publish/handler.ts)）:
 
@@ -239,13 +239,16 @@ requestPublish: async (trigger) => {
  */
 export async function handler(event: { trigger?: string } = {}) {
   const trigger = TRIGGERS.includes(event.trigger as Trigger) ? (event.trigger as Trigger) : 'manual';
+  let record;
   try {
-    return await publish(deps, trigger);
+    record = await publish(deps, trigger);
   } catch (e) {
     // Another run took the next seq in between: build again on top of it, once.
-    if (e instanceof SeqConflictError) return publish(deps, trigger);
-    throw e;
+    if (!(e instanceof SeqConflictError)) throw e;
+    record = await publish(deps, trigger);
   }
+  if (trigger === 'daily') await dailyExternalCheck();
+  return record;
 }
 ```
 
@@ -253,6 +256,8 @@ export async function handler(event: { trigger?: string } = {}) {
 
 1. **予約された同時実行数 1**（`reservedConcurrentExecutions: 1`、[8-2](02-cdk.md)）: この Lambda は、同時に 1 つしか動かない。2 つ目の呼び出しは、1 つ目が終わるまで待たされる（非同期の呼び出しなら、Lambda が自動でやり直す）
 2. **`seq` の条件つき書き込み**（[8-5](05-dynamodb.md)）: それでも重なったら、データベースが 2 つ目の書き込みを断る。断られたら（`SeqConflictError`）、1 回だけ、新しい `seq` で作り直す
+
+毎日の作り直し（`daily`）のときだけ、リストを出したあとに **素材集の外の素材の確認**（`dailyExternalCheck`、DES-009 M-7）も行います。素材集は、画像などを外の URL に置けます。その URL がまだあって、申告した大きさのままかを毎日確かめ、問題が見つかったら素材提供者にメールで知らせます（[8-7](07-sqs-ses-kms.md) の待ち行列を通して）。この確認は `try`/`catch` で包まれていて、失敗しても公開の結果には響きません。この Lambda の本来の仕事は、リストを出すことだからです。
 
 ### 毎日の作り直し: EventBridge Scheduler
 
@@ -304,7 +309,7 @@ for (const alarm of [failures, stale]) alarm.addAlarmAction(new cwActions.SnsAct
 
 2 つ目の工夫が大事です。失敗の警報だけでは、「そもそも呼ばれなくなった」（スケジュールが消えた、など）ことに気づけません。**成功が来ないこと** を見張ります。`treatMissingData: BREACHING` は「数字が届かないことも、異常とみなす」という指定です。
 
-警報は SNS のトピックを通して、運用者にメールで届きます。
+警報は SNS のトピックを通して、運営にメールで届きます。
 
 ## ハンズオン: 管理 API の Lambda を手元で呼ぶ
 
@@ -330,7 +335,7 @@ DDB_PORT=$PORT npx tsx .local/invoke-console.ts
 ```
 1. ログインしている人 → 200 application/json
    {"sub":"user-1","roles":["publisher"],"publisher":null}
-2. 配信元が運用者の API を呼ぶ → 403 application/problem+json
+2. チャンネル提供者が運営の API を呼ぶ → 403 application/problem+json
    {"type":"about:blank","title":"Forbidden","status":403,"code":"forbidden","detail":"operators only","instance":"req-…"}
 3. ない道 → 404 application/problem+json
    {…,"status":404,"code":"not_found","detail":"GET /api/nothing",…}
@@ -344,18 +349,18 @@ DDB_PORT=$PORT npx tsx .local/invoke-console.ts
 - 環境変数を入れてから `handler.ts` を読み込んでいる（`await import(…)`）。`handler.ts` は、読み込まれたときにファイルの上で AWS の部品を作るため（コールドスタートの準備）
 - `event(…)` が、API Gateway が JWT を確かめたあとに渡すイベントの形を作る。`authorizer.jwt.claims` に、ログインした人（`sub`）とグループ（`cognito:groups`）が入っている
 
-1 と 2 の違いは、`cognito:groups` が `publisher` か `operator` かだけです。運用者の API（`/api/admin/…`）を配信元が呼ぶと、Lambda の中の `requireOperator` が `403` で断ります。
+1 と 2 の違いは、`cognito:groups` が `publisher` か `operator` かだけです。運営の API（`/api/admin/…`）をチャンネル提供者が呼ぶと、Lambda の中の `requireOperator` が `403` で断ります。
 
-### 3. 運用者として呼んでみる
+### 3. 運営として呼んでみる
 
-スクリプトの 2 つ目の `['publisher']` を `['operator']` に変えて、もう一度動かしてください。今度は配信元の一覧（まだ空）が返ります。
+スクリプトの 2 つ目の `['publisher']` を `['operator']` に変えて、もう一度動かしてください。今度はチャンネル提供者の一覧（まだ空）が返ります。
 
 ```
-2. 配信元が運用者の API を呼ぶ → 200 application/json
+2. チャンネル提供者が運営の API を呼ぶ → 200 application/json
    {"items":[],"nextCursor":null}
 ```
 
-配信元の一覧は、テーブルの索引 GSI2 を使って引きます（[8-5](05-dynamodb.md)）。スクリプトがテーブルを本物と同じ形（GSI1・GSI2 つき）で作っているのはそのためです。試しにスクリプトの `GlobalSecondaryIndexes: [gsi(1), gsi(2)],` の行を消して動かすと、運用者の一覧は `500` になり、画面には `internal error` とだけ返り、ログ（`console.error`）には `ValidationException: The table does not have the specified index: GSI2` が出ます。**思わぬ例外の中身はログにだけ残し、利用者には返さない**、という `handler` の作りが、そのまま見えます。
+チャンネル提供者の一覧は、テーブルの索引 GSI2 を使って引きます（[8-5](05-dynamodb.md)）。スクリプトがテーブルを本物と同じ形（GSI1・GSI2 つき）で作っているのはそのためです。試しにスクリプトの `GlobalSecondaryIndexes: [gsi(1), gsi(2)],` の行を消して動かすと、運営の一覧は `500` になり、画面には `internal error` とだけ返り、ログ（`console.error`）には `ValidationException: The table does not have the specified index: GSI2` が出ます。**思わぬ例外の中身はログにだけ残し、利用者には返さない**、という `handler` の作りが、そのまま見えます。
 
 ### 4. 片付け
 
@@ -367,7 +372,7 @@ rm .local/invoke-console.ts
 ## つまずきやすいところ
 
 - **1 回でよい準備は、関数の外で**: SDK の部品や設定の読み込みを、呼ばれるたびに行わない
-- **API Gateway がログインを確かめても、役割は Lambda で確かめ直す**: 「ログインしている」と「運用者である」は別
+- **API Gateway がログインを確かめても、役割は Lambda で確かめ直す**: 「ログインしている」と「運営である」は別
 - **時間のかかる仕事は、非同期で別の Lambda に**: API の応答を長く待たせない。API Gateway にも時間の上限がある
 - **失敗だけでなく、成功が来ないことも見張る**: 呼ばれなくなったことに気づけるように
 - **思わぬ例外の中身を、利用者に返さない**: ログに残し、利用者には `500` とだけ

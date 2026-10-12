@@ -112,7 +112,7 @@ aws kms schedule-key-deletion --region ap-northeast-1 --key-id <鍵ID> --pending
 |---|---|---|
 | [infra/lib/console-stack.ts](../../sanpo-channel-console/infra/lib/console-stack.ts) | Ed25519 の鍵を作る。鍵ポリシーで、Sign を公開の Lambda と管理 API の Lambda（試用チケット用）だけに、方式を `ED25519_SHA_512`・`RAW` だけに絞る。スタックを消しても鍵は残す（`RemovalPolicy.RETAIN`） | [6-4](../06-trust/04-two-tier-keys.md) |
 | [api/src/publish/aws.ts](../../sanpo-channel-console/api/src/publish/aws.ts) の `kmsSigner` | 承認済みチャンネル・リストの要約と、試用チケットに署名する。4,096 バイトを超えるデータは送る前に断る | [6-4](../06-trust/04-two-tier-keys.md) |
-| [api/src/console/operator.ts](../../sanpo-channel-console/api/src/console/operator.ts) の `registerSigningKey` | 運用者が KMS の鍵を署名鍵として登録するとき、`GetPublicKey` で鍵の種類が Ed25519 かを確かめ、DER から生の 32 バイトを取り出して記録する | [8-7](../08-aws/07-sqs-ses-kms.md) |
+| [api/src/console/operator.ts](../../sanpo-channel-console/api/src/console/operator.ts) の `registerSigningKey` | 運営が KMS の鍵を署名鍵として登録するとき、`GetPublicKey` で鍵の種類が Ed25519 かを確かめ、DER から生の 32 バイトを取り出して記録する | [8-7](../08-aws/07-sqs-ses-kms.md) |
 | [tools/provision/src/cli.ts](../../sanpo-channel-console/tools/provision/src/cli.ts) | 初期登録で、同じように公開鍵を取り出して登録する | [8-7](../08-aws/07-sqs-ses-kms.md) |
 
 ### なぜ KMS を使うのか

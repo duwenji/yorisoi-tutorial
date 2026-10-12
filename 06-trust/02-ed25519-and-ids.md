@@ -6,7 +6,7 @@
 
 - このシステムが使う署名の方式 Ed25519 の特徴と、選ばれた理由
 - 鍵や署名を文字にする方法（base64url と base32）
-- 公開鍵から作る ID（提供元ID `sc1…`、アカウントID `sg1…`）の仕組みと、その利点
+- 公開鍵から作る ID（リストID `sc1…`、アカウントID `sg1…`）の仕組みと、その利点
 - 同じ計算を TypeScript と Kotlin で書くとどうなるか
 
 ## Ed25519 とは
@@ -43,7 +43,7 @@ npx tsx .local/try-ed25519.ts
 
 ```
 公開鍵（base64url）: impvHSb6VYtjGviYyG-5Kwo814qhkFz81g7EJWLJEpo (32 バイト)
-提供元ID として : sc1fudx6pajz2ozvj4h7ylpvb3imjx6fteb
+リストID として : sc1fudx6pajz2ozvj4h7ylpvb3imjx6fteb
 アカウントID として: sg1fudx6pajz2ozvj4h7ylpvb3imjx6fteb
 署名: UHckgtIuI218fhWpSniWXM7rDPlXSRCdINX6LuhcbSf9rSBmGB7mlFU95GjxRklcUR03qYDuZyI4yUBcmPfmDg (64 バイト)
 確かめる: true
@@ -96,14 +96,14 @@ internal fun decodeBase64Url(text: String): ByteArray? =
 
 ## 鍵の指紋を ID にする
 
-### 提供元ID とアカウントID
+### リストID とアカウントID
 
 このシステムには 2 種類の ID があります。
 
 | ID | 例 | 何の ID か | 何の鍵から作るか |
 |---|---|---|---|
-| 提供元ID | `sc1fudx6pajz2ozvj4h7ylpvb3imjx6fteb` | 承認済みチャンネル・リストを出す提供元 | ルート鍵の公開鍵（[6-4](04-two-tier-keys.md)） |
-| アカウントID | `sg1fudx6pajz2ozvj4h7ylpvb3imjx6fteb` | チャンネルを作る配信元 | 配信元の公開鍵 |
+| リストID | `sc1fudx6pajz2ozvj4h7ylpvb3imjx6fteb` | 承認済みチャンネル・リスト（の発行元） | ルート鍵の公開鍵（[6-4](04-two-tier-keys.md)） |
+| アカウントID | `sg1fudx6pajz2ozvj4h7ylpvb3imjx6fteb` | チャンネルを作るチャンネル提供者 | チャンネル提供者の公開鍵 |
 
 作り方はどちらも同じです（API-002 P-2）。
 
@@ -124,7 +124,7 @@ export const providerId = (rootPublicKey: Uint8Array): string => fingerprintId('
 export const accountId = (publicKey: Uint8Array): string => fingerprintId('sg1', publicKey);
 ```
 
-さっきの体験で、同じ公開鍵から作った提供元ID とアカウントID が、接頭辞以外まったく同じだったのはこのためです。
+さっきの体験で、同じ公開鍵から作ったリストID とアカウントID が、接頭辞以外まったく同じだったのはこのためです。
 
 ### なぜ ID を鍵の指紋にするのか
 
@@ -132,16 +132,16 @@ export const accountId = (publicKey: Uint8Array): string => fingerprintId('sg1',
 
 **ID を知っていれば、その ID の本物の鍵かどうかを、だれにも頼らず確かめられる** からです。
 
-アプリが新しい提供元を足す場面を考えます。
+アプリが新しいリストを足す場面を考えます。
 
-1. 利用者は、提供元の URL と提供元ID を、**別の経路**（提供元の公式サイト、QR コードなど）で手に入れる
+1. 散策者は、リストの URL とリストID を、**別の経路**（リストの公式サイト、QR コードなど）で手に入れる
 2. アプリは URL から `/.well-known/sanpo-channels` を取ってくる。中には公開鍵（`rootKey`）が入っている
-3. アプリは、受け取った公開鍵から提供元ID を計算し、利用者が入力した ID と比べる
+3. アプリは、受け取った公開鍵からリストID を計算し、散策者が入力した ID と比べる
 4. 一致すれば、その公開鍵は本物。一致しなければ `provider_mismatch` で拒む
 
 サーバーが乗っ取られて偽の公開鍵を返しても、ID と一致する公開鍵を作ることは事実上できません（ハッシュの性質）。だから **ID さえ正しく伝われば、鍵も正しく伝わります**。
 
-API-002 は、ID を **URL から自動で取ってはいけない** と決めています（「設定画面の提供元」）。サーバーが返す ID をそのまま信じたら、照合の意味がなくなるからです。
+API-002 は、ID を **URL から自動で取ってはいけない** と決めています（「設定画面のリスト」）。サーバーが返す ID をそのまま信じたら、照合の意味がなくなるからです。
 
 ### なぜ base32 で、なぜ 32 文字か
 
@@ -175,9 +175,9 @@ Tink（アプリ）やブラウザの WebCrypto は生の 32 バイトをその�
 ## 確認問題
 
 <details>
-<summary>問 1. 提供元のサーバーが乗っ取られ、<code>/.well-known/sanpo-channels</code> の <code>rootKey</code> と <code>provider</code> が、攻撃者の鍵とその鍵から計算した ID に書き換えられました。アプリはどうやって気づきますか。</summary>
+<summary>問 1. リストのサーバーが乗っ取られ、<code>/.well-known/sanpo-channels</code> の <code>rootKey</code> と <code>provider</code> が、攻撃者の鍵とその鍵から計算した ID に書き換えられました。アプリはどうやって気づきますか。</summary>
 
-アプリは `rootKey` から計算した ID を、文書の `provider` だけでなく、**利用者が登録した提供元ID** とも比べます（`ProviderDocuments.discovery` の `expectedProvider`）。攻撃者の鍵から作った ID は登録した ID と一致しないので、`provider_mismatch` で拒みます。
+アプリは `rootKey` から計算した ID を、文書の `provider` だけでなく、**散策者が登録したリストID** とも比べます（`ProviderDocuments.discovery` の `expectedProvider`）。攻撃者の鍵から作った ID は登録した ID と一致しないので、`provider_mismatch` で拒みます。
 
 </details>
 

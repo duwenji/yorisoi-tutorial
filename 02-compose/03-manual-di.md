@@ -38,10 +38,11 @@ class ChannelSync(
     private val appVersion: Int,
     private val now: () -> Instant,
     private val allowLocalHttp: Boolean = false,
+    // … 素材の段階（mediaStage）と、今いる大まかな地域（region）…
 )
 ```
 
-A は手軽ですが、`ChannelSync` は **いつも本物のインターネットと、本物の時計** を使うことになります。テストで「提供元のリストが期限切れになったとき」を試すには、本当に 15 日待つしかありません。
+A は手軽ですが、`ChannelSync` は **いつも本物のインターネットと、本物の時計** を使うことになります。テストで「リストが期限切れになったとき」を試すには、本当に 15 日待つしかありません。
 
 B では、使う側が依存を渡します。アプリでは本物を、テストでは代役を渡せます。これを **依存性の注入**（Dependency Injection、略して **DI**）と呼びます。名前はいかめしいですが、「必要なものはコンストラクタの引数でもらう」というだけのことです。
 
@@ -59,6 +60,7 @@ private val sync = ChannelSync(
     appVersion = BuildConfig.VERSION_CODE,
     now = Instant::now,
     allowLocalHttp = BuildConfig.DEBUG,
+    region = region,
 )
 ```
 
@@ -113,25 +115,36 @@ fun `an expired list stops its channels and is said once`() {
 ```
 
 1. リスト（期限 14 日）を公開して、チャンネルを使い始める
-2. 提供元からリストを消す（取得できなくなる）
+2. リストのファイルを消す（取得できなくなる）
 3. **時計を 15 日進める**（`clock = clock.plus(Duration.ofDays(15))`）
 4. 取得し直すと、通信は失敗し（`fetch_failed`）、手元のリストは期限切れなので、そのチャンネルは使えなくなっている
 
-本物の時計とインターネットでは、このテストは書けません。依存を外から受け取っているから、「15 日後」「提供元が落ちている」という状況を、一瞬で、何度でも作れます。11 件のテストが 1 秒かからずに終わります。
+本物の時計とインターネットでは、このテストは書けません。依存を外から受け取っているから、「15 日後」「リストのサーバーが落ちている」という状況を、一瞬で、何度でも作れます。11 件のテストが 1 秒かからずに終わります。
 
 第 6 部の `publish` が保存先・CDN・署名を引数で受け取り、手元では代役で動いた（[6-4](../06-trust/04-two-tier-keys.md)）のも、同じ考え方です。TypeScript でも Kotlin でも、この作りが使われています。
 
-## 関数を渡す: WalkCompanion
+## 関数を渡す: Narration と WalkCompanion
 
-依存は、オブジェクトだけでなく **関数** でも渡せます。[WalkCompanion.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WalkCompanion.kt):
+依存は、オブジェクトだけでなく **関数** でも渡せます。[Narration.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/material/Narration.kt) は、散歩と画面が使う素材（解説・話しかけ・写真・背景音）を、素材の出どころ（`Producers`）に頼む部品です。
+
+```kotlin
+/** Asks [producers] for the material the walk and the screens use, on the channel [station] returns. */
+class Narration(private val producers: Producers, private val station: () -> Station) {
+    // …
+    private fun request(subject: Subject, type: MaterialType, session: WalkSession? = null, weather: Weather? = null) =
+        MaterialRequest(subject, type, MaterialContext(station(), session, weather))
+}
+```
+
+`station: () -> Station` は「呼ぶと今のチャンネルを返す関数」です。チャンネルそのもの（`Station`）を渡さないのは、**チャンネルは散歩の途中でも変わる** からです。値を渡すと、作ったときのチャンネルに固定されてしまいます。関数を渡せば、頼むたびに **その時点の** チャンネルを聞けます。聞いたチャンネルは要求（`MaterialContext`）に入れて渡すので、その先の部品（AI の解説を作る `GuideRepository.guideFor` など）は、チャンネルを引数で受け取るだけです。「今のチャンネルを聞く」のは `Narration` の 1 か所に決まっています。
+
+[WalkCompanion.kt](../../SanpoGuide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WalkCompanion.kt) も、同じように関数を受け取ります。
 
 ```kotlin
 class WalkCompanion(
     private val guides: GuideRepository,
     private val history: HistoryStore,
     private val prompts: PromptTemplates,
-    /** The channel in use; its slots fill the system prompt and add to the event prompts. */
-    private val station: () -> Station,
     /** The current mood for the companion's tone, or null when the user has turned moods off. */
     private val mood: () -> Mood? = { null },
     /** Whether the user allows coordinates to go to the AI (off by default). */
@@ -139,20 +152,21 @@ class WalkCompanion(
 )
 ```
 
-`station: () -> Station` は「呼ぶと今のチャンネルを返す関数」です。チャンネルそのもの（`Station`）を渡さないのは、**チャンネルは散歩の途中でも変わる** からです。値を渡すと、作ったときのチャンネルに固定されてしまいます。関数を渡せば、話すたびに **その時点の** チャンネルを聞けます。
-
 `SanpoApp` では、こう渡しています。
 
 ```kotlin
 companion = WalkCompanion(
     guides, history, prompts,
-    station = { stations.current.value },
     mood = { mood.mood.value.takeIf { stations.current.value.moodTone } },
     shareLocation = { settings.settings.value.shareLocationWithAi },
 )
+// …
+narration = Narration(producers, station = { stations.current.value })
 ```
 
-`WalkCompanion` は StateFlow も `SettingsRepository` も知りません。「今のチャンネル」「今の雰囲気（使わない設定なら null）」「位置を AI に渡してよいか」を、聞けば答えてくれる関数があることだけを知っています。必要なことだけを知っている部品は、テストしやすく、変更にも強くなります。
+`WalkCompanion` は StateFlow も `SettingsRepository` も知りません。「今の雰囲気（使わない設定なら null）」「位置を AI に渡してよいか」を、聞けば答えてくれる関数があることだけを知っています。必要なことだけを知っている部品は、テストしやすく、変更にも強くなります。
+
+> 以前は `WalkCompanion` と `GuideRepository` も `station: () -> Station` を受け取っていました。素材の出どころを共通の形（`Producer`、ADR-002 T-7）にまとめたときに、チャンネルは要求と一緒に渡す形に変わりました。
 
 ## 全体をつなぐ: SanpoApp
 
@@ -162,21 +176,34 @@ companion = WalkCompanion(
 override fun onCreate() {
     super.onCreate()
     settings = SettingsRepository(this)
-    spots = SpotRepository(OverpassClient())
+    spots = SpotRepository(OverpassClient(), shops = { stations.current.value.searchedKinds })
     prompts = Prompts.fromResources()
     val developerMode = settings.settings.map { it.developerMode }.stateIn(appScope, SharingStarted.Eagerly, settings.settings.value.developerMode)
-    channels = ThirdPartyChannels(this, BuiltInStations.standardPackage(), appScope, developerMode)
+    channels = ThirdPartyChannels(this, BuiltInStations.standardPackage(), appScope, developerMode) { /* 今いる大まかな地域 */ }
     stations = StationRepository(BuiltInStations.load(), settings.settings, appScope, channels.stations)
-    guides = GuideRepository(settings, prompts, station = { stations.current.value })
+    // …
+    guides = GuideRepository(settings, prompts)
     speaker = Speaker(this)
     photos = SpotPhotos(this)
     history = HistoryStore(this)
     mood = MoodSource(spots, feed.weather, appScope)
     companion = WalkCompanion(guides, history, prompts, /* … */)
+    val producers = Producers(
+        listOf(
+            AiGuideProducer(guides, settings),
+            AiCompanionProducer(companion, settings),
+            FallbackTextProducer(prompts, companion),
+            CommonsPhotoProducer(photos, settings),
+            AmbientProducer(),
+            MoodSceneProducer(),
+        )
+    )
+    narration = Narration(producers, station = { stations.current.value })
+    // … きっかけ（cues）の部品、通知のチャンネル …
 }
 ```
 
-上から順に、**先に要る部品から作って、次の部品に渡していく** だけです。`stations` は `settings` と `channels` を、`guides` は `settings` と `prompts` と `stations` を使うので、その後に作ります。
+上から順に、**先に要る部品から作って、次の部品に渡していく** だけです。`stations` は `settings` と `channels` を、組み込みの素材の出どころ（`AiGuideProducer` など）は `guides`・`companion`・`photos` を使うので、その後に作ります。最後の `narration` が、それらをまとめて使います。
 
 このように、DI のライブラリを使わず、手で部品を作ってつなぐやり方を **手動 DI**（Manual DI）と呼びます。部品をつなぐ場所（ここでは `SanpoApp`）を **コンポジション・ルート** と呼ぶこともあります。
 
@@ -191,10 +218,14 @@ flowchart TB
     CH --> ST
     APP --> G["GuideRepository"]
     S --> G
-    ST -. "station = { … }" .-> G
     APP --> WC["WalkCompanion"]
     G --> WC
-    ST -. "station = { … }" .-> WC
+    APP --> PR["Producers<br/>（AI の解説・話しかけ・定型文・写真・背景音・絵）"]
+    G --> PR
+    WC --> PR
+    APP --> N["Narration"]
+    PR --> N
+    ST -. "station = { … }" .-> N
     VM["各 ViewModel・WalkService"] -. "(application as SanpoApp).◯◯" .-> APP
 ```
 
@@ -257,7 +288,7 @@ cd /c/Dev/apps/SanpoGuide
 
 - an older list is refused as a rollback（古いリストは巻き戻しとして拒む）
 - an expired list stops its channels and is said once（期限切れのリストのチャンネルは止まり、1 回だけ知らせる）
-- a new publisher is taken only with publisherChange from the one on the device（配信元の変更は、裏付けがあるときだけ受け入れる）
+- a new publisher is taken only with publisherChange from the one on the device（チャンネル提供者の変更は、裏付けがあるときだけ受け入れる）
 - …
 
 第 6 部の API-002 で決めた振る舞いが、そのまま並んでいます。どれも、通信と時計を代役にしたから試せるものです。

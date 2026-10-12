@@ -6,7 +6,7 @@
 
 第 6 部で学んだ仕組みを、手元で動かして確かめます。AWS のアカウントは要りません。
 
-1. 管理システムの公開の処理で、提供元のファイル一式を手元に作る
+1. 管理システムの公開の処理で、リストのファイル一式を手元に作る
 2. それを手元の HTTP サーバーで配る
 3. 準拠テストをかけて、すべて合格することを見る
 4. わざと壊して、正しいエラーで止まることを見る
@@ -34,16 +34,16 @@ npm run publish:local -w api
 
 ```
 published seq 1 to ../.local/site
-provider: sc1ajniv3h7pigusni2qmvzlacuhghuufdh
+provider: sc1yajr5krpx5u2nb4x45rijsrnvvtizhwl
 ```
 
-`provider:` のあとの **提供元ID をメモしてください**。鍵は毎回新しく作るので、値は人によって、実行するたびに違います。以下では `<提供元ID>` と書きます。
+`provider:` のあとの **リストID をメモしてください**。鍵は毎回新しく作るので、値は人によって、実行するたびに違います。以下では `<リストID>` と書きます。
 
 ### 何が起きたか
 
 [api/src/publish/local-cli.ts](../../sanpo-channel-console/api/src/publish/local-cli.ts) が次のことをしました。
 
-1. テスト用の提供元を作る（ルート鍵・署名鍵を新しく作り、鍵セットにルート鍵で署名する。`makeTestProvider`）
+1. テスト用のリストを作る（ルート鍵・署名鍵を新しく作り、鍵セットにルート鍵で署名する。`makeTestProvider`）
 2. 見本のチャンネルを 1 つ用意する（パッケージとアイコンは中身のない仮のファイル）
 3. [6-4](04-two-tier-keys.md) で見た `publish` を、メモリの保存・フォルダへの書き出し・手元の鍵で動かす
 
@@ -84,6 +84,7 @@ console.log({ ...body, channels: body.channels.map((c) => c.id) });
 - 要約の `provider`・`seq`・`issuedAt`・`expiresAt` は本体と同じ値
 - 要約の `sha256` と `size` は、本体のバイト列のハッシュと大きさ（[6-4](04-two-tier-keys.md)）
 - `expiresAt` は `issuedAt` の 14 日後
+- 本体には、チャンネルの一覧（`channels`）と取り下げ（`revoked`）のほかに、素材集の一覧（`collections`）とその取り下げ（`revokedCollections`）もある（API-002 1.2）。この見本では空
 
 ## 手順 2. 配る
 
@@ -98,17 +99,17 @@ npm run serve -w conformance
 
 ## 手順 3. 準拠テストをかける
 
-ターミナル A で（`<提供元ID>` は手順 1 でメモした値）:
+ターミナル A で（`<リストID>` は手順 1 でメモした値）:
 
 ```sh
-npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provider <提供元ID>
+npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provider <リストID>
 ```
 
 ```
-PASS V-01 rootKey gives the provider id — sc1ajniv3h7pigusni2qmvzlacuhghuufdh
+PASS V-01 rootKey gives the provider id — sc1yajr5krpx5u2nb4x45rijsrnvvtizhwl
 PASS V-02 keyset is signed by the root key — keyset seq 1, keys k-test
 PASS V-03 list digest is signed by a valid signing key and matches the body — seq 1, signed by k-test
-PASS V-04 list expires within 14 days and has not expired — expires 2026-10-18T09:09:44.231Z
+PASS V-04 list expires within 14 days and has not expired — expires 2026-10-26T00:10:46.729Z
 SKIP V-05 seq has not gone back — no previous seq given
 PASS V-06 channel ids are unique and well-formed — 1 channels
 PASS V-07 packages and icons match their SHA-256 and size — all files match
@@ -116,24 +117,29 @@ PASS V-08 size limits are kept — list ≤ 1MB, packages ≤ 2MB, icons ≤ 100
 PASS V-09 every URL is HTTPS — 4 URLs
 PASS V-15 digest is small enough for KMS to sign — 251 bytes
 PASS V-16 publisher changes are well-formed — 0 changes
+PASS V-19 collection ids are unique and well-formed, and their packages match — 0 collections
+PASS V-20 collections a channel declares are listed, new enough and granted to its publisher — 1 channels
+PASS V-21 media and resourcesSize are well-formed — media and resourcesSize are well-formed
+PASS V-25 collections’ tags, regions and grants match their packages — 0 collections
 ```
 
 - `--allow-local-http`: 本来 API-002 は HTTPS を求めますが、手元の確認のために `http://127.0.0.1` を許します。アプリのデバッグビルドが `http://localhost` などを許すのと同じです
 - V-05（巻き戻し）が SKIP なのは、「前回の `seq`」を渡していないからです。手順 4-3 で試します
 - V-15 の `251 bytes` は要約の大きさです。KMS の上限 4,096 バイトに対して十分小さいことが分かります
+- V-19 以降は素材集の確認です（API-002 1.2）。素材集の ID とパッケージ、チャンネルが宣言した素材集がリストにあって使ってよいか（V-20）、チャンネルの `media`・`resourcesSize`（V-21）、素材集のタグ・地域・利用許諾がパッケージと合うか（V-25）。見本には素材集がないので、数は 0 です
 
 ## 手順 4. わざと壊す
 
-### 4-1. 違う提供元ID を渡す（なりすまし）
+### 4-1. 違うリストID を渡す（なりすまし）
 
-利用者が登録した提供元ID と、サーバーが返す鍵が合わない場面です。
+散策者が登録したリストID と、サーバーが返す鍵が合わない場面です。
 
 ```sh
 npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provider sc1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 ```
 
 ```
-FAIL V-01 rootKey gives the provider id — provider_mismatch: rootKey gives sc1ajniv…, expected sc1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+FAIL V-01 rootKey gives the provider id — provider_mismatch: rootKey gives sc1yajr5…, expected sc1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 SKIP V-02 keyset is signed by the root key — not reached
 …
 ```
@@ -148,7 +154,7 @@ CDN が乗っ取られて、リストのチャンネル名が書き換えられ�
 
 ```sh
 node ../sanpo-tutorial/06-trust/scripts/tamper-list.mjs
-npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provider <提供元ID>
+npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provider <リストID>
 ```
 
 ```
@@ -159,7 +165,7 @@ FAIL V-03 list digest is signed by a valid signing key and matches the body — 
 
 要約の署名は正しいので V-03 の前半は通りますが、本体の SHA-256 が要約と合わず `bad_signature` になります。[6-4](04-two-tier-keys.md) の「要約への署名が本体も守る」が働いています。
 
-元に戻すには公開をやり直します。**提供元ID が変わる** ので、新しい値をメモし直してください。
+元に戻すには公開をやり直します。**リストID が変わる** ので、新しい値をメモし直してください。
 
 ```sh
 npm run publish:local -w api
@@ -170,7 +176,7 @@ npm run publish:local -w api
 アプリが前に `seq` 5 のリストを受け取っていて、今 `seq` 1 のリストを配られた場面です。
 
 ```sh
-npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provider <新しい提供元ID> --min-seq 5
+npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provider <新しいリストID> --min-seq 5
 ```
 
 ```
@@ -222,7 +228,7 @@ val LIST_LIFETIME: Duration = Duration.ofDays(14)
 ```
 
 ```
-7 tests completed, 2 failed
+8 tests completed, 3 failed
 ```
 
 落ちたテストは、Gradle が表示するレポート（`station-format/build/reports/tests/test/index.html`）をブラウザで開くと見られます。
@@ -230,6 +236,7 @@ val LIST_LIFETIME: Duration = Duration.ofDays(14)
 | テスト | 失敗の理由 |
 |---|---|
 | the list checks out and reads every field | `expired: expiresAt is more than 14 days after issuedAt` |
+| a 1_2 list reads collections, their revocations and the channels' media | 同じ（素材集を載せた API-002 1.2 のリストも、同じ期限で拒まれる） |
 | a list is refused when it is expired, rolled back, altered or … | `expected:<ROLLBACK> but was:<EXPIRED>` |
 
 管理システムが作ったリスト（期限 14 日）を、アプリが「期限が長すぎる」と拒むようになりました。**管理システムは正しいと思って公開しているのに、アプリが受け入れない** という、[6-6](06-same-rules.md) の「食い違い」を、テストが見つけています。
@@ -256,7 +263,7 @@ git status
 
 | やったこと | 働いた仕組み | 学んだ章 |
 |---|---|---|
-| 違う提供元ID で `provider_mismatch` | ID は鍵の指紋。ID が分かれば鍵を確かめられる | [6-2](02-ed25519-and-ids.md) |
+| 違うリストID で `provider_mismatch` | ID は鍵の指紋。ID が分かれば鍵を確かめられる | [6-2](02-ed25519-and-ids.md) |
 | 本体の書き換えで `bad_signature` | 要約は本体のハッシュを含み、要約は署名で守られる | [6-3](03-signed-documents.md)・[6-4](04-two-tier-keys.md) |
 | `--min-seq` で `rollback` | 署名だけでは古さが分からない。通し番号で防ぐ | [6-5](05-verify-in-app.md) |
 | Kotlin の上限を変えてテストが落ちる | テストベクタが、2 つの言語の食い違いを見つける | [6-6](06-same-rules.md) |
@@ -266,7 +273,7 @@ git status
 - `publish` を支える DynamoDB・S3・CloudFront・KMS と CDK は **第 8 部**
 - `packages/protocol` のようなパッケージの分け方と、依存を外から渡す作りは **第 7 部**
 - `:station-format` をライブラリとして公開する方法は **第 5 部**
-- 配信元の鍵をブラウザの中で作る方法は **[9-3](../09-console/03-keys-in-browser.md)**
+- チャンネル提供者の鍵をブラウザの中で作る方法は **[9-3](../09-console/03-keys-in-browser.md)**
 
 で、くわしく扱います。
 

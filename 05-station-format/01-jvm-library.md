@@ -11,12 +11,14 @@
 
 ## :station-format が持っているもの
 
-`:station-format` は、SanpoGuide の 2 つ目のモジュールです（[1-2](../01-kotlin-android/02-gradle.md)）。中身は大きく 3 つです。
+`:station-format` は、SanpoGuide の 2 つ目のモジュールです（[1-2](../01-kotlin-android/02-gradle.md)）。中身は大きく 4 つと、リソースです。
 
 | 中身 | 主なファイル | 章 |
 |---|---|---|
 | チャンネルのパッケージの形式と確認 | `StationValidator`・`StationManifest`・`Slot`・`PackageArchive`・`PublisherSignature` | [5-2](02-package-format.md) |
-| 提供元の文書（署名つきのリストなど）の確認 | `ProviderDocuments` | [6-5](../06-trust/05-verify-in-app.md) |
+| チャンネルの素材・きっかけ・見せ方の確認 | `Cues`（`CueReader`・`StationMedia`・`MediaStage`）・`CollectionReferences` | [5-2](02-package-format.md) |
+| 素材集の形式と確認、素材提供者の共通の形 | `material/format` パッケージ（`CollectionValidator`・`Resources`・`Producers`・`Regions`） | [5-2](02-package-format.md) |
+| リストの文書（署名つきのリストなど）の確認 | `ProviderDocuments` | [6-5](../06-trust/05-verify-in-app.md) |
 | プロンプトの組み立て | `PromptTemplates`・`Prompts`・`StationPrompts`・`ReviewSamples` | [4-3](../04-outside/03-ai.md) |
 | リソース | `sanpoguide/prompts/`（プロンプトの文面）、`sanpoguide/channels/`（組み込みの 6 つのチャンネル） | [4-3](../04-outside/03-ai.md) |
 
@@ -33,7 +35,7 @@ flowchart LR
     SF -->|"GitHub Packages<br/>io.github.duwenji.sanpoguide:station-format"| VAL["sanpo-channel-console<br/>validator（Kotlin の Lambda）"]
 ```
 
-チャンネル管理システムは、配信元が申請したパッケージを機械で確かめ（機械審査）、運用者のために「このチャンネルなら AI はこう話す」という見本のプロンプトを作ります。そのとき、アプリと **違うコード** で確かめると、次のような食い違いが起きます。
+チャンネル管理システムは、チャンネル提供者が申請したパッケージを機械で確かめ（機械審査）、運営のために「このチャンネルなら AI はこう話す」という見本のプロンプトを作ります。そのとき、アプリと **違うコード** で確かめると、次のような食い違いが起きます。
 
 - 管理システムでは合格したのに、アプリでは読み込めない
 - 審査で見た見本と、アプリが実際に AI に送るプロンプトが違う
@@ -90,7 +92,7 @@ dependencies {
 管理システムの [validator/build.gradle.kts](../../sanpo-channel-console/validator/build.gradle.kts) には、そのとおりのコメントがあります。
 
 ```kotlin
-implementation("io.github.duwenji.sanpoguide:station-format:2.0.0")
+implementation("io.github.duwenji.sanpoguide:station-format:2.1.0")
 // station-format leaves org.json to its users (Android ships one).
 implementation("org.json:json:20240303")
 ```
@@ -220,25 +222,27 @@ cd /c/Dev/apps/SanpoGuide
 ls station-format/build/libs/
 ```
 
-`station-format-2.0.0.jar` のように、`gradle.properties` の `stationFormatVersion` の版が付いた jar ができます（前の版の jar が残っていることもあります）。
+`station-format-2.1.0.jar` のように、`gradle.properties` の `stationFormatVersion` の版が付いた jar ができます（前の版の jar が残っていることもあります）。
 
 ```sh
-J=station-format/build/libs/station-format-2.0.0.jar
+J=station-format/build/libs/station-format-2.1.0.jar
 unzip -l "$J" | awk '{print $4}' | sed 's#^\([^/]*/[^/]*/[^/]*\)/.*#\1/…#' | sort | uniq -c | sort -rn | head -12
 ```
 
 ```
-     49 io/github/duwenji/sanpoguide/…
+    135 io/github/duwenji/…
      13 sanpoguide/prompts/companion/…
      12 sanpoguide/prompts/fallback/…
       9 sanpoguide/channels/standard/…
+      9 sanpoguide/channels/shopping/…
       9 sanpoguide/channels/nature/…
       9 sanpoguide/channels/history/…
+      9 sanpoguide/channels/gourmet/…
       4 sanpoguide/prompts/shared/…
       …
 ```
 
-- `io/github/duwenji/sanpoguide/…`: コンパイルした Kotlin のクラス
+- `io/github/duwenji/…`: コンパイルした Kotlin のクラス。素材の部品（`sanpoguide/material/…`）が加わって、2.0.0 のころの 3 倍近くになりました
 - `sanpoguide/prompts/…`・`sanpoguide/channels/…`: リソース。プロンプトの文面と、組み込みのチャンネル
 
 `index.txt` も入っていることを確かめましょう。

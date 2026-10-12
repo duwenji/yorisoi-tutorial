@@ -62,8 +62,8 @@ JWT の中身は、base64url を戻すだけで読めます（[8-4](../08-aws/04
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [infra/lib/console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts) | 1 つのユーザープール、全員に TOTP の MFA、運用者・配信元のグループ、公開クライアント、トークンの期限 60 分 | [8-4](../08-aws/04-cognito.md) |
-| [api/src/console/post-confirmation.ts](../../sanpo-channel-console/api/src/console/post-confirmation.ts) | 登録した人は必ず配信元に。運用者は管理者が手で | [8-4](../08-aws/04-cognito.md) |
+| [infra/lib/console-app.ts](../../sanpo-channel-console/infra/lib/console-app.ts) | 1 つのユーザープール、全員に TOTP の MFA、運営・チャンネル提供者のグループ、公開クライアント、トークンの期限 60 分 | [8-4](../08-aws/04-cognito.md) |
+| [api/src/console/post-confirmation.ts](../../sanpo-channel-console/api/src/console/post-confirmation.ts) | 登録した人は必ずチャンネル提供者に。運営は管理者が手で | [8-4](../08-aws/04-cognito.md) |
 | 同 `UserPoolWaf` | 本番だけ、WAF で登録・ログインの回数を制限 | [8-4](../08-aws/04-cognito.md) |
 | [api/src/notify/handler.ts](../../sanpo-channel-console/api/src/notify/handler.ts) | メールアドレスはデータベースに持たず、送るたびに Cognito から確認済みのものを引く | [8-7](../08-aws/07-sqs-ses-kms.md) |
 
