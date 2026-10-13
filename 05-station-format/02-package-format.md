@@ -433,7 +433,7 @@ ZIP の中に書かれた「展開後の大きさ」は信用せず（いくら�
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../sanpo-tutorial/05-station-format/scripts/MyChannelPracticeTest.kt apps/sanpoguide/prompts/src/test/kotlin/io/github/duwenji/sanpoguide/prompt/
+cp ../michizure-tutorial/05-station-format/scripts/MyChannelPracticeTest.kt apps/sanpoguide/prompts/src/test/kotlin/io/github/duwenji/sanpoguide/prompt/
 ./gradlew :apps:sanpoguide:prompts:test --tests '*MyChannelPracticeTest*'
 ```
 

@@ -283,7 +283,7 @@ JavaScript は、基本的に 1 本のスレッドで動きます。`await` で�
 ```sh
 cd /c/Dev/apps/michizure-console
 mkdir -p .local
-cp ../sanpo-tutorial/07-typescript/scripts/ts-practice.ts .local/
+cp ../michizure-tutorial/07-typescript/scripts/ts-practice.ts .local/
 npx tsx .local/ts-practice.ts
 ```
 

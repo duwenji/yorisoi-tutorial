@@ -270,7 +270,7 @@ WebCrypto は Node.js にも入っています。画面と **同じ** [publisher
 
 ```sh
 cd /c/Dev/apps/michizure-console
-mkdir -p .local && cp ../sanpo-tutorial/09-console/scripts/key-in-browser.ts .local/
+mkdir -p .local && cp ../michizure-tutorial/09-console/scripts/key-in-browser.ts .local/
 cd web
 npx tsx ../.local/key-in-browser.ts
 ```

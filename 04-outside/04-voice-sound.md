@@ -311,7 +311,7 @@ private val worker = thread(name = "ambient", isDaemon = true) {
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../sanpo-tutorial/04-outside/scripts/SoundscapeWavExport.kt platform/kit-voice/src/test/java/io/github/duwenji/michizure/kit/voice/
+cp ../michizure-tutorial/04-outside/scripts/SoundscapeWavExport.kt platform/kit-voice/src/test/java/io/github/duwenji/michizure/kit/voice/
 ./gradlew :platform:kit-voice:testDebugUnitTest --tests '*SoundscapeWavExport*'
 ls -la platform/kit-voice/build/soundscapes/
 ```

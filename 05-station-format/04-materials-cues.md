@@ -353,7 +353,7 @@ sealed interface CollectionStatus {
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../sanpo-tutorial/05-station-format/scripts/MyCuesPracticeTest.kt platform/core-format/src/test/kotlin/io/github/duwenji/michizure/core/format/
+cp ../michizure-tutorial/05-station-format/scripts/MyCuesPracticeTest.kt platform/core-format/src/test/kotlin/io/github/duwenji/michizure/core/format/
 ./gradlew :platform:core-format:test --tests '*MyCuesPracticeTest*'
 ```
 

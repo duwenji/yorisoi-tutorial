@@ -250,7 +250,7 @@ Android Studio には、アプリを動かさずに Composable を描いて見�
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../sanpo-tutorial/02-compose/scripts/TutorialPreviews.kt apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/
+cp ../michizure-tutorial/02-compose/scripts/TutorialPreviews.kt apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/
 ```
 
 中身の一部です。

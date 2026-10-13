@@ -181,7 +181,7 @@ Cognito の `/logout` は、`client_id` と `logout_uri`（ログアウトのあ
 [scripts/pkce.mjs](scripts/pkce.mjs) を好きな場所で動かします（Node.js 20 以上）。
 
 ```sh
-cd /c/Dev/apps/sanpo-tutorial/09-console/scripts
+cd /c/Dev/apps/michizure-tutorial/09-console/scripts
 node pkce.mjs
 ```
 

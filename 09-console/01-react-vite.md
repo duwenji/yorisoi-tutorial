@@ -342,7 +342,7 @@ export default defineConfig({
 
 ```sh
 cd /c/Dev/apps/michizure-console
-mkdir -p .local && cp -r ../sanpo-tutorial/09-console/scripts/react-demo .local/react-demo
+mkdir -p .local && cp -r ../michizure-tutorial/09-console/scripts/react-demo .local/react-demo
 cd .local/react-demo
 ```
 
@@ -412,7 +412,7 @@ npx tsc -p .
 app.tsx(26,54): error TS2345: Argument of type 'string' is not assignable to parameter of type 'SetStateAction<number>'.
 ```
 
-Vite のビルドは成功し、`tsc` だけが止めます。CI が両方を流す理由です。確かめたら元に戻します（`cp ../../../sanpo-tutorial/09-console/scripts/react-demo/app.tsx .`）。
+Vite のビルドは成功し、`tsc` だけが止めます。CI が両方を流す理由です。確かめたら元に戻します（`cp ../../../michizure-tutorial/09-console/scripts/react-demo/app.tsx .`）。
 
 ## つまずきやすいところ
 

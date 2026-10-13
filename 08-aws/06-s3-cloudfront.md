@@ -315,7 +315,7 @@ new s3deploy.BucketDeployment(this, 'DeployWeb', {
 
 ```sh
 cd /c/Dev/apps/michizure-console
-cp ../sanpo-tutorial/08-aws/scripts/presigned-post.mjs .local/
+cp ../michizure-tutorial/08-aws/scripts/presigned-post.mjs .local/
 node .local/presigned-post.mjs
 ```
 

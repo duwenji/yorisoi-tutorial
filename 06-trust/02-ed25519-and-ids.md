@@ -33,7 +33,7 @@
 ```sh
 cd /c/Dev/apps/michizure-console
 mkdir -p .local
-cp ../sanpo-tutorial/06-trust/scripts/try-ed25519.ts .local/
+cp ../michizure-tutorial/06-trust/scripts/try-ed25519.ts .local/
 npx tsx .local/try-ed25519.ts
 ```
 
