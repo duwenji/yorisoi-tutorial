@@ -338,7 +338,7 @@ for (scape in Soundscape.entries) {
 
 ### 2. 聞く
 
-エクスプローラーで `C:\Dev\apps\SanpoGuide\platform\kit-voice\build\soundscapes` を開き、ファイルをダブルクリックすると、Windows のメディアプレーヤーで再生できます（VS Code では再生できないことがあります）。
+エクスプローラーで `C:\Dev\apps\yorisoi-platform\kit-voice\build\soundscapes` を開き、ファイルをダブルクリックすると、Windows のメディアプレーヤーで再生できます（VS Code では再生できないことがあります）。
 
 - `rain.wav`: 「サー」という雨音に、ときどき近くの雨粒
 - `waves.wav`: 7〜11 秒ごとに寄せては返す波
