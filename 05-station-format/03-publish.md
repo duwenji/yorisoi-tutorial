@@ -400,7 +400,7 @@ gh run list -R duwenji/yorisoi-platform --workflow publish.yml --limit 8
 gh run list -R duwenji/yorisoi-sanpoguide --workflow publish.yml --limit 8
 ```
 
-yorisoi-platform には `v1.0.0` の成功が、yorisoi-sanpoguide には `prompts-v2.0.0` の 422 の失敗と、やり直しの成功が並んでいるはずです。分ける前の記録（`michizure-core-v1.0.0`〜`v1.3.0`、`sanpoguide-prompts-v1.0.0`・`v1.1.0`、`station-format` のころの `v1.0.0` の 11 秒の失敗など）は、アーカイブした古いリポジトリに残っています（`gh run list -R duwenji/SanpoGuide --workflow publish.yml`）。失敗した実行のログは `gh run view <実行のID> -R <リポジトリ> --log-failed` で読めます。
+yorisoi-platform には `v1.0.0` の成功が、yorisoi-sanpoguide には `prompts-v2.0.0` の 422 の失敗と、やり直しの成功が並んでいるはずです。分ける前の記録（`michizure-core-v1.0.0`〜`v1.3.0`、`sanpoguide-prompts-v1.0.0`・`v1.1.0`、`station-format` のころの `v1.0.0` の 11 秒の失敗など）は、古い SanpoGuide のリポジトリと一緒に削除したので、もう見られません（2026-10-13）。コードの履歴とタグは yorisoi-sanpoguide に残っています（`git tag` で `sanpoguide-prompts-v*`、`git log` で全部の履歴）。失敗した実行のログは `gh run view <実行のID> -R <リポジトリ> --log-failed` で読めます。
 
 > 手元への公開（`./gradlew publishToMavenLocal`）も試せますが、パソコンの `~/.m2/repository` にファイルが書き込まれ、管理システムの `validator` のビルドがそれを使うことがあります（`mavenLocal`）。試したあとは `~/.m2/repository/io/github/duwenji/yorisoi/` と `…/sanpoguide/` を消すと元に戻ります。
 
