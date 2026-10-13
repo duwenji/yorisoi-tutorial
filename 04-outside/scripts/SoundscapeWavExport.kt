@@ -1,4 +1,4 @@
-package io.github.duwenji.michizure.kit.voice
+package io.github.duwenji.yorisoi.kit.voice
 
 import org.junit.Test
 import java.io.DataOutputStream

@@ -24,7 +24,7 @@ flowchart TB
         UI --> VM --> SVC --> NET
         SVC --> SF
     end
-    subgraph SCC["michizure-console（AWS）"]
+    subgraph SCC["yorisoi-console（AWS）"]
         direction TB
         WEB["画面<br/>React・Vite"]
         API["API<br/>Lambda（TypeScript）"]
@@ -59,7 +59,7 @@ flowchart TB
 | 公開 | maven-publish、GitHub Packages、GitHub Actions | コアとプロンプト・パックを管理システムに渡す | 5 |
 | テスト | JUnit 4 | 判定のロジック、形式の確認 | 各部 |
 
-## michizure-console で使われている技術
+## yorisoi-console で使われている技術
 
 | 分野 | 技術 | 何に使っているか | 学ぶ部 |
 |---|---|---|---|
@@ -91,8 +91,8 @@ flowchart TB
 
 | 用語 | 意味 |
 |---|---|
-| リポジトリ | Git で管理しているフォルダ一式。ここでは SanpoGuide と michizure-console の 2 つ |
-| モノレポ | 複数のパッケージ（部品）を 1 つのリポジトリに入れる構成。michizure-console がこれ |
+| リポジトリ | Git で管理しているフォルダ一式。ここでは SanpoGuide と yorisoi-console の 2 つ |
+| モノレポ | 複数のパッケージ（部品）を 1 つのリポジトリに入れる構成。yorisoi-console がこれ |
 | 依存関係 | 自分のコードが使う、他人が作ったライブラリ |
 | ビルド | ソースコードを、実行できる形（APK、JavaScript のファイルなど）に変換すること |
 | CI | 継続的インテグレーション。コードを push するたびに、自動でテストやビルドを流す仕組み |

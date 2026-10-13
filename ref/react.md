@@ -101,10 +101,10 @@ createRoot(document.getElementById('root')!).render(
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [web/src/main.tsx](../../michizure-console/web/src/main.tsx) | 設定 → ログイン（`Gate`）→ 役割で画面を分ける（`Shell`）。`SessionContext`。StrictMode と、1 回しか使えないコード | [9-1](../09-console/01-react-vite.md) |
-| [web/src/pages/common.tsx](../../michizure-console/web/src/pages/common.tsx) | 自作のフック `useLoad`（読み込み中・失敗・成功）、理由を必ず書かせる `ReasonForm` | [9-1](../09-console/01-react-vite.md) |
-| [web/src/api.ts](../../michizure-console/web/src/api.ts) | openapi-fetch と OpenAPI の型。ミドルウェアでトークンと Problem Details | [9-1](../09-console/01-react-vite.md) |
-| [web/src/pages/review.tsx](../../michizure-console/web/src/pages/review.tsx) | 状態を取り替える（`{ ...k, [id]: v }`）。AI の API キーはメモリだけ | [9-3](../09-console/03-keys-in-browser.md) |
+| [web/src/main.tsx](../../yorisoi-console/web/src/main.tsx) | 設定 → ログイン（`Gate`）→ 役割で画面を分ける（`Shell`）。`SessionContext`。StrictMode と、1 回しか使えないコード | [9-1](../09-console/01-react-vite.md) |
+| [web/src/pages/common.tsx](../../yorisoi-console/web/src/pages/common.tsx) | 自作のフック `useLoad`（読み込み中・失敗・成功）、理由を必ず書かせる `ReasonForm` | [9-1](../09-console/01-react-vite.md) |
+| [web/src/api.ts](../../yorisoi-console/web/src/api.ts) | openapi-fetch と OpenAPI の型。ミドルウェアでトークンと Problem Details | [9-1](../09-console/01-react-vite.md) |
+| [web/src/pages/review.tsx](../../yorisoi-console/web/src/pages/review.tsx) | 状態を取り替える（`{ ...k, [id]: v }`）。AI の API キーはメモリだけ | [9-3](../09-console/03-keys-in-browser.md) |
 
 ## よくある間違い
 

@@ -69,7 +69,7 @@ Surface(color = MaterialTheme.colorScheme.primaryContainer, /* … */) {
 
 ## MoodTheme: 雰囲気でテーマを切り替える
 
-[MoodTheme.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/michizure/kit/mood/MoodTheme.kt) は、雰囲気から色の組み合わせと文字の決まりを作り、`MaterialTheme` に渡します。
+[MoodTheme.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodTheme.kt) は、雰囲気から色の組み合わせと文字の決まりを作り、`MaterialTheme` に渡します。
 
 ```kotlin
 @Composable
@@ -167,7 +167,7 @@ private const val FADE_MS = 2_000
 
 ## MoodScene: 絵をコードで描く
 
-カードの上の小さな風景（[MoodScene.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/michizure/kit/mood/MoodScene.kt)）は、画像ファイルではなく、コードで描いています。
+カードの上の小さな風景（[MoodScene.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodScene.kt)）は、画像ファイルではなく、コードで描いています。
 
 ```kotlin
 /**
@@ -221,7 +221,7 @@ private fun DrawScope.drawScene(mood: Mood) {
 
 ## 雰囲気を決める: MoodSource
 
-最後に、雰囲気（`Mood`）そのものがどう決まるかを見ます。[MoodSource.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/michizure/kit/mood/MoodSource.kt):
+最後に、雰囲気（`Mood`）そのものがどう決まるかを見ます。[MoodSource.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodSource.kt):
 
 ```kotlin
 class MoodSource(spots: SpotRepository, weather: StateFlow<Weather?>, scope: CoroutineScope) {
@@ -264,7 +264,7 @@ class MoodSource(spots: SpotRepository, weather: StateFlow<Weather?>, scope: Cor
 class PlaceSmoother(private val holdMs: Long = HOLD_MS) { /* … */ }
 ```
 
-このロジックは Android に依存しないので、単体テスト（[MoodTest.kt](../../SanpoGuide/platform/kit-mood/src/test/java/io/github/duwenji/michizure/kit/mood/MoodTest.kt)）で確かめられています。テストの名前を見ると、振る舞いがよく分かります。
+このロジックは Android に依存しないので、単体テスト（[MoodTest.kt](../../SanpoGuide/platform/kit-mood/src/test/java/io/github/duwenji/yorisoi/kit/mood/MoodTest.kt)）で確かめられています。テストの名前を見ると、振る舞いがよく分かります。
 
 - the first place is taken at once（最初の場所はすぐに採用する）
 - a new place is taken only after it lasts（新しい場所は、続いたときだけ採用する）
@@ -295,7 +295,7 @@ private fun CompanionCardAutumnEveningDark() {
 
 ### 2. 夕方の色を変える
 
-[MoodTheme.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/michizure/kit/mood/MoodTheme.kt) の `Evening` の 2 つ目の色（`container`）を、たとえば `Color(0xFFE0F0FF)`（薄い水色）に変えて、プレビューを更新します。夕方のカードの背景が変わります。
+[MoodTheme.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodTheme.kt) の `Evening` の 2 つ目の色（`container`）を、たとえば `Color(0xFFE0F0FF)`（薄い水色）に変えて、プレビューを更新します。夕方のカードの背景が変わります。
 
 ### 3. 優先順位を確かめる
 
@@ -313,7 +313,7 @@ private fun CompanionCardAutumnEveningDark() {
 ```sh
 cd /c/Dev/apps/SanpoGuide
 rm apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/TutorialPreviews.kt
-git checkout -- platform/kit-mood/src/main/java/io/github/duwenji/michizure/kit/mood/MoodTheme.kt
+git checkout -- platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodTheme.kt
 git status
 ```
 

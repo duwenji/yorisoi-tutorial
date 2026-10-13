@@ -78,7 +78,7 @@ val b: String? = null      // ? を付けると null も入れられる
 
 型の後ろに `?` を付けた型だけが null を持てます。**`String` 型の変数は絶対に null にならない** とコンパイラが保証するので、Java でよくある NullPointerException（null の変数を使って落ちる事故）が、`?` の付いていない型では起きません。
 
-散策ガイドの [Poi.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/Poi.kt)（スポット）では:
+散策ガイドの [Poi.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/Poi.kt)（スポット）では:
 
 ```kotlin
 data class Poi(
@@ -104,7 +104,7 @@ data class Poi(
 | `x?.let { … }` | x が null でないときだけ、ブロックを実行する | 下の例 |
 | `x!!` | 「null ではない」と断言する。**null なら落ちる** | テストのコードなど |
 
-[Poi.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/Poi.kt) の `distanceFrom` から:
+[Poi.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/Poi.kt) の `distanceFrom` から:
 
 ```kotlin
 fun distanceFrom(location: Location): Float {
@@ -155,7 +155,7 @@ fun with(t: Threshold, value: Int) = copy(values = values + (t to value))
 
 ### 列挙型（enum）
 
-決まった選択肢は `enum class` にします。Kotlin の enum は、それぞれの値に項目を持たせられます。[Facility.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/Facility.kt):
+決まった選択肢は `enum class` にします。Kotlin の enum は、それぞれの値に項目を持たせられます。[Facility.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/Facility.kt):
 
 ```kotlin
 enum class FacilityKind(val label: String, val amenity: String) {

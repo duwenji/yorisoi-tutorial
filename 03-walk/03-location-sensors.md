@@ -179,11 +179,11 @@ fun restMinutes(now: Long = System.currentTimeMillis()): Int =
 
 ### 「近くに来た」の距離
 
-スポットに「60m 以内に来たら案内する」の 60m は、公園や境内のように広さのあるスポットでは、中心ではなく **境界** からの距離で測ります（[Poi.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/Poi.kt) の `distanceFrom`、[1-1](../01-kotlin-android/01-kotlin-syntax.md) で読みました）。大きな公園の中心から 60m では、敷地に入っても案内されないことがあるからです。
+スポットに「60m 以内に来たら案内する」の 60m は、公園や境内のように広さのあるスポットでは、中心ではなく **境界** からの距離で測ります（[Poi.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/Poi.kt) の `distanceFrom`、[1-1](../01-kotlin-android/01-kotlin-syntax.md) で読みました）。大きな公園の中心から 60m では、敷地に入っても案内されないことがあるからです。
 
 ## 向いている方向: 方位センサー
 
-地図の上の現在地の点には、散策者が向いている方向が扇形で描かれます（[README](../../SanpoGuide/README.md) の「ルートと向き」）。その向きを決めているのが [Heading.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/map/Heading.kt) の `rememberHeading` です。
+地図の上の現在地の点には、散策者が向いている方向が扇形で描かれます（[README](../../SanpoGuide/README.md) の「ルートと向き」）。その向きを決めているのが [Heading.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/Heading.kt) の `rememberHeading` です。
 
 ```kotlin
 /**

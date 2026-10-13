@@ -79,7 +79,7 @@ resources/                   パッケージに入れる素材（任意。第三
 }
 ```
 
-[StationManifest.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/StationManifest.kt) が、これを Kotlin のデータクラスで表しています。
+[StationManifest.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/StationManifest.kt) が、これを Kotlin のデータクラスで表しています。
 
 ```kotlin
 /** `channel.json` of a channel package (API-003). Only the values the format allows can be held. */
@@ -151,7 +151,7 @@ enum class TalkLevel(override val json: String) : JsonValue { QUIET("quiet"), NO
 | `genres` | `general`・`history`・`nature`・`food`・`shopping` から 0〜3 個 | 散策者が探すときの分類 |
 | `requires.features` | `slot:guide`・`present:card` など 0〜20 個 | これがないアプリでは成り立たない機能 |
 
-語彙はエコシステムで 1 つで、コアの [Ecosystem.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/Ecosystem.kt) にあります（`Activity`・`Genre`・`Feature`）。format 1 のパッケージは、`activities: ["walk"]`・`genres: []`・`requires` なしとして読みます（G-6）。今ある format 1 のチャンネルは、書き換えなくてもそのまま散歩のチャンネルとして動きます。
+語彙はエコシステムで 1 つで、コアの [Ecosystem.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/Ecosystem.kt) にあります（`Activity`・`Genre`・`Feature`）。format 1 のパッケージは、`activities: ["walk"]`・`genres: []`・`requires` なしとして読みます（G-6）。今ある format 1 のチャンネルは、書き換えなくてもそのまま散歩のチャンネルとして動きます。
 
 ### 確かめ方は 2 段
 
@@ -183,7 +183,7 @@ SanpoGuide のプロファイル（`SanpoProfile`）は「散歩（`walk`）と�
 
 ## スロット: 差し込めるのは文章だけ
 
-[4-3](../04-outside/03-ai.md) で見たとおり、チャンネルが変えられるのは、アプリのプロンプトの決まった **枠（スロット）** に入る文章だけです（F-1）。[Slot.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/Slot.kt):
+[4-3](../04-outside/03-ai.md) で見たとおり、チャンネルが変えられるのは、アプリのプロンプトの決まった **枠（スロット）** に入る文章だけです（F-1）。[Slot.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/Slot.kt):
 
 ```kotlin
 /**
@@ -217,7 +217,7 @@ if (HEADING_PATTERN.containsMatchIn(text)) reject(RejectCode.FORBIDDEN_TEXT, "${
 // … 文字数の上限、合計 4,000 字 …
 ```
 
-`URL_PATTERN`・`HEADING_PATTERN` や、UTF-8 として読む `decodeUtf8` は、[Checks.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/Checks.kt) にまとめてあります。素材の文章や素材集（下で見ます）の確認でも同じ決まりを使うので、チャンネル専用の `StationValidator` から外に出しました。
+`URL_PATTERN`・`HEADING_PATTERN` や、UTF-8 として読む `decodeUtf8` は、[Checks.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/Checks.kt) にまとめてあります。素材の文章や素材集（下で見ます）の確認でも同じ決まりを使うので、チャンネル専用の `StationValidator` から外に出しました。
 
 | 禁止 | 理由 |
 |---|---|
@@ -374,7 +374,7 @@ enum class StationOrigin { BUILT_IN, THIRD_PARTY }
 
 ## 外から来た ZIP を安全に開く
 
-第三者のパッケージは ZIP です。外から来た ZIP には、2 つの有名な危険があります。[PackageArchive.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/PackageArchive.kt) は、その両方に備えています。
+第三者のパッケージは ZIP です。外から来た ZIP には、2 つの有名な危険があります。[PackageArchive.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/PackageArchive.kt) は、その両方に備えています。
 
 ### 危険 1: パスの細工（Zip Slip）
 
@@ -433,7 +433,7 @@ ZIP の中に書かれた「展開後の大きさ」は信用せず（いくら�
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../michizure-tutorial/05-station-format/scripts/MyChannelPracticeTest.kt apps/sanpoguide/prompts/src/test/kotlin/io/github/duwenji/sanpoguide/prompt/
+cp ../yorisoi-tutorial/05-station-format/scripts/MyChannelPracticeTest.kt apps/sanpoguide/prompts/src/test/kotlin/io/github/duwenji/sanpoguide/prompt/
 ./gradlew :apps:sanpoguide:prompts:test --tests '*MyChannelPracticeTest*'
 ```
 

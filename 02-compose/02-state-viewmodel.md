@@ -279,7 +279,7 @@ StateFlow の性質を、小さなテストで確かめます。Android の端�
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../michizure-tutorial/02-compose/scripts/StateFlowPracticeTest.kt apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/
+cp ../yorisoi-tutorial/02-compose/scripts/StateFlowPracticeTest.kt apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/
 ./gradlew :apps:sanpoguide:app:testDebugUnitTest --tests '*StateFlowPracticeTest*'
 ```
 

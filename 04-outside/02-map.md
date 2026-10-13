@@ -32,7 +32,7 @@ flowchart TB
 
 ## 散策ガイドの地図
 
-設定画面で 6 種類から選べます（[MapStyle.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/map/MapStyle.kt)）。
+設定画面で 6 種類から選べます（[MapStyle.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/MapStyle.kt)）。
 
 ```kotlin
 enum class MapStyle(val label: String, val description: String, val google: GoogleMapType? = null) {
@@ -56,7 +56,7 @@ enum class MapStyle(val label: String, val description: String, val google: Goog
 
 ### 国土地理院のタイル
 
-[MapTiles.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/map/MapTiles.kt):
+[MapTiles.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/MapTiles.kt):
 
 ```kotlin
 private fun gsi(name: String, layer: String, minZoom: Int, maxZoom: Int, ext: String, credit: String) =
@@ -72,7 +72,7 @@ private val GsiRelief = gsi("GSI_relief", "relief", 5, 15, ".png", /* 出典 */)
 
 ### Google のタイル: セッションと出典
 
-Google Map Tiles API は、タイルを取る前に **セッション** を作る必要があります（[GoogleMapTiles.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/map/GoogleMapTiles.kt)）。
+Google Map Tiles API は、タイルを取る前に **セッション** を作る必要があります（[GoogleMapTiles.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/GoogleMapTiles.kt)）。
 
 ```kotlin
 suspend fun session(apiKey: String, type: GoogleMapType): GoogleTileSession {
@@ -119,7 +119,7 @@ Configuration.getInstance().userAgentValue = "SanpoGuide/${BuildConfig.VERSION_N
 
 ## Compose の中に地図を置く
 
-osmdroid の `MapView` は、Compose ではない昔ながらの部品（View）です。[SpotMap.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/map/SpotMap.kt) は、これを `AndroidView` で Compose の中に置いています（[2-1](../02-compose/01-compose-basics.md) で少し触れました）。
+osmdroid の `MapView` は、Compose ではない昔ながらの部品（View）です。[SpotMap.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/SpotMap.kt) は、これを `AndroidView` で Compose の中に置いています（[2-1](../02-compose/01-compose-basics.md) で少し触れました）。
 
 ```kotlin
 @Composable

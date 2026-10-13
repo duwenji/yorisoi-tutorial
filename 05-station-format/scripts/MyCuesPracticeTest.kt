@@ -1,11 +1,11 @@
-package io.github.duwenji.michizure.core.format
+package io.github.duwenji.yorisoi.core.format
 
-import io.github.duwenji.michizure.core.format.material.BuiltInProducers
-import io.github.duwenji.michizure.core.format.material.Exposure
-import io.github.duwenji.michizure.core.format.material.Fetch
-import io.github.duwenji.michizure.core.format.material.ProducerPolicy
-import io.github.duwenji.michizure.core.format.material.Regions
-import io.github.duwenji.michizure.core.format.material.Trust
+import io.github.duwenji.yorisoi.core.format.material.BuiltInProducers
+import io.github.duwenji.yorisoi.core.format.material.Exposure
+import io.github.duwenji.yorisoi.core.format.material.Fetch
+import io.github.duwenji.yorisoi.core.format.material.ProducerPolicy
+import io.github.duwenji.yorisoi.core.format.material.Regions
+import io.github.duwenji.yorisoi.core.format.material.Trust
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals

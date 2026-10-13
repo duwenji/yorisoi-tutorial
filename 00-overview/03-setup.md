@@ -27,7 +27,7 @@
 
 - **JDK**: Android Studio に同梱の JDK（JetBrains Runtime）でもかまいません。どちらのリポジトリも Java 17 向けにビルドする設定です（`JavaVersion.VERSION_17`）
 - **Gradle 本体は入れなくてよい**: 両リポジトリには `gradlew`（Gradle Wrapper）が入っていて、初回の実行時に決められた版の Gradle を自動で取ってきます。SanpoGuide は Gradle 8.14.3 です
-- **Node.js**: michizure-console の `package.json` に `"engines": { "node": ">=22" }` と書かれています。22 より古いと動きません
+- **Node.js**: yorisoi-console の `package.json` に `"engines": { "node": ">=22" }` と書かれています。22 より古いと動きません
 - **Docker**: 第 7〜8 部のテストの一部（管理 API のテスト）だけで使います。なくても、ほかのテストは流せます
 
 ## リポジトリの置き方
@@ -36,15 +36,15 @@
 
 ```
 c:\Dev\apps\
-├── SanpoGuide\           Android アプリ
-├── michizure-console\    チャンネル管理システム
-└── michizure-tutorial\   このチュートリアル
+├── SanpoGuide\         Android アプリ
+├── yorisoi-console\    チャンネル管理システム
+└── yorisoi-tutorial\   このチュートリアル
 ```
 
 ```sh
 cd /c/Dev/apps
 git clone https://github.com/duwenji/SanpoGuide.git
-git clone https://github.com/duwenji/michizure-console.git
+git clone https://github.com/duwenji/yorisoi-console.git
 ```
 
 ### Windows での改行コードの注意
@@ -70,10 +70,10 @@ cd /c/Dev/apps/SanpoGuide
 
 > `local.properties`（Android SDK の場所）と `keystore.properties`（リリース用の署名鍵）は Git に入っていません。`local.properties` は Android Studio が作ってくれます。`keystore.properties` は、なければリリース APK が署名なしになるだけで、開発には要りません。
 
-### 2. michizure-console（TypeScript）
+### 2. yorisoi-console（TypeScript）
 
 ```sh
-cd /c/Dev/apps/michizure-console
+cd /c/Dev/apps/yorisoi-console
 npm ci          # 依存ライブラリを package-lock.json のとおりに入れる
 npx tsc -b      # 型の確認（何も出なければ成功）
 npx vitest run  # テスト
@@ -88,7 +88,7 @@ Docker が動いていないと、管理 API のテストは DynamoDB Local を�
 最後に、管理システムの公開の処理を手元で動かします。第 6 部のハンズオンでくわしく扱うので、ここでは動くことだけ確かめます。
 
 ```sh
-cd /c/Dev/apps/michizure-console
+cd /c/Dev/apps/yorisoi-console
 npm run publish:local -w api
 ```
 

@@ -64,7 +64,7 @@ infra/
 
 ### 入口: bin/app.ts
 
-[infra/bin/app.ts](../../michizure-console/infra/bin/app.ts):
+[infra/bin/app.ts](../../yorisoi-console/infra/bin/app.ts):
 
 ```ts
 // npx cdk synth -c env=dev -c rootPublicKey=<base64url of the dev root key>
@@ -78,7 +78,7 @@ if (!rootPublicKey) {
 }
 const config: EnvConfig = { ...base, rootPublicKey, /* … */ };
 
-const stack = new ConsoleStack(app, `MichizureConsole-${name}`, {
+const stack = new ConsoleStack(app, `YorisoiConsole-${name}`, {
   config,
   env: { region: config.region, ...(config.account ? { account: config.account } : {}) },
   description: `SanpoGuide channel management system (${name})`,
@@ -87,13 +87,13 @@ const stack = new ConsoleStack(app, `MichizureConsole-${name}`, {
 
 - `-c env=dev` のように、コマンドから渡す値を **コンテキスト** と呼ぶ。`tryGetContext` で読む
 - **ルート鍵の公開鍵** は、必ず外から渡させる。渡し忘れたら止まる。公開の処理は、この鍵につながる鍵セットだけを使う（[6-4](../06-trust/04-two-tier-keys.md)）。本物の鍵はリポジトリに入れない
-- スタックの名前は `MichizureConsole-dev` のように環境ごとに分ける
+- スタックの名前は `YorisoiConsole-dev` のように環境ごとに分ける
 
 `cdk.json` の `"app": "npx tsx bin/app.ts"` が、`cdk synth` のたびに、この入口を tsx で動かす、という設定です。
 
 ### 環境ごとの設定: lib/config.ts
 
-[infra/lib/config.ts](../../michizure-console/infra/lib/config.ts) は、開発用と本番用の違いを 1 か所にまとめています。
+[infra/lib/config.ts](../../yorisoi-console/infra/lib/config.ts) は、開発用と本番用の違いを 1 か所にまとめています。
 
 ```ts
 export interface EnvConfig {
@@ -161,7 +161,7 @@ flowchart TB
     CA --> Q["NotifyQueue（SQS）"]
 ```
 
-[console-stack.ts](../../michizure-console/infra/lib/console-stack.ts) が公開に要る部品を、[console-app.ts](../../michizure-console/infra/lib/console-app.ts) が管理の面（ログイン・API・画面）の部品を作っています。`ConsoleApp` は、部品をまとめた **自作のコンストラクト** です。
+[console-stack.ts](../../yorisoi-console/infra/lib/console-stack.ts) が公開に要る部品を、[console-app.ts](../../yorisoi-console/infra/lib/console-app.ts) が管理の面（ログイン・API・画面）の部品を作っています。`ConsoleApp` は、部品をまとめた **自作のコンストラクト** です。
 
 ```ts
 export class ConsoleApp extends Construct {
@@ -231,8 +231,8 @@ if (!existsSync(props.validatorZip)) throw new Error(`build the machine review f
 
 | ファイル | 中身 |
 |---|---|
-| `MichizureConsole-dev.template.json` | CloudFormation のテンプレート（部品 80 個） |
-| `MichizureConsole-dev.assets.json` | アセットの一覧（どこに上げるか） |
+| `YorisoiConsole-dev.template.json` | CloudFormation のテンプレート（部品 80 個） |
+| `YorisoiConsole-dev.assets.json` | アセットの一覧（どこに上げるか） |
 | `asset.…/` | Lambda のまとめたファイル、画面のファイル、機械審査の zip など |
 
 ### Lambda のまとめたファイル
@@ -275,7 +275,7 @@ AWS の SDK（`@aws-sdk/…`）は含まれていません。Node.js 22 の Lamb
 
 ## CDK の定義をテストする
 
-インフラの定義も、テストできます。[infra/test/console-stack.test.ts](../../michizure-console/infra/test/console-stack.test.ts) は、合成したテンプレートに、大事な設定が入っているかを確かめています。
+インフラの定義も、テストできます。[infra/test/console-stack.test.ts](../../yorisoi-console/infra/test/console-stack.test.ts) は、合成したテンプレートに、大事な設定が入っているかを確かめています。
 
 ```ts
 import { Match, Template } from 'aws-cdk-lib/assertions';
@@ -317,7 +317,7 @@ ADR-001 で決めた設計（A-4・A-7・A-8・A-10 など）が、テストで�
 ### 1. CDK のテストを流す
 
 ```sh
-cd /c/Dev/apps/michizure-console
+cd /c/Dev/apps/yorisoi-console
 npx vitest run infra
 ```
 
@@ -330,7 +330,7 @@ npx vitest run infra
 
 ### 2. 「同時に 1 つだけ」を壊す
 
-[infra/lib/console-stack.ts](../../michizure-console/infra/lib/console-stack.ts) の公開の Lambda で、
+[infra/lib/console-stack.ts](../../yorisoi-console/infra/lib/console-stack.ts) の公開の Lambda で、
 
 ```ts
 // A-10: one run at a time; the conditional write on seq guards the rest.
@@ -358,7 +358,7 @@ git status
 ```sh
 python -X utf8 - <<'EOF'
 import json
-t = json.load(open('.local/cdkout/MichizureConsole-dev.template.json', encoding='utf-8'))
+t = json.load(open('.local/cdkout/YorisoiConsole-dev.template.json', encoding='utf-8'))
 for lid, r in t['Resources'].items():
     p = r['Properties']
     if r['Type'] == 'AWS::Lambda::Function' and p.get('ReservedConcurrentExecutions'):

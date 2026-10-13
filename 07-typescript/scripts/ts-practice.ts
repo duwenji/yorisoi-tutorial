@@ -1,4 +1,4 @@
-// チュートリアル 7-1 のハンズオン用。michizure-console/.local/ にコピーして使う。
+// チュートリアル 7-1 のハンズオン用。yorisoi-console/.local/ にコピーして使う。
 //   実行:       npx tsx .local/ts-practice.ts
 //   型の確認:   npx tsc --ignoreConfig --noEmit --strict --target es2023 --module nodenext --types node .local/ts-practice.ts
 

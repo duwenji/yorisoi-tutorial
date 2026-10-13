@@ -111,7 +111,7 @@ object TalkDecider {
 
 ### ルールを聞く仕組み: TalkEngine とゲート
 
-一覧を上から聞く仕組みそのものは、キット `kit-companion` の [TalkEngine.kt](../../SanpoGuide/platform/kit-companion/src/main/kotlin/io/github/duwenji/michizure/kit/companion/TalkEngine.kt) にあります。サイクリングの伴走など、ほかの付き添いアプリでも使えるように、散歩のことを何も知らない形で書いてあります。
+一覧を上から聞く仕組みそのものは、キット `kit-companion` の [TalkEngine.kt](../../SanpoGuide/platform/kit-companion/src/main/kotlin/io/github/duwenji/yorisoi/kit/companion/TalkEngine.kt) にあります。サイクリングの伴走など、ほかの付き添いアプリでも使えるように、散歩のことを何も知らない形で書いてあります。
 
 ```kotlin
 class TalkEngine<S : TalkGates<G>, D : Any, G>(val rules: List<TalkRule<S, D, G>>, private val nothing: D) {

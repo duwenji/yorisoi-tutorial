@@ -20,7 +20,7 @@
 
 ここで、もし管理システムがチャンネル提供者の秘密鍵を預かっていたらどうでしょう。管理システムが乗っ取られれば、だれでも好きなチャンネル提供者になりすませます。運営でさえ、チャンネル提供者の名前で勝手にパッケージを作れてしまいます。それでは「チャンネル提供者の署名」が意味をなしません。
 
-そこで DES-003（[チャンネル提供者の画面の設計](../../michizure-console/docs/design/DES-003-publisher-console.md)）は、こう決めています。
+そこで DES-003（[チャンネル提供者の画面の設計](../../yorisoi-console/docs/design/DES-003-publisher-console.md)）は、こう決めています。
 
 - 鍵は **チャンネル提供者のブラウザの中で作る**
 - 秘密鍵は **サーバーに送らない**。合言葉で暗号化したファイルとして、チャンネル提供者が自分で保存する
@@ -48,7 +48,7 @@ const subtle = globalThis.crypto.subtle;
 const ED25519 = { name: 'Ed25519' } as const;
 ```
 
-（[publisher-crypto.ts](../../michizure-console/web/src/publisher-crypto.ts)）
+（[publisher-crypto.ts](../../yorisoi-console/web/src/publisher-crypto.ts)）
 
 | 関数 | すること |
 |---|---|
@@ -79,7 +79,7 @@ export async function ed25519Supported(): Promise<boolean> {
 }
 ```
 
-使えなければ「このブラウザは Ed25519 の鍵を扱えません」と出します（[pages/publisher/home.tsx](../../michizure-console/web/src/pages/publisher/home.tsx) の `KeySetup`）。
+使えなければ「このブラウザは Ed25519 の鍵を扱えません」と出します（[pages/publisher/home.tsx](../../yorisoi-console/web/src/pages/publisher/home.tsx) の `KeySetup`）。
 
 ## 鍵を作り、合言葉で包む
 
@@ -120,7 +120,7 @@ flowchart TB
 4. 秘密鍵を AES-GCM で暗号化する
 5. 使うための秘密鍵は **取り出せない鍵として読み込み直す**（`false`、使い道は `sign` だけ）。このあと、画面のどこかに悪いスクリプトが入っても、`exportKey` で秘密鍵を抜き出せない
 
-アカウントID は、サーバーやコア（`core-format`）と **同じ計算** です（`sg1` ＋ SHA-256 の base32 の先頭 32 文字、[6-2](../06-trust/02-ed25519-and-ids.md)）。[web/test/publisher-crypto.test.ts](../../michizure-console/web/test/publisher-crypto.test.ts) は、決まった公開鍵から決まった ID になることを確かめています。
+アカウントID は、サーバーやコア（`core-format`）と **同じ計算** です（`sg1` ＋ SHA-256 の base32 の先頭 32 文字、[6-2](../06-trust/02-ed25519-and-ids.md)）。[web/test/publisher-crypto.test.ts](../../yorisoi-console/web/test/publisher-crypto.test.ts) は、決まった公開鍵から決まった ID になることを確かめています。
 
 ### 合言葉から鍵を作る: PBKDF2
 
@@ -164,7 +164,7 @@ async function wrappingKey(passphrase: string, salt: Uint8Array, iterations: num
 
 - `type` と `version` で、何のファイルかと形の版を示す（あとで形を変えても読み分けられる）
 - 戻すのに要るもの（方式・回数・salt・iv）は、すべてファイルに書く。秘密なのは合言葉だけ
-- ファイルは、ブラウザの中で作った `Blob` を、リンクの `download` で保存させる（`download()`、[pages/publisher/home.tsx](../../michizure-console/web/src/pages/publisher/home.tsx)）。サーバーを通らない
+- ファイルは、ブラウザの中で作った `Blob` を、リンクの `download` で保存させる（`download()`、[pages/publisher/home.tsx](../../yorisoi-console/web/src/pages/publisher/home.tsx)）。サーバーを通らない
 
 ### 開くとき: 中身が合っているかも確かめる
 
@@ -200,11 +200,11 @@ sequenceDiagram
 
 秘密鍵を持っている人にしか、その場で出された文字列に署名できません。サーバーは秘密鍵を見ないまま、持っていることだけを確かめられます。チャレンジは DynamoDB に TTL つきで置かれ（[8-5](../08-aws/05-dynamodb.md)）、使ったら消えるので、同じ署名を使い回せません。
 
-鍵をなくしたり漏れたりしたときの **移し替え**（[pages/publisher/keys.tsx](../../michizure-console/web/src/pages/publisher/keys.tsx)、ADR-001 A-15）も、同じように新しい鍵でチャレンジに署名して申し出ます。ただし、鍵をなくした人は古い鍵で証明できないので、運営が **鍵とは別の経路**（登録した連絡先など）で本人を確かめてから承認します。
+鍵をなくしたり漏れたりしたときの **移し替え**（[pages/publisher/keys.tsx](../../yorisoi-console/web/src/pages/publisher/keys.tsx)、ADR-001 A-15）も、同じように新しい鍵でチャレンジに署名して申し出ます。ただし、鍵をなくした人は古い鍵で証明できないので、運営が **鍵とは別の経路**（登録した連絡先など）で本人を確かめてから承認します。
 
 ## パッケージに署名して送る
 
-チャンネル提供者が新しい版を申請するとき（[pages/publisher/channels.tsx](../../michizure-console/web/src/pages/publisher/channels.tsx)）、画面の中でこう進みます。
+チャンネル提供者が新しい版を申請するとき（[pages/publisher/channels.tsx](../../yorisoi-console/web/src/pages/publisher/channels.tsx)）、画面の中でこう進みます。
 
 ```ts
 setProgress('鍵を開いています…');
@@ -231,7 +231,7 @@ await upload(data.uploads.package, new Blob([new Uint8Array(signed.zip)], { type
 
 間違ったまま署名して送ると、機械審査（[8-8](../08-aws/08-kotlin-lambda.md)）で落ちるまで分かりません。手元で先に分かるほうが、チャンネル提供者にとって親切です。古い `signature.json` が入っていれば、署名の対象から外して作り直します。
 
-素材提供者が素材集に署名するときも、同じ鍵とほぼ同じ処理です（`signCollectionPackage`）。違いは「何の」「だれの」を表す項目の名前だけなので、[publisher-crypto.ts](../../michizure-console/web/src/publisher-crypto.ts) は違いを 1 つの値にまとめて、共通の関数（`signAs`）に渡しています。
+素材提供者が素材集に署名するときも、同じ鍵とほぼ同じ処理です（`signCollectionPackage`）。違いは「何の」「だれの」を表す項目の名前だけなので、[publisher-crypto.ts](../../yorisoi-console/web/src/publisher-crypto.ts) は違いを 1 つの値にまとめて、共通の関数（`signAs`）に渡しています。
 
 ```ts
 /** A channel package (API-003 F-6). */
@@ -248,13 +248,13 @@ export async function signPackage(zip: Uint8Array, key: PublisherKey, expect: { 
 
 ## もう 1 つの「サーバーに送らない秘密」: AI の API キー
 
-運営の審査の画面は、申請されたプロンプトで AI に話させた見本を作ります（DES-005、[ai.ts](../../michizure-console/web/src/ai.ts)）。そのための OpenAI・DeepSeek の API キーは **運営のもの** で、管理システムには預けません（ADR-001 D-4・A-14）。
+運営の審査の画面は、申請されたプロンプトで AI に話させた見本を作ります（DES-005、[ai.ts](../../yorisoi-console/web/src/ai.ts)）。そのための OpenAI・DeepSeek の API キーは **運営のもの** で、管理システムには預けません（ADR-001 D-4・A-14）。
 
 ```ts
 const [keys, setKeys] = useState<Record<string, string>>({});
 ```
 
-（[pages/review.tsx](../../michizure-console/web/src/pages/review.tsx)）
+（[pages/review.tsx](../../yorisoi-console/web/src/pages/review.tsx)）
 
 - キーは React の状態（ページのメモリ）にだけある。保存しない。ページを閉じれば消える
 - AI はブラウザから直接呼ぶ。CSP の `connect-src` に `https://api.openai.com` と `https://api.deepseek.com` を入れてあるのはそのため（[8-6](../08-aws/06-s3-cloudfront.md)）
@@ -264,13 +264,13 @@ const [keys, setKeys] = useState<Record<string, string>>({});
 
 ## ハンズオン: チャンネル提供者の鍵を Node.js で作る
 
-WebCrypto は Node.js にも入っています。画面と **同じ** [publisher-crypto.ts](../../michizure-console/web/src/publisher-crypto.ts) を、Node.js から呼んでみます。
+WebCrypto は Node.js にも入っています。画面と **同じ** [publisher-crypto.ts](../../yorisoi-console/web/src/publisher-crypto.ts) を、Node.js から呼んでみます。
 
 [scripts/key-in-browser.ts](scripts/key-in-browser.ts) を管理システムの `.local/` にコピーし、`web` のフォルダで動かします。
 
 ```sh
-cd /c/Dev/apps/michizure-console
-mkdir -p .local && cp ../michizure-tutorial/09-console/scripts/key-in-browser.ts .local/
+cd /c/Dev/apps/yorisoi-console
+mkdir -p .local && cp ../yorisoi-tutorial/09-console/scripts/key-in-browser.ts .local/
 cd web
 npx tsx ../.local/key-in-browser.ts
 ```
@@ -307,7 +307,7 @@ npx tsx ../.local/key-in-browser.ts
 
 ### やってみよう: 鍵のファイルの照合を外す
 
-[publisher-crypto.ts](../../michizure-console/web/src/publisher-crypto.ts) の `openKeyFile` で、最後の照合の行
+[publisher-crypto.ts](../../yorisoi-console/web/src/publisher-crypto.ts) の `openKeyFile` で、最後の照合の行
 
 ```ts
 if (!(await subtle.verify(ED25519, publicCrypto, signature, buf(probe)))) throw new Error('鍵のファイルの中身が合っていません');
@@ -316,7 +316,7 @@ if (!(await subtle.verify(ED25519, publicCrypto, signature, buf(probe)))) throw 
 を消して（または `void publicCrypto; void signature;` に置き換えて）、画面のテストを流します。
 
 ```sh
-cd /c/Dev/apps/michizure-console
+cd /c/Dev/apps/yorisoi-console
 npx vitest run web
 ```
 

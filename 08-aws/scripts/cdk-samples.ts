@@ -1,4 +1,4 @@
-// 技術カード（第 8 部）の CDK の例をまとめたもの。michizure-console/.local/cdk-cards/ に置き、
+// 技術カード（第 8 部）の CDK の例をまとめたもの。yorisoi-console/.local/cdk-cards/ に置き、
 // infra のフォルダで npx tsx ../.local/cdk-cards/app.ts と実行すると、合成して部品の数を表示する。
 
 import { App, Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
