@@ -14,11 +14,11 @@
 
 | ファイル | 役割 | モジュール |
 |---|---|---|
-| [ProviderDocuments.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocuments.kt) | 検出の文書・鍵セット・リスト・試用チケットを確かめる | コア（`core-format`） |
-| [PublisherSignature.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/PublisherSignature.kt) | Ed25519 の差し替え口、ID の計算 | コア（`core-format`） |
-| [TinkEd25519.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/TinkEd25519.kt) | Tink による Ed25519 の実装 | `:app` |
-| [ChannelSync.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ChannelSync.kt) | 取得・確認・保存の流れ | `:app` |
-| [ThirdPartyChannels.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ThirdPartyChannels.kt) | `ChannelSync` を Android の上で動かす（スレッド、画面への通知） | `:app` |
+| [ProviderDocuments.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocuments.kt) | 検出の文書・鍵セット・リスト・試用チケットを確かめる | コア（`core-format`） |
+| [PublisherSignature.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/PublisherSignature.kt) | Ed25519 の差し替え口、ID の計算 | コア（`core-format`） |
+| [TinkEd25519.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/TinkEd25519.kt) | Tink による Ed25519 の実装 | `:app` |
+| [ChannelSync.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ChannelSync.kt) | 取得・確認・保存の流れ | `:app` |
+| [ThirdPartyChannels.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ThirdPartyChannels.kt) | `ChannelSync` を Android の上で動かす（スレッド、画面への通知） | `:app` |
 
 **確かめる規則そのもの** はコア（`core-format`）にあり、**Android に依存する部分**（Tink、通信、ファイル、スレッド）はアプリにあります。この分け方には理由があり、[6-6](06-same-rules.md) で見ます。
 
@@ -68,7 +68,7 @@ Tink の `verify` は、合わないときに例外を投げます。それを `
 
 ## 確かめる順番
 
-アプリは、[API-002](../../SanpoGuide/docs/channel-list-api.md) の「呼び出しシーケンス」のとおりに確かめます。
+アプリは、[API-002](../../yorisoi-platform/docs/channel-list-api.md) の「呼び出しシーケンス」のとおりに確かめます。
 
 ```mermaid
 flowchart TB

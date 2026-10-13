@@ -12,7 +12,7 @@
 - Service と画面のあいだで状態を共有する方法
 - 散策を終えるときの後片付けの順番
 
-[1-3](../01-kotlin-android/03-android-components.md) で Service とフォアグラウンドサービスの基本を見ました。この章では、[WalkService.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) をもっと深く読みます。
+[1-3](../01-kotlin-android/03-android-components.md) で Service とフォアグラウンドサービスの基本を見ました。この章では、[WalkService.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) をもっと深く読みます。
 
 ## WalkService の一生
 
@@ -144,7 +144,7 @@ override fun onDestroy() {
 
 ### 4 つのチャンネル
 
-[SanpoApp.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) が、起動時に 4 つの通知のチャンネルを作っています（[1-3](../01-kotlin-android/03-android-components.md)）。
+[SanpoApp.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) が、起動時に 4 つの通知のチャンネルを作っています（[1-3](../01-kotlin-android/03-android-components.md)）。
 
 ```kotlin
 createNotificationChannel(
@@ -280,7 +280,7 @@ flowchart LR
 ### 1. 準備
 
 ```sh
-ADB="$(sed -n 's/^sdk.dir=//p' /c/Dev/apps/SanpoGuide/local.properties | sed 's/\\:/:/; s/\\\\/\//g')/platform-tools/adb.exe"
+ADB="$(sed -n 's/^sdk.dir=//p' /c/Dev/apps/yorisoi-sanpoguide/local.properties | sed 's/\\:/:/; s/\\\\/\//g')/platform-tools/adb.exe"
 "$ADB" devices
 ```
 

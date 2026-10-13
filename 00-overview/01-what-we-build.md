@@ -35,13 +35,13 @@
 
 第三者のチャンネルは、語り手を変えるだけでなく、**素材**（文字・画像。将来は音声・映像も）を見せることもできます。「この寺に近づいたら、観光協会の解説と写真を出す」のように、**きっかけ**（スポット・地点・散歩の開始などの出来事）と **見せ方**（読み上げ・カード・通知など）を決めて出します。
 
-素材は、チャンネルとは別の **素材集** として作り、チャンネルとは別に審査します（SanpoGuide の [ADR-002](../../SanpoGuide/docs/adr/ADR-002-material-producers.md)）。観光協会や写真家が、チャンネルを作らなくても素材を届けられるようにするためです。素材集を作る人が、どのチャンネル提供者に使わせるかを決めて署名します。
+素材は、チャンネルとは別の **素材集** として作り、チャンネルとは別に審査します（SanpoGuide の [ADR-002](../../yorisoi-platform/docs/adr/ADR-002-material-producers.md)）。観光協会や写真家が、チャンネルを作らなくても素材を届けられるようにするためです。素材集を作る人が、どのチャンネル提供者に使わせるかを決めて署名します。
 
 AI の解説や Wikimedia の写真、背景音のように、アプリが自分で用意する素材もあります。アプリは、どの出どころの素材も同じ形（`Producer`）で扱います。今のアプリが出せるのは文字と画像までです（第 1 段）。くわしくは [5-4](../05-station-format/04-materials-cues.md) で扱います。
 
 ## 登場人物
 
-このチュートリアルでは、次の言葉を区別して使います。呼び方は 2 つのリポジトリで共通で、正本は [SanpoGuide/docs/stakeholders.md](../../SanpoGuide/docs/stakeholders.md) です。
+このチュートリアルでは、次の言葉を区別して使います。呼び方は 2 つのリポジトリで共通で、正本は [yorisoi-platform/docs/stakeholders.md](../../yorisoi-platform/docs/stakeholders.md) です。
 
 | 言葉 | だれ・何か | 例 | コード上の名前 |
 |---|---|---|---|
@@ -86,9 +86,9 @@ flowchart LR
 
 2 つのリポジトリの境界は、SanpoGuide にある **API-002（承認済みチャンネル・リスト 契約書）** だけです。
 
-- [SanpoGuide/docs/channel-list-api.md](../../SanpoGuide/docs/channel-list-api.md)
+- [yorisoi-platform/docs/channel-list-api.md](../../yorisoi-platform/docs/channel-list-api.md)
 
-リストに載るものの中身の形は、別の契約書で決めてあります。チャンネルのパッケージは API-003（[channel-package-format.md](../../SanpoGuide/docs/channel-package-format.md)）、素材集と素材提供者の共通の形は API-004（[material-producer-api.md](../../SanpoGuide/docs/material-producer-api.md)）です。どれも SanpoGuide の側にあり、管理システムはそれに従います。
+リストに載るものの中身の形は、別の契約書で決めてあります。チャンネルのパッケージは API-003（[channel-package-format.md](../../yorisoi-platform/docs/channel-package-format.md)）、素材集と素材提供者の共通の形は API-004（[material-producer-api.md](../../yorisoi-platform/docs/material-producer-api.md)）です。どれも SanpoGuide の側にあり、管理システムはそれに従います。
 
 この契約書には、公開するファイルの形、署名の付け方、アプリが確かめる順番、エラーの種類が決めてあります。契約書を守っていれば、管理システムをどう作るか（AWS でも別のクラウドでも）は自由です。実際、契約書には「本書に準拠していれば、管理システムの実装方法と置き場所は問わない」と書かれています。
 
@@ -96,7 +96,7 @@ flowchart LR
 
 ## 2 つのリポジトリが共有するもの
 
-もう 1 つ、2 つのリポジトリをつなぐものがあります。SanpoGuide の中にある **コア**（`core-format`・`core-prompt`）と **プロンプト・パック** というライブラリです（最初は `station-format` という 1 つのライブラリでした）。
+もう 1 つ、2 つのリポジトリをつなぐものがあります。**コア**（`core-format`・`core-prompt`）と **プロンプト・パック** というライブラリです（最初は `station-format` という 1 つのライブラリでした）。コアは共通の部品のリポジトリ yorisoi-platform に、プロンプト・パックは SanpoGuide のリポジトリ yorisoi-sanpoguide にあり、どちらも GitHub Packages に公開しています。
 
 - チャンネルのパッケージと素材集（どちらも ZIP）の形式を読み、正しいかを確かめるコード
 - アプリが AI に送るプロンプトを組み立てるコード

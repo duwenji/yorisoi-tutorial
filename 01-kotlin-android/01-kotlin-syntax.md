@@ -46,7 +46,7 @@ fun distanceLabel(meters: Int) = "${meters}m"
 - `"${式}"` で文字列に値を埋め込めます。変数 1 つなら `"$name"` でも書けます
 - 引数には **既定値** を付けられ、呼ぶときに **名前で指定** もできます
 
-実際のコード（[FacilityAdvisorTest.kt](../../SanpoGuide/apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/companion/FacilityAdvisorTest.kt)）:
+実際のコード（[FacilityAdvisorTest.kt](../../yorisoi-sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/companion/FacilityAdvisorTest.kt)）:
 
 ```kotlin
 private fun pick(
@@ -78,7 +78,7 @@ val b: String? = null      // ? を付けると null も入れられる
 
 型の後ろに `?` を付けた型だけが null を持てます。**`String` 型の変数は絶対に null にならない** とコンパイラが保証するので、Java でよくある NullPointerException（null の変数を使って落ちる事故）が、`?` の付いていない型では起きません。
 
-散策ガイドの [Poi.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/Poi.kt)（スポット）では:
+散策ガイドの [Poi.kt](../../yorisoi-platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/Poi.kt)（スポット）では:
 
 ```kotlin
 data class Poi(
@@ -104,7 +104,7 @@ data class Poi(
 | `x?.let { … }` | x が null でないときだけ、ブロックを実行する | 下の例 |
 | `x!!` | 「null ではない」と断言する。**null なら落ちる** | テストのコードなど |
 
-[Poi.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/Poi.kt) の `distanceFrom` から:
+[Poi.kt](../../yorisoi-platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/Poi.kt) の `distanceFrom` から:
 
 ```kotlin
 fun distanceFrom(location: Location): Float {
@@ -117,7 +117,7 @@ fun distanceFrom(location: Location): Float {
 
 形があれば（`shape` が null でなければ）境界までの距離を返し、なければ中心の点までの距離を計算します。`let` のブロックの中では、null でないと分かった値を `it` で受け取ります。
 
-[Thresholds](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt) の `get` から:
+[Thresholds](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt) の `get` から:
 
 ```kotlin
 operator fun get(t: Threshold): Int = (values[t] ?: t.default).coerceIn(t.min, t.max)
@@ -145,7 +145,7 @@ data class Facility(val id: String, val kind: FacilityKind, val lat: Double, val
 - 中身を表示する `toString()`（`Facility(id=t, kind=TOILETS, …)`）
 - 一部だけ変えた写しを作る `copy`
 
-`copy` は散策ガイドでよく使われます。[Thresholds](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt) の `with`:
+`copy` は散策ガイドでよく使われます。[Thresholds](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt) の `with`:
 
 ```kotlin
 fun with(t: Threshold, value: Int) = copy(values = values + (t to value))
@@ -155,7 +155,7 @@ fun with(t: Threshold, value: Int) = copy(values = values + (t to value))
 
 ### 列挙型（enum）
 
-決まった選択肢は `enum class` にします。Kotlin の enum は、それぞれの値に項目を持たせられます。[Facility.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/Facility.kt):
+決まった選択肢は `enum class` にします。Kotlin の enum は、それぞれの値に項目を持たせられます。[Facility.kt](../../yorisoi-platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/Facility.kt):
 
 ```kotlin
 enum class FacilityKind(val label: String, val amenity: String) {
@@ -173,7 +173,7 @@ enum class FacilityKind(val label: String, val amenity: String) {
 
 画面に出す日本語（`label`）と、OpenStreetMap のタグの値（`amenity`）を一緒に持っています。`entries` は全部の値の一覧です。
 
-設定のしきい値（[Threshold.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt)）も enum で、項目ごとに見出し・単位・既定値・範囲を持っています。設定画面は、この一覧から自動で作られます。
+設定のしきい値（[Threshold.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt)）も enum で、項目ごとに見出し・単位・既定値・範囲を持っています。設定画面は、この一覧から自動で作られます。
 
 ### `companion object` と `object`
 
@@ -182,7 +182,7 @@ enum class FacilityKind(val label: String, val amenity: String) {
 
 ### sealed: 種類が決まっている型
 
-「散歩で起きたこと」には、開始・再訪・休憩・天気の急変・終了…と決まった種類があります。[WalkCompanion.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WalkCompanion.kt):
+「散歩で起きたこと」には、開始・再訪・休憩・天気の急変・終了…と決まった種類があります。[WalkCompanion.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WalkCompanion.kt):
 
 ```kotlin
 sealed interface TalkEvent {
@@ -244,7 +244,7 @@ JavaScript の `array.filter(x => …).map(x => …)` とほぼ同じ感覚で�
 | `x.apply { … }` | `this`（省略できる） | x 自身 | 作ったオブジェクトの設定をまとめる |
 | `x.run { … }` | `this` | ブロックの結果 | オブジェクトを使って値を計算する |
 
-[SanpoApp.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) の `apply`:
+[SanpoApp.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) の `apply`:
 
 ```kotlin
 getSystemService(NotificationManager::class.java).apply {
@@ -258,7 +258,7 @@ getSystemService(NotificationManager::class.java).apply {
 
 ## 拡張関数
 
-既存のクラスに、外から関数を足したように見せる書き方です。[ChannelStore.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ChannelStore.kt) から:
+既存のクラスに、外から関数を足したように見せる書き方です。[ChannelStore.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ChannelStore.kt) から:
 
 ```kotlin
 private fun JSONObject.str(key: String): String? = if (has(key) && !isNull(key)) getString(key) else null
@@ -280,20 +280,20 @@ private fun JSONObject.str(key: String): String? = if (has(key) && !isNull(key))
 
 ## ハンズオン: 散策ガイドのテストを動かして壊す
 
-散策ガイドの「施設の案内」の判定（[FacilityAdvisor.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/FacilityAdvisor.kt)）には、Android に依存しない単体テストがあります。
+散策ガイドの「施設の案内」の判定（[FacilityAdvisor.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/FacilityAdvisor.kt)）には、Android に依存しない単体テストがあります。
 
 ### 1. テストを流す
 
 ```sh
-cd /c/Dev/apps/SanpoGuide
-./gradlew :apps:sanpoguide:app:testDebugUnitTest --tests '*FacilityAdvisorTest*'
+cd /c/Dev/apps/yorisoi-sanpoguide
+./gradlew :app:testDebugUnitTest --tests '*FacilityAdvisorTest*'
 ```
 
 `BUILD SUCCESSFUL` になれば、9 件のテストが通っています。
 
 ### 2. テストを読む
 
-[FacilityAdvisorTest.kt](../../SanpoGuide/apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/companion/FacilityAdvisorTest.kt) を開き、この章の文法を探してみてください。
+[FacilityAdvisorTest.kt](../../yorisoi-sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/companion/FacilityAdvisorTest.kt) を開き、この章の文法を探してみてください。
 
 ```kotlin
 @Test
@@ -311,7 +311,7 @@ fun `a close toilet comes up after walking a while`() {
 
 ### 3. 既定値を変えて、壊す
 
-[Threshold.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt) で、トイレを案内する距離の既定値を探します。
+[Threshold.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt) で、トイレを案内する距離の既定値を探します。
 
 ```kotlin
 TOILET_RADIUS_M("トイレの案内", "案内する距離", "m", 100, 20, 500),
@@ -323,14 +323,14 @@ TOILET_RADIUS_M("トイレの案内", "案内する距離", "m", 100, 20, 500),
 9 tests completed, 1 failed
 ```
 
-レポート（`apps/sanpoguide/app/build/reports/tests/testDebugUnitTest/index.html`）を開くと、`a close toilet comes up after walking a while` が **NullPointerException** で落ちています。
+レポート（`app/build/reports/tests/testDebugUnitTest/index.html`）を開くと、`a close toilet comes up after walking a while` が **NullPointerException** で落ちています。
 
 案内する距離が 80m になったので、90m 先のトイレは案内されなくなり、`pick(…)` が null を返しました。そこに `!!` が付いていたので、その場で落ちたのです。`!!` が「null ならここで落ちる」という宣言であることが、よく分かる例です。
 
 ### 4. 元に戻す
 
 ```sh
-git checkout -- apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt
+git checkout -- app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt
 git status
 ```
 

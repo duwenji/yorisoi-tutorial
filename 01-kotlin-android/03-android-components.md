@@ -17,9 +17,9 @@
 
 | 部品 | 散策ガイドでは | 役割 |
 |---|---|---|
-| **Application** | [`SanpoApp`](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) | アプリ全体で 1 つ。いちばん最初に作られる |
-| **Activity** | [`MainActivity`](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainActivity.kt) | 画面の入れ物。散策者が操作する |
-| **Service** | [`WalkService`](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) | 画面がなくても動き続ける処理。散歩の追跡 |
+| **Application** | [`SanpoApp`](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) | アプリ全体で 1 つ。いちばん最初に作られる |
+| **Activity** | [`MainActivity`](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainActivity.kt) | 画面の入れ物。散策者が操作する |
+| **Service** | [`WalkService`](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) | 画面がなくても動き続ける処理。散歩の追跡 |
 
 ほかに、ほかのアプリや OS からの知らせを受け取る Broadcast Receiver、データをほかのアプリに渡す Content Provider がありますが、散策ガイドは自分では使っていません。
 
@@ -36,7 +36,7 @@ flowchart TB
 
 ## マニフェスト: アプリの自己紹介
 
-OS は、アプリにどんな部品があり、何をしたいのかを **マニフェスト** で知ります。[AndroidManifest.xml](../../SanpoGuide/apps/sanpoguide/app/src/main/AndroidManifest.xml):
+OS は、アプリにどんな部品があり、何をしたいのかを **マニフェスト** で知ります。[AndroidManifest.xml](../../yorisoi-sanpoguide/app/src/main/AndroidManifest.xml):
 
 ```xml
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -83,7 +83,7 @@ OS は、アプリにどんな部品があり、何をしたいのかを **マ�
 | `android:exported` | ほかのアプリから呼べるか。入口の Activity は `true`、Service は `false`（自分だけが使う） |
 | `foregroundServiceType="location"` | この Service は、位置情報のためのフォアグラウンドサービスだと宣言する |
 
-`@drawable/ic_walk`・`@string/app_name` は **リソース**（`apps/sanpoguide/app/src/main/res/` の下の画像や文字列）を指す書き方です。
+`@drawable/ic_walk`・`@string/app_name` は **リソース**（`app/src/main/res/` の下の画像や文字列）を指す書き方です。
 
 ### ライブラリもマニフェストを持ち込む
 
@@ -91,7 +91,7 @@ OS は、アプリにどんな部品があり、何をしたいのかを **マ�
 
 ## Application: SanpoApp
 
-アプリの起動時に、ほかのどの部品より先に `SanpoApp.onCreate()` が呼ばれます。[SanpoApp.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt):
+アプリの起動時に、ほかのどの部品より先に `SanpoApp.onCreate()` が呼ばれます。[SanpoApp.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt):
 
 ```kotlin
 class SanpoApp : Application() {
@@ -126,7 +126,7 @@ class SanpoApp : Application() {
 
 ## Activity: MainActivity
 
-散策ガイドの画面は Activity が 1 つだけです。メイン・設定・記録・チャンネルの 4 つの画面は、すべて `MainActivity` の中で Compose によって切り替えています。[MainActivity.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainActivity.kt):
+散策ガイドの画面は Activity が 1 つだけです。メイン・設定・記録・チャンネルの 4 つの画面は、すべて `MainActivity` の中で Compose によって切り替えています。[MainActivity.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainActivity.kt):
 
 ```kotlin
 class MainActivity : ComponentActivity() {
@@ -185,7 +185,7 @@ stateDiagram-v2
 
 ## Service: WalkService
 
-散歩の追跡は、画面を閉じても、端末をポケットに入れても続ける必要があります。そこで、画面（Activity）ではなく **Service** で行います。[WalkService.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt):
+散歩の追跡は、画面を閉じても、端末をポケットに入れても続ける必要があります。そこで、画面（Activity）ではなく **Service** で行います。[WalkService.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt):
 
 ```kotlin
 class WalkService : LifecycleService() {
@@ -282,11 +282,11 @@ private fun requestPermissions() {
 
 ## ハンズオン: 合体後のマニフェストを見る
 
-1-2 のハンズオンで `./gradlew :apps:sanpoguide:app:assembleDebug` を実行していれば、合体後のマニフェストができています。
+1-2 のハンズオンで `./gradlew :app:assembleDebug` を実行していれば、合体後のマニフェストができています。
 
 ```sh
-cd /c/Dev/apps/SanpoGuide
-M=apps/sanpoguide/app/build/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml
+cd /c/Dev/apps/yorisoi-sanpoguide
+M=app/build/intermediates/merged_manifest/debug/processDebugMainManifest/AndroidManifest.xml
 grep -o 'uses-permission[^>]*android:name="[^"]*"' "$M" | sed 's/.*name="//;s/"//'
 ```
 
