@@ -141,7 +141,7 @@ android {
 | `versionName` | `0.3.0` | 人に見せる版 |
 | `buildConfig = true` | — | `BuildConfig.VERSION_CODE`・`BuildConfig.DEBUG` などをコードから使えるようにする |
 
-`applicationId` は、逆さにしたドメイン名で、世界で重ならない名前にします。Android Studio の雛形が入れる `com.example.…` は仮の名前で、Google Play には上げられません。散策ガイドは Play に上げる前に、自分の GitHub のアドレス（`duwenji.github.io`）を逆さにした `io.github.duwenji.sanpoguide` に変えました。あわせて `namespace`・Kotlin のパッケージ・当時の `station-format` の公開の名前（[5-3](../05-station-format/03-publish.md)）も同じ名前に揃えています（その後、アプリをまたぐコアとキットは `io.github.duwenji.michizure` になりました）。`applicationId` は公開後に変えられませんが、パッケージ名は後からでも変えられます。ただ、使う人が増えるほど手間が増えるので、最初に揃えておきました。
+`applicationId` は、逆さにしたドメイン名で、世界で重ならない名前にします。Android Studio の雛形が入れる `com.example.…` は仮の名前で、Google Play には上げられません。散策ガイドは Play に上げる前に、自分の GitHub のアドレス（`duwenji.github.io`）を逆さにした `io.github.duwenji.sanpoguide` に変えました。あわせて `namespace`・Kotlin のパッケージ・当時の `station-format` の公開の名前（[5-3](../05-station-format/03-publish.md)）も同じ名前に揃えています（その後、アプリをまたぐコアとキットは `io.github.duwenji.yorisoi` になりました）。`applicationId` は公開後に変えられませんが、パッケージ名は後からでも変えられます。ただ、使う人が増えるほど手間が増えるので、最初に揃えておきました。
 
 `minSdk = 26` は、第 6 部で何度も出てきた「Android 8 から動かしたい」の正体です。Ed25519 のために Tink を入れた（[技術カード: Tink](../ref/tink.md)）のも、base64url に `java.util.Base64` を使える（API 26 から）のも、この値が決めています。
 
@@ -243,8 +243,8 @@ plugins {
     `maven-publish`
 }
 
-group = "io.github.duwenji.michizure"
-version = providers.gradleProperty("michizureCoreVersion").get()
+group = "io.github.duwenji.yorisoi"
+version = providers.gradleProperty("yorisoiCoreVersion").get()
 
 dependencies {
     // Android ships org.json; bundling the jar into the app would clash with it
@@ -256,7 +256,7 @@ dependencies {
 
 - `kotlin.jvm` プラグインなので、Android の SDK がなくてもビルド・テストできます（[0-3](../00-overview/03-setup.md) で最初に流したのはこれです）
 - `org.json` は `compileOnly`: Android は `org.json` を標準で持っているので、ライブラリに同梱すると重複して lint に叱られます。使う側（管理システムの `validator`）が自分で足します
-- 版は `gradle.properties` の `michizureCoreVersion` から読みます。アプリの版（`0.3.0`）とは別に管理しています
+- 版は `gradle.properties` の `yorisoiCoreVersion` から読みます。アプリの版（`0.3.0`）とは別に管理しています
 - `maven-publish` で GitHub Packages に公開します（[5-3](../05-station-format/03-publish.md)）
 
 [gradle.properties](../../SanpoGuide/gradle.properties):
@@ -265,7 +265,7 @@ dependencies {
 org.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8
 android.useAndroidX=true
 # …
-michizureCoreVersion=1.3.0
+yorisoiCoreVersion=1.3.0
 # …
 sanpoguidePromptsVersion=1.1.0
 ```

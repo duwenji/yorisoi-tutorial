@@ -1,14 +1,14 @@
 package io.github.duwenji.sanpoguide.prompt
 
-import io.github.duwenji.michizure.core.format.ArchiveException
-import io.github.duwenji.michizure.core.format.MemoryStationFiles
-import io.github.duwenji.michizure.core.format.PackageArchive
-import io.github.duwenji.michizure.core.format.RejectCode
-import io.github.duwenji.michizure.core.format.Slot
-import io.github.duwenji.michizure.core.format.StationCheck
-import io.github.duwenji.michizure.core.format.StationFiles
-import io.github.duwenji.michizure.core.format.StationOrigin
-import io.github.duwenji.michizure.core.format.StationValidator
+import io.github.duwenji.yorisoi.core.format.ArchiveException
+import io.github.duwenji.yorisoi.core.format.MemoryStationFiles
+import io.github.duwenji.yorisoi.core.format.PackageArchive
+import io.github.duwenji.yorisoi.core.format.RejectCode
+import io.github.duwenji.yorisoi.core.format.Slot
+import io.github.duwenji.yorisoi.core.format.StationCheck
+import io.github.duwenji.yorisoi.core.format.StationFiles
+import io.github.duwenji.yorisoi.core.format.StationOrigin
+import io.github.duwenji.yorisoi.core.format.StationValidator
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail

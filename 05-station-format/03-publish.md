@@ -15,7 +15,7 @@
 
 ## なぜ公開するのか
 
-同じリポジトリの中なら、アプリは `implementation(project(":apps:sanpoguide:prompts"))` でプロンプト・パック（とそれが連れてくるコア）を使えます（[1-2](../01-kotlin-android/02-gradle.md)、[5-1](01-jvm-library.md)）。でも管理システム（michizure-console）は **別のリポジトリ** です。`project(…)` では参照できません。
+同じリポジトリの中なら、アプリは `implementation(project(":apps:sanpoguide:prompts"))` でプロンプト・パック（とそれが連れてくるコア）を使えます（[1-2](../01-kotlin-android/02-gradle.md)、[5-1](01-jvm-library.md)）。でも管理システム（yorisoi-console）は **別のリポジトリ** です。`project(…)` では参照できません。
 
 方法はいくつか考えられます。
 
@@ -32,25 +32,25 @@
 ライブラリは 3 つの値で決まります。これを **座標** と呼びます。
 
 ```
-io.github.duwenji.michizure : core-format : 1.3.0
-└──────── グループ ────────┘   └─ 名前 ──┘   └ 版 ┘
+io.github.duwenji.yorisoi : core-format : 2.0.0
+└────── グループ ──────┘   └─ 名前 ──┘   └ 版 ┘
 ```
 
 SanpoGuide が公開しているのは 3 つです（RFC-002 の R-11）。
 
 | 座標 | モジュール | 版を決める値（`gradle.properties`） |
 |---|---|---|
-| `io.github.duwenji.michizure:core-format` | `:platform:core-format` | `michizureCoreVersion` |
-| `io.github.duwenji.michizure:core-prompt` | `:platform:core-prompt` | `michizureCoreVersion`（コアの 2 つは同じ版） |
+| `io.github.duwenji.yorisoi:core-format` | `:platform:core-format` | `yorisoiCoreVersion` |
+| `io.github.duwenji.yorisoi:core-prompt` | `:platform:core-prompt` | `yorisoiCoreVersion`（コアの 2 つは同じ版） |
 | `io.github.duwenji.sanpoguide:prompts` | `:apps:sanpoguide:prompts` | `sanpoguidePromptsVersion` |
 
-グループが 2 つあるのは、コアがエコシステム（michizure）のもので、プロンプト・パックが SanpoGuide のものだからです。キット（Android のライブラリ）は公開しません。
+グループが 2 つあるのは、コアがエコシステム（yorisoi）のもので、プロンプト・パックが SanpoGuide のものだからです。キット（Android のライブラリ）は公開しません。
 
 [platform/core-format/build.gradle.kts](../../SanpoGuide/platform/core-format/build.gradle.kts):
 
 ```kotlin
-group = "io.github.duwenji.michizure"
-version = providers.gradleProperty("michizureCoreVersion").get()
+group = "io.github.duwenji.yorisoi"
+version = providers.gradleProperty("yorisoiCoreVersion").get()
 ```
 
 名前は `publishing` の設定で `artifactId = "core-format"` と決めています（下で見ます）。
@@ -61,12 +61,12 @@ version = providers.gradleProperty("michizureCoreVersion").get()
 
 ```properties
 # Versions published to GitHub Packages (.github/workflows/publish.yml), independent of the app's.
-# The core libraries (io.github.duwenji.michizure:core-format, core-prompt): bump when the formats
-# or the template engine change, then push the tag michizure-core-v<version>.
-michizureCoreVersion=1.3.0
+# The core libraries (io.github.duwenji.yorisoi:core-format, core-prompt): bump when the formats
+# or the template engine change, then push the tag yorisoi-core-v<version>.
+yorisoiCoreVersion=2.0.0
 # SanpoGuide's prompt pack (io.github.duwenji.sanpoguide:prompts): bump when the prompts or the
 # built-in channels change, then push the tag sanpoguide-prompts-v<version> (after the core it uses).
-sanpoguidePromptsVersion=1.1.0
+sanpoguidePromptsVersion=2.0.0
 ```
 
 アプリの版（`versionName = "0.3.0"`）とは **別** です。アプリの画面を直しても、コアもプロンプト・パックも変わらないので、版を上げる必要はありません。逆に、プロンプトの文面を直したら、アプリの版はそのままでもプロンプト・パックの版は上げます。管理システムの見本が、新しい文面で作られるようにするためです。コアとプロンプト・パックの版を分けたのも同じ理由で、プロンプトの文面を直すたびに、形式の確認（コア）の版まで上げずに済みます。
@@ -79,8 +79,12 @@ sanpoguidePromptsVersion=1.1.0
 | 〃 | 1.1.0 | format 2（`activities`・`genres`・`requires`）、語彙、2 段の確かめ方、互換性の判定（API-003 2.0・API-002 1.4・API-004 1.5） |
 | 〃 | 1.2.0 | アプリのプロファイルと、リストの値での絞り込み |
 | 〃 | 1.3.0 | リストの `promotional`（宣伝の印、API-002 1.3。ADR-002 T-12） |
+| 〃 | 2.0.0 | グループと Kotlin のパッケージを `io.github.duwenji.michizure` から `io.github.duwenji.yorisoi` に変えた（ADR-003 1.2 E-22）。中身は 1.3.0 と同じ |
 | `prompts` | 1.0.0 | プロンプトと組み込みのチャンネルを切り出した最初の版（RFC-002 手順 1） |
 | 〃 | 1.1.0 | 組み込みの 6 つのチャンネルを format 2 に |
+| 〃 | 2.0.0 | 依存するコアを `io.github.duwenji.yorisoi` の 2.0.0 に |
+
+コアの 1.x は、改名前のグループ `io.github.duwenji.michizure` で公開しました。エコシステムの名前は最初 michizure（道連れ）でしたが、「道連れにする」の悪い意味に取られるおそれがあるため、2026-10-13 に yorisoi（寄り添い）に改めました。パッケージの名前が変わると、使う側の `import` を書き直す必要があるので、互換性のない変更として最初の数字を上げています。
 
 この前は 1 つのライブラリ `io.github.duwenji.sanpoguide:station-format` で、1.0.0（RFC-001）から 2.1.0 まで公開しました。2.0.0 はグループと Kotlin のパッケージを `com.example.sanpoguide` から `io.github.duwenji.sanpoguide` に変えた版です。`station-format` は 2.1.0 を最後に公開をやめています。
 
@@ -113,7 +117,7 @@ publishing {
             artifactId = "core-format"
             from(components["java"])
             pom {
-                name.set("michizure core-format")
+                name.set("yorisoi core-format")
                 description.set(
                     "Channel and collection package formats, their checks and the channel list (API-002/003/004). " +
                         "Requires org.json on the classpath.",
@@ -153,7 +157,7 @@ POM の説明文に "Requires org.json on the classpath."（クラスパスに o
 
 ```yaml
 # Publishes to GitHub Packages when a tag is pushed (RFC-002 R-11):
-# - michizure-core-v<version>:     :platform:core-format and :platform:core-prompt (michizureCoreVersion)
+# - yorisoi-core-v<version>:     :platform:core-format and :platform:core-prompt (yorisoiCoreVersion)
 # - sanpoguide-prompts-v<version>: :apps:sanpoguide:prompts (sanpoguidePromptsVersion)
 # The tag must match the version in gradle.properties. Publish the core a prompt pack uses first.
 name: Publish
@@ -161,7 +165,7 @@ name: Publish
 on:
   push:
     tags:
-      - 'michizure-core-v*'
+      - 'yorisoi-core-v*'
       - 'sanpoguide-prompts-v*'
 
 permissions:
@@ -179,8 +183,8 @@ jobs:
         id: what
         run: |
           case "${GITHUB_REF_NAME}" in
-            michizure-core-v*)
-              property=michizureCoreVersion
+            yorisoi-core-v*)
+              property=yorisoiCoreVersion
               tasks=":platform:core-format:test :platform:core-prompt:test :platform:core-format:publish :platform:core-prompt:publish"
               ;;
             sanpoguide-prompts-v*)
@@ -204,7 +208,7 @@ jobs:
 
 ```mermaid
 flowchart LR
-    A["gradle.properties の<br/>版を上げてマージ"] --> B["タグ michizure-core-v1.3.0<br/>を push"]
+    A["gradle.properties の<br/>版を上げてマージ"] --> B["タグ yorisoi-core-v2.0.0<br/>を push"]
     B --> C["GitHub Actions が起動"]
     C --> D{"タグの種類と版が一致？"}
     D -->|いいえ| X["失敗（公開しない）"]
@@ -216,15 +220,15 @@ flowchart LR
 工夫を見ておきましょう。
 
 - **タグで公開する**: `main` にマージするたびではなく、タグを押したときだけ公開します。公開は「この版を出す」という意思を持って行うものだからです
-- **タグの名前で何を公開するかを決める**: `michizure-core-v…` ならコアの 2 つ、`sanpoguide-prompts-v…` ならプロンプト・パック。`${GITHUB_REF_NAME##*-v}` は、タグの名前から最後の `-v` より後ろ（版の数字）を取り出すシェルの書き方です
-- **タグと版の一致を確かめる**: タグ `michizure-core-v1.4.0` を押したのに、`gradle.properties` が `1.3.0` のままだったら、`1.3.0` を公開し直そうとしてしまいます。公開の前に、2 つが一致しているかを確かめて止めます
+- **タグの名前で何を公開するかを決める**: `yorisoi-core-v…` ならコアの 2 つ、`sanpoguide-prompts-v…` ならプロンプト・パック。`${GITHUB_REF_NAME##*-v}` は、タグの名前から最後の `-v` より後ろ（版の数字）を取り出すシェルの書き方です
+- **タグと版の一致を確かめる**: タグ `yorisoi-core-v2.1.0` を押したのに、`gradle.properties` が `2.0.0` のままだったら、`2.0.0` を公開し直そうとしてしまいます。公開の前に、2 つが一致しているかを確かめて止めます
 - **テストに通ってから公開する**: テストと公開を同じコマンドで実行するので、テストが落ちれば公開されません
 - **コアを先に公開する**: プロンプト・パックはコアに依存するので、新しいコアを使うプロンプト・パックは、そのコアを公開してからタグを押します（冒頭のコメント）
 - **権限を最小にする**: `permissions` で、リポジトリの読み取り（`contents: read`）とパッケージの書き込み（`packages: write`）だけを許します。それ以上の権限をワークフローに与えません
 
 ## 使う側: validator の設定
 
-管理システムの [validator/settings.gradle.kts](../../michizure-console/validator/settings.gradle.kts) は、GitHub Packages からコアとプロンプト・パックを取ってくる設定をしています。
+管理システムの [validator/settings.gradle.kts](../../yorisoi-console/validator/settings.gradle.kts) は、GitHub Packages からコアとプロンプト・パックを取ってくる設定をしています。
 
 ```kotlin
 dependencyResolutionManagement {
@@ -245,7 +249,7 @@ dependencyResolutionManagement {
                     password = gprKey
                 }
                 content {
-                    includeGroup("io.github.duwenji.michizure")
+                    includeGroup("io.github.duwenji.yorisoi")
                     includeGroup("io.github.duwenji.sanpoguide")
                 }
             }
@@ -253,7 +257,7 @@ dependencyResolutionManagement {
         // Built locally (`./gradlew publishToMavenLocal` in SanpoGuide).
         mavenLocal {
             content {
-                includeGroup("io.github.duwenji.michizure")
+                includeGroup("io.github.duwenji.yorisoi")
                 includeGroup("io.github.duwenji.sanpoguide")
             }
         }
@@ -268,13 +272,13 @@ dependencyResolutionManagement {
 `validator/build.gradle.kts` の依存は、版を固定しています。
 
 ```kotlin
-implementation("io.github.duwenji.michizure:core-format:1.2.0")
-implementation("io.github.duwenji.sanpoguide:prompts:1.1.0")
+implementation("io.github.duwenji.yorisoi:core-format:2.0.0")
+implementation("io.github.duwenji.sanpoguide:prompts:2.0.0")
 ```
 
-SanpoGuide が新しい版（たとえば `core-format` 1.3.0）を出しても、管理システムは `1.2.0` を使い続けます。1.3.0 で足したのはリストの読み方（アプリのため）で、機械審査には要らないからです。新しい版を使うのは、管理システムの側で版を書き換えて確かめたときです。`station-format` のころも、SanpoGuide が `1.2.0` を出したあと、管理システムは `2.0.0` に上げるまで `1.1.0` を使っていました。**使う側が、上げる時期を自分で決められる** のが、版を固定する利点です。
+SanpoGuide が新しい版を出しても、管理システムは書いた版を使い続けます。たとえば `core-format` 1.3.0 が出たときも、管理システムは `1.2.0` のままでした。1.3.0 で足したのはリストの読み方（アプリのため）で、機械審査には要らなかったからです。2.0.0（グループの改名）では、パッケージの名前が変わったので、管理システムも改名と同時に上げました。新しい版を使うのは、管理システムの側で版を書き換えて確かめたときです。`station-format` のころも、SanpoGuide が `1.2.0` を出したあと、管理システムは `2.0.0` に上げるまで `1.1.0` を使っていました。**使う側が、上げる時期を自分で決められる** のが、版を固定する利点です。
 
-管理システムの CI（[ci.yml](../../michizure-console/.github/workflows/ci.yml)）も、`packages: read` の権限と `GITHUB_TOKEN` でコアとプロンプト・パックを取ってきて、`validator` をビルドしています。
+管理システムの CI（[ci.yml](../../yorisoi-console/.github/workflows/ci.yml)）も、`packages: read` の権限と `GITHUB_TOKEN` でコアとプロンプト・パックを取ってきて、`validator` をビルドしています。
 
 ## 実際に起きた失敗: Permission denied
 
@@ -315,10 +319,10 @@ cat platform/core-format/build/publications/coreFormat/pom-default.xml
 ```
 
 ```xml
-  <groupId>io.github.duwenji.michizure</groupId>
+  <groupId>io.github.duwenji.yorisoi</groupId>
   <artifactId>core-format</artifactId>
-  <version>1.3.0</version>
-  <name>michizure core-format</name>
+  <version>2.0.0</version>
+  <name>yorisoi core-format</name>
   <description>… Requires org.json on the classpath.</description>
   …
   <dependencies>
@@ -341,10 +345,10 @@ cat platform/core-format/build/publications/coreFormat/pom-default.xml
 ワークフローの「Choose what to publish」と同じ処理を、手元で動かしてみます。
 
 ```sh
-for tag in michizure-core-v1.3.0 michizure-core-v1.4.0 sanpoguide-prompts-v1.1.0; do
+for tag in yorisoi-core-v2.0.0 yorisoi-core-v2.1.0 sanpoguide-prompts-v2.0.0; do
   GITHUB_REF_NAME=$tag bash -c '
     case "${GITHUB_REF_NAME}" in
-      michizure-core-v*) property=michizureCoreVersion ;;
+      yorisoi-core-v*) property=yorisoiCoreVersion ;;
       sanpoguide-prompts-v*) property=sanpoguidePromptsVersion ;;
     esac
     version=$(grep "^${property}=" gradle.properties | cut -d= -f2)
@@ -356,12 +360,12 @@ done
 ```
 
 ```
-OK michizure-core-v1.3.0
-Tag michizure-core-v1.4.0 does not match michizureCoreVersion=1.3.0
-OK sanpoguide-prompts-v1.1.0
+OK yorisoi-core-v2.0.0
+Tag yorisoi-core-v2.1.0 does not match yorisoiCoreVersion=2.0.0
+OK sanpoguide-prompts-v2.0.0
 ```
 
-版を上げずにタグだけ `1.4.0` を押すと、ここで止まることが分かります。
+版を上げずにタグだけ `2.1.0` を押すと、ここで止まることが分かります。
 
 ### 3. gradlew の権限を確かめる
 
@@ -383,9 +387,9 @@ GitHub の CLI（`gh`）が使えるなら、公開のワークフローの実�
 gh run list --workflow publish.yml --limit 8
 ```
 
-`michizure-core-v1.0.0`〜`v1.3.0` と `sanpoguide-prompts-v1.0.0`・`v1.1.0` の成功が並んでいるはずです。`station-format` のころの記録（`v1.0.0` の 11 秒の失敗など）は、`gh run list --workflow publish-station-format.yml` で見られます（ワークフローのファイルは消えても、記録は残ります）。失敗した実行のログは `gh run view <実行のID> --log-failed` で読めます。
+`michizure-core-v1.0.0`〜`v1.3.0`（改名前の名前）・`yorisoi-core-v2.0.0` と `sanpoguide-prompts-v1.0.0`〜`v2.0.0` の成功が並んでいるはずです。`station-format` のころの記録（`v1.0.0` の 11 秒の失敗など）は、`gh run list --workflow publish-station-format.yml` で見られます（ワークフローのファイルは消えても、記録は残ります）。失敗した実行のログは `gh run view <実行のID> --log-failed` で読めます。
 
-> 手元への公開（`./gradlew publishToMavenLocal`）も試せますが、パソコンの `~/.m2/repository` にファイルが書き込まれ、管理システムの `validator` のビルドがそれを使うことがあります（`mavenLocal`）。試したあとは `~/.m2/repository/io/github/duwenji/michizure/` と `…/sanpoguide/` を消すと元に戻ります。
+> 手元への公開（`./gradlew publishToMavenLocal`）も試せますが、パソコンの `~/.m2/repository` にファイルが書き込まれ、管理システムの `validator` のビルドがそれを使うことがあります（`mavenLocal`）。試したあとは `~/.m2/repository/io/github/duwenji/yorisoi/` と `…/sanpoguide/` を消すと元に戻ります。
 
 ## つまずきやすいところ
 
@@ -406,9 +410,9 @@ gh run list --workflow publish.yml --limit 8
 </details>
 
 <details>
-<summary>問 2. SanpoGuide が <code>core-format</code> の 1.3.0 を公開しました。管理システムの <code>validator</code> は、すぐに 1.3.0 を使い始めますか。</summary>
+<summary>問 2. SanpoGuide が <code>core-format</code> の 2.1.0 を公開しました。管理システムの <code>validator</code> は、すぐに 2.1.0 を使い始めますか。</summary>
 
-使い始めません。`validator/build.gradle.kts` が `1.2.0` に固定しているからです。管理システムの側で版を書き換え、テストで確かめてから上げます。
+使い始めません。`validator/build.gradle.kts` が `2.0.0` に固定しているからです。管理システムの側で版を書き換え、テストで確かめてから上げます。
 
 </details>
 

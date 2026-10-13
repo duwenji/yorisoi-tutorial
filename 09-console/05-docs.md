@@ -25,19 +25,19 @@ export const ifMatch = (rev: number) => ({ 'If-Match': `"${rev}"` });
 
 ## 文書の種類
 
-管理システムの [docs/](../../michizure-console/docs/) を例にします。
+管理システムの [docs/](../../yorisoi-console/docs/) を例にします。
 
 | 種類 | 文書 | 答える問い |
 |---|---|---|
-| ADR（設計の決定の記録） | [ADR-001](../../michizure-console/docs/adr/ADR-001-aws-architecture.md) | 何を、なぜ選んだか。ほかの案はなぜ捨てたか |
-| API 契約書 | [API-001](../../michizure-console/docs/console-api.md) ＋ [OpenAPI](../../michizure-console/docs/api/console.openapi.yaml) | 画面と API の間で、何をどんな形でやりとりするか（[7-3](../07-typescript/03-openapi.md)） |
-| データモデル | [DM-001](../../michizure-console/docs/data-model.md) | 何をどんなキーで保存し、どう取り出すか（[8-5](../08-aws/05-dynamodb.md)） |
-| 機能設計書 | [DES-001〜010](../../michizure-console/docs/design/) | 実装の 1 段ごとに、どう作り、どう確かめたか（DES-007〜010 は素材集） |
-| 利用ガイド | [guide/](../../michizure-console/docs/guide/README.md) | 運営・チャンネル提供者・素材提供者・保守する人は、どう使うか |
-| 運用の手順 | [operations/](../../michizure-console/docs/operations/) | 配備の手順（[deploy.md](../../michizure-console/docs/operations/deploy.md)）、費用（[cost.md](../../michizure-console/docs/operations/cost.md)） |
-| 構成図 | [architecture.md](../../michizure-console/docs/architecture.md) | 全体がどうつながっているか |
-| TODO | [TODO.md](../../michizure-console/docs/TODO.md) | 次に何をするか。決めたことの一覧 |
-| 作業の記録 | [skill-logs/](../../michizure-console/docs/skill-logs/) | 文書や実装を、どんな段取りで作り、何に気づいたか |
+| ADR（設計の決定の記録） | [ADR-001](../../yorisoi-console/docs/adr/ADR-001-aws-architecture.md) | 何を、なぜ選んだか。ほかの案はなぜ捨てたか |
+| API 契約書 | [API-001](../../yorisoi-console/docs/console-api.md) ＋ [OpenAPI](../../yorisoi-console/docs/api/console.openapi.yaml) | 画面と API の間で、何をどんな形でやりとりするか（[7-3](../07-typescript/03-openapi.md)） |
+| データモデル | [DM-001](../../yorisoi-console/docs/data-model.md) | 何をどんなキーで保存し、どう取り出すか（[8-5](../08-aws/05-dynamodb.md)） |
+| 機能設計書 | [DES-001〜010](../../yorisoi-console/docs/design/) | 実装の 1 段ごとに、どう作り、どう確かめたか（DES-007〜010 は素材集） |
+| 利用ガイド | [guide/](../../yorisoi-console/docs/guide/README.md) | 運営・チャンネル提供者・素材提供者・保守する人は、どう使うか |
+| 運用の手順 | [operations/](../../yorisoi-console/docs/operations/) | 配備の手順（[deploy.md](../../yorisoi-console/docs/operations/deploy.md)）、費用（[cost.md](../../yorisoi-console/docs/operations/cost.md)） |
+| 構成図 | [architecture.md](../../yorisoi-console/docs/architecture.md) | 全体がどうつながっているか |
+| TODO | [TODO.md](../../yorisoi-console/docs/TODO.md) | 次に何をするか。決めたことの一覧 |
+| 作業の記録 | [skill-logs/](../../yorisoi-console/docs/skill-logs/) | 文書や実装を、どんな段取りで作り、何に気づいたか |
 
 SanpoGuide の [docs/](../../SanpoGuide/docs/) にも、同じ種類の文書があります。アプリと管理システムの境界を決める文書（API-002 [channel-list-api.md](../../SanpoGuide/docs/channel-list-api.md)・API-003 [channel-package-format.md](../../SanpoGuide/docs/channel-package-format.md)・API-004 [material-producer-api.md](../../SanpoGuide/docs/material-producer-api.md)）は、アプリの側に置いています（[0-1](../00-overview/01-what-we-build.md)）。アプリが受け取るものの形は、アプリが決めるからです。素材提供者を切り出す決定（[ADR-002](../../SanpoGuide/docs/adr/ADR-002-material-producers.md)）と、2 つのリポジトリに共通する関係者の呼び方（[stakeholders.md](../../SanpoGuide/docs/stakeholders.md)）も、SanpoGuide の側にあります。
 
@@ -50,7 +50,7 @@ flowchart TB
         SADR2 --> API2
         SADR2 --> API3
     end
-    subgraph CC["michizure-console"]
+    subgraph CC["yorisoi-console"]
         ADR["ADR-001<br/>AWS の構成"] --> API1["API-001 ＋ OpenAPI<br/>管理 API"]
         ADR --> DM["DM-001<br/>データモデル"]
         API1 --> DM
@@ -67,7 +67,7 @@ flowchart TB
 
 ## ADR: 何を、なぜ決めたか
 
-**ADR**（Architecture Decision Record、設計の決定の記録）は、大事な設計の決定を 1 つずつ残す文書です。[ADR-001](../../michizure-console/docs/adr/ADR-001-aws-architecture.md) の章立ては次のとおりです。
+**ADR**（Architecture Decision Record、設計の決定の記録）は、大事な設計の決定を 1 つずつ残す文書です。[ADR-001](../../yorisoi-console/docs/adr/ADR-001-aws-architecture.md) の章立ては次のとおりです。
 
 | 章 | 中身 |
 |---|---|
@@ -117,11 +117,11 @@ flowchart LR
     AI --> T["web/test/ai.test.ts<br/>決めた窓口とキーで呼ぶか"]
 ```
 
-- [ADR-001](../../michizure-console/docs/adr/ADR-001-aws-architecture.md) の D-4 と A-14 が決める
-- [DES-005](../../michizure-console/docs/design/DES-005-review.md) の「対応元ID（トレーサビリティ）」の表が、`ADR-001 … D-4（AI の見本は運営のキーでブラウザから） | 実装` と、応えたことを記録する
-- [web/src/ai.ts](../../michizure-console/web/src/ai.ts) の先頭のコメント `The review samples' AI (ADR-001 D-4, DES-005)` が、どの決定を実装したかを示す
-- [infra/lib/console-app.ts](../../michizure-console/infra/lib/console-app.ts) の CSP にも同じ ID のコメント
-- [web/test/ai.test.ts](../../michizure-console/web/test/ai.test.ts) が、決めた窓口とキーで呼ぶことを確かめる
+- [ADR-001](../../yorisoi-console/docs/adr/ADR-001-aws-architecture.md) の D-4 と A-14 が決める
+- [DES-005](../../yorisoi-console/docs/design/DES-005-review.md) の「対応元ID（トレーサビリティ）」の表が、`ADR-001 … D-4（AI の見本は運営のキーでブラウザから） | 実装` と、応えたことを記録する
+- [web/src/ai.ts](../../yorisoi-console/web/src/ai.ts) の先頭のコメント `The review samples' AI (ADR-001 D-4, DES-005)` が、どの決定を実装したかを示す
+- [infra/lib/console-app.ts](../../yorisoi-console/infra/lib/console-app.ts) の CSP にも同じ ID のコメント
+- [web/test/ai.test.ts](../../yorisoi-console/web/test/ai.test.ts) が、決めた窓口とキーで呼ぶことを確かめる
 
 逆向きにもたどれます。コードを読んでいて「なぜブラウザから直接 AI を呼ぶのだろう、サーバーを通したほうが安全では？」と思ったら、コメントの `ADR-001 D-4` から決定に、そこから比較と理由にたどり着けます。
 
@@ -131,7 +131,7 @@ flowchart LR
 
 実際に起きた例です。ADR-001 の A-4 は、最初「運営だけ MFA を必須にする」と決めていました。ところが運営の画面を作る段で、Cognito の MFA は **ユーザープール単位** でしか決められないと分かりました（[8-4](../08-aws/04-cognito.md)）。
 
-1. 作業の記録（[skill-logs/feature_implementation_2026-10-04.md](../../michizure-console/docs/skill-logs/feature_implementation_2026-10-04.md)）に、気づいたことを書く: 「ADR-001 A-4 の『運営だけ MFA 必須』は、Cognito の MFA がプール単位のためそのままでは作れない」
+1. 作業の記録（[skill-logs/feature_implementation_2026-10-04.md](../../yorisoi-console/docs/skill-logs/feature_implementation_2026-10-04.md)）に、気づいたことを書く: 「ADR-001 A-4 の『運営だけ MFA 必須』は、Cognito の MFA がプール単位のためそのままでは作れない」
 2. 開発者に判断を仰ぐ → 「全員に MFA を求める」と決める
 3. ADR-001 の A-4 を書き換え（「（1.2 で改訂）」と明記）、版を 1.2 に上げ、変更履歴に「A-4 を改訂: MFA は全員に必須（ユーザープール単位でしか決められないため）… Claude（決定: 開発者）」と残す
 4. コードのコメントも `(ADR-001 A-4, 1.2: one pool, TOTP MFA for everyone)` と、改訂後の版を指す
@@ -149,7 +149,7 @@ flowchart LR
 ### 1. コードが、どの文書をいくつ指しているか
 
 ```sh
-cd /c/Dev/apps/michizure-console
+cd /c/Dev/apps/yorisoi-console
 grep -rhoE "\b(ADR-001|API-00[0-9]|DM-001|DES-0[0-9][0-9])" api/src web/src infra/lib infra/bin validator/src packages \
   --include=*.ts --include=*.tsx --include=*.kt | sort | uniq -c | sort -rn
 ```

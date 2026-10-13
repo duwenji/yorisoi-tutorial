@@ -18,7 +18,7 @@
 
 ```sh
 cd ../SanpoGuide && git pull && git log --oneline ac66b5d..main
-cd ../michizure-console && git pull && git log --oneline 68e7852..main
+cd ../yorisoi-console && git pull && git log --oneline 68e7852..main
 ```
 
 ファイル名だけを見るなら `git diff --stat <前回>..main` が便利です。
@@ -28,7 +28,7 @@ cd ../michizure-console && git pull && git log --oneline 68e7852..main
 チュートリアルが参照しているファイルが今もあるかを確かめます。
 
 ```sh
-cd ../michizure-tutorial
+cd ../yorisoi-tutorial
 for md in $(find . -name '*.md'); do
   dir=$(dirname "$md")
   grep -oE '\]\([^)#]+' "$md" | sed -E 's/^\]\(//' | grep -v '^http' | while read -r p; do
@@ -47,7 +47,7 @@ done
 
 ```sh
 grep -rn "fun channelList\|export function verifyChannelList\|export async function signChannelList" \
-  ../SanpoGuide ../michizure-console --include=*.kt --include=*.ts
+  ../SanpoGuide ../yorisoi-console --include=*.kt --include=*.ts
 ```
 
 ### 4. 引用したコードを照合する
@@ -67,7 +67,7 @@ grep -rn "fun channelList\|export function verifyChannelList\|export async funct
 
 ```sh
 cd ../SanpoGuide && git diff ac66b5d..main -- '*.gradle.kts' gradle/
-cd ../michizure-console && git diff 68e7852..main -- '**/package.json'
+cd ../yorisoi-console && git diff 68e7852..main -- '**/package.json'
 ```
 
 ### 7. 記録を更新する

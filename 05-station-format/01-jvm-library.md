@@ -9,7 +9,7 @@
 - ファイルの集まりを抽象化する `StationFiles` と、その 3 つの実装
 - 「アプリの動きを変えずに」切り出すための進め方（RFC-001・RFC-002）
 
-> **名前の移り変わり**: この部の題にある `station-format` は、最初に切り出したときのモジュールの名前です（RFC-001、2026-10-03）。2026-10-12 に、付き添いアプリのエコシステム **michizure**（[ADR-003](../../SanpoGuide/docs/adr/ADR-003-companion-app-platform.md)）のために、アプリをまたいで使う **コア** と、SanpoGuide だけのものを入れた **プロンプト・パック** に分けました（[RFC-002](../../SanpoGuide/docs/refactoring/RFC-002-platform-stage1.md)）。`station-format` は 2.1.0 を最後に公開をやめています。この章では今の名前で説明し、フォルダ名（`05-station-format`）だけ元のままにしています。
+> **名前の移り変わり**: この部の題にある `station-format` は、最初に切り出したときのモジュールの名前です（RFC-001、2026-10-03）。2026-10-12 に、付き添いアプリのエコシステム **yorisoi**（[ADR-003](../../SanpoGuide/docs/adr/ADR-003-companion-app-platform.md)）のために、アプリをまたいで使う **コア** と、SanpoGuide だけのものを入れた **プロンプト・パック** に分けました（[RFC-002](../../SanpoGuide/docs/refactoring/RFC-002-platform-stage1.md)）。`station-format` は 2.1.0 を最後に公開をやめています。この章では今の名前で説明し、フォルダ名（`05-station-format`）だけ元のままにしています。
 
 ## 3 つの JVM モジュールが持っているもの
 
@@ -17,9 +17,9 @@ SanpoGuide のリポジトリには、Android に依存しない素の Kotlin（
 
 | モジュール | パッケージ | 中身 | 章 |
 |---|---|---|---|
-| `:platform:core-format` | `io.github.duwenji.michizure.core.format` | チャンネルのパッケージの形式と確認（`StationValidator`・`StationManifest`・`Slot`・`PackageArchive`・`PublisherSignature`）、素材・きっかけ・見せ方の確認（`Cues`・`CollectionReferences`）、エコシステムの語彙と互換性の判定（`Ecosystem`）、リストの文書の確認（`ProviderDocuments`） | [5-2](02-package-format.md)・[6-5](../06-trust/05-verify-in-app.md) |
+| `:platform:core-format` | `io.github.duwenji.yorisoi.core.format` | チャンネルのパッケージの形式と確認（`StationValidator`・`StationManifest`・`Slot`・`PackageArchive`・`PublisherSignature`）、素材・きっかけ・見せ方の確認（`Cues`・`CollectionReferences`）、エコシステムの語彙と互換性の判定（`Ecosystem`）、リストの文書の確認（`ProviderDocuments`） | [5-2](02-package-format.md)・[6-5](../06-trust/05-verify-in-app.md) |
 | 〃 | `…core.format.material` | 素材集の形式と確認、素材提供者の共通の形（`Collections`・`Resources`・`Producers`・`Regions`） | [5-4](04-materials-cues.md) |
-| `:platform:core-prompt` | `io.github.duwenji.michizure.core.prompt` | プロンプトのテンプレートの仕組み（`PromptTemplates`） | [4-3](../04-outside/03-ai.md) |
+| `:platform:core-prompt` | `io.github.duwenji.yorisoi.core.prompt` | プロンプトのテンプレートの仕組み（`PromptTemplates`） | [4-3](../04-outside/03-ai.md) |
 | `:apps:sanpoguide:prompts`（プロンプト・パック） | `io.github.duwenji.sanpoguide.prompt` | SanpoGuide のプロンプトの一覧（`Prompts`）、スロットの差し込み方（`StationPrompts`）、組み込みのチャンネル（`BuiltInChannels`）、審査の見本の場面（`ReviewSamples`） | [4-3](../04-outside/03-ai.md) |
 | 〃 | リソース | `sanpoguide/prompts/`（プロンプトの文面）、`sanpoguide/channels/`（組み込みの 6 つのチャンネル） | [4-3](../04-outside/03-ai.md) |
 
@@ -38,7 +38,7 @@ flowchart LR
     PACK[":apps:sanpoguide:prompts<br/>（プロンプト・パック・素の JVM）"]
     CORE -->|"api(project(...))"| PACK
     PACK -->|"project(...)"| APP[":apps:sanpoguide:app<br/>Android アプリ"]
-    CORE -->|"GitHub Packages<br/>io.github.duwenji.michizure:core-format"| VAL["michizure-console<br/>validator（Kotlin の Lambda）"]
+    CORE -->|"GitHub Packages<br/>io.github.duwenji.yorisoi:core-format"| VAL["yorisoi-console<br/>validator（Kotlin の Lambda）"]
     PACK -->|"GitHub Packages<br/>io.github.duwenji.sanpoguide:prompts"| VAL
 ```
 
@@ -55,7 +55,7 @@ flowchart LR
 
 2 つ目の理由で、`station-format` をさらに分けました。チャンネルの形式はどのアプリでも同じなのでコアに、散歩の場面の見本や SanpoGuide のプロンプトの文面はそのアプリのものなのでプロンプト・パックに置きます（RFC-002 の R-1・R-4）。
 
-> コアとキットは `io.github.duwenji.michizure.core.*`・`io.github.duwenji.michizure.kit.*`（ADR-003 E-22）。（…）プロンプト・パックとアプリは `io.github.duwenji.sanpoguide.*` のまま（RFC-002 の R-3）
+> コアとキットは `io.github.duwenji.yorisoi.core.*`・`io.github.duwenji.yorisoi.kit.*`（ADR-003 E-22）。（…）プロンプト・パックとアプリは `io.github.duwenji.sanpoguide.*` のまま（RFC-002 の R-3）
 
 Android の部品（音声・地図・AI の呼び出しなど）は、同じく `platform/` の下の **キット**（`kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`）に分けました。話す判断のルールとゲート（`kit-companion`、RFC-003）もキットです（これだけは素の JVM）。キットは同じリポジトリのアプリだけが使い、公開しません（RFC-002 の R-11）。
 
@@ -65,7 +65,7 @@ Android の部品（音声・地図・AI の呼び出しなど）は、同じく
 
 署名の確認には Ed25519 が要ります。でも Android 8〜12 には Ed25519 がなく、Tink が要りました。Tink の Android 版をコアに入れると、管理システムでは使えません。
 
-そこで `core-format` は、確認の約束（`Ed25519Verifier`）だけを決め、実装は使う側が渡します（[PublisherSignature.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/PublisherSignature.kt)、[6-5](../06-trust/05-verify-in-app.md)）。
+そこで `core-format` は、確認の約束（`Ed25519Verifier`）だけを決め、実装は使う側が渡します（[PublisherSignature.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/PublisherSignature.kt)、[6-5](../06-trust/05-verify-in-app.md)）。
 
 ```kotlin
 fun interface Ed25519Verifier {
@@ -102,11 +102,11 @@ dependencies {
 | 管理システムの `validator` | 自分で `implementation("org.json:json:20240303")` を足す |
 | コアの単体テスト | `testImplementation` で足している |
 
-管理システムの [validator/build.gradle.kts](../../michizure-console/validator/build.gradle.kts) には、そのとおりのコメントがあります。
+管理システムの [validator/build.gradle.kts](../../yorisoi-console/validator/build.gradle.kts) には、そのとおりのコメントがあります。
 
 ```kotlin
-implementation("io.github.duwenji.michizure:core-format:1.2.0")
-implementation("io.github.duwenji.sanpoguide:prompts:1.1.0")
+implementation("io.github.duwenji.yorisoi:core-format:2.0.0")
+implementation("io.github.duwenji.sanpoguide:prompts:2.0.0")
 // core-format leaves org.json to its users (Android ships one).
 implementation("org.json:json:20240303")
 ```
@@ -159,7 +159,7 @@ const val INDEX = "$RESOURCE_DIR/index.txt"
 | クラスパスのリソース | アプリや機械審査で、組み込みのチャンネルを読む |
 | ZIP の中身（メモリ） | 第三者のチャンネルのパッケージを展開したもの |
 
-確かめる側（`StationValidator`）が、それぞれの読み方を知っていたら大変です。そこで「ファイルの一覧と、ファイルの中身を返す」という約束だけを決めています（[StationFiles.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/StationFiles.kt)）。
+確かめる側（`StationValidator`）が、それぞれの読み方を知っていたら大変です。そこで「ファイルの一覧と、ファイルの中身を返す」という約束だけを決めています（[StationFiles.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/StationFiles.kt)）。
 
 ```kotlin
 /** The files of one channel, by path relative to its root (`channel.json`, `prompts/...`). */
@@ -238,7 +238,7 @@ cd /c/Dev/apps/SanpoGuide
 ls platform/core-format/build/libs/ apps/sanpoguide/prompts/build/libs/
 ```
 
-`core-format-1.3.0.jar` と `prompts-1.1.0.jar` のように、`gradle.properties` の `michizureCoreVersion`・`sanpoguidePromptsVersion` の版が付いた jar ができます（前の版の jar が残っていることもあります）。
+`core-format-1.3.0.jar` と `prompts-1.1.0.jar` のように、`gradle.properties` の `yorisoiCoreVersion`・`sanpoguidePromptsVersion` の版が付いた jar ができます（前の版の jar が残っていることもあります）。
 
 まずプロンプト・パックの中です。
 
@@ -281,7 +281,7 @@ gourmet/prompts/companion/topics.md
 
 ```sh
 J=platform/core-format/build/libs/core-format-1.3.0.jar
-unzip -l "$J" | grep -c "io/github/duwenji/michizure/core"
+unzip -l "$J" | grep -c "io/github/duwenji/yorisoi/core"
 unzip -l "$J" | grep -c "org/json"
 ```
 
@@ -290,7 +290,7 @@ unzip -l "$J" | grep -c "org/json"
 0
 ```
 
-クラスはすべて `io/github/duwenji/michizure/core/…` の下にあり、リソースはありません。`compileOnly` にしたので、jar に `org.json` は入っていません。使う側（アプリは Android の、機械審査は自分で足した `org.json`）を使います。
+クラスはすべて `io/github/duwenji/yorisoi/core/…` の下にあり、リソースはありません。`compileOnly` にしたので、jar に `org.json` は入っていません。使う側（アプリは Android の、機械審査は自分で足した `org.json`）を使います。
 
 ## つまずきやすいところ
 

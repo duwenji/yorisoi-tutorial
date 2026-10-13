@@ -1,6 +1,6 @@
 // 第 9 部 9-3: 配信元の画面が、ブラウザの中で鍵を作り、パッケージに署名する流れを Node.js で動かす。
 // 画面と同じ web/src/publisher-crypto.ts をそのまま使う（WebCrypto は Node.js にもある）。
-// michizure-console/.local/ に置き、web のフォルダで npx tsx ../.local/key-in-browser.ts と実行する。
+// yorisoi-console/.local/ に置き、web のフォルダで npx tsx ../.local/key-in-browser.ts と実行する。
 import { unzipSync, zipSync } from 'fflate';
 import { b64url, createKey, openKeyFile, signPackage } from '../web/src/publisher-crypto.ts';
 

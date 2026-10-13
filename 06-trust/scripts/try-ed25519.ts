@@ -1,4 +1,4 @@
-import { generateEd25519, providerId, accountId, b64url, signEd25519, verifyEd25519, utf8 } from '@michizure-console/protocol';
+import { generateEd25519, providerId, accountId, b64url, signEd25519, verifyEd25519, utf8 } from '@yorisoi-console/protocol';
 
 const { privateKey, publicKey } = generateEd25519();
 console.log('公開鍵（base64url）:', b64url.encode(publicKey), `(${publicKey.length} バイト)`);

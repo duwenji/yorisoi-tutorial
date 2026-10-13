@@ -52,7 +52,7 @@ flowchart TB
 
 ### 作る側
 
-[conformance/src/app-vectors.ts](../../michizure-console/conformance/src/app-vectors.ts) が、検出の文書・リスト・試用チケットを作ります。
+[conformance/src/app-vectors.ts](../../yorisoi-console/conformance/src/app-vectors.ts) が、検出の文書・リスト・試用チケットを作ります。
 
 ```ts
 const PKCS8_ED25519 = Buffer.from('302e020100300506032b657004220420', 'hex');
@@ -74,12 +74,12 @@ npm run vectors -w conformance -- ../SanpoGuide/platform/core-format/src/test/re
 
 ### 確かめる側
 
-SanpoGuide の [ProviderDocumentsTest.kt](../../SanpoGuide/platform/core-format/src/test/kotlin/io/github/duwenji/michizure/core/format/ProviderDocumentsTest.kt) が、そのファイルを読みます。
+SanpoGuide の [ProviderDocumentsTest.kt](../../SanpoGuide/platform/core-format/src/test/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocumentsTest.kt) が、そのファイルを読みます。
 
 ```kotlin
 /**
  * API-002 as the app checks it, against documents the channel management system's own code signed
- * (`provider-vectors.json`, from michizure-console `conformance/src/app-vectors.ts`). The
+ * (`provider-vectors.json`, from yorisoi-console `conformance/src/app-vectors.ts`). The
  * rejections re-sign altered documents with the same fixed, public seeds (1 = root, 2 = signing).
  */
 class ProviderDocumentsTest {
@@ -105,7 +105,7 @@ class ProviderDocumentsTest {
 
 ## ③ 準拠テスト: 公開されたものを外から確かめる
 
-テストベクタは「コードどうし」の食い違いを防ぎます。もう 1 つ、**実際に公開されているもの** が契約書どおりかを確かめる道具があります。それが **準拠テスト**（[conformance/src/check.ts](../../michizure-console/conformance/src/check.ts)）です。
+テストベクタは「コードどうし」の食い違いを防ぎます。もう 1 つ、**実際に公開されているもの** が契約書どおりかを確かめる道具があります。それが **準拠テスト**（[conformance/src/check.ts](../../yorisoi-console/conformance/src/check.ts)）です。
 
 ```sh
 npm run check -w conformance -- https://channels.example.com --provider sc1…
@@ -126,10 +126,10 @@ URL を渡すと、アプリと同じように検出の文書・リスト・パ�
 チャンネルのパッケージの確認（API-003）では、実際にそうしています。アプリのコア（`core-format`）とプロンプト・パックを GitHub Packages にライブラリとして公開し、管理システムの機械審査（`validator`、Kotlin の Lambda）がそれを使います。
 
 ```kotlin
-// michizure-console/validator/build.gradle.kts
+// yorisoi-console/validator/build.gradle.kts
 dependencies {
-    implementation("io.github.duwenji.michizure:core-format:1.2.0")
-    implementation("io.github.duwenji.sanpoguide:prompts:1.1.0")
+    implementation("io.github.duwenji.yorisoi:core-format:2.0.0")
+    implementation("io.github.duwenji.sanpoguide:prompts:2.0.0")
     // core-format leaves org.json to its users (Android ships one).
     implementation("org.json:json:20240303")
     // …

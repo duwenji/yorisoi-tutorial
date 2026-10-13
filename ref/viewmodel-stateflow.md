@@ -130,7 +130,7 @@ val label: StateFlow<String> = combine(stationId, names) { id, n -> n[id] ?: "?"
 | [SettingsViewModel.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/SettingsViewModel.kt) | 保存するまでの下書き（`_draft`） | [2-2](../02-compose/02-state-viewmodel.md) |
 | [SettingsRepository.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/SettingsRepository.kt) | 画面と常駐サービスが共有する設定の StateFlow | [2-2](../02-compose/02-state-viewmodel.md) |
 | [StationRepository.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/StationRepository.kt) | 設定とチャンネルの一覧を `combine` して、今のチャンネルを作る（`Eagerly`） | [2-2](../02-compose/02-state-viewmodel.md) |
-| [MoodSource.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/michizure/kit/mood/MoodSource.kt) | 時計・位置・スポット・天気の 4 つを `combine` して雰囲気を作る | [2-4](../02-compose/04-theme-mood.md) |
+| [MoodSource.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodSource.kt) | 時計・位置・スポット・天気の 4 つを `combine` して雰囲気を作る | [2-4](../02-compose/04-theme-mood.md) |
 
 散策ガイドの ViewModel は、Android が作る `AndroidViewModel` を使い、`SanpoApp` から部品を取り出しています。その理由と限界は [2-3](../02-compose/03-manual-di.md) にあります。
 

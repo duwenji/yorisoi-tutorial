@@ -17,7 +17,7 @@
 | 保存するもの | 置き場所 | 形 | 部品 |
 |---|---|---|---|
 | 設定（AI のサービス、チャンネル、雰囲気、しきい値…） | SharedPreferences `guide_settings` | 「キー=値」 | [SettingsRepository.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/SettingsRepository.kt) |
-| API キー（AI、Google Maps） | 同じ SharedPreferences | **暗号化した文字列** | [KeyCipher.kt](../../SanpoGuide/platform/kit-llm/src/main/java/io/github/duwenji/michizure/kit/llm/KeyCipher.kt) |
+| API キー（AI、Google Maps） | 同じ SharedPreferences | **暗号化した文字列** | [KeyCipher.kt](../../SanpoGuide/platform/kit-llm/src/main/java/io/github/duwenji/yorisoi/kit/llm/KeyCipher.kt) |
 | 散歩の記録（最大 500 回） | `files/walk_history.json` | JSON のファイル | [HistoryStore.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/history/HistoryStore.kt) |
 | 第三者のチャンネルの状態 | `files/channels/state.json` | JSON のファイル | [ChannelStore.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ChannelStore.kt) |
 | 第三者のチャンネルのパッケージ | `files/channels/pkg/{SHA-256}.zip` | ZIP のファイル | 同上 |
@@ -252,7 +252,7 @@ fun `records from before channels still load`() {
 
 AI のキーは、散策者のお金に直結する秘密です。SharedPreferences にそのまま保存すると、端末の中のファイルに平文で残ります。
 
-散策ガイドは、キーを **暗号化してから** 保存しています。[KeyCipher.kt](../../SanpoGuide/platform/kit-llm/src/main/java/io/github/duwenji/michizure/kit/llm/KeyCipher.kt)（RFC-002 でキット `kit-llm` に移りました。Keystore の別名 `sanpo_api_keys` は、変えると保存したキーが読めなくなるので、移したあとも元のままです。コメントにもそう書いてあります）:
+散策ガイドは、キーを **暗号化してから** 保存しています。[KeyCipher.kt](../../SanpoGuide/platform/kit-llm/src/main/java/io/github/duwenji/yorisoi/kit/llm/KeyCipher.kt)（RFC-002 でキット `kit-llm` に移りました。Keystore の別名 `sanpo_api_keys` は、変えると保存したキーが読めなくなるので、移したあとも元のままです。コメントにもそう書いてあります）:
 
 ```kotlin
 /** Encrypts API keys with an AES key that never leaves the Android Keystore. */

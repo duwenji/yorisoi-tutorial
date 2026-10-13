@@ -71,11 +71,11 @@ await db.send(new UpdateCommand({
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [docs/data-model.md（DM-001）](../../michizure-console/docs/data-model.md) | 22 のアクセスパターンから決めた、1 テーブルのキーの付け方 | [8-5](../08-aws/05-dynamodb.md) |
-| [api/src/console/operator.ts](../../michizure-console/api/src/console/operator.ts) | `rev` の条件つき書き込みと、操作の記録を含むトランザクション | [8-5](../08-aws/05-dynamodb.md) |
-| [api/src/console/publisher.ts](../../michizure-console/api/src/console/publisher.ts) | 1 日の上限を条件つきの `ADD` で数え、TTL で消す | [8-5](../08-aws/05-dynamodb.md) |
-| [api/src/console/util.ts](../../michizure-console/api/src/console/util.ts) | ULID（作った順に並ぶ ID）、暗号化したカーソル | [8-5](../08-aws/05-dynamodb.md) |
-| [api/test/dynamo-local.ts](../../michizure-console/api/test/dynamo-local.ts) | テストごとに、本物と同じ形のテーブルを DynamoDB Local に作る | [7-4](../07-typescript/04-testing.md) |
+| [docs/data-model.md（DM-001）](../../yorisoi-console/docs/data-model.md) | 22 のアクセスパターンから決めた、1 テーブルのキーの付け方 | [8-5](../08-aws/05-dynamodb.md) |
+| [api/src/console/operator.ts](../../yorisoi-console/api/src/console/operator.ts) | `rev` の条件つき書き込みと、操作の記録を含むトランザクション | [8-5](../08-aws/05-dynamodb.md) |
+| [api/src/console/publisher.ts](../../yorisoi-console/api/src/console/publisher.ts) | 1 日の上限を条件つきの `ADD` で数え、TTL で消す | [8-5](../08-aws/05-dynamodb.md) |
+| [api/src/console/util.ts](../../yorisoi-console/api/src/console/util.ts) | ULID（作った順に並ぶ ID）、暗号化したカーソル | [8-5](../08-aws/05-dynamodb.md) |
+| [api/test/dynamo-local.ts](../../yorisoi-console/api/test/dynamo-local.ts) | テストごとに、本物と同じ形のテーブルを DynamoDB Local に作る | [7-4](../07-typescript/04-testing.md) |
 
 ## よくある間違い
 

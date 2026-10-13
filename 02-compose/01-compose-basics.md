@@ -230,7 +230,7 @@ shown.forEach { line -> /* Text を 2 つ */ }
 
 ## Compose の中に昔の部品を置く
 
-地図（osmdroid）は Compose ではなく、昔ながらの部品（View）です。[SpotMap.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/map/SpotMap.kt) は、それを `AndroidView` で Compose の中に置いています。
+地図（osmdroid）は Compose ではなく、昔ながらの部品（View）です。[SpotMap.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/SpotMap.kt) は、それを `AndroidView` で Compose の中に置いています。
 
 ```kotlin
 AndroidView(factory = { mapView }, modifier = modifier) { map ->
@@ -250,7 +250,7 @@ Android Studio には、アプリを動かさずに Composable を描いて見�
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../michizure-tutorial/02-compose/scripts/TutorialPreviews.kt apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/
+cp ../yorisoi-tutorial/02-compose/scripts/TutorialPreviews.kt apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/
 ```
 
 中身の一部です。
@@ -281,7 +281,7 @@ private fun CompanionCardAutumnEvening() {
 
 ### 3. 自分で場面を足す
 
-`CompanionCardWinterNight` を写して、「春の朝・公園」のカードを足してみてください。`Season.SPRING`、`TimeOfDay.MORNING`、`Place` の値は [Mood.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/michizure/kit/mood/Mood.kt) にあります。
+`CompanionCardWinterNight` を写して、「春の朝・公園」のカードを足してみてください。`Season.SPRING`、`TimeOfDay.MORNING`、`Place` の値は [Mood.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/Mood.kt) にあります。
 
 ### 4. 片付け
 

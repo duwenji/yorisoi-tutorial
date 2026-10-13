@@ -97,9 +97,9 @@ DDB_ENDPOINT=http://127.0.0.1:62708 node .local/ddb.mjs
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [api/test/dynamo-local.ts](../../michizure-console/api/test/dynamo-local.ts) | テストのファイルごとに DynamoDB Local を `docker run -d --rm -p 127.0.0.1::8000` で起動し、終わったら `docker stop` | [7-4](../07-typescript/04-testing.md) |
-| [.github/workflows/ci.yml](../../michizure-console/.github/workflows/ci.yml) | CI では `services:` で DynamoDB Local のコンテナを用意し、`DYNAMODB_ENDPOINT` を渡す | [7-4](../07-typescript/04-testing.md)、[技術カード: GitHub Actions](github-actions.md) |
-| [infra/lib/console-stack.ts](../../michizure-console/infra/lib/console-stack.ts) | CDK の `NodejsFunction` が Lambda の JavaScript をまとめる（Docker を使わない esbuild で） | [8-2](../08-aws/02-cdk.md) |
+| [api/test/dynamo-local.ts](../../yorisoi-console/api/test/dynamo-local.ts) | テストのファイルごとに DynamoDB Local を `docker run -d --rm -p 127.0.0.1::8000` で起動し、終わったら `docker stop` | [7-4](../07-typescript/04-testing.md) |
+| [.github/workflows/ci.yml](../../yorisoi-console/.github/workflows/ci.yml) | CI では `services:` で DynamoDB Local のコンテナを用意し、`DYNAMODB_ENDPOINT` を渡す | [7-4](../07-typescript/04-testing.md)、[技術カード: GitHub Actions](github-actions.md) |
+| [infra/lib/console-stack.ts](../../yorisoi-console/infra/lib/console-stack.ts) | CDK の `NodejsFunction` が Lambda の JavaScript をまとめる（Docker を使わない esbuild で） | [8-2](../08-aws/02-cdk.md) |
 
 ## よくある間違い
 

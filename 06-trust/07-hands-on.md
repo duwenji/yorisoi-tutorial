@@ -18,7 +18,7 @@
 
 [0-3 開発環境の準備](../00-overview/03-setup.md) を済ませておいてください。とくに次の 2 つが要ります。
 
-- michizure-console で `npm ci` が済んでいる
+- yorisoi-console で `npm ci` が済んでいる
 - SanpoGuide で `./gradlew :platform:core-format:test` が通る
 
 ターミナルを **2 つ** 開きます。ここでは「ターミナル A」「ターミナル B」と呼びます。どちらも Git Bash を使います。
@@ -28,7 +28,7 @@
 ターミナル A で:
 
 ```sh
-cd /c/Dev/apps/michizure-console
+cd /c/Dev/apps/yorisoi-console
 npm run publish:local -w api
 ```
 
@@ -41,7 +41,7 @@ provider: sc1yajr5krpx5u2nb4x45rijsrnvvtizhwl
 
 ### 何が起きたか
 
-[api/src/publish/local-cli.ts](../../michizure-console/api/src/publish/local-cli.ts) が次のことをしました。
+[api/src/publish/local-cli.ts](../../yorisoi-console/api/src/publish/local-cli.ts) が次のことをしました。
 
 1. テスト用のリストを作る（ルート鍵・署名鍵を新しく作り、鍵セットにルート鍵で署名する。`makeTestProvider`）
 2. 見本のチャンネルを 1 つ用意する（パッケージとアイコンは中身のない仮のファイル）
@@ -91,7 +91,7 @@ console.log({ ...body, channels: body.channels.map((c) => c.id) });
 ターミナル B で:
 
 ```sh
-cd /c/Dev/apps/michizure-console
+cd /c/Dev/apps/yorisoi-console
 npm run serve -w conformance
 ```
 
@@ -153,7 +153,7 @@ V-01 で `provider_mismatch` になり、その先には進みません（`not r
 CDN が乗っ取られて、リストのチャンネル名が書き換えられた場面です。[scripts/tamper-list.mjs](scripts/tamper-list.mjs) は、リストの本体だけを書き換え、要約と署名はそのままにします。
 
 ```sh
-node ../michizure-tutorial/06-trust/scripts/tamper-list.mjs
+node ../yorisoi-tutorial/06-trust/scripts/tamper-list.mjs
 npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provider <リストID>
 ```
 
@@ -215,7 +215,7 @@ cd /c/Dev/apps/SanpoGuide
 
 ### 5-2. リストの期限の上限を 13 日に変える
 
-[ProviderDocuments.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/ProviderDocuments.kt) の `companion object` にある次の行を探して、
+[ProviderDocuments.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocuments.kt) の `companion object` にある次の行を探して、
 
 ```kotlin
 val LIST_LIFETIME: Duration = Duration.ofDays(14)
@@ -248,7 +248,7 @@ val LIST_LIFETIME: Duration = Duration.ofDays(14)
 ### 5-3. 元に戻す
 
 ```sh
-git checkout -- platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/ProviderDocuments.kt
+git checkout -- platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocuments.kt
 git status
 ```
 
@@ -257,7 +257,7 @@ git status
 ## 片付け
 
 - ターミナル B のサーバーを Ctrl+C で止める
-- `.local/` は Git の対象外なので、残しておいてかまいません。消したいときは `rm -rf .local/site`（michizure-console のフォルダで）
+- `.local/` は Git の対象外なので、残しておいてかまいません。消したいときは `rm -rf .local/site`（yorisoi-console のフォルダで）
 
 ## ふりかえり
 

@@ -18,10 +18,10 @@
 
 ```mermaid
 flowchart TB
-    PROTO["packages/protocol<br/>@michizure-console/protocol<br/>API-002 の文書の作成と検証"]
-    TYPES["packages/api-types<br/>@michizure-console/api-types<br/>管理 API の型（OpenAPI から生成）"]
-    API["api<br/>@michizure-console/api<br/>Lambda"]
-    WEB["web<br/>@michizure-console/web<br/>画面"]
+    PROTO["packages/protocol<br/>@yorisoi-console/protocol<br/>API-002 の文書の作成と検証"]
+    TYPES["packages/api-types<br/>@yorisoi-console/api-types<br/>管理 API の型（OpenAPI から生成）"]
+    API["api<br/>@yorisoi-console/api<br/>Lambda"]
+    WEB["web<br/>@yorisoi-console/web<br/>画面"]
     CONF["conformance<br/>準拠テスト"]
     RK["tools/root-key<br/>ルート鍵の CLI"]
     PROV["tools/provision<br/>初期登録"]
@@ -49,11 +49,11 @@ SanpoGuide と管理システムの間は、**別のリポジトリ** にして�
 
 ## npm workspaces
 
-[package.json](../../michizure-console/package.json)（いちばん上）:
+[package.json](../../yorisoi-console/package.json)（いちばん上）:
 
 ```json
 {
-  "name": "michizure-console",
+  "name": "yorisoi-console",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -84,13 +84,13 @@ SanpoGuide と管理システムの間は、**別のリポジトリ** にして�
 `workspaces` に並べたフォルダが、それぞれ 1 つのパッケージ（自分の `package.json` を持つ）になります。`npm ci` を 1 回実行すると、
 
 1. すべてのパッケージの依存ライブラリを、いちばん上の `node_modules` にまとめて入れる
-2. 各パッケージを、`node_modules/@michizure-console/名前` に **リンク**（シンボリックリンク）として置く
+2. 各パッケージを、`node_modules/@yorisoi-console/名前` に **リンク**（シンボリックリンク）として置く
 
 だから、`api` のコードは、同じリポジトリの `protocol` を、ふつうのライブラリと同じように名前で読み込めます。
 
 ```ts
 // api/src/publish/publisher.ts
-import { b64url, payloadBytes, providerId, signChannelList, verifyChannelList, verifyDiscovery } from '@michizure-console/protocol';
+import { b64url, payloadBytes, providerId, signChannelList, verifyChannelList, verifyDiscovery } from '@yorisoi-console/protocol';
 ```
 
 使う側の `package.json` には、依存として名前と版を書きます。
@@ -99,8 +99,8 @@ import { b64url, payloadBytes, providerId, signChannelList, verifyChannelList, v
 // api/package.json
 "dependencies": {
   "@aws-sdk/client-kms": "^3.1146.0",
-  "@michizure-console/api-types": "0.1.0",
-  "@michizure-console/protocol": "0.1.0",
+  "@yorisoi-console/api-types": "0.1.0",
+  "@yorisoi-console/protocol": "0.1.0",
   …
 }
 ```
@@ -132,11 +132,11 @@ npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provi
 
 ## ソースをそのまま公開する
 
-各パッケージが「外にどのファイルを見せるか」は、`package.json` の `exports` で決まります。[packages/protocol/package.json](../../michizure-console/packages/protocol/package.json):
+各パッケージが「外にどのファイルを見せるか」は、`package.json` の `exports` で決まります。[packages/protocol/package.json](../../yorisoi-console/packages/protocol/package.json):
 
 ```json
 {
-  "name": "@michizure-console/protocol",
+  "name": "@yorisoi-console/protocol",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -166,7 +166,7 @@ npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provi
 
 どれも、TypeScript の **型を取り除いて** JavaScript にするだけで、型は確かめません（[7-1](01-typescript-syntax.md) のハンズオンで見たとおり、`tsx` は型が間違っていても動きます）。型の確認は、別に `tsc -b` で行います。
 
-`"./testing"` の入口は、テスト用の道具（`makeTestProvider`・`sampleChannel`、[6-6](../06-trust/06-same-rules.md)）を、ふつうの入口と分けて公開するためのものです。`import { makeTestProvider } from '@michizure-console/protocol/testing'` と書きます。本番のコードが、うっかりテスト用の使い捨ての鍵を使わないようにする工夫です。
+`"./testing"` の入口は、テスト用の道具（`makeTestProvider`・`sampleChannel`、[6-6](../06-trust/06-same-rules.md)）を、ふつうの入口と分けて公開するためのものです。`import { makeTestProvider } from '@yorisoi-console/protocol/testing'` と書きます。本番のコードが、うっかりテスト用の使い捨ての鍵を使わないようにする工夫です。
 
 ## tsc -b とプロジェクト参照
 
@@ -174,7 +174,7 @@ npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provi
 
 ### 共通の設定
 
-[tsconfig.base.json](../../michizure-console/tsconfig.base.json):
+[tsconfig.base.json](../../yorisoi-console/tsconfig.base.json):
 
 ```json
 {
@@ -196,7 +196,7 @@ npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provi
 
 ### パッケージごとの設定と参照
 
-[api/tsconfig.json](../../michizure-console/api/tsconfig.json):
+[api/tsconfig.json](../../yorisoi-console/api/tsconfig.json):
 
 ```json
 {
@@ -218,7 +218,7 @@ npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provi
 - `composite: true`（共通の設定）: 参照される側になれる、という印。確かめた結果を `dist/tsconfig.tsbuildinfo` に記録する
 - `emitDeclarationOnly: true`: JavaScript は書き出さず、型の情報（`.d.ts`）だけを書き出す。JavaScript を作るのは、上の表の道具の仕事だから
 
-いちばん上の [tsconfig.json](../../michizure-console/tsconfig.json) は、全パッケージを参照しているだけです。
+いちばん上の [tsconfig.json](../../yorisoi-console/tsconfig.json) は、全パッケージを参照しているだけです。
 
 ```json
 {
@@ -249,20 +249,20 @@ npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provi
 ### 1. パッケージどうしのつながりを見る
 
 ```sh
-cd /c/Dev/apps/michizure-console
-ls -la node_modules/@michizure-console/
+cd /c/Dev/apps/yorisoi-console
+ls -la node_modules/@yorisoi-console/
 ```
 
 ```
-api -> /c/Dev/apps/michizure-console/api
-api-types -> /c/Dev/apps/michizure-console/packages/api-types
-conformance -> /c/Dev/apps/michizure-console/conformance
+api -> /c/Dev/apps/yorisoi-console/api
+api-types -> /c/Dev/apps/yorisoi-console/packages/api-types
+conformance -> /c/Dev/apps/yorisoi-console/conformance
 …
-protocol -> /c/Dev/apps/michizure-console/packages/protocol
+protocol -> /c/Dev/apps/yorisoi-console/packages/protocol
 …
 ```
 
-`->` は、リンク（シンボリックリンク）の行き先です。`node_modules` の中に、リポジトリのフォルダへのリンクが並んでいます。`import … from '@michizure-console/protocol'` は、これをたどって `packages/protocol` を読んでいます。
+`->` は、リンク（シンボリックリンク）の行き先です。`node_modules` の中に、リポジトリのフォルダへのリンクが並んでいます。`import … from '@yorisoi-console/protocol'` は、これをたどって `packages/protocol` を読んでいます。
 
 あるパッケージが何に依存しているかは、`npm ls` で見られます。
 
@@ -271,9 +271,9 @@ npm ls -w tools/root-key --depth 0
 ```
 
 ```
-michizure-console@ C:\Dev\apps\michizure-console
-`-- @michizure-console/root-key@0.1.0 -> .\tools\root-key
-  `-- @michizure-console/protocol@0.1.0 -> .\packages\protocol
+yorisoi-console@ C:\Dev\apps\yorisoi-console
+`-- @yorisoi-console/root-key@0.1.0 -> .\tools\root-key
+  `-- @yorisoi-console/protocol@0.1.0 -> .\packages\protocol
 ```
 
 ### 2. tsc -b の順番と、飛ばす様子を見る
@@ -337,7 +337,7 @@ ls packages/protocol/dist/src 2>/dev/null | head
 </details>
 
 <details>
-<summary>問 2. <code>@michizure-console/protocol</code> の <code>exports</code> が <code>.ts</code> のファイルを指していても動くのはなぜですか。</summary>
+<summary>問 2. <code>@yorisoi-console/protocol</code> の <code>exports</code> が <code>.ts</code> のファイルを指していても動くのはなぜですか。</summary>
 
 使う側の道具（手元のコマンドは tsx、テストは Vitest、画面は Vite、Lambda は esbuild）が、`.ts` を読み込むときに JavaScript に変えているからです。パッケージを前もってビルドする必要がありません。
 

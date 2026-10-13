@@ -1,6 +1,6 @@
 // 6-7 ハンズオン: 手元で公開したリストの本体を書き換える（署名はそのまま）。
 // sanpo-channel-console のフォルダで実行する:
-//   node ../michizure-tutorial/06-trust/scripts/tamper-list.mjs
+//   node ../yorisoi-tutorial/06-trust/scripts/tamper-list.mjs
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const path = '.local/site/public/v1/channels.json';

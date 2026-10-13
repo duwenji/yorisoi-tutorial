@@ -29,7 +29,7 @@ SanpoGuide/
 │       └── src/main/
 │           ├── kotlin/…/prompt/          プロンプトの組み立て、組み込みのチャンネル、審査の見本
 │           └── resources/sanpoguide/     組み込みのチャンネルとプロンプトの文面
-├── platform/                    アプリをまたいで使う部品（michizure、ADR-003）
+├── platform/                    アプリをまたいで使う部品（yorisoi、ADR-003）
 │   ├── core-format/             コア: チャンネル・パッケージと素材集の形式、署名の確認、リストの文書（素の JVM）
 │   ├── core-prompt/             コア: プロンプトのテンプレートの仕組み（素の JVM）
 │   ├── kit-voice/               キット: 読み上げ、背景音
@@ -47,10 +47,10 @@ SanpoGuide/
 
 全体の図は [SanpoGuide/docs/architecture.md](../../SanpoGuide/docs/architecture.md) にあります。
 
-## michizure-console のフォルダ
+## yorisoi-console のフォルダ
 
 ```
-michizure-console/
+yorisoi-console/
 ├── packages/
 │   ├── protocol/        API-002 の文書の作成と検証（署名・要約・鍵セット）★第 6 部
 │   └── api-types/       管理 API の型（OpenAPI から生成）
@@ -71,7 +71,7 @@ michizure-console/
 
 こちらは **パッケージ（npm workspace）ごと** に分かれています。`packages/protocol` はほかの多くのパッケージから使われる共通部品です。
 
-全体の図は [michizure-console/docs/architecture.md](../../michizure-console/docs/architecture.md) にあります。
+全体の図は [yorisoi-console/docs/architecture.md](../../yorisoi-console/docs/architecture.md) にあります。
 
 ## 文書の読み方
 
@@ -108,9 +108,9 @@ michizure-console/
 | ADR-001（SanpoGuide） | 第三者のチャンネルは審査と署名を経たものだけ取り込む | [SanpoGuide/docs/adr/](../../SanpoGuide/docs/adr/) |
 | ADR-002（SanpoGuide） | 素材の素材提供者をチャンネルから切り出し、共通のインタフェースで扱う | [SanpoGuide/docs/adr/](../../SanpoGuide/docs/adr/) |
 | 関係者と呼び方 | 散策者・チャンネル提供者・素材提供者・運営、リスト（呼び方の正本） | [SanpoGuide/docs/stakeholders.md](../../SanpoGuide/docs/stakeholders.md) |
-| ADR-001（console） | AWS の構成 | [michizure-console/docs/adr/](../../michizure-console/docs/adr/) |
-| API-001（console） | 管理 API | [michizure-console/docs/console-api.md](../../michizure-console/docs/console-api.md) |
-| DM-001 | データモデル | [michizure-console/docs/data-model.md](../../michizure-console/docs/data-model.md) |
+| ADR-001（console） | AWS の構成 | [yorisoi-console/docs/adr/](../../yorisoi-console/docs/adr/) |
+| API-001（console） | 管理 API | [yorisoi-console/docs/console-api.md](../../yorisoi-console/docs/console-api.md) |
+| DM-001 | データモデル | [yorisoi-console/docs/data-model.md](../../yorisoi-console/docs/data-model.md) |
 
 **同じ番号でもリポジトリが違えば別の文書** なので注意してください。ADR-001 は両方にあり、API-001 も SanpoGuide 側（秘密メッセージ API）と console 側（管理 API）で別物です。
 

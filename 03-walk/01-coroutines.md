@@ -137,7 +137,7 @@ private fun startTicker() = lifecycleScope.launch {
 
 `suspend` 関数は、スレッドを止めずに **待つ** ことはできますが、OkHttp の `execute()` のような **スレッドを止めて待つ** 昔ながらの処理を、メインスレッドで呼んではいけません。そういう処理は、`withContext` でほかのスレッドに移します。
 
-[WeatherClient.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/weather/WeatherClient.kt):
+[WeatherClient.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/weather/WeatherClient.kt):
 
 ```kotlin
 suspend fun current(lat: Double, lon: Double): Weather = withContext(Dispatchers.IO) {
@@ -164,7 +164,7 @@ suspend fun current(lat: Double, lon: Double): Weather = withContext(Dispatchers
 
 ### スポットの検索を重ねない
 
-[SpotRepository.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/michizure/kit/geo/SpotRepository.kt):
+[SpotRepository.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/SpotRepository.kt):
 
 ```kotlin
 private val fetchLock = Mutex()
@@ -223,7 +223,7 @@ private inline fun talk(block: () -> Unit) {
 | 値が流れ出すとき | 集め始めたとき（`collect`） | いつでも。集める人が来たら今の値から |
 | 向いているもの | 次々に起きる出来事、計算の途中 | 「今の状態」 |
 
-散策ガイドは、時計を Flow で作っています（[MoodSource.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/michizure/kit/mood/MoodSource.kt)、[2-4](../02-compose/04-theme-mood.md)）。
+散策ガイドは、時計を Flow で作っています（[MoodSource.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodSource.kt)、[2-4](../02-compose/04-theme-mood.md)）。
 
 ```kotlin
 private val clock = flow {
@@ -256,7 +256,7 @@ private fun startAmbient() = lifecycleScope.launch {
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../michizure-tutorial/03-walk/scripts/CoroutinePracticeTest.kt apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/
+cp ../yorisoi-tutorial/03-walk/scripts/CoroutinePracticeTest.kt apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/
 ./gradlew :apps:sanpoguide:app:testDebugUnitTest --tests '*CoroutinePracticeTest*'
 ```
 

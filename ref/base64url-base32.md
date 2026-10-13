@@ -47,7 +47,7 @@ bytes.toString('base64url');    // '-_8'
 Buffer.from('-_8', 'base64url');  // <Buffer fb ff>
 ```
 
-Node.js には base32 がないので、このリポジトリは自分で書いています（[encoding.ts](../../michizure-console/packages/protocol/src/encoding.ts) の `base32`）。RFC 4648 の例を小文字・パディングなしにしたものと一致します。
+Node.js には base32 がないので、このリポジトリは自分で書いています（[encoding.ts](../../yorisoi-console/packages/protocol/src/encoding.ts) の `base32`）。RFC 4648 の例を小文字・パディングなしにしたものと一致します。
 
 | 入力 | 出力 |
 |---|---|
@@ -81,8 +81,8 @@ Node.js は、違う方式の文字も、知らない文字も、黙って受け
 
 署名を確かめるコードで寛容なデコードを使うと、**同じバイト列を表す文字列が何通りもある** ことになり、比較や記録で食い違いが起きます。そこでこのリポジトリは、デコードの前に正規表現 `^[A-Za-z0-9_-]*$` で文字を確かめています。
 
-- TypeScript: [encoding.ts](../../michizure-console/packages/protocol/src/encoding.ts) の `b64url.decode`
-- Kotlin: [PublisherSignature.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/PublisherSignature.kt) の `decodeBase64Url`
+- TypeScript: [encoding.ts](../../yorisoi-console/packages/protocol/src/encoding.ts) の `b64url.decode`
+- Kotlin: [PublisherSignature.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/PublisherSignature.kt) の `decodeBase64Url`
 
 ## このリポジトリでは
 

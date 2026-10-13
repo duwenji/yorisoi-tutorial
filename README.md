@@ -1,6 +1,6 @@
 # 散策ガイドで学ぶ Kotlin・Android・TypeScript・AWS
 
-SanpoGuide（Android アプリ）と michizure-console（AWS 上のチャンネル管理システム）の 2 つのリポジトリを教材にして、そこで使われている技術を順に学ぶチュートリアルです。
+SanpoGuide（Android アプリ）と yorisoi-console（AWS 上のチャンネル管理システム）の 2 つのリポジトリを教材にして、そこで使われている技術を順に学ぶチュートリアルです。
 
 ## このチュートリアルの考え方
 
@@ -151,11 +151,11 @@ flowchart LR
 
 ## コードへのリンクについて
 
-このフォルダは `SanpoGuide`・`michizure-console` と同じ親フォルダ（`c:\Dev\apps`）に置く前提で、`../../SanpoGuide/...` のような相対パスでリンクしています。VS Code ならクリックで開けます。
+このフォルダは `SanpoGuide`・`yorisoi-console` と同じ親フォルダ（`c:\Dev\apps`）に置く前提で、`../../SanpoGuide/...` のような相対パスでリンクしています。VS Code ならクリックで開けます。
 
 コードは日々変わるので、行番号ではなく **ファイルと関数の名前** で場所を示しています。リンク先で見つからないときは、関数名で検索してください。見直しの手順は [MAINTENANCE.md](MAINTENANCE.md) にあります。
 
 | 項目 | 値 |
 |---|---|
 | 最後に照合した日 | 2026-10-13 |
-| 照合したコミット | SanpoGuide `ac66b5d`、michizure-console `68e7852`（どちらも `main`）。マージ前の SanpoGuide #51（宣伝の表示、versionCode 3）と michizure-console #32（開発用の宣伝の版）・#34（改名）の内容も反映している |
+| 照合したコミット | SanpoGuide `ac66b5d`、yorisoi-console `68e7852`（どちらも `main`）。マージ前の SanpoGuide #51（宣伝の表示、versionCode 3）と yorisoi-console #32（開発用の宣伝の版）・#34（改名）の内容も反映している |

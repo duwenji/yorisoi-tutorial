@@ -79,9 +79,9 @@ u4pruydqqvj
 
 | 場所 | 何に使うか | 章 |
 |---|---|---|
-| SanpoGuide [Regions.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/michizure/core/format/material/Regions.kt) の `geohash`・`around` | アプリが、今いる 3 文字のマスと周りの 8 マスに重なる素材集だけを、前もって取る（API-004 P-6） | [5-4](../05-station-format/04-materials-cues.md) |
+| SanpoGuide [Regions.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/material/Regions.kt) の `geohash`・`around` | アプリが、今いる 3 文字のマスと周りの 8 マスに重なる素材集だけを、前もって取る（API-004 P-6） | [5-4](../05-station-format/04-materials-cues.md) |
 | 同じく `Regions.of` | 管理システムの機械審査が、素材集の素材の位置から、その素材集の地域（`regions`）を計算する | [5-4](../05-station-format/04-materials-cues.md)、[8-8](../08-aws/08-kotlin-lambda.md) |
-| michizure-console [geo.ts](../../michizure-console/packages/protocol/src/geo.ts) の `geohash` | TypeScript 側の同じ計算（API-002 P-15）。準拠テストの V-25 が、リストの `regions` をこれで計算し直して照らす | [5-4](../05-station-format/04-materials-cues.md)、[6-6](../06-trust/06-same-rules.md) |
+| yorisoi-console [geo.ts](../../yorisoi-console/packages/protocol/src/geo.ts) の `geohash` | TypeScript 側の同じ計算（API-002 P-15）。準拠テストの V-25 が、リストの `regions` をこれで計算し直して照らす | [5-4](../05-station-format/04-materials-cues.md)、[6-6](../06-trust/06-same-rules.md) |
 
 使う理由は **散策者の居場所を細かく伝えないため** です。素材集を「近づいてから」取りに行くと、どのスポットにいるかが相手に伝わります。3 文字のマス（約 150km 四方）の単位で前もって取れば、伝わるのは「どの地方にいるか」までです。
 

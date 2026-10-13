@@ -76,7 +76,7 @@ describe('slowGreeting', () => {
 ```
 
 ```sh
-cd /c/Dev/apps/michizure-console
+cd /c/Dev/apps/yorisoi-console
 npx vitest run .local/vt
 ```
 
@@ -113,10 +113,10 @@ npx vitest run .local/vt
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [vitest.config.ts](../../michizure-console/vitest.config.ts) | 全パッケージの `test/**/*.test.ts` を 1 回で流す | [7-4](../07-typescript/04-testing.md) |
-| [packages/protocol/test/protocol.test.ts](../../michizure-console/packages/protocol/test/protocol.test.ts) | 時刻を固定して、署名つき文書の検証を確かめる | [7-4](../07-typescript/04-testing.md) |
-| [api/test/publisher.test.ts](../../michizure-console/api/test/publisher.test.ts) | メモリの代役と aws-sdk-client-mock | [7-4](../07-typescript/04-testing.md) |
-| [api/test/console.test.ts](../../michizure-console/api/test/console.test.ts) | DynamoDB Local（Docker）で管理 API を通しで確かめる | [7-4](../07-typescript/04-testing.md) |
+| [vitest.config.ts](../../yorisoi-console/vitest.config.ts) | 全パッケージの `test/**/*.test.ts` を 1 回で流す | [7-4](../07-typescript/04-testing.md) |
+| [packages/protocol/test/protocol.test.ts](../../yorisoi-console/packages/protocol/test/protocol.test.ts) | 時刻を固定して、署名つき文書の検証を確かめる | [7-4](../07-typescript/04-testing.md) |
+| [api/test/publisher.test.ts](../../yorisoi-console/api/test/publisher.test.ts) | メモリの代役と aws-sdk-client-mock | [7-4](../07-typescript/04-testing.md) |
+| [api/test/console.test.ts](../../yorisoi-console/api/test/console.test.ts) | DynamoDB Local（Docker）で管理 API を通しで確かめる | [7-4](../07-typescript/04-testing.md) |
 
 ## よくある間違い
 
@@ -132,7 +132,7 @@ npx vitest run .local/vt
 
 | 項目 | 版 |
 |---|---|
-| `vitest` | 5.0 以上（michizure-console の `package.json`） |
+| `vitest` | 5.0 以上（yorisoi-console の `package.json`） |
 | `aws-sdk-client-mock` | 4.1 以上（`api`） |
 
 - [Vitest（公式）](https://vitest.dev/)
