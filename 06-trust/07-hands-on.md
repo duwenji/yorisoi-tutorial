@@ -153,7 +153,7 @@ V-01 で `provider_mismatch` になり、その先には進みません（`not r
 CDN が乗っ取られて、リストのチャンネル名が書き換えられた場面です。[scripts/tamper-list.mjs](scripts/tamper-list.mjs) は、リストの本体だけを書き換え、要約と署名はそのままにします。
 
 ```sh
-node ../sanpo-tutorial/06-trust/scripts/tamper-list.mjs
+node ../michizure-tutorial/06-trust/scripts/tamper-list.mjs
 npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provider <リストID>
 ```
 

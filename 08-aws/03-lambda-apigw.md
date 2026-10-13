@@ -321,7 +321,7 @@ for (const alarm of [failures, stale]) alarm.addAlarmAction(new cwActions.SnsAct
 
 ```sh
 cd /c/Dev/apps/michizure-console
-cp ../sanpo-tutorial/08-aws/scripts/invoke-console.ts .local/
+cp ../michizure-tutorial/08-aws/scripts/invoke-console.ts .local/
 ID=$(docker run -d --rm -p 127.0.0.1::8000 amazon/dynamodb-local:latest -jar DynamoDBLocal.jar -inMemory)
 PORT=$(docker port $ID 8000/tcp | head -1 | sed 's/.*://')
 ```

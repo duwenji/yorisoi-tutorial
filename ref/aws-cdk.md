@@ -57,7 +57,7 @@ console.log(Object.keys(t.toJSON().Resources).length, 'resources');
 
 ```sh
 cd /c/Dev/apps/michizure-console
-mkdir -p .local/cdk-cards && cp ../sanpo-tutorial/08-aws/scripts/cdk-samples.ts .local/cdk-cards/app.ts
+mkdir -p .local/cdk-cards && cp ../michizure-tutorial/08-aws/scripts/cdk-samples.ts .local/cdk-cards/app.ts
 cd infra && npx tsx ../.local/cdk-cards/app.ts
 #  → 27 resources …
 ```

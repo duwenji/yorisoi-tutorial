@@ -28,7 +28,7 @@ cd ../michizure-console && git pull && git log --oneline 68e7852..main
 チュートリアルが参照しているファイルが今もあるかを確かめます。
 
 ```sh
-cd ../sanpo-tutorial
+cd ../michizure-tutorial
 for md in $(find . -name '*.md'); do
   dir=$(dirname "$md")
   grep -oE '\]\([^)#]+' "$md" | sed -E 's/^\]\(//' | grep -v '^http' | while read -r p; do

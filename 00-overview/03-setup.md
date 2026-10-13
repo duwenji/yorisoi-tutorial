@@ -36,9 +36,9 @@
 
 ```
 c:\Dev\apps\
-├── SanpoGuide\              Android アプリ
-├── michizure-console\   チャンネル管理システム
-└── sanpo-tutorial\          このチュートリアル
+├── SanpoGuide\           Android アプリ
+├── michizure-console\    チャンネル管理システム
+└── michizure-tutorial\   このチュートリアル
 ```
 
 ```sh

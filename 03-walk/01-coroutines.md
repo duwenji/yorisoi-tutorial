@@ -256,7 +256,7 @@ private fun startAmbient() = lifecycleScope.launch {
 
 ```sh
 cd /c/Dev/apps/SanpoGuide
-cp ../sanpo-tutorial/03-walk/scripts/CoroutinePracticeTest.kt apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/
+cp ../michizure-tutorial/03-walk/scripts/CoroutinePracticeTest.kt apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/
 ./gradlew :apps:sanpoguide:app:testDebugUnitTest --tests '*CoroutinePracticeTest*'
 ```
 
