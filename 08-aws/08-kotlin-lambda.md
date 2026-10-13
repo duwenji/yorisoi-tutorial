@@ -18,7 +18,7 @@
 
 ```mermaid
 flowchart LR
-    SG["SanpoGuide<br/>core-format・prompts（Kotlin）"] -->|"GitHub Packages<br/>io.github.duwenji.yorisoi:core-format:2.0.0<br/>io.github.duwenji.sanpoguide:prompts:2.0.0"| V["validator<br/>機械審査の Lambda（Kotlin）"]
+    SG["yorisoi-platform・yorisoi-sanpoguide<br/>core-format・prompts（Kotlin）"] -->|"GitHub Packages<br/>io.github.duwenji.yorisoi:core-format:1.0.0<br/>io.github.duwenji.sanpoguide:prompts:2.0.0"| V["validator<br/>機械審査の Lambda（Kotlin）"]
     SG -->|"project(...)"| APP["アプリ"]
 ```
 
@@ -72,7 +72,7 @@ sequenceDiagram
  * icon. Pure: the Lambda reads and writes, this decides.
  */
 object MachineReview {
-    const val VALIDATOR = "core-format 2.0.0, prompts 2.0.0"
+    const val VALIDATOR = "core-format 1.0.0, prompts 2.0.0"
     // …
     fun review(upload: Upload, zip: ByteArray, icon: ByteArray, catalog: Catalog = Catalog.NONE): Outcome {
         // …
@@ -182,7 +182,7 @@ intakeBucket.addEventNotification(s3.EventType.OBJECT_CREATED, new s3n.LambdaDes
 
 ```kotlin
 dependencies {
-    implementation("io.github.duwenji.yorisoi:core-format:2.0.0")
+    implementation("io.github.duwenji.yorisoi:core-format:1.0.0")
     implementation("io.github.duwenji.sanpoguide:prompts:2.0.0")
     // core-format leaves org.json to its users (Android ships one).
     implementation("org.json:json:20240303")
@@ -273,7 +273,7 @@ class Handler(/* … */) : RequestHandler<S3Event, String> {
 
 ## ハンズオン: 機械審査をビルドして、テストを壊す
 
-機械審査のビルドには、`station-format` の 2.1.0 が要ります。GitHub Packages のトークン（[5-3](../05-station-format/03-publish.md)）を設定するか、SanpoGuide で手元に公開したもの（`~/.m2`）を使います。
+機械審査のビルドには、`core-format` 1.0.0（yorisoi-platform）と `prompts` 2.0.0（yorisoi-sanpoguide）が要ります。GitHub Packages のトークン（[5-3](../05-station-format/03-publish.md)）を設定するか、2 つのリポジトリで手元に公開したもの（`~/.m2`）を使います。
 
 ### 1. テストを流して、zip を作る
 
@@ -296,8 +296,8 @@ unzip -l build/lambda/validator.zip | awk '{print $4}' | grep '^lib/' | head -8
 console/validator/AddressGuard.class
 console/validator/Catalog$Companion$NONE$1.class
 …
-lib/core-format-2.0.0.jar
-lib/core-prompt-2.0.0.jar
+lib/core-format-1.0.0.jar
+lib/core-prompt-1.0.0.jar
 lib/prompts-1.1.0.jar
 lib/kotlin-stdlib-2.2.0.jar
 lib/json-20240303.jar
@@ -309,7 +309,7 @@ lib/url-connection-client-2.55.11.jar
 …
 ```
 
-いちばん上に自分のクラス、`lib/` に依存の jar が並んでいます。`lib/core-format-2.0.0.jar` が、アプリと同じ確認のコードです（見本のプロンプトは `lib/prompts-1.1.0.jar` から）。
+いちばん上に自分のクラス、`lib/` に依存の jar が並んでいます。`lib/core-format-1.0.0.jar` が、アプリと同じ確認のコードです（見本のプロンプトは `lib/prompts-1.1.0.jar` から）。
 
 ### 3. テストを読む
 

@@ -93,7 +93,7 @@ gh run view <実行のID> --log-failed   # 失敗したステップのログ
 
 | ワークフロー | きっかけ | 何をするか | 章 |
 |---|---|---|---|
-| [SanpoGuide: publish-station-format.yml](../../SanpoGuide/.github/workflows/publish.yml) | タグ `station-format-v*` の push | タグと版の照合 → テスト → GitHub Packages に公開（`packages: write`） | [5-3](../05-station-format/03-publish.md) |
+| [SanpoGuide: publish-station-format.yml](../../yorisoi-sanpoguide/.github/workflows/publish.yml) | タグ `station-format-v*` の push | タグと版の照合 → テスト → GitHub Packages に公開（`packages: write`） | [5-3](../05-station-format/03-publish.md) |
 | [yorisoi-console: ci.yml](../../yorisoi-console/.github/workflows/ci.yml) | `main` への push、プルリクエスト | 型の確認・テスト（DynamoDB Local をサービスで起動）・画面のビルド・`validator` のテストと zip の作成・`cdk synth` | [7-4](../07-typescript/04-testing.md)、[9-4](../09-console/04-ci.md) |
 
 管理システムの CI は、`services:` でテスト用のデータベース（DynamoDB Local）のコンテナを一緒に動かし、`packages: read` の権限で SanpoGuide のコアとプロンプト・パックを取ってきています。CDK の確認（`cdk synth`）には、その場で作った使い捨てのルート鍵の公開鍵を渡しています。本物の鍵は CI に置きません（[6-4](../06-trust/04-two-tier-keys.md)）。

@@ -40,7 +40,7 @@ Android は、**署名されていない APK をインストールしません**
 
 ## 散策ガイドの署名の設定
 
-[apps/sanpoguide/app/build.gradle.kts](../../SanpoGuide/apps/sanpoguide/app/build.gradle.kts):
+[app/build.gradle.kts](../../yorisoi-sanpoguide/app/build.gradle.kts):
 
 ```kotlin
 // Release signing keys live outside Git, in keystore.properties at the project root
@@ -83,7 +83,7 @@ android {
 | `keystore.properties` | **入れない** | 本物のパスワード |
 | `release.jks` | **入れない** | 署名の鍵 |
 
-[keystore.properties.example](../../SanpoGuide/keystore.properties.example):
+[keystore.properties.example](../../yorisoi-sanpoguide/keystore.properties.example):
 
 ```properties
 # Copy to keystore.properties (not committed) and fill in. storeFile is relative to this folder.
@@ -93,13 +93,13 @@ keyAlias=sanpoguide
 keyPassword=
 ```
 
-[.gitignore](../../SanpoGuide/.gitignore) に `keystore.properties`・`*.jks`・`*.keystore` が入っているので、うっかり `git add` しても入りません。**見本だけを Git に入れ、本物はそれぞれの手元で作る** のは、秘密を扱う設定でよく使うやり方です。管理システムの `.gitignore` が `*.pem`・`*.key` を除いているのも同じ考え方です。
+[.gitignore](../../yorisoi-sanpoguide/.gitignore) に `keystore.properties`・`*.jks`・`*.keystore` が入っているので、うっかり `git add` しても入りません。**見本だけを Git に入れ、本物はそれぞれの手元で作る** のは、秘密を扱う設定でよく使うやり方です。管理システムの `.gitignore` が `*.pem`・`*.key` を除いているのも同じ考え方です。
 
 ハンズオンで `git ls-files` を使って、実際に入っていないことを確かめます。
 
 ### リリース版の作り方
 
-[SanpoGuide の README](../../SanpoGuide/README.md) の「リリース版のビルド」に手順があります。
+[SanpoGuide の README](../../yorisoi-sanpoguide/README.md) の「リリース版のビルド」に手順があります。
 
 ```sh
 keytool -genkeypair -v -keystore release.jks -alias sanpoguide -keyalg RSA -keysize 2048 -validity 10000
@@ -108,7 +108,7 @@ keytool -genkeypair -v -keystore release.jks -alias sanpoguide -keyalg RSA -keys
 
 - `keytool` は JDK に入っている、鍵を扱う道具です
 - `-validity 10000` は鍵の証明書の有効期間（日数、約 27 年）。アプリを配り続ける間、ずっと同じ鍵が要るので長くします
-- 出力は `apps/sanpoguide/app/build/outputs/apk/release/app-release.apk`。`keystore.properties` がなければ `app-release-unsigned.apk`
+- 出力は `app/build/outputs/apk/release/app-release.apk`。`keystore.properties` がなければ `app-release-unsigned.apk`
 
 > **このリポジトリの `release.jks` を上書きしないでください。** 上の `keytool` のコマンドは、鍵を **新しく作る** ものです。散策ガイドの本物の鍵がすでにある手元でそのまま実行すると、別の鍵ができてしまいます（同じ名前なら `keytool` はエラーで止まりますが、消してから作り直すと取り返しがつきません）。試すなら、ハンズオンのように別のフォルダで行います。
 
@@ -125,7 +125,7 @@ APK は、実は **ZIP** です。中には次のようなものが入ってい�
 | `lib/` | ライブラリが持ち込んだ、端末の CPU ごとのネイティブのコード |
 | `META-INF/` | ライブラリの付属情報など |
 
-APK は ZIP なので、`unzip -l apps/sanpoguide/app/build/outputs/apk/debug/app-debug.apk` で一覧を見られます。`grep sanpoguide/channels` で絞ると、1-2 の `channelIndex` が作った `index.txt` が入っていることも確かめられます。
+APK は ZIP なので、`unzip -l app/build/outputs/apk/debug/app-debug.apk` で一覧を見られます。`grep sanpoguide/channels` で絞ると、1-2 の `channelIndex` が作った `index.txt` が入っていることも確かめられます。
 
 今の Android の署名（v2 以降）は、ZIP の中のファイルではなく、ZIP の構造そのものに署名を埋め込みます。そのため、APK を一度ほどいて ZIP にし直すと、中身が同じでも署名が壊れます。
 
@@ -136,10 +136,10 @@ APK は ZIP なので、`unzip -l apps/sanpoguide/app/build/outputs/apk/debug/ap
 1-2 で作ったデバッグ版の APK の署名を、Android SDK の `apksigner` で確かめます。
 
 ```sh
-cd /c/Dev/apps/SanpoGuide
+cd /c/Dev/apps/yorisoi-sanpoguide
 SDK=$(sed -n 's/^sdk.dir=//p' local.properties | sed 's/\\:/:/; s/\\\\/\//g')
 APKSIGNER=$(ls -d "$SDK"/build-tools/* | tail -1)/apksigner.bat
-"$APKSIGNER" verify --print-certs apps/sanpoguide/app/build/outputs/apk/debug/app-debug.apk
+"$APKSIGNER" verify --print-certs app/build/outputs/apk/debug/app-debug.apk
 ```
 
 1 行目は、`local.properties` に書かれた Android SDK の場所を取り出しています。

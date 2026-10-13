@@ -12,7 +12,7 @@
 
 ## maybeTalk はいつ呼ばれるか
 
-[WalkService.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) の `maybeTalk()` は、次の 3 つのときに呼ばれます。
+[WalkService.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) の `maybeTalk()` は、次の 3 つのときに呼ばれます。
 
 | きっかけ | 場所 | 章 |
 |---|---|---|
@@ -22,11 +22,11 @@
 
 呼ばれるたびに、「今、話すべきことがあるか」を上から順に調べ、**最初に当たった 1 つだけ** を話します。何も当たらなければ、何も話しません。
 
-調べるのは `maybeTalk` 自身ではなく、[TalkDecider.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/TalkDecider.kt) の `TalkDecider` です。以前は `maybeTalk` の中に判断がそのまま書かれていましたが、2026-10-12 に、場面ごとにテストできるよう外に出しました（[RFC-003](../../SanpoGuide/docs/refactoring/RFC-003-talk-decision.md)）。
+調べるのは `maybeTalk` 自身ではなく、[TalkDecider.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/TalkDecider.kt) の `TalkDecider` です。以前は `maybeTalk` の中に判断がそのまま書かれていましたが、2026-10-12 に、場面ごとにテストできるよう外に出しました（[RFC-003](../../yorisoi-platform/docs/refactoring/RFC-003-talk-decision.md)）。
 
 ## 全体の流れ
 
-[SanpoGuide/docs/architecture.md](../../SanpoGuide/docs/architecture.md) の図 2 にも同じ流れが描かれています。
+[yorisoi-sanpoguide/docs/architecture.md](../../yorisoi-sanpoguide/docs/architecture.md) の図 2 にも同じ流れが描かれています。
 
 ```mermaid
 flowchart TB
@@ -111,7 +111,7 @@ object TalkDecider {
 
 ### ルールを聞く仕組み: TalkEngine とゲート
 
-一覧を上から聞く仕組みそのものは、キット `kit-companion` の [TalkEngine.kt](../../SanpoGuide/platform/kit-companion/src/main/kotlin/io/github/duwenji/yorisoi/kit/companion/TalkEngine.kt) にあります。サイクリングの伴走など、ほかの付き添いアプリでも使えるように、散歩のことを何も知らない形で書いてあります。
+一覧を上から聞く仕組みそのものは、キット `kit-companion` の [TalkEngine.kt](../../yorisoi-platform/kit-companion/src/main/kotlin/io/github/duwenji/yorisoi/kit/companion/TalkEngine.kt) にあります。サイクリングの伴走など、ほかの付き添いアプリでも使えるように、散歩のことを何も知らない形で書いてあります。
 
 ```kotlin
 class TalkEngine<S : TalkGates<G>, D : Any, G>(val rules: List<TalkRule<S, D, G>>, private val nothing: D) {
@@ -261,7 +261,7 @@ Rule("sunset", safety = true) { s ->
 },
 ```
 
-`in 5..30` は「5 以上 30 以下」という範囲の判定です。コメントの "an empty range if the settings cross" に注目してください。設定で「何分前から」（30）より「何分前を過ぎたら知らせない」（5）を大きくしてしまうと、`35..30` のような **空の範囲** になり、何も当たりません。設定画面がこの組み合わせを保存させないのは、このためです（[Threshold.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt) の `conflicts`）。
+`in 5..30` は「5 以上 30 以下」という範囲の判定です。コメントの "an empty range if the settings cross" に注目してください。設定で「何分前から」（30）より「何分前を過ぎたら知らせない」（5）を大きくしてしまうと、`35..30` のような **空の範囲** になり、何も当たりません。設定画面がこの組み合わせを保存させないのは、このためです（[Threshold.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/Threshold.kt) の `conflicts`）。
 
 ### ここから雑談の間隔を守る
 
@@ -289,7 +289,7 @@ Rule("sunset", safety = true) { s ->
 
 ### 話しかけの頻度: TalkLevel
 
-間隔の長さは、チャンネルの「話しかけの頻度」で決まります（[TalkLevel.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/TalkLevel.kt)）。
+間隔の長さは、チャンネルの「話しかけの頻度」で決まります（[TalkLevel.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/TalkLevel.kt)）。
 
 ```kotlin
 enum class TalkLevel(
@@ -329,7 +329,7 @@ enum class TalkLevel(
 
 ### WeatherChangeDetector を読む
 
-[WeatherChange.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherChange.kt):
+[WeatherChange.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherChange.kt):
 
 ```kotlin
 /** A turn for the worse, most serious first. Each kind also covers the ones after it. */
@@ -382,11 +382,11 @@ enum の値は、書いた順に大小を比べられます（`THUNDER < HEAVY_R
 ### 1. 天気の判定のテストを流す
 
 ```sh
-cd /c/Dev/apps/SanpoGuide
-./gradlew :apps:sanpoguide:app:testDebugUnitTest --tests '*WeatherChangeDetectorTest*' --tests '*TalkDeciderTest*'
+cd /c/Dev/apps/yorisoi-sanpoguide
+./gradlew :app:testDebugUnitTest --tests '*WeatherChangeDetectorTest*' --tests '*TalkDeciderTest*'
 ```
 
-27 件（天気の判定 8 件と、話す判断の場面 19 件）のテストが通ります。テストの名前を [WeatherChangeDetectorTest.kt](../../SanpoGuide/apps/sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/companion/WeatherChangeDetectorTest.kt) で見てみてください。
+27 件（天気の判定 8 件と、話す判断の場面 19 件）のテストが通ります。テストの名前を [WeatherChangeDetectorTest.kt](../../yorisoi-sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/companion/WeatherChangeDetectorTest.kt) で見てみてください。
 
 - steady weather is no news（天気が変わらなければ、知らせない）
 - rain starting within the hour（1 時間以内に雨が降り出す）
@@ -395,7 +395,7 @@ cd /c/Dev/apps/SanpoGuide
 
 ### 2. enum の並びを入れ替える
 
-[WeatherChange.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherChange.kt) の `WeatherChangeKind` を、深刻でない順に並べ替えます。
+[WeatherChange.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherChange.kt) の `WeatherChangeKind` を、深刻でない順に並べ替えます。
 
 ```kotlin
 enum class WeatherChangeKind {
@@ -428,7 +428,7 @@ enum class WeatherChangeKind {
 ### 3. 元に戻す
 
 ```sh
-git checkout -- apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherChange.kt
+git checkout -- app/src/main/java/io/github/duwenji/sanpoguide/companion/WeatherChange.kt
 git status
 ```
 

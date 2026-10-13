@@ -39,7 +39,7 @@ export const ifMatch = (rev: number) => ({ 'If-Match': `"${rev}"` });
 | TODO | [TODO.md](../../yorisoi-console/docs/TODO.md) | 次に何をするか。決めたことの一覧 |
 | 作業の記録 | [skill-logs/](../../yorisoi-console/docs/skill-logs/) | 文書や実装を、どんな段取りで作り、何に気づいたか |
 
-SanpoGuide の [docs/](../../SanpoGuide/docs/) にも、同じ種類の文書があります。アプリと管理システムの境界を決める文書（API-002 [channel-list-api.md](../../SanpoGuide/docs/channel-list-api.md)・API-003 [channel-package-format.md](../../SanpoGuide/docs/channel-package-format.md)・API-004 [material-producer-api.md](../../SanpoGuide/docs/material-producer-api.md)）は、アプリの側に置いています（[0-1](../00-overview/01-what-we-build.md)）。アプリが受け取るものの形は、アプリが決めるからです。素材提供者を切り出す決定（[ADR-002](../../SanpoGuide/docs/adr/ADR-002-material-producers.md)）と、2 つのリポジトリに共通する関係者の呼び方（[stakeholders.md](../../SanpoGuide/docs/stakeholders.md)）も、SanpoGuide の側にあります。
+SanpoGuide の [docs/](../../yorisoi-sanpoguide/docs/) にも、同じ種類の文書があります。アプリと管理システムの境界を決める文書（API-002 [channel-list-api.md](../../yorisoi-platform/docs/channel-list-api.md)・API-003 [channel-package-format.md](../../yorisoi-platform/docs/channel-package-format.md)・API-004 [material-producer-api.md](../../yorisoi-platform/docs/material-producer-api.md)）は、アプリの側に置いています（[0-1](../00-overview/01-what-we-build.md)）。アプリが受け取るものの形は、アプリが決めるからです。素材提供者を切り出す決定（[ADR-002](../../yorisoi-platform/docs/adr/ADR-002-material-producers.md)）と、2 つのリポジトリに共通する関係者の呼び方（[stakeholders.md](../../yorisoi-platform/docs/stakeholders.md)）も、SanpoGuide の側にあります。
 
 ```mermaid
 flowchart TB

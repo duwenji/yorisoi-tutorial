@@ -1,6 +1,6 @@
 # チュートリアルの見直し手順
 
-このチュートリアルは、両リポジトリの `main` を追いかけます。コミットに固定しないので、コードが変わると説明が古くなります。次の手順で定期的に見直してください。
+このチュートリアルは、yorisoi-platform・yorisoi-sanpoguide・yorisoi-console の `main` を追いかけます。コミットに固定しないので、コードが変わると説明が古くなります。次の手順で定期的に見直してください。
 
 ## いつ見直すか
 
@@ -17,8 +17,9 @@
 [README.md](README.md) の「照合したコミット」から今の `main` までの差分を見ます。
 
 ```sh
-cd ../SanpoGuide && git pull && git log --oneline ac66b5d..main
-cd ../yorisoi-console && git pull && git log --oneline 68e7852..main
+cd ../yorisoi-platform && git pull && git log --oneline 960f112..main
+cd ../yorisoi-sanpoguide && git pull && git log --oneline 8d13f1a..main
+cd ../yorisoi-console && git pull && git log --oneline de5c832..main
 ```
 
 ファイル名だけを見るなら `git diff --stat <前回>..main` が便利です。
@@ -47,7 +48,7 @@ done
 
 ```sh
 grep -rn "fun channelList\|export function verifyChannelList\|export async function signChannelList" \
-  ../SanpoGuide ../yorisoi-console --include=*.kt --include=*.ts
+  ../yorisoi-platform ../yorisoi-sanpoguide ../yorisoi-console --include=*.kt --include=*.ts
 ```
 
 ### 4. 引用したコードを照合する
@@ -66,8 +67,9 @@ grep -rn "fun channelList\|export function verifyChannelList\|export async funct
 依存ライブラリの版が上がっていたら、該当する技術カード（`ref/`）の「版と公式ドキュメント」の表を直し、「最小の使い方」が今の版でも動くかを確かめます。AWS のサービスは、上限（例: KMS の Sign は 4,096 バイト）や料金が変わることがあるので、公式ドキュメントと料金のページも見直します。
 
 ```sh
-cd ../SanpoGuide && git diff ac66b5d..main -- '*.gradle.kts' gradle/
-cd ../yorisoi-console && git diff 68e7852..main -- '**/package.json'
+cd ../yorisoi-platform && git diff 960f112..main -- '*.gradle.kts' gradle/
+cd ../yorisoi-sanpoguide && git diff 8d13f1a..main -- '*.gradle.kts' gradle/
+cd ../yorisoi-console && git diff de5c832..main -- '**/package.json'
 ```
 
 ### 7. 記録を更新する
@@ -80,4 +82,4 @@ cd ../yorisoi-console && git diff 68e7852..main -- '**/package.json'
 - コードの断片は、説明に要る部分だけを短く引用する。省いたところは `// …` と書く
 - 契約書の決定事項（P-1、V-03 など）を引くときは、番号も添える。読者が元の文書で根拠をたどれるようにする
 - 未実装の機能に触れるときは、両リポジトリの文書にならって 🚧 を付ける
-- 人の呼び方は SanpoGuide の [docs/stakeholders.md](../SanpoGuide/docs/stakeholders.md) に従う（散策者・チャンネル提供者・素材提供者・運営、リスト・リストID）。コードや JSON の名前（`publisher`・`producer`・`provider`）はそのまま書き、地の文の呼び方とは分ける。プロンプトやコミットのメッセージを引用するときは、元の言葉（「利用者」など）のまま写す
+- 人の呼び方は yorisoi-platform の [docs/stakeholders.md](../yorisoi-platform/docs/stakeholders.md) に従う（散策者・チャンネル提供者・素材提供者・運営、リスト・リストID）。コードや JSON の名前（`publisher`・`producer`・`provider`）はそのまま書き、地の文の呼び方とは分ける。プロンプトやコミットのメッセージを引用するときは、元の言葉（「利用者」など）のまま写す

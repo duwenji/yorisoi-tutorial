@@ -7,36 +7,39 @@
 ## この章で学ぶこと
 
 - 散策ガイドのビルドの設定ファイルが、それぞれ何を決めているか
-- モジュール（アプリ・プロンプト・パック・コア・キット）の関係
+- モジュール（アプリ・プロンプト・パック・コア・キット）の関係と、別のリポジトリの部品を使う方法
 - 依存ライブラリの書き方と、版の決まり方（バージョンカタログ）
 - 自分で作ったタスク（`channelIndex`）が何をしているか
 
 ## ビルドの設定ファイル
 
+SanpoGuide のコードは 2 つのリポジトリに分かれています。アプリは `yorisoi-sanpoguide`、ほかの付き添いアプリとも共有する部品（コアとキット）は `yorisoi-platform` です。どちらも Gradle のプロジェクトで、設定ファイルの形は同じです。
+
 ```
-SanpoGuide/
+yorisoi-sanpoguide/
 ├── settings.gradle.kts          どのモジュールがあるか、ライブラリをどこから取るか
 ├── build.gradle.kts             全体: プラグインの版
 ├── gradle.properties            Gradle の設定と、自分で決めた値
 ├── gradle/libs.versions.toml    依存ライブラリとプラグインの版の一覧（バージョンカタログ）
 ├── gradle/wrapper/              Gradle 本体の版（Gradle Wrapper）
 ├── gradlew, gradlew.bat         Gradle を動かす入口
-├── apps/sanpoguide/
-│   ├── app/build.gradle.kts     :apps:sanpoguide:app（Android アプリ）
-│   └── prompts/build.gradle.kts :apps:sanpoguide:prompts（プロンプト・パック、JVM ライブラリ）
-└── platform/
-    ├── core-format/…            :platform:core-format（コア、JVM ライブラリ）
-    ├── core-prompt/…            :platform:core-prompt（コア、JVM ライブラリ）
-    └── kit-voice/… など         :platform:kit-*（キット。kit-companion 以外は Android ライブラリ）
+├── app/build.gradle.kts         :app（Android アプリ）
+└── prompts/build.gradle.kts     :prompts（プロンプト・パック、JVM ライブラリ）
+
+yorisoi-platform/
+├── settings.gradle.kts・build.gradle.kts・gradle.properties・gradle/ など（同じ形）
+├── core-format/build.gradle.kts :core-format（コア、JVM ライブラリ）
+├── core-prompt/build.gradle.kts :core-prompt（コア、JVM ライブラリ）
+└── kit-voice/… など             :kit-*（キット。kit-companion 以外は Android ライブラリ）
 ```
 
 ファイル名が `.kts` で終わるのは、設定を **Kotlin で書いている**（Kotlin DSL）からです。1-1 の文法がそのまま使えます。
 
-> 最初は `:app` と `:station-format` の 2 つのモジュールでした。2026-10-12 に、付き添いアプリのエコシステム（[ADR-003](../../SanpoGuide/docs/adr/ADR-003-companion-app-platform.md)）のために今の形に分けています（[RFC-002](../../SanpoGuide/docs/refactoring/RFC-002-platform-stage1.md)、[5-1](../05-station-format/01-jvm-library.md)）。
+> 最初は `:app` と `:station-format` の 2 つのモジュールでした。2026-10-12 に、付き添いアプリのエコシステム（[ADR-003](../../yorisoi-platform/docs/adr/ADR-003-companion-app-platform.md)）のためにコアとキットを切り出し（[RFC-002](../../yorisoi-platform/docs/refactoring/RFC-002-platform-stage1.md)、[5-1](../05-station-format/01-jvm-library.md)）、2026-10-13 にそれを別のリポジトリにしました（[RFC-004](../../yorisoi-platform/docs/refactoring/RFC-004-split-repositories.md)）。
 
 ## settings.gradle.kts: 全体の地図
 
-[settings.gradle.kts](../../SanpoGuide/settings.gradle.kts):
+[settings.gradle.kts](../../yorisoi-sanpoguide/settings.gradle.kts)（アプリ側。少し省略しています）:
 
 ```kotlin
 pluginManagement {
@@ -51,33 +54,43 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // The yorisoi platform (RFC-004 R-4). …
+        if (gprUser != null && gprKey != null) {
+            maven {
+                url = uri("https://maven.pkg.github.com/duwenji/yorisoi-platform")
+                credentials { username = gprUser; password = gprKey }
+                content { includeGroup("io.github.duwenji.yorisoi") }
+            }
+        }
+        mavenLocal {
+            content { includeGroup("io.github.duwenji.yorisoi") }
+        }
     }
 }
 rootProject.name = "SanpoGuide"
-// The platform (ADR-003): core libraries (plain JVM) and Android kits.
-include(":platform:core-format")
-include(":platform:core-prompt")
-include(":platform:kit-voice")
-// … kit-llm・kit-geo・kit-mood・kit-companion
-// SanpoGuide: the app and its prompt pack.
-include(":apps:sanpoguide:app")
-include(":apps:sanpoguide:prompts")
+include(":app")
+include(":prompts")
+
+providers.gradleProperty("yorisoi.platformDir").orNull?.let { includeBuild(it) }
 ```
 
-- `include(…)`: このリポジトリには **9 つのモジュール** がある。`:` で区切った名前は、フォルダの階層に対応します（`:apps:sanpoguide:app` は `apps/sanpoguide/app/`）
+- `include(…)`: このリポジトリには **2 つのモジュール** がある。名前はフォルダに対応します（`:app` は `app/`）
 - `repositories`: ライブラリを取ってくる場所。`google()` は Google の Maven リポジトリ（AndroidX など）、`mavenCentral()` は Java・Kotlin のライブラリの集積所です
+- `maven { url = … }`: yorisoi-platform が公開した部品を取ってくる場所（GitHub Packages）。読むにはトークンが要ります（[0-3](../00-overview/03-setup.md)）。`content { includeGroup(…) }` で、ここから取るのは `io.github.duwenji.yorisoi` の部品だけ、と絞っています
+- `mavenLocal()`: 手元の Maven（`~/.m2`）。yorisoi-platform で `publishToMavenLocal` したものを使えます
+- `includeBuild(…)`: 下の「別のリポジトリの部品を、ソースのまま使う」で説明します
 - `FAIL_ON_PROJECT_REPOS`: 取ってくる場所をここ 1 か所で決め、モジュールごとに勝手に足すのを禁止しています。どこからライブラリが来るかを把握しやすくするためです
 
-| 種類 | モジュール | 中身 |
-|---|---|---|
-| アプリ | `:apps:sanpoguide:app` | 画面・散策のサービス・設定など、SanpoGuide そのもの |
-| プロンプト・パック | `:apps:sanpoguide:prompts` | SanpoGuide のプロンプトの文面と組み込みのチャンネル（素の JVM） |
-| コア | `:platform:core-format`・`:platform:core-prompt` | チャンネルの形式と確認、テンプレートの仕組み（素の JVM。アプリをまたいで使う） |
-| キット | `:platform:kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`・`kit-companion` | 音声・AI の呼び出し・地図と天気・雰囲気（Android のライブラリ）、話す判断のルールとゲート（`kit-companion` だけは素の JVM。RFC-003） |
+| 種類 | モジュール | リポジトリ | 中身 |
+|---|---|---|---|
+| アプリ | `:app` | yorisoi-sanpoguide | 画面・散策のサービス・設定など、SanpoGuide そのもの |
+| プロンプト・パック | `:prompts` | yorisoi-sanpoguide | SanpoGuide のプロンプトの文面と組み込みのチャンネル（素の JVM） |
+| コア | `:core-format`・`:core-prompt` | yorisoi-platform | チャンネルの形式と確認、テンプレートの仕組み（素の JVM。アプリをまたいで使う） |
+| キット | `:kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`・`kit-companion` | yorisoi-platform | 音声・AI の呼び出し・地図と天気・雰囲気（Android のライブラリ）、話す判断のルールとゲート（`kit-companion` だけは素の JVM。RFC-003） |
 
 ## build.gradle.kts（全体）: プラグインの版
 
-[build.gradle.kts](../../SanpoGuide/build.gradle.kts):
+[build.gradle.kts](../../yorisoi-sanpoguide/build.gradle.kts):
 
 ```kotlin
 plugins {
@@ -101,9 +114,9 @@ plugins {
 | `org.jetbrains.kotlin.plugin.compose` | Jetpack Compose のコンパイラ | アプリ・画面の部品を持つキット（`kit-geo`・`kit-mood`） |
 | `org.jetbrains.kotlin.jvm` | 普通の JVM 向けの Kotlin | コア・プロンプト・パック・`kit-companion` |
 
-## apps/sanpoguide/app/build.gradle.kts: アプリの設定
+## app/build.gradle.kts: アプリの設定
 
-[apps/sanpoguide/app/build.gradle.kts](../../SanpoGuide/apps/sanpoguide/app/build.gradle.kts) の中心部分です。
+[app/build.gradle.kts](../../yorisoi-sanpoguide/app/build.gradle.kts) の中心部分です。
 
 ```kotlin
 android {
@@ -158,8 +171,8 @@ dependencies {
 
     implementation(libs.okhttp)
     implementation(libs.anthropic.java)
-    implementation(project(":apps:sanpoguide:prompts"))
-    implementation(project(":platform:kit-voice"))
+    implementation(project(":prompts"))
+    implementation(libs.yorisoi.kit.voice)
     // … kit-llm・kit-geo・kit-mood・kit-companion
     implementation(libs.tink.android)
     // …
@@ -215,36 +228,65 @@ implementation(libs.androidx.fragment)   // androidx.fragment:fragment:1.8.8
 
 ### 版を 1 か所に集める: バージョンカタログ
 
-モジュールが増えると、同じライブラリ（OkHttp や `org.json`）を何か所にも書くことになり、版がずれやすくなります。そこで、版を [gradle/libs.versions.toml](../../SanpoGuide/gradle/libs.versions.toml) にまとめ、どのモジュールも `libs.…` の名前で参照しています（RFC-002 の R-10）。版を上げるときは、このファイルの 1 行を直すだけです。
+モジュールが増えると、同じライブラリ（OkHttp や `org.json`）を何か所にも書くことになり、版がずれやすくなります。そこで、版を [gradle/libs.versions.toml](../../yorisoi-sanpoguide/gradle/libs.versions.toml) にまとめ、どのモジュールも `libs.…` の名前で参照しています（RFC-002 の R-10）。版を上げるときは、このファイルの 1 行を直すだけです。
 
-### モジュールへの依存
+### モジュールへの依存と、別のリポジトリの部品への依存
 
-`implementation(project(":apps:sanpoguide:prompts"))` は、同じリポジトリのプロンプト・パックに依存するという意味です。アプリをビルドすると、先にプロンプト・パック（とそれが使うコア）がビルドされます。
+`implementation(project(":prompts"))` は、**同じリポジトリ** のプロンプト・パックに依存するという意味です。アプリをビルドすると、先にプロンプト・パックがビルドされます。
+
+一方、`implementation(libs.yorisoi.kit.voice)` は、**別のリポジトリ（yorisoi-platform）が公開した部品** への依存です。カタログには、ほかのライブラリと同じ形で書いてあります。
+
+```toml
+# gradle/libs.versions.toml
+[versions]
+yorisoi = "1.0.0"
+
+[libraries]
+yorisoi-kit-voice = { module = "io.github.duwenji.yorisoi:kit-voice", version.ref = "yorisoi" }
+yorisoi-core-format = { module = "io.github.duwenji.yorisoi:core-format", version.ref = "yorisoi" }
+```
+
+アプリから見ると、yorisoi-platform の部品は OkHttp と同じ「外のライブラリ」です。版（`yorisoi = "1.0.0"`）を固定して使うので、yorisoi-platform が変わっても、アプリは自分の都合の良いときに版を上げられます。
 
 プロンプト・パックは、コアに `api` で依存しています。
 
 ```kotlin
-// apps/sanpoguide/prompts/build.gradle.kts
+// prompts/build.gradle.kts
 dependencies {
-    api(project(":platform:core-format"))
-    api(project(":platform:core-prompt"))
+    api(libs.yorisoi.core.format)
+    api(libs.yorisoi.core.prompt)
 }
 ```
 
 `implementation` で依存したものは、自分を使う側からは見えません。`api` にすると、自分を使う側（アプリ）からも見えます。プロンプト・パックの関数は、引数や戻り値にコアの型（`StationPackage` など）を使うので、使う側にもコアが見えていなければなりません。だから `api` です。
 
+### 別のリポジトリの部品を、ソースのまま使う: composite build
+
+キットを直しながらアプリで試したいとき、毎回 yorisoi-platform で公開してから版を上げるのは手間です。そこで、**composite build**（複合ビルド）を使います。`settings.gradle.kts` の最後の行です。
+
+```kotlin
+providers.gradleProperty("yorisoi.platformDir").orNull?.let { includeBuild(it) }
+```
+
+`-Pyorisoi.platformDir=../yorisoi-platform` を付けて Gradle を動かすと、`includeBuild` で yorisoi-platform のプロジェクトがビルドに加わります。yorisoi-platform のモジュールは、`group`（`io.github.duwenji.yorisoi`）と名前（`kit-voice` など）が公開の座標と同じなので、Gradle は **公開の版の代わりに、隣のフォルダのソースを自動で使います**。
+
+```sh
+cd /c/Dev/apps/yorisoi-sanpoguide
+./gradlew :app:assembleDebug -Pyorisoi.platformDir=../yorisoi-platform
+```
+
+CI ではこの値を設定しません。CI は常に、公開された版で確かめます。
+
 ## コアの build.gradle.kts: JVM ライブラリ
 
-[platform/core-format/build.gradle.kts](../../SanpoGuide/platform/core-format/build.gradle.kts) は、Android ではなく **普通の JVM のライブラリ** の設定です。
+[core-format/build.gradle.kts](../../yorisoi-platform/core-format/build.gradle.kts)（yorisoi-platform）は、Android ではなく **普通の JVM のライブラリ** の設定です。
 
 ```kotlin
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    `maven-publish`
 }
 
-group = "io.github.duwenji.yorisoi"
-version = providers.gradleProperty("yorisoiCoreVersion").get()
+description = "Channel and collection package formats, … Requires org.json on the classpath."
 
 dependencies {
     // Android ships org.json; bundling the jar into the app would clash with it
@@ -256,23 +298,22 @@ dependencies {
 
 - `kotlin.jvm` プラグインなので、Android の SDK がなくてもビルド・テストできます（[0-3](../00-overview/03-setup.md) で最初に流したのはこれです）
 - `org.json` は `compileOnly`: Android は `org.json` を標準で持っているので、ライブラリに同梱すると重複して lint に叱られます。使う側（管理システムの `validator`）が自分で足します
-- 版は `gradle.properties` の `yorisoiCoreVersion` から読みます。アプリの版（`0.3.0`）とは別に管理しています
-- `maven-publish` で GitHub Packages に公開します（[5-3](../05-station-format/03-publish.md)）
+- `group`・`version`・公開の設定は、モジュールごとには書かず、yorisoi-platform の全体の [build.gradle.kts](../../yorisoi-platform/build.gradle.kts) の `subprojects { … }` でまとめて決めています。版は [gradle.properties](../../yorisoi-platform/gradle.properties) の `yorisoiVersion`（すべてのモジュールで 1 つ）です。公開の仕組みは [5-3](../05-station-format/03-publish.md) で見ます
 
-[gradle.properties](../../SanpoGuide/gradle.properties):
+アプリ側の [gradle.properties](../../yorisoi-sanpoguide/gradle.properties):
 
 ```properties
 org.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8
 android.useAndroidX=true
 # …
-yorisoiCoreVersion=1.3.0
-# …
-sanpoguidePromptsVersion=1.1.0
+sanpoguidePromptsVersion=2.0.0
 ```
+
+`sanpoguidePromptsVersion` はプロンプト・パックの公開の版です。アプリの版（`0.3.0`）とは別に管理しています。
 
 ### 自分で作ったタスク: channelIndex
 
-プロンプト・パックの [build.gradle.kts](../../SanpoGuide/apps/sanpoguide/prompts/build.gradle.kts) には、自分で作ったタスクがあります。
+プロンプト・パックの [build.gradle.kts](../../yorisoi-sanpoguide/prompts/build.gradle.kts) には、自分で作ったタスクがあります。
 
 ```kotlin
 // A jar (or the APK) can't list a resource folder, so the built-in channels come with a list of
@@ -301,32 +342,26 @@ sourceSets.main {
 ### 1. モジュールの一覧
 
 ```sh
-cd /c/Dev/apps/SanpoGuide
+cd /c/Dev/apps/yorisoi-sanpoguide
 ./gradlew projects
 ```
 
 ```
 Root project 'SanpoGuide'
-+--- Project ':apps'
-|    \--- Project ':apps:sanpoguide'
-|         +--- Project ':apps:sanpoguide:app'
-|         \--- Project ':apps:sanpoguide:prompts'
-\--- Project ':platform'
-     +--- Project ':platform:core-format'
-     +--- Project ':platform:core-prompt'
-     +--- Project ':platform:kit-companion'
-     +--- Project ':platform:kit-geo'
-     +--- Project ':platform:kit-llm'
-     +--- Project ':platform:kit-mood'
-     \--- Project ':platform:kit-voice'
++--- Project ':app'
+\--- Project ':prompts'
 ```
 
-`:apps`・`:apps:sanpoguide`・`:platform` は、フォルダの階層から Gradle が自動で作る入れ物で、中身はありません。
+yorisoi-platform で同じことをすると、コアとキットの 7 つが出ます。
+
+```sh
+cd ../yorisoi-platform && ./gradlew projects && cd ../yorisoi-sanpoguide
+```
 
 ### 2. アプリが使うライブラリと、実際の版
 
 ```sh
-./gradlew :apps:sanpoguide:app:dependencies --configuration releaseRuntimeClasspath | grep -E '^[+\\]--- '
+./gradlew :app:dependencies --configuration releaseRuntimeClasspath | grep -E '^[+\\]--- '
 ```
 
 ```
@@ -336,21 +371,23 @@ Root project 'SanpoGuide'
 +--- androidx.compose.material3:material3 -> 1.3.2
 …
 +--- com.anthropic:anthropic-java:2.34.0
-+--- project :apps:sanpoguide:prompts
-+--- project :platform:kit-voice
++--- project :prompts
++--- io.github.duwenji.yorisoi:kit-voice:1.0.0
 …
-+--- project :platform:kit-companion
++--- io.github.duwenji.yorisoi:kit-companion:1.0.0
 +--- com.google.crypto.tink:tink-android:1.23.0
 \--- com.google.android.gms:play-services-code-scanner:16.1.0
 ```
 
 `ui -> 1.8.2` が、BOM が決めた版です。`grep` を外すと、それぞれのライブラリが連れてくるライブラリまで木の形で全部見えます（とても長いです）。
 
+同じコマンドに `-Pyorisoi.platformDir=../yorisoi-platform` を付けると、yorisoi の部品が `io.github.duwenji.yorisoi:kit-voice:1.0.0 -> project :yorisoi-platform:kit-voice` のように、ソースに置き換わったことが分かります。
+
 ### 3. 自分で作ったタスクを動かす
 
 ```sh
-./gradlew :apps:sanpoguide:prompts:channelIndex
-head -5 apps/sanpoguide/prompts/build/generated/channel-index/sanpoguide/channels/index.txt
+./gradlew :prompts:channelIndex
+head -5 prompts/build/generated/channel-index/sanpoguide/channels/index.txt
 ```
 
 ```
@@ -361,16 +398,24 @@ gourmet/prompts/guide/focus.md
 gourmet/prompts/guide/persona.md
 ```
 
-もう一度 `./gradlew :apps:sanpoguide:prompts:channelIndex --console=plain` を実行すると、今度は `> Task :apps:sanpoguide:prompts:channelIndex UP-TO-DATE` と表示され、何もしません。入力が変わっていないからです。
+もう一度 `./gradlew :prompts:channelIndex --console=plain` を実行すると、今度は `> Task :prompts:channelIndex UP-TO-DATE` と表示され、何もしません。入力が変わっていないからです。
 
 ### 4. デバッグ版の APK を作る
 
 ```sh
-./gradlew :apps:sanpoguide:app:assembleDebug
-ls -la apps/sanpoguide/app/build/outputs/apk/debug/
+./gradlew :app:assembleDebug
+ls -la app/build/outputs/apk/debug/
 ```
 
 `app-debug.apk` ができます（40MB 近くあります）。エミュレータや実機にそのまま入れるには `./gradlew installDebug` です。
+
+### 5. キットをソースに差し替えて試す
+
+```sh
+./gradlew :app:assembleDebug -Pyorisoi.platformDir=../yorisoi-platform
+```
+
+yorisoi-platform のモジュールも一緒にビルドされます（`> Task :yorisoi-platform:kit-voice:…` のような行が出ます）。キットを直してアプリで試すときは、この形で動かします。
 
 ## つまずきやすいところ
 
@@ -378,11 +423,12 @@ ls -la apps/sanpoguide/app/build/outputs/apk/debug/
 - **版を上げるときは BOM ごと**: Compose の個々のライブラリの版を BOM と別に指定すると、組み合わせが崩れることがあります
 - **`applicationId` を変えない**: 変えると、端末からは別のアプリに見え、更新ではなく新しいアプリとして入ります
 - **版はカタログで**: モジュールの `build.gradle.kts` に版を直接書くと、モジュールごとに版がずれていきます
+- **yorisoi の部品が見つからない**（`Could not find io.github.duwenji.yorisoi:…`）: GitHub Packages のトークン（`gpr.user`・`gpr.key`）がないか、yorisoi-platform をまだ `publishToMavenLocal` していません（[0-3](../00-overview/03-setup.md)）
 
 ## 確認問題
 
 <details>
-<summary>問 1. コア（<code>:platform:core-format</code>）が Android のプラグインではなく <code>kotlin.jvm</code> を使うのはなぜですか。</summary>
+<summary>問 1. コア（<code>core-format</code>）が Android のプラグインではなく <code>kotlin.jvm</code> を使うのはなぜですか。</summary>
 
 管理システムの機械審査（普通の JVM で動く Lambda）でも同じライブラリを使うためです。Android に依存しないので、Android の SDK がなくてもビルド・テストでき、JVM のどこでも使えます。
 

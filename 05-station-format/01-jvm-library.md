@@ -4,26 +4,26 @@
 
 ## この章で学ぶこと
 
-- コア（`core-format`・`core-prompt`）とプロンプト・パック（`apps/sanpoguide/prompts`）が何を持っていて、なぜアプリ本体から切り出したのか
+- コア（`core-format`・`core-prompt`）とプロンプト・パック（yorisoi-sanpoguide の `prompts`）が何を持っていて、なぜアプリ本体から切り出したのか
 - Android に依存しない作りにするための 3 つの工夫（差し替え口、`compileOnly`、クラスパスのリソース）
 - ファイルの集まりを抽象化する `StationFiles` と、その 3 つの実装
 - 「アプリの動きを変えずに」切り出すための進め方（RFC-001・RFC-002）
 
-> **名前の移り変わり**: この部の題にある `station-format` は、最初に切り出したときのモジュールの名前です（RFC-001、2026-10-03）。2026-10-12 に、付き添いアプリのエコシステム **yorisoi**（[ADR-003](../../SanpoGuide/docs/adr/ADR-003-companion-app-platform.md)）のために、アプリをまたいで使う **コア** と、SanpoGuide だけのものを入れた **プロンプト・パック** に分けました（[RFC-002](../../SanpoGuide/docs/refactoring/RFC-002-platform-stage1.md)）。`station-format` は 2.1.0 を最後に公開をやめています。この章では今の名前で説明し、フォルダ名（`05-station-format`）だけ元のままにしています。
+> **名前の移り変わり**: この部の題にある `station-format` は、最初に切り出したときのモジュールの名前です（RFC-001、2026-10-03）。2026-10-12 に、付き添いアプリのエコシステム **yorisoi**（[ADR-003](../../yorisoi-platform/docs/adr/ADR-003-companion-app-platform.md)）のために、アプリをまたいで使う **コア** と、SanpoGuide だけのものを入れた **プロンプト・パック** に分けました（[RFC-002](../../yorisoi-platform/docs/refactoring/RFC-002-platform-stage1.md)）。`station-format` は 2.1.0 を最後に公開をやめています。さらに 2026-10-13 に、コアとキットを別のリポジトリ yorisoi-platform に移しました（[RFC-004](../../yorisoi-platform/docs/refactoring/RFC-004-split-repositories.md)）。この章では今の名前で説明し、フォルダ名（`05-station-format`）だけ元のままにしています。
 
 ## 3 つの JVM モジュールが持っているもの
 
-SanpoGuide のリポジトリには、Android に依存しない素の Kotlin（JVM）のモジュールが 3 つあります（[1-2](../01-kotlin-android/02-gradle.md)）。
+Android に依存しない素の Kotlin（JVM）のモジュールが 3 つあります（[1-2](../01-kotlin-android/02-gradle.md)）。コアの 2 つは yorisoi-platform に、プロンプト・パックは yorisoi-sanpoguide にあります。
 
 | モジュール | パッケージ | 中身 | 章 |
 |---|---|---|---|
-| `:platform:core-format` | `io.github.duwenji.yorisoi.core.format` | チャンネルのパッケージの形式と確認（`StationValidator`・`StationManifest`・`Slot`・`PackageArchive`・`PublisherSignature`）、素材・きっかけ・見せ方の確認（`Cues`・`CollectionReferences`）、エコシステムの語彙と互換性の判定（`Ecosystem`）、リストの文書の確認（`ProviderDocuments`） | [5-2](02-package-format.md)・[6-5](../06-trust/05-verify-in-app.md) |
+| `core-format`（yorisoi-platform） | `io.github.duwenji.yorisoi.core.format` | チャンネルのパッケージの形式と確認（`StationValidator`・`StationManifest`・`Slot`・`PackageArchive`・`PublisherSignature`）、素材・きっかけ・見せ方の確認（`Cues`・`CollectionReferences`）、エコシステムの語彙と互換性の判定（`Ecosystem`）、リストの文書の確認（`ProviderDocuments`） | [5-2](02-package-format.md)・[6-5](../06-trust/05-verify-in-app.md) |
 | 〃 | `…core.format.material` | 素材集の形式と確認、素材提供者の共通の形（`Collections`・`Resources`・`Producers`・`Regions`） | [5-4](04-materials-cues.md) |
-| `:platform:core-prompt` | `io.github.duwenji.yorisoi.core.prompt` | プロンプトのテンプレートの仕組み（`PromptTemplates`） | [4-3](../04-outside/03-ai.md) |
-| `:apps:sanpoguide:prompts`（プロンプト・パック） | `io.github.duwenji.sanpoguide.prompt` | SanpoGuide のプロンプトの一覧（`Prompts`）、スロットの差し込み方（`StationPrompts`）、組み込みのチャンネル（`BuiltInChannels`）、審査の見本の場面（`ReviewSamples`） | [4-3](../04-outside/03-ai.md) |
+| `core-prompt`（yorisoi-platform） | `io.github.duwenji.yorisoi.core.prompt` | プロンプトのテンプレートの仕組み（`PromptTemplates`） | [4-3](../04-outside/03-ai.md) |
+| `:prompts`（プロンプト・パック、yorisoi-sanpoguide） | `io.github.duwenji.sanpoguide.prompt` | SanpoGuide のプロンプトの一覧（`Prompts`）、スロットの差し込み方（`StationPrompts`）、組み込みのチャンネル（`BuiltInChannels`）、審査の見本の場面（`ReviewSamples`） | [4-3](../04-outside/03-ai.md) |
 | 〃 | リソース | `sanpoguide/prompts/`（プロンプトの文面）、`sanpoguide/channels/`（組み込みの 6 つのチャンネル） | [4-3](../04-outside/03-ai.md) |
 
-コアは「チャンネルとは何か、どう確かめるか」という **エコシステム共通の決まりごと**、プロンプト・パックは「散歩の付き添いとして AI にどう話させるか」という **SanpoGuide の決まりごと** です。どちらにも、画面・位置情報・音・通信といった Android の機能は 1 つも入っていません。アプリ（`:apps:sanpoguide:app`）はプロンプト・パックに依存し、プロンプト・パックがコアを `api` で引き連れてきます。
+コアは「チャンネルとは何か、どう確かめるか」という **エコシステム共通の決まりごと**、プロンプト・パックは「散歩の付き添いとして AI にどう話させるか」という **SanpoGuide の決まりごと** です。どちらにも、画面・位置情報・音・通信といった Android の機能は 1 つも入っていません。アプリ（`:app`）はプロンプト・パックに依存し、プロンプト・パックがコアを `api` で引き連れてきます。
 
 ## なぜ切り出したのか
 
@@ -34,10 +34,10 @@ SanpoGuide のリポジトリには、Android に依存しない素の Kotlin（
 
 ```mermaid
 flowchart LR
-    CORE[":platform:core-format<br/>:platform:core-prompt<br/>（コア・素の JVM）"]
-    PACK[":apps:sanpoguide:prompts<br/>（プロンプト・パック・素の JVM）"]
-    CORE -->|"api(project(...))"| PACK
-    PACK -->|"project(...)"| APP[":apps:sanpoguide:app<br/>Android アプリ"]
+    CORE["yorisoi-platform<br/>core-format・core-prompt<br/>（コア・素の JVM）"]
+    PACK["yorisoi-sanpoguide<br/>:prompts<br/>（プロンプト・パック・素の JVM）"]
+    CORE -->|"GitHub Packages<br/>api(libs.yorisoi.core.format)"| PACK
+    PACK -->|"project(...)"| APP[":app<br/>Android アプリ"]
     CORE -->|"GitHub Packages<br/>io.github.duwenji.yorisoi:core-format"| VAL["yorisoi-console<br/>validator（Kotlin の Lambda）"]
     PACK -->|"GitHub Packages<br/>io.github.duwenji.sanpoguide:prompts"| VAL
 ```
@@ -49,7 +49,7 @@ flowchart LR
 
 [6-6](../06-trust/06-same-rules.md) で見たとおり、食い違いを防ぐいちばん確かな方法は **同じコードを使う** ことです。そのためには、そのコードが Android の上でも、AWS の Lambda（普通の JVM）の上でも動く必要があります。だからコアとプロンプト・パックは、Android に依存しない素の Kotlin（JVM）のライブラリになっています。
 
-最初の切り出しの経緯は [RFC-001](../../SanpoGuide/docs/refactoring/RFC-001-prompts-to-station-format.md) に記録されています。
+最初の切り出しの経緯は [RFC-001](../../yorisoi-sanpoguide/docs/refactoring/RFC-001-prompts-to-station-format.md) に記録されています。
 
 > 管理システム（sanpo-channel-console）は、審査でアプリと同じプロンプトを組み立てて AI に話させる。そのため、アプリ本体にあったプロンプトの組み立て（…）と、空いたスロットを埋める組み込みのチャンネルを、Android に依存しない `:station-format` に移す。（RFC-001「目的・背景」より要約。文書の名前は当時のまま）
 
@@ -57,7 +57,7 @@ flowchart LR
 
 > コアとキットは `io.github.duwenji.yorisoi.core.*`・`io.github.duwenji.yorisoi.kit.*`（ADR-003 E-22）。（…）プロンプト・パックとアプリは `io.github.duwenji.sanpoguide.*` のまま（RFC-002 の R-3）
 
-Android の部品（音声・地図・AI の呼び出しなど）は、同じく `platform/` の下の **キット**（`kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`）に分けました。話す判断のルールとゲート（`kit-companion`、RFC-003）もキットです（これだけは素の JVM）。キットは同じリポジトリのアプリだけが使い、公開しません（RFC-002 の R-11）。
+Android の部品（音声・地図・AI の呼び出しなど）は、同じく yorisoi-platform の **キット**（`kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`）に分けました。話す判断のルールとゲート（`kit-companion`、RFC-003）もキットです（これだけは素の JVM）。最初はキットを公開していませんでしたが（RFC-002 の R-11）、リポジトリを分けたので、今はコアと一緒に GitHub Packages に公開しています（RFC-004 の R-4）。
 
 ## Android に依存しないための 3 つの工夫
 
@@ -65,7 +65,7 @@ Android の部品（音声・地図・AI の呼び出しなど）は、同じく
 
 署名の確認には Ed25519 が要ります。でも Android 8〜12 には Ed25519 がなく、Tink が要りました。Tink の Android 版をコアに入れると、管理システムでは使えません。
 
-そこで `core-format` は、確認の約束（`Ed25519Verifier`）だけを決め、実装は使う側が渡します（[PublisherSignature.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/PublisherSignature.kt)、[6-5](../06-trust/05-verify-in-app.md)）。
+そこで `core-format` は、確認の約束（`Ed25519Verifier`）だけを決め、実装は使う側が渡します（[PublisherSignature.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/PublisherSignature.kt)、[6-5](../06-trust/05-verify-in-app.md)）。
 
 ```kotlin
 fun interface Ed25519Verifier {
@@ -85,7 +85,7 @@ fun interface Ed25519Verifier {
 JSON を読むのに `org.json` を使っています。ところが `org.json` は Android に最初から入っています。ライブラリに同梱すると、アプリの中で 2 つがぶつかります（lint の `DuplicatePlatformClasses`）。
 
 ```kotlin
-// platform/core-format/build.gradle.kts
+// core-format/build.gradle.kts（yorisoi-platform）
 dependencies {
     // Android ships org.json; bundling the jar into the app would clash with it
     // (lint: DuplicatePlatformClasses). Other users add it themselves.
@@ -105,7 +105,7 @@ dependencies {
 管理システムの [validator/build.gradle.kts](../../yorisoi-console/validator/build.gradle.kts) には、そのとおりのコメントがあります。
 
 ```kotlin
-implementation("io.github.duwenji.yorisoi:core-format:2.0.0")
+implementation("io.github.duwenji.yorisoi:core-format:1.0.0")
 implementation("io.github.duwenji.sanpoguide:prompts:2.0.0")
 // core-format leaves org.json to its users (Android ships one).
 implementation("org.json:json:20240303")
@@ -120,7 +120,7 @@ implementation("org.json:json:20240303")
 そこで、ファイルを JVM のモジュールの **リソース**（`src/main/resources/`）に移し、Java の標準の仕組み（クラスパス）で読むようにしました（RFC-001 の R-1）。今はプロンプト・パックのリソースです。
 
 ```kotlin
-// apps/sanpoguide/prompts/…/Prompts.kt
+// prompts/…/Prompts.kt
 /** The prompt files bundled with this library (in the app, inside the APK). */
 fun fromResources() = PromptTemplates { name ->
     val path = "$RESOURCE_DIR/$name.md"
@@ -138,13 +138,13 @@ fun fromResources() = PromptTemplates { name ->
 
 ただし、クラスパスのリソースには弱点があります。**フォルダの中にどんなファイルがあるかを一覧できない** のです（jar や APK の中は、普通のフォルダではないため）。組み込みのチャンネルを読むには、`history/` の中にどんなファイルがあるかを知る必要があります。
 
-そこで、ビルドのときにファイルの一覧（`index.txt`）を作って一緒に入れています。[1-2](../01-kotlin-android/02-gradle.md) で見た自作のタスク `channelIndex` です（RFC-001 の R-5。今は `apps/sanpoguide/prompts/build.gradle.kts` にある）。
+そこで、ビルドのときにファイルの一覧（`index.txt`）を作って一緒に入れています。[1-2](../01-kotlin-android/02-gradle.md) で見た自作のタスク `channelIndex` です（RFC-001 の R-5。今は `prompts/build.gradle.kts` にある）。
 
 ```kotlin
 // BuiltInChannels.kt
 /**
  * Every file under [RESOURCE_DIR], one relative path per line. Written by the build
- * (`channelIndex` in apps/sanpoguide/prompts/build.gradle.kts), since a jar can't list a folder.
+ * (`channelIndex` in prompts/build.gradle.kts), since a jar can't list a folder.
  */
 const val INDEX = "$RESOURCE_DIR/index.txt"
 ```
@@ -159,7 +159,7 @@ const val INDEX = "$RESOURCE_DIR/index.txt"
 | クラスパスのリソース | アプリや機械審査で、組み込みのチャンネルを読む |
 | ZIP の中身（メモリ） | 第三者のチャンネルのパッケージを展開したもの |
 
-確かめる側（`StationValidator`）が、それぞれの読み方を知っていたら大変です。そこで「ファイルの一覧と、ファイルの中身を返す」という約束だけを決めています（[StationFiles.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/StationFiles.kt)）。
+確かめる側（`StationValidator`）が、それぞれの読み方を知っていたら大変です。そこで「ファイルの一覧と、ファイルの中身を返す」という約束だけを決めています（[StationFiles.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/StationFiles.kt)）。
 
 ```kotlin
 /** The files of one channel, by path relative to its root (`channel.json`, `prompts/...`). */
@@ -225,8 +225,10 @@ object BuiltInChannels {
 ### 1. Android の SDK なしでテストを流す
 
 ```sh
-cd /c/Dev/apps/SanpoGuide
-./gradlew :platform:core-format:test :apps:sanpoguide:prompts:test
+cd /c/Dev/apps/yorisoi-platform
+./gradlew :core-format:test
+cd ../yorisoi-sanpoguide
+./gradlew :prompts:test
 ```
 
 どちらも素の JVM のモジュールなので、Android の SDK やエミュレータがなくてもテストを流せます（[0-3](../00-overview/03-setup.md)）。
@@ -234,16 +236,19 @@ cd /c/Dev/apps/SanpoGuide
 ### 2. jar を作って中を見る
 
 ```sh
-./gradlew :platform:core-format:jar :apps:sanpoguide:prompts:jar
-ls platform/core-format/build/libs/ apps/sanpoguide/prompts/build/libs/
+./gradlew :prompts:jar
+ls prompts/build/libs/
+cd ../yorisoi-platform
+./gradlew :core-format:jar
+ls core-format/build/libs/
 ```
 
-`core-format-1.3.0.jar` と `prompts-1.1.0.jar` のように、`gradle.properties` の `yorisoiCoreVersion`・`sanpoguidePromptsVersion` の版が付いた jar ができます（前の版の jar が残っていることもあります）。
+`prompts-2.0.0.jar` と `core-format-1.0.0.jar` のように、それぞれの `gradle.properties` の版（yorisoi-sanpoguide は `sanpoguidePromptsVersion`、yorisoi-platform は `yorisoiVersion`）が付いた jar ができます（前の版の jar が残っていることもあります）。
 
 まずプロンプト・パックの中です。
 
 ```sh
-P=apps/sanpoguide/prompts/build/libs/prompts-1.1.0.jar
+P=../yorisoi-sanpoguide/prompts/build/libs/prompts-2.0.0.jar
 unzip -l "$P" | awk '{print $4}' | sed 's#^\([^/]*/[^/]*/[^/]*\)/.*#\1/…#' | sort | uniq -c | sort -rn | head -10
 ```
 
@@ -280,7 +285,7 @@ gourmet/prompts/companion/topics.md
 コアの jar を見ます。
 
 ```sh
-J=platform/core-format/build/libs/core-format-1.3.0.jar
+J=core-format/build/libs/core-format-1.0.0.jar
 unzip -l "$J" | grep -c "io/github/duwenji/yorisoi/core"
 unzip -l "$J" | grep -c "org/json"
 ```

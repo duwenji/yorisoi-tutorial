@@ -10,42 +10,45 @@
 
 ## SanpoGuide のフォルダ
 
+SanpoGuide のコードは 2 つのリポジトリに分かれています（2026-10-13 に分けました。[RFC-004](../../yorisoi-platform/docs/refactoring/RFC-004-split-repositories.md)）。アプリそのものは `yorisoi-sanpoguide`、ほかの付き添いアプリとも共有する部品は `yorisoi-platform` にあります。アプリは、yorisoi-platform が GitHub Packages に公開した版を使います。
+
 ```
-SanpoGuide/
-├── apps/sanpoguide/
-│   ├── app/                     Android アプリ本体（モジュール :apps:sanpoguide:app）
-│   │   └── src/
-│   │       ├── main/java/io/github/duwenji/sanpoguide/
-│   │       │   ├── ui/          画面（Compose）と ViewModel
-│   │       │   ├── walk/        常駐サービス WalkService、きっかけの見せ方
-│   │       │   ├── companion/   話しかけの判断（TalkDecider・天気・施設・スポットの選び方）
-│   │       │   ├── guide/       AI への解説の頼み方
-│   │       │   ├── material/    素材の出どころ（Producer）、チャンネルのきっかけ
-│   │       │   ├── station/     チャンネル（remote/ は第三者のチャンネル）、アプリのプロファイル
-│   │       │   ├── history/     散歩の記録
-│   │       │   └── settings/    設定
-│   │       └── test/            単体テスト
-│   └── prompts/                 プロンプト・パック（:apps:sanpoguide:prompts、素の JVM）
-│       └── src/main/
-│           ├── kotlin/…/prompt/          プロンプトの組み立て、組み込みのチャンネル、審査の見本
-│           └── resources/sanpoguide/     組み込みのチャンネルとプロンプトの文面
-├── platform/                    アプリをまたいで使う部品（yorisoi、ADR-003）
-│   ├── core-format/             コア: チャンネル・パッケージと素材集の形式、署名の確認、リストの文書（素の JVM）
-│   ├── core-prompt/             コア: プロンプトのテンプレートの仕組み（素の JVM）
-│   ├── kit-voice/               キット: 読み上げ、背景音
-│   ├── kit-llm/                 キット: AI の呼び出し、API キーの暗号化
-│   ├── kit-geo/                 キット: スポット・施設・ルート・写真・天気の取得、地図
-│   ├── kit-mood/                キット: 雰囲気
-│   └── kit-companion/           キット: 話す判断のルールとゲート（素の JVM）
-├── docs/                        文書
-├── gradle/libs.versions.toml    依存ライブラリの版の一覧
+yorisoi-sanpoguide/
+├── app/                         Android アプリ本体（モジュール :app）
+│   └── src/
+│       ├── main/java/io/github/duwenji/sanpoguide/
+│       │   ├── ui/              画面（Compose）と ViewModel
+│       │   ├── walk/            常駐サービス WalkService、きっかけの見せ方
+│       │   ├── companion/       話しかけの判断（TalkDecider・天気・施設・スポットの選び方）
+│       │   ├── guide/           AI への解説の頼み方
+│       │   ├── material/        素材の出どころ（Producer）、チャンネルのきっかけ
+│       │   ├── station/         チャンネル（remote/ は第三者のチャンネル）、アプリのプロファイル
+│       │   ├── history/         散歩の記録
+│       │   └── settings/        設定
+│       └── test/                単体テスト
+├── prompts/                     プロンプト・パック（:prompts、素の JVM）
+│   └── src/main/
+│       ├── kotlin/…/prompt/              プロンプトの組み立て、組み込みのチャンネル、審査の見本
+│       └── resources/sanpoguide/         組み込みのチャンネルとプロンプトの文面
+├── docs/                        アプリの文書
+├── gradle/libs.versions.toml    依存ライブラリの版の一覧（yorisoi-platform の版もここ）
 ├── build.gradle.kts             ビルドの設定（全体）
-└── settings.gradle.kts          どのモジュールがあるか
+└── settings.gradle.kts          どのモジュールがあるか、部品をどこから取るか
+
+yorisoi-platform/                アプリをまたいで使う部品（yorisoi、ADR-003）
+├── core-format/                 コア: チャンネル・パッケージと素材集の形式、署名の確認、リストの文書（素の JVM）
+├── core-prompt/                 コア: プロンプトのテンプレートの仕組み（素の JVM）
+├── kit-voice/                   キット: 読み上げ、背景音
+├── kit-llm/                     キット: AI の呼び出し、API キーの暗号化
+├── kit-geo/                     キット: スポット・施設・ルート・写真・天気の取得、地図
+├── kit-mood/                    キット: 雰囲気
+├── kit-companion/               キット: 話す判断のルールとゲート（素の JVM）
+└── docs/                        エコシステム全体の文書（ADR-001〜003、契約書 API-002〜004 など）
 ```
 
 パッケージ（フォルダ）は **機能ごと** に分かれています。「画面・ロジック・データ」のような層ごとではありません。たとえば話しかけに関わるものは `companion/` に集まっています。何かを探すときは、まず機能の名前でフォルダを探してください。
 
-全体の図は [SanpoGuide/docs/architecture.md](../../SanpoGuide/docs/architecture.md) にあります。
+全体の図は [yorisoi-sanpoguide/docs/architecture.md](../../yorisoi-sanpoguide/docs/architecture.md) にあります。
 
 ## yorisoi-console のフォルダ
 
@@ -102,17 +105,17 @@ yorisoi-console/
 
 | 番号 | 文書 | 場所 |
 |---|---|---|
-| API-002 | 承認済みチャンネル・リスト 契約書 | [SanpoGuide/docs/channel-list-api.md](../../SanpoGuide/docs/channel-list-api.md) |
-| API-003 | チャンネル・パッケージ形式 | [SanpoGuide/docs/channel-package-format.md](../../SanpoGuide/docs/channel-package-format.md) |
-| API-004 | 素材の素材提供者インタフェース（素材集の形式を含む） | [SanpoGuide/docs/material-producer-api.md](../../SanpoGuide/docs/material-producer-api.md) |
-| ADR-001（SanpoGuide） | 第三者のチャンネルは審査と署名を経たものだけ取り込む | [SanpoGuide/docs/adr/](../../SanpoGuide/docs/adr/) |
-| ADR-002（SanpoGuide） | 素材の素材提供者をチャンネルから切り出し、共通のインタフェースで扱う | [SanpoGuide/docs/adr/](../../SanpoGuide/docs/adr/) |
-| 関係者と呼び方 | 散策者・チャンネル提供者・素材提供者・運営、リスト（呼び方の正本） | [SanpoGuide/docs/stakeholders.md](../../SanpoGuide/docs/stakeholders.md) |
+| API-002 | 承認済みチャンネル・リスト 契約書 | [yorisoi-platform/docs/channel-list-api.md](../../yorisoi-platform/docs/channel-list-api.md) |
+| API-003 | チャンネル・パッケージ形式 | [yorisoi-platform/docs/channel-package-format.md](../../yorisoi-platform/docs/channel-package-format.md) |
+| API-004 | 素材の素材提供者インタフェース（素材集の形式を含む） | [yorisoi-platform/docs/material-producer-api.md](../../yorisoi-platform/docs/material-producer-api.md) |
+| ADR-001（yorisoi-platform） | 第三者のチャンネルは審査と署名を経たものだけ取り込む | [yorisoi-platform/docs/adr/](../../yorisoi-platform/docs/adr/) |
+| ADR-002（yorisoi-platform） | 素材の素材提供者をチャンネルから切り出し、共通のインタフェースで扱う | [yorisoi-platform/docs/adr/](../../yorisoi-platform/docs/adr/) |
+| 関係者と呼び方 | 散策者・チャンネル提供者・素材提供者・運営、リスト（呼び方の正本） | [yorisoi-platform/docs/stakeholders.md](../../yorisoi-platform/docs/stakeholders.md) |
 | ADR-001（console） | AWS の構成 | [yorisoi-console/docs/adr/](../../yorisoi-console/docs/adr/) |
 | API-001（console） | 管理 API | [yorisoi-console/docs/console-api.md](../../yorisoi-console/docs/console-api.md) |
 | DM-001 | データモデル | [yorisoi-console/docs/data-model.md](../../yorisoi-console/docs/data-model.md) |
 
-**同じ番号でもリポジトリが違えば別の文書** なので注意してください。ADR-001 は両方にあり、API-001 も SanpoGuide 側（秘密メッセージ API）と console 側（管理 API）で別物です。
+**同じ番号でもリポジトリが違えば別の文書** なので注意してください。ADR-001 は yorisoi-platform と console の両方にあり、API-001 も SanpoGuide 側（秘密メッセージ API。yorisoi-sanpoguide）と console 側（管理 API）で別物です。
 
 ## コードの中で迷ったら
 
@@ -126,7 +129,7 @@ yorisoi-console/
 <details>
 <summary>問 1. コードのコメントに「(API-002 P-6)」とあったら、何を見ればよいですか。</summary>
 
-SanpoGuide の `docs/channel-list-api.md`（API-002）の決定事項 P-6 です。そのコードがなぜそうなっているかの理由が書いてあります。
+yorisoi-platform の `docs/channel-list-api.md`（API-002）の決定事項 P-6 です。そのコードがなぜそうなっているかの理由が書いてあります。
 
 </details>
 

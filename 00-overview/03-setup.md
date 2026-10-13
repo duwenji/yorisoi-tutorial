@@ -32,18 +32,20 @@
 
 ## リポジトリの置き方
 
-3 つのフォルダを同じ親フォルダに並べてください。このチュートリアルのリンクも、管理システムの一部のスクリプトも、この並びを前提にしています。
+4 つのフォルダを同じ親フォルダに並べてください。このチュートリアルのリンクも、管理システムの一部のスクリプトも、この並びを前提にしています。
 
 ```
 c:\Dev\apps\
-├── SanpoGuide\         Android アプリ
+├── yorisoi-platform\   共通の部品（コアとキット）
+├── yorisoi-sanpoguide\ Android アプリ SanpoGuide
 ├── yorisoi-console\    チャンネル管理システム
 └── yorisoi-tutorial\   このチュートリアル
 ```
 
 ```sh
 cd /c/Dev/apps
-git clone https://github.com/duwenji/SanpoGuide.git
+git clone https://github.com/duwenji/yorisoi-platform.git
+git clone https://github.com/duwenji/yorisoi-sanpoguide.git
 git clone https://github.com/duwenji/yorisoi-console.git
 ```
 
@@ -55,18 +57,27 @@ Git for Windows の既定（`core.autocrlf=true`）では、取得したファ�
 
 ## 動作確認
 
-### 1. SanpoGuide（Kotlin）
+### 1. yorisoi-platform と SanpoGuide（Kotlin）
 
 コア（`core-format`）のテストを流します。Android の SDK がなくても動く、素の Kotlin のモジュールです。
 
 ```sh
-cd /c/Dev/apps/SanpoGuide
-./gradlew :platform:core-format:test
+cd /c/Dev/apps/yorisoi-platform
+./gradlew :core-format:test
 ```
 
 初回は Gradle と依存ライブラリのダウンロードで数分かかります。最後に `BUILD SUCCESSFUL` と出れば成功です。
 
-アプリ全体のビルドは Android Studio で SanpoGuide のフォルダを開き、Gradle の同期が終わってから「Run」で行います。初回は Android SDK の取得を求められるので、案内に従ってください。
+アプリ全体のビルドは Android Studio で `yorisoi-sanpoguide` のフォルダを開き、Gradle の同期が終わってから「Run」で行います。初回は Android SDK の取得を求められるので、案内に従ってください。
+
+アプリは、共通の部品（yorisoi-platform）を **GitHub Packages に公開された版** として取ってきます。GitHub Packages の読み取りにはトークンが要ります。GitHub で `read:packages` の権限を持つトークン（Personal access token, classic）を作り、`~/.gradle/gradle.properties` に書いてください。
+
+```properties
+gpr.user=あなたの GitHub のユーザー名
+gpr.key=作ったトークン
+```
+
+トークンを使わない場合は、先に yorisoi-platform で `./gradlew publishToMavenLocal` を実行してください。手元の Maven（`~/.m2`）に置かれた版が使われます。
 
 > `local.properties`（Android SDK の場所）と `keystore.properties`（リリース用の署名鍵）は Git に入っていません。`local.properties` は Android Studio が作ってくれます。`keystore.properties` は、なければリリース APK が署名なしになるだけで、開発には要りません。
 

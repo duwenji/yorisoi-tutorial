@@ -2,6 +2,8 @@
 
 SanpoGuide（Android アプリ）と yorisoi-console（AWS 上のチャンネル管理システム）の 2 つのリポジトリを教材にして、そこで使われている技術を順に学ぶチュートリアルです。
 
+> SanpoGuide のコードは、2026-10-13 に **yorisoi-platform**（ほかの付き添いアプリとも共有する部品: コアとキット）と **yorisoi-sanpoguide**（アプリそのもの）の 2 つのリポジトリに分かれました（[RFC-004](../yorisoi-platform/docs/refactoring/RFC-004-split-repositories.md)）。本書で「SanpoGuide」「2 つのリポジトリ」と言うときは、この 2 つを合わせたアプリ側と、管理システム（yorisoi-console）を指します。
+
 ## このチュートリアルの考え方
 
 - **本物のコードで学ぶ**: 説明のための小さな例ではなく、実際に動いているコードを読みます。「何をするか」だけでなく「なぜこう書いたか」まで追います
@@ -151,11 +153,11 @@ flowchart LR
 
 ## コードへのリンクについて
 
-このフォルダは `SanpoGuide`・`yorisoi-console` と同じ親フォルダ（`c:\Dev\apps`）に置く前提で、`../../SanpoGuide/...` のような相対パスでリンクしています。VS Code ならクリックで開けます。
+このフォルダは `yorisoi-platform`・`yorisoi-sanpoguide`・`yorisoi-console` と同じ親フォルダ（`c:\Dev\apps`）に置く前提で、`../../yorisoi-sanpoguide/...` のような相対パスでリンクしています。VS Code ならクリックで開けます。
 
 コードは日々変わるので、行番号ではなく **ファイルと関数の名前** で場所を示しています。リンク先で見つからないときは、関数名で検索してください。見直しの手順は [MAINTENANCE.md](MAINTENANCE.md) にあります。
 
 | 項目 | 値 |
 |---|---|
 | 最後に照合した日 | 2026-10-13 |
-| 照合したコミット | SanpoGuide `ac66b5d`、yorisoi-console `68e7852`（どちらも `main`）。マージ前の SanpoGuide #51（宣伝の表示、versionCode 3）と yorisoi-console #32（開発用の宣伝の版）・#34（改名）の内容も反映している |
+| 照合したコミット | yorisoi-platform `960f112`、yorisoi-sanpoguide `8d13f1a`、yorisoi-console `de5c832`（いずれも `main`）。リポジトリの分割（RFC-004）に合わせて、パスとコマンドを直した。yorisoi-console の validator の切り替え（yorisoi-platform 1.0.0 を読む）の内容も反映している |

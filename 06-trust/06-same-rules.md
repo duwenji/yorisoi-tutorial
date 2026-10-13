@@ -69,12 +69,12 @@ const signing = fromSeed(2);
 出力先は SanpoGuide のテスト用のファイルです。
 
 ```sh
-npm run vectors -w conformance -- ../SanpoGuide/platform/core-format/src/test/resources/provider-vectors.json
+npm run vectors -w conformance -- ../yorisoi-platform/core-format/src/test/resources/provider-vectors.json
 ```
 
 ### 確かめる側
 
-SanpoGuide の [ProviderDocumentsTest.kt](../../SanpoGuide/platform/core-format/src/test/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocumentsTest.kt) が、そのファイルを読みます。
+SanpoGuide の [ProviderDocumentsTest.kt](../../yorisoi-platform/core-format/src/test/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocumentsTest.kt) が、そのファイルを読みます。
 
 ```kotlin
 /**
@@ -128,7 +128,7 @@ URL を渡すと、アプリと同じように検出の文書・リスト・パ�
 ```kotlin
 // yorisoi-console/validator/build.gradle.kts
 dependencies {
-    implementation("io.github.duwenji.yorisoi:core-format:2.0.0")
+    implementation("io.github.duwenji.yorisoi:core-format:1.0.0")
     implementation("io.github.duwenji.sanpoguide:prompts:2.0.0")
     // core-format leaves org.json to its users (Android ships one).
     implementation("org.json:json:20240303")

@@ -71,7 +71,7 @@ Compose は、Composable が読んでいるデータが変わると、その Com
 
 ## CompanionCard を読む
 
-散策中、画面の上に出る「話しかけのカード」が [CompanionCard.kt](../../SanpoGuide/apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/CompanionCard.kt) です。140 行ほどの中に、この章の要素が全部入っています。
+散策中、画面の上に出る「話しかけのカード」が [CompanionCard.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/CompanionCard.kt) です。140 行ほどの中に、この章の要素が全部入っています。
 
 ```kotlin
 @Composable
@@ -230,7 +230,7 @@ shown.forEach { line -> /* Text を 2 つ */ }
 
 ## Compose の中に昔の部品を置く
 
-地図（osmdroid）は Compose ではなく、昔ながらの部品（View）です。[SpotMap.kt](../../SanpoGuide/platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/SpotMap.kt) は、それを `AndroidView` で Compose の中に置いています。
+地図（osmdroid）は Compose ではなく、昔ながらの部品（View）です。[SpotMap.kt](../../yorisoi-platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/SpotMap.kt) は、それを `AndroidView` で Compose の中に置いています。
 
 ```kotlin
 AndroidView(factory = { mapView }, modifier = modifier) { map ->
@@ -249,8 +249,8 @@ Android Studio には、アプリを動かさずに Composable を描いて見�
 [scripts/TutorialPreviews.kt](scripts/TutorialPreviews.kt) を、SanpoGuide の画面のフォルダにコピーします。
 
 ```sh
-cd /c/Dev/apps/SanpoGuide
-cp ../yorisoi-tutorial/02-compose/scripts/TutorialPreviews.kt apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/
+cd /c/Dev/apps/yorisoi-sanpoguide
+cp ../yorisoi-tutorial/02-compose/scripts/TutorialPreviews.kt app/src/main/java/io/github/duwenji/sanpoguide/ui/
 ```
 
 中身の一部です。
@@ -277,16 +277,16 @@ private fun CompanionCardAutumnEvening() {
 
 プレビューの中でも、カードをクリックする操作は「Interactive mode」（プレビューの上のボタン）で試せます。広げると過去の発言が出るはずです。
 
-> コマンドだけで確かめたいときは、`./gradlew :apps:sanpoguide:app:compileDebugKotlin` でコンパイルが通ることを確かめられます（絵は出ません）。
+> コマンドだけで確かめたいときは、`./gradlew :app:compileDebugKotlin` でコンパイルが通ることを確かめられます（絵は出ません）。
 
 ### 3. 自分で場面を足す
 
-`CompanionCardWinterNight` を写して、「春の朝・公園」のカードを足してみてください。`Season.SPRING`、`TimeOfDay.MORNING`、`Place` の値は [Mood.kt](../../SanpoGuide/platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/Mood.kt) にあります。
+`CompanionCardWinterNight` を写して、「春の朝・公園」のカードを足してみてください。`Season.SPRING`、`TimeOfDay.MORNING`、`Place` の値は [Mood.kt](../../yorisoi-platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/Mood.kt) にあります。
 
 ### 4. 片付け
 
 ```sh
-rm apps/sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/TutorialPreviews.kt
+rm app/src/main/java/io/github/duwenji/sanpoguide/ui/TutorialPreviews.kt
 git status
 ```
 

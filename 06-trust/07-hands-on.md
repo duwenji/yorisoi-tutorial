@@ -19,7 +19,7 @@
 [0-3 開発環境の準備](../00-overview/03-setup.md) を済ませておいてください。とくに次の 2 つが要ります。
 
 - yorisoi-console で `npm ci` が済んでいる
-- SanpoGuide で `./gradlew :platform:core-format:test` が通る
+- yorisoi-platform で `./gradlew :core-format:test` が通る
 
 ターミナルを **2 つ** 開きます。ここでは「ターミナル A」「ターミナル B」と呼びます。どちらも Git Bash を使います。
 
@@ -207,15 +207,15 @@ FAIL V-05 seq has not gone back — rollback: seq 1 < 5
 ### 5-1. まず通ることを確かめる
 
 ```sh
-cd /c/Dev/apps/SanpoGuide
-./gradlew :platform:core-format:test --tests '*ProviderDocumentsTest*'
+cd /c/Dev/apps/yorisoi-platform
+./gradlew :core-format:test --tests '*ProviderDocumentsTest*'
 ```
 
 `BUILD SUCCESSFUL` になります。
 
 ### 5-2. リストの期限の上限を 13 日に変える
 
-[ProviderDocuments.kt](../../SanpoGuide/platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocuments.kt) の `companion object` にある次の行を探して、
+[ProviderDocuments.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocuments.kt) の `companion object` にある次の行を探して、
 
 ```kotlin
 val LIST_LIFETIME: Duration = Duration.ofDays(14)
@@ -224,14 +224,14 @@ val LIST_LIFETIME: Duration = Duration.ofDays(14)
 `14` を `13` に変えて保存し、もう一度テストを流します。
 
 ```sh
-./gradlew :platform:core-format:test --tests '*ProviderDocumentsTest*'
+./gradlew :core-format:test --tests '*ProviderDocumentsTest*'
 ```
 
 ```
 8 tests completed, 3 failed
 ```
 
-落ちたテストは、Gradle が表示するレポート（`platform/core-format/build/reports/tests/test/index.html`）をブラウザで開くと見られます。
+落ちたテストは、Gradle が表示するレポート（`core-format/build/reports/tests/test/index.html`）をブラウザで開くと見られます。
 
 | テスト | 失敗の理由 |
 |---|---|
@@ -248,7 +248,7 @@ val LIST_LIFETIME: Duration = Duration.ofDays(14)
 ### 5-3. 元に戻す
 
 ```sh
-git checkout -- platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocuments.kt
+git checkout -- core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocuments.kt
 git status
 ```
 
