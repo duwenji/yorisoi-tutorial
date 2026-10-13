@@ -1,4 +1,4 @@
-// チュートリアル 8-6 のハンズオン用。sanpo-channel-console/.local/ にコピーして実行する。
+// チュートリアル 8-6 のハンズオン用。yorisoi-console/.local/ にコピーして実行する。
 //   node .local/presigned-post.mjs
 // 署名は手元で計算するだけなので、AWS にはつながない（鍵も使い捨ての偽物）。
 import { S3Client } from '@aws-sdk/client-s3';

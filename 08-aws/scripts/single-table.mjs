@@ -1,4 +1,4 @@
-// チュートリアル 8-5 のハンズオン用。sanpo-channel-console/.local/ にコピーし、
+// チュートリアル 8-5 のハンズオン用。yorisoi-console/.local/ にコピーし、
 // DynamoDB Local を起動してから、DDB_ENDPOINT を付けて実行する。
 //   DDB_ENDPOINT=http://127.0.0.1:<番号> node .local/single-table.mjs
 import { CreateTableCommand, DynamoDBClient } from '@aws-sdk/client-dynamodb';
