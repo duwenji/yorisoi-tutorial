@@ -35,7 +35,7 @@ OpenAPI の冒頭には、正本がどちらかが書いてあります。
 
 ```yaml
 description: |
-  [console-api.md](../console-api.md)（API-001 1.1）を機械で読める形にしたもの。
+  [console-api.md](../console-api.md)（API-001）を機械で読める形にしたもの。
   方針・状態・権限の根拠は契約書が正本で、食い違いがあれば契約書に合わせてこのファイルを直す。
 ```
 

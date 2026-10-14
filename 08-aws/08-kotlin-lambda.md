@@ -18,7 +18,7 @@
 
 ```mermaid
 flowchart LR
-    SG["yorisoi-platform・yorisoi-sanpoguide<br/>core-format・prompts（Kotlin）"] -->|"GitHub Packages<br/>io.github.duwenji.yorisoi:core-format:1.0.0<br/>io.github.duwenji.yorisoi.sanpoguide:prompts:3.0.0"| V["validator<br/>機械審査の Lambda（Kotlin）"]
+    SG["yorisoi-platform・yorisoi-sanpoguide<br/>core-format・prompts（Kotlin）"] -->|"GitHub Packages<br/>io.github.duwenji.yorisoi:core-format:1.0.0<br/>io.github.duwenji.yorisoi.sanpoguide:prompts:1.0.0"| V["validator<br/>機械審査の Lambda（Kotlin）"]
     SG -->|"project(...)"| APP["アプリ"]
 ```
 
@@ -72,7 +72,7 @@ sequenceDiagram
  * icon. Pure: the Lambda reads and writes, this decides.
  */
 object MachineReview {
-    const val VALIDATOR = "core-format 1.0.0, prompts 2.0.0"
+    const val VALIDATOR = "core-format 1.0.0, prompts 1.0.0"
     // …
     fun review(upload: Upload, zip: ByteArray, icon: ByteArray, catalog: Catalog = Catalog.NONE): Outcome {
         // …
@@ -183,7 +183,7 @@ intakeBucket.addEventNotification(s3.EventType.OBJECT_CREATED, new s3n.LambdaDes
 ```kotlin
 dependencies {
     implementation("io.github.duwenji.yorisoi:core-format:1.0.0")
-    implementation("io.github.duwenji.yorisoi.sanpoguide:prompts:3.0.0")
+    implementation("io.github.duwenji.yorisoi.sanpoguide:prompts:1.0.0")
     // core-format leaves org.json to its users (Android ships one).
     implementation("org.json:json:20240303")
     implementation("com.amazonaws:aws-lambda-java-core:1.4.0")
@@ -209,7 +209,7 @@ val lambdaZip by tasks.registering(Zip::class) {
 tasks.build { dependsOn(lambdaZip) }
 ```
 
-- `station-format:2.1.0` を GitHub Packages から取る（[5-3](../05-station-format/03-publish.md)）。`org.json` は自分で足す（[5-1](../05-station-format/01-jvm-library.md) の `compileOnly`）
+- `core-format`（yorisoi-platform）と `prompts`（yorisoi-sanpoguide）を GitHub Packages から取る（[5-3](../05-station-format/03-publish.md)）。`org.json` は自分で足す（[5-1](../05-station-format/01-jvm-library.md) の `compileOnly`）
 - **JVM の Lambda の zip の決まり**: クラスのファイルは zip のいちばん上に、依存の jar は `lib/` に。自作のタスク `lambdaZip`（[1-2](../01-kotlin-android/02-gradle.md) の `channelIndex` と同じく、Gradle のタスクを自分で作る）がそう並べる
 - AWS の SDK の BOM（[1-2](../01-kotlin-android/02-gradle.md) の Compose の BOM と同じ考え方）で、SDK の部品の版をそろえる
 
@@ -273,7 +273,7 @@ class Handler(/* … */) : RequestHandler<S3Event, String> {
 
 ## ハンズオン: 機械審査をビルドして、テストを壊す
 
-機械審査のビルドには、`core-format` 1.0.0（yorisoi-platform）と `prompts` 2.0.0（yorisoi-sanpoguide）が要ります。GitHub Packages のトークン（[5-3](../05-station-format/03-publish.md)）を設定するか、2 つのリポジトリで手元に公開したもの（`~/.m2`）を使います。
+機械審査のビルドには、`core-format` 1.0.0（yorisoi-platform）と `prompts` 1.0.0（yorisoi-sanpoguide）が要ります。GitHub Packages のトークン（[5-3](../05-station-format/03-publish.md)）を設定するか、2 つのリポジトリで手元に公開したもの（`~/.m2`）を使います。
 
 ### 1. テストを流して、zip を作る
 
@@ -298,7 +298,7 @@ console/validator/Catalog$Companion$NONE$1.class
 …
 lib/core-format-1.0.0.jar
 lib/core-prompt-1.0.0.jar
-lib/prompts-1.1.0.jar
+lib/prompts-1.0.0.jar
 lib/kotlin-stdlib-2.2.0.jar
 lib/json-20240303.jar
 lib/aws-lambda-java-core-1.4.0.jar
@@ -309,7 +309,7 @@ lib/url-connection-client-2.55.11.jar
 …
 ```
 
-いちばん上に自分のクラス、`lib/` に依存の jar が並んでいます。`lib/core-format-1.0.0.jar` が、アプリと同じ確認のコードです（見本のプロンプトは `lib/prompts-1.1.0.jar` から）。
+いちばん上に自分のクラス、`lib/` に依存の jar が並んでいます。`lib/core-format-1.0.0.jar` が、アプリと同じ確認のコードです（見本のプロンプトは `lib/prompts-1.0.0.jar` から）。
 
 ### 3. テストを読む
 
@@ -317,7 +317,7 @@ lib/url-connection-client-2.55.11.jar
 
 - a signed package by the publisher, newer than the approved one, passes with its samples（チャンネル提供者が署名した、承認済みより新しいパッケージは、見本つきで合格する）
 - the package must be for this channel, by this publisher, and newer（このチャンネルの、このチャンネル提供者の、より新しい版でなければならない）
-- station-format's own checks come through with their codes（コアの確認の結果が、そのコードのまま出てくる。テストの名前は station-format のころのまま）
+- core-format's own checks come through with their codes（コアの確認の結果が、そのコードのまま出てくる）
 - the icon must be a small PNG, and both problems are reported（アイコンは小さな PNG でなければならず、問題は両方とも伝える）
 
 `MachineReview` が純粋な関数なので、テストは S3 も DynamoDB も使わず、パッケージとアイコンのバイト列を渡すだけで書けています。

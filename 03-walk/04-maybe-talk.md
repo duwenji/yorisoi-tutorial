@@ -7,7 +7,7 @@
 - 散策ガイドの心臓部 `maybeTalk()` と `TalkDecider` が、何をどの順番で判断しているか
 - 優先順位を「上から順に、最初に当たった 1 つだけ」で表す書き方（ルールの一覧とゲート）
 - 話しすぎを防ぐしくみ（話している最中・間隔・1 回だけ）
-- 判断を「場面を値で書いて、決まりを当てる」純粋な部品にして、場面ごとにテストする作り（RFC-003）
+- 判断を「場面を値で書いて、決まりを当てる」純粋な部品にして、場面ごとにテストする作り
 - enum の **並び順** に意味を持たせる書き方と、その危うさ
 
 ## maybeTalk はいつ呼ばれるか
@@ -22,7 +22,7 @@
 
 呼ばれるたびに、「今、話すべきことがあるか」を上から順に調べ、**最初に当たった 1 つだけ** を話します。何も当たらなければ、何も話しません。
 
-調べるのは `maybeTalk` 自身ではなく、[TalkDecider.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/TalkDecider.kt) の `TalkDecider` です。以前は `maybeTalk` の中に判断がそのまま書かれていましたが、2026-10-12 に、場面ごとにテストできるよう外に出しました（[RFC-003](../../yorisoi-platform/docs/refactoring/RFC-003-talk-decision.md)）。
+調べるのは `maybeTalk` 自身ではなく、[TalkDecider.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/TalkDecider.kt) の `TalkDecider` です。判断は、場面ごとにテストできるよう `maybeTalk` の外に出してあります。
 
 ## 全体の流れ
 
@@ -143,8 +143,8 @@ class TalkEngine<S : TalkGates<G>, D : Any, G>(val rules: List<TalkRule<S, D, G>
 
 ```kotlin
 /**
- * Everything [TalkDecider] reads, as plain values gathered by the walk service each time (RFC-003
- * D-2). No Android types, so a scene can be written down in a unit test.
+ * Everything [TalkDecider] reads, as plain values gathered by the walk service each time.
+ * No Android types, so a scene can be written down in a unit test.
  */
 data class TalkSituation(
     val now: Long,
@@ -325,7 +325,7 @@ enum class TalkLevel(
 | `FacilityAdvisor.pick` | どの施設を、どの理由で案内するか | `FacilityAdvisorTest`（9 件） |
 | `WalkSession` | 距離、休憩の時間、チャンネルの切り替え | `WalkSessionStationTest`（6 件） |
 
-`maybeTalk` は Service の中にあり、位置・天気・AI・音声・通知に囲まれているので、テストが難しい場所です。だから判断のほうを外に出し、`maybeTalk` には「様子を集めて、決めてもらい、実行する」ことだけを残しています。以前は、判断の順番そのものは `maybeTalk` の中にあってテストできませんでした。それを `TalkDecider` に移したことで、「雷雨と日の入りが重なったら雷雨が先」のような **順番の決まり** まで、テストで守れるようになりました（RFC-003）。
+`maybeTalk` は Service の中にあり、位置・天気・AI・音声・通知に囲まれているので、テストが難しい場所です。だから判断のほうを外に出し、`maybeTalk` には「様子を集めて、決めてもらい、実行する」ことだけを残しています。判断の順番が `TalkDecider` にあるので、「雷雨と日の入りが重なったら雷雨が先」のような **順番の決まり** まで、テストで守れます。
 
 ### WeatherChangeDetector を読む
 

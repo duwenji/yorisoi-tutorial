@@ -84,7 +84,7 @@ console.log({ ...body, channels: body.channels.map((c) => c.id) });
 - 要約の `provider`・`seq`・`issuedAt`・`expiresAt` は本体と同じ値
 - 要約の `sha256` と `size` は、本体のバイト列のハッシュと大きさ（[6-4](04-two-tier-keys.md)）
 - `expiresAt` は `issuedAt` の 14 日後
-- 本体には、チャンネルの一覧（`channels`）と取り下げ（`revoked`）のほかに、素材集の一覧（`collections`）とその取り下げ（`revokedCollections`）もある（API-002 1.2）。この見本では空
+- 本体には、チャンネルの一覧（`channels`）と取り下げ（`revoked`）のほかに、素材集の一覧（`collections`）とその取り下げ（`revokedCollections`）もある（API-002）。この見本では空
 
 ## 手順 2. 配る
 
@@ -126,7 +126,7 @@ PASS V-25 collections’ tags, regions and grants match their packages — 0 col
 - `--allow-local-http`: 本来 API-002 は HTTPS を求めますが、手元の確認のために `http://127.0.0.1` を許します。アプリのデバッグビルドが `http://localhost` などを許すのと同じです
 - V-05（巻き戻し）が SKIP なのは、「前回の `seq`」を渡していないからです。手順 4-3 で試します
 - V-15 の `251 bytes` は要約の大きさです。KMS の上限 4,096 バイトに対して十分小さいことが分かります
-- V-19 以降は素材集の確認です（API-002 1.2）。素材集の ID とパッケージ、チャンネルが宣言した素材集がリストにあって使ってよいか（V-20）、チャンネルの `media`・`resourcesSize`（V-21）、素材集のタグ・地域・利用許諾がパッケージと合うか（V-25）。見本には素材集がないので、数は 0 です
+- V-19 以降は素材集の確認です（API-002）。素材集の ID とパッケージ、チャンネルが宣言した素材集がリストにあって使ってよいか（V-20）、チャンネルの `media`・`resourcesSize`（V-21）、素材集のタグ・地域・利用許諾がパッケージと合うか（V-25）。見本には素材集がないので、数は 0 です
 
 ## 手順 4. わざと壊す
 
@@ -236,7 +236,7 @@ val LIST_LIFETIME: Duration = Duration.ofDays(14)
 | テスト | 失敗の理由 |
 |---|---|
 | the list checks out and reads every field | `expired: expiresAt is more than 14 days after issuedAt` |
-| a 1_2 list reads collections, their revocations and the channels' media | 同じ（素材集を載せた API-002 1.2 のリストも、同じ期限で拒まれる） |
+| a list with collections reads them, their revocations and the channels' media | 同じ（素材集を載せたリストも、同じ期限で拒まれる） |
 | a list is refused when it is expired, rolled back, altered or … | `expected:<ROLLBACK> but was:<EXPIRED>` |
 
 管理システムが作ったリスト（期限 14 日）を、アプリが「期限が長すぎる」と拒むようになりました。**管理システムは正しいと思って公開しているのに、アプリが受け入れない** という、[6-6](06-same-rules.md) の「食い違い」を、テストが見つけています。

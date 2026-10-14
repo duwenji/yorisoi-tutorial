@@ -74,7 +74,7 @@ const base = configs[name];
 if (!base) throw new Error(`unknown env ${name}; use dev or prod`);
 const rootPublicKey = app.node.tryGetContext('rootPublicKey') as string | undefined;
 if (!rootPublicKey) {
-  throw new Error('pass -c rootPublicKey=<base64url>: the root public key of this provider (tools/root-key generate; ADR-001 T-5)');
+  throw new Error('pass -c rootPublicKey=<base64url>: the root public key of this provider (tools/root-key generate; ADR-001 T-1)');
 }
 const config: EnvConfig = { ...base, rootPublicKey, /* … */ };
 
@@ -133,12 +133,12 @@ export interface EnvConfig {
 | `cost.waf` | なし | あり |
 | `cost.pointInTimeRecovery` | なし | あり |
 | `cost.logRetentionDays` | 14 日 | 消さない |
-| `appStageVersions` | `{ sanpoguide: { 0: 1, 1: 2, 2: 9999, 3: 9999 } }` | 同じ |
-| `promotionalMinAppVersions` | `{ sanpoguide: 3 }`（エミュレータで試すため） | `{}`（versionCode 3 を Google Play に出したら 3 に） |
+| `appStageVersions` | `{ sanpoguide: { 0: 1, 1: 1, 2: 9999, 3: 9999 } }` | 同じ |
+| `promotionalMinAppVersions` | `{ sanpoguide: 1 }`（エミュレータで試すため） | `{}`（Google Play に出したら 1 に） |
 
 `notify` の型に注目してください。`{ mode: 'log' } | { mode: 'ses'; from: string; … }` は、[7-1](../07-typescript/01-typescript-syntax.md) の **判別できるユニオン** です。`ses` にしたのに送り主（`from`）を書き忘れると、コンパイルエラーになります。インフラの設定も、型で守られています。
 
-`appStageVersions` は、アプリの ID ごとに、素材の段（[5-2](../05-station-format/02-package-format.md)）ごとに、どの版のアプリ（`versionCode`）から使えるかの表です。チャンネルを承認するとき、管理システムはこれを見て、リストの `minAppVersions`（アプリごと）と `minAppVersion`（古い SanpoGuide のための、SanpoGuide の値）を決めます（DES-011）。文字と画像（段 1）は `versionCode` 2 のアプリから。音声・映像（段 2・3）を出せるアプリはまだないので、`9999`（どのアプリも届かない版）にしてあります。新しいアプリを出したら、ここをプルリクエストで書き換えます。`promotionalMinAppVersions` も同じ考え方で、宣伝を「宣伝を含む」と示せる版（[5-4](../05-station-format/04-materials-cues.md)）を書きます。
+`appStageVersions` は、アプリの ID ごとに、素材の段（[5-2](../05-station-format/02-package-format.md)）ごとに、どの版のアプリ（`versionCode`）から使えるかの表です。チャンネルを承認するとき、管理システムはこれを見て、リストの `minAppVersions`（アプリごと）と `minAppVersion`（`minAppVersions` を読まないアプリのための、SanpoGuide の値）を決めます（DES-011）。文字と画像（段 1）は `versionCode` 1 のアプリから。音声・映像（段 2・3）を出せるアプリはまだないので、`9999`（どのアプリも届かない版）にしてあります。新しいアプリを出したら、ここをプルリクエストで書き換えます。`promotionalMinAppVersions` も同じ考え方で、宣伝を「宣伝を含む」と示せる版（[5-4](../05-station-format/04-materials-cues.md)）を書きます。
 
 ### スタックとコンストラクト
 

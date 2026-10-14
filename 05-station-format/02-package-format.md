@@ -120,7 +120,7 @@ API-003 の決定事項 F-3:
 
 もし「話しかけの間隔（秒）」を自由に書けたら、チャンネル提供者が「5 秒」と書いて、散策者の AI の料金をつり上げられます。選択肢しか書けなければ、どう選んでも「おしゃべり」（2 分に 1 回）が上限です。**危ない値を書けない形にする** ことで、確かめる手間そのものを減らしています。
 
-スポットの種類のうち 7 つ（飲食店・カフェ・菓子・パン・食品店・市場・工芸・土産・専門店）は、`prefer` に入れたチャンネルでだけ探します（API-003 1.1）。ふつうの散歩で店ばかり案内しないためです。チェーン店は探しません。組み込みの「グルメの旅」（`gourmet/`）と「ショッピング」（`shopping/`）が、これを使っています。
+スポットの種類のうち 7 つ（飲食店・カフェ・菓子・パン・食品店・市場・工芸・土産・専門店）は、`prefer` に入れたチャンネルでだけ探します（API-003「スポットの種類」）。ふつうの散歩で店ばかり案内しないためです。チェーン店は探しません。組み込みの「グルメの旅」（`gourmet/`）と「ショッピング」（`shopping/`）が、これを使っています。
 
 ```kotlin
 enum class SpotKind(override val json: String, val category: String, val onlyWhenPreferred: Boolean = false) : JsonValue {
@@ -143,7 +143,7 @@ enum class TalkLevel(override val json: String) : JsonValue { QUIET("quiet"), NO
 
 ## format 2: どのアプリで使えるチャンネルか
 
-`"format": 2` は、format 1 に 3 つの項目を足したものです（API-003 2.0 の G-1）。チャンネルは特定のアプリに結びつかず、「どんな過ごし方に合い、何が要るか」だけを書きます。
+`"format": 2` は、format 1 に 3 つの項目を足したものです（API-003 の G-1）。チャンネルは特定のアプリに結びつかず、「どんな過ごし方に合い、何が要るか」だけを書きます。
 
 | 項目 | 書けるもの | 意味 |
 |---|---|---|
@@ -179,7 +179,7 @@ fun reasons(manifest: StationManifest, app: AppProfile): List<String> = buildLis
 
 SanpoGuide のプロファイル（`SanpoProfile`）は「散歩（`walk`）と、録音した音を流す見せ方（`present:play`・`present:ambient`）を除くすべての機能」です。だから `cycle` だけのチャンネルは、リストに載っていても SanpoGuide の一覧には出ません。同じ判定をリストの値（パッケージを取る前）にも行います（[6-5](../06-trust/05-verify-in-app.md)、API-002 P-19）。
 
-組み込みの 6 つのチャンネルも、2026-10-12 に format 2 にしました（`activities: ["walk"]` と、それぞれのジャンル）。
+組み込みの 6 つのチャンネルも format 2 です（`activities: ["walk"]` と、それぞれのジャンル）。
 
 ## スロット: 差し込めるのは文章だけ
 
@@ -260,7 +260,7 @@ if (HEADING_PATTERN.containsMatchIn(text)) reject(RejectCode.FORBIDDEN_TEXT, "${
 
 ### アプリの段階に合わせて確かめる
 
-アプリは、素材の種類を段階的に増やしています（API-003 M-1）。今のアプリ（`versionCode` 3）は第 1 段で、文字と画像だけを出せます。音声は第 2 段、映像は第 3 段です。`StationValidator.check` は、呼ぶ側が出せる段（`mediaStage`）を受け取ります。
+アプリは、素材の種類を段階的に増やしています（API-003 M-1）。今のアプリ（`versionCode` 1）は第 1 段で、文字と画像だけを出せます。音声は第 2 段、映像は第 3 段です。`StationValidator.check` は、呼ぶ側が出せる段（`mediaStage`）を受け取ります。
 
 ```kotlin
 /** The material (手順 8・9・10). Without any stage, a channel that has some can't be shown and isn't read. */

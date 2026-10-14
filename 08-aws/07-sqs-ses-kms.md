@@ -171,7 +171,7 @@ export async function deliver(ports: NotifyPorts, notice: Notice, attempt: numbe
 
 ```ts
 send: async (mail) => {
-  // Development has no sending domain yet (T-7): record what would be sent, without the address or text.
+  // Development has no sending domain yet (ADR-001 T-2): record what would be sent, without the address or text.
   if (env('NOTIFY_MODE') === 'log') {
     console.log(JSON.stringify({ wouldSend: mail.subject, bodyLength: mail.body.length }));
     return 'log-only';
@@ -190,7 +190,7 @@ send: async (mail) => {
 
 SES でメールを送るには、準備が要ります。
 
-- **送り主のドメインの確認**: 自分のドメイン（`example.com`）から送ってよいことを、DNS の設定で示す。なりすましのメールを送らせないため（ADR-001 T-7）
+- **送り主のドメインの確認**: 自分のドメイン（`example.com`）から送ってよいことを、DNS の設定で示す。なりすましのメールを送らせないため（ADR-001 T-2）
 - **サンドボックスを出る**: 最初は「確認済みのアドレスにしか送れない」状態（サンドボックス）で、AWS に申し出て解除してもらう（T-8）
 
 その準備ができるまで、管理システムは **`log` モード** で動いています（[8-2](02-cdk.md) の `config.notify`）。メールは送らず、「何を送るはずだったか」（件名と本文の長さ）だけをログに残します。**宛先と本文はログに書きません**。送信の準備ができたら、設定を `ses` に変えるだけで、本当に送るようになります。

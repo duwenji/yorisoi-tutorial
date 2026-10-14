@@ -133,7 +133,7 @@ fun main() {
 |---|---|---|
 | [yorisoi-sanpoguide/settings.gradle.kts](../../yorisoi-sanpoguide/settings.gradle.kts) | 2 つのモジュール、ライブラリの取得先を 1 か所に固定 | [1-2](../01-kotlin-android/02-gradle.md) |
 | [yorisoi-sanpoguide/app/build.gradle.kts](../../yorisoi-sanpoguide/app/build.gradle.kts) | Android アプリの設定、Compose の BOM、署名 | [1-2](../01-kotlin-android/02-gradle.md)、[1-4](../01-kotlin-android/04-signing-apk.md) |
-| [yorisoi-platform/platform/core-format/build.gradle.kts](../../yorisoi-platform/core-format/build.gradle.kts) | JVM ライブラリ、自作のタスク `channelIndex`、GitHub Packages への公開 | [1-2](../01-kotlin-android/02-gradle.md)、[5-3](../05-station-format/03-publish.md) |
+| [yorisoi-platform/core-format/build.gradle.kts](../../yorisoi-platform/core-format/build.gradle.kts) | JVM ライブラリ、自作のタスク `channelIndex`、GitHub Packages への公開 | [1-2](../01-kotlin-android/02-gradle.md)、[5-3](../05-station-format/03-publish.md) |
 | [yorisoi-console/validator/build.gradle.kts](../../yorisoi-console/validator/build.gradle.kts) | Kotlin の Lambda。コアとプロンプト・パックを GitHub Packages から取り、Lambda 用の zip を作るタスク | [8-8](../08-aws/08-kotlin-lambda.md) |
 
 ## よくある間違い

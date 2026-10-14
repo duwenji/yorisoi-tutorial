@@ -2,7 +2,7 @@
 
 SanpoGuide（Android アプリ）と yorisoi-console（AWS 上のチャンネル管理システム）の 2 つのリポジトリを教材にして、そこで使われている技術を順に学ぶチュートリアルです。
 
-> SanpoGuide のコードは、2026-10-13 に **yorisoi-platform**（ほかの付き添いアプリとも共有する部品: コアとキット）と **yorisoi-sanpoguide**（アプリそのもの）の 2 つのリポジトリに分かれました（[RFC-004](../yorisoi-platform/docs/refactoring/RFC-004-split-repositories.md)）。本書で「SanpoGuide」「2 つのリポジトリ」と言うときは、この 2 つを合わせたアプリ側と、管理システム（yorisoi-console）を指します。
+> SanpoGuide のコードは、**yorisoi-platform**（ほかの付き添いアプリとも共有する部品: コアとキット）と **yorisoi-sanpoguide**（アプリそのもの）の 2 つのリポジトリに分かれています。本書で「SanpoGuide」「2 つのリポジトリ」と言うときは、この 2 つを合わせたアプリ側と、管理システム（yorisoi-console）を指します。
 
 ## このチュートリアルの考え方
 
@@ -24,7 +24,7 @@ flowchart LR
 
 ## 目次
 
-✅ は執筆済みです（2026-10-05 に第 0〜9 部をすべて書き終えました）。
+✅ は執筆済みです。
 
 ### 第 0 部 全体像と準備 ✅
 
@@ -72,7 +72,7 @@ flowchart LR
 | [4-4 声と音](04-outside/04-voice-sound.md) | TTS とオーディオフォーカス、背景音の合成（ノイズとフィルター）、AudioTrack、専用のスレッドと `@Volatile`。WAV に書き出して聞く |
 | [4-5 端末にデータを置く](04-outside/05-storage.md) | SharedPreferences と変えた値だけの保存、設定の移行、`AtomicFile`、古い記録を読めるようにする、Android Keystore での暗号化 |
 
-### 第 5 部 共有ライブラリ（コアとプロンプト・パック。もとは station-format） ✅
+### 第 5 部 共有ライブラリ（コアとプロンプト・パック） ✅
 
 | 章 | 内容 |
 |---|---|
@@ -159,5 +159,5 @@ flowchart LR
 
 | 項目 | 値 |
 |---|---|
-| 最後に照合した日 | 2026-10-13 |
-| 照合したコミット | yorisoi-platform `960f112`、yorisoi-sanpoguide `8d13f1a`、yorisoi-console `de5c832`（いずれも `main`）。リポジトリの分割（RFC-004）に合わせて、パスとコマンドを直した。yorisoi-console の validator の切り替え（yorisoi-platform 1.0.0 を読む）の内容も反映している |
+| 最後に照合した日 | 2026-10-14 |
+| 照合したコミット | 各リポジトリの `docs/reset-history`（文書の履歴の整理と、アプリの版を 1.0.0 にした内容） |

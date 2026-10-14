@@ -35,7 +35,7 @@ yorisoi-platform/
 
 ファイル名が `.kts` で終わるのは、設定を **Kotlin で書いている**（Kotlin DSL）からです。1-1 の文法がそのまま使えます。
 
-> 最初は `:app` と `:station-format` の 2 つのモジュールでした。2026-10-12 に、付き添いアプリのエコシステム（[ADR-003](../../yorisoi-platform/docs/adr/ADR-003-companion-app-platform.md)）のためにコアとキットを切り出し（[RFC-002](../../yorisoi-platform/docs/refactoring/RFC-002-platform-stage1.md)、[5-1](../05-station-format/01-jvm-library.md)）、2026-10-13 にそれを別のリポジトリにしました（[RFC-004](../../yorisoi-platform/docs/refactoring/RFC-004-split-repositories.md)）。
+> 共通の部品（コアとキット）は、付き添いアプリのエコシステム（[ADR-003](../../yorisoi-platform/docs/adr/ADR-003-companion-app-platform.md)）のために、別のリポジトリ yorisoi-platform にあります（[5-1](../05-station-format/01-jvm-library.md)）。
 
 ## settings.gradle.kts: 全体の地図
 
@@ -54,7 +54,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        // The yorisoi platform (RFC-004 R-4). …
+        // The yorisoi platform. …
         if (gprUser != null && gprKey != null) {
             maven {
                 url = uri("https://maven.pkg.github.com/duwenji/yorisoi-platform")
@@ -86,7 +86,7 @@ providers.gradleProperty("yorisoi.platformDir").orNull?.let { includeBuild(it) }
 | アプリ | `:app` | yorisoi-sanpoguide | 画面・散策のサービス・設定など、SanpoGuide そのもの |
 | プロンプト・パック | `:prompts` | yorisoi-sanpoguide | SanpoGuide のプロンプトの文面と組み込みのチャンネル（素の JVM） |
 | コア | `:core-format`・`:core-prompt` | yorisoi-platform | チャンネルの形式と確認、テンプレートの仕組み（素の JVM。アプリをまたいで使う） |
-| キット | `:kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`・`kit-companion` | yorisoi-platform | 音声・AI の呼び出し・地図と天気・雰囲気（Android のライブラリ）、話す判断のルールとゲート（`kit-companion` だけは素の JVM。RFC-003） |
+| キット | `:kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`・`kit-companion` | yorisoi-platform | 音声・AI の呼び出し・地図と天気・雰囲気（Android のライブラリ）、話す判断のルールとゲート（`kit-companion` だけは素の JVM） |
 
 ## build.gradle.kts（全体）: プラグインの版
 
@@ -128,8 +128,8 @@ android {
         applicationId = "io.github.duwenji.yorisoi.sanpoguide"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.3.0"
+        versionCode = 1
+        versionName = "1.0.0"
     }
     // … signingConfigs・buildTypes（1-4 で見ます）…
     compileOptions {
@@ -150,11 +150,11 @@ android {
 | `minSdk` | 26 | 動く最低の Android の版。26 は Android 8.0 |
 | `targetSdk` | 35 | どの版の振る舞いに合わせて作ったか。35 は Android 15 |
 | `compileSdk` | 35 | コンパイルに使う Android の API の版 |
-| `versionCode` | 3 | 更新のたびに増やす整数。端末は大きい方を新しいと判断する。素材の第 1 段で 2、宣伝の表示（ADR-002 T-14）で 3 にした |
-| `versionName` | `0.3.0` | 人に見せる版 |
+| `versionCode` | 1 | 更新のたびに増やす整数。端末は大きい方を新しいと判断する。管理システムは、アプリが対応した機能（素材の段など）をこの値で見分ける |
+| `versionName` | `1.0.0` | 人に見せる版 |
 | `buildConfig = true` | — | `BuildConfig.VERSION_CODE`・`BuildConfig.DEBUG` などをコードから使えるようにする |
 
-`applicationId` は、逆さにしたドメイン名で、世界で重ならない名前にします。Android Studio の雛形が入れる `com.example.…` は仮の名前で、Google Play には上げられません。散策ガイドは Play に上げる前に、自分の GitHub のアドレス（`duwenji.github.io`）を逆さにした `io.github.duwenji.sanpoguide` に変えました。あわせて `namespace`・Kotlin のパッケージ・当時の `station-format` の公開の名前（[5-3](../05-station-format/03-publish.md)）も同じ名前に揃えています（その後、アプリをまたぐコアとキットは `io.github.duwenji.yorisoi` になりました）。さらに Play に上げる直前に、アプリもエコシステムの下に置く `io.github.duwenji.yorisoi.sanpoguide` に改め、`namespace`・パッケージ・プロンプト・パックの座標も揃えました（ADR-003 1.4）。`io.github.yorisoi` にしなかったのは、github.com/Yorisoi が別の人のアカウントで、その名前空間は自分のものではないからです。`applicationId` は公開後に変えられませんが、公開前なら何度でも変えられます。パッケージ名は後からでも変えられますが、使う人が増えるほど手間が増えるので、早めに揃えておきます。
+`applicationId` は、逆さにしたドメイン名で、世界で重ならない名前にします。Android Studio の雛形が入れる `com.example.…` は仮の名前で、Google Play には上げられません。散策ガイドは、自分の GitHub のアドレス（`duwenji.github.io`）を逆さにした `io.github.duwenji` の下に、エコシステムの名前 `yorisoi` とアプリの名前を続けた `io.github.duwenji.yorisoi.sanpoguide` にしています。`namespace`・Kotlin のパッケージ・プロンプト・パックの公開の名前（[5-3](../05-station-format/03-publish.md)）も同じ名前に揃えています（ADR-003 E-22）。`io.github.yorisoi` にしないのは、github.com/Yorisoi が別の人のアカウントで、その名前空間は自分のものではないからです。`applicationId` は公開後に変えられません。パッケージ名は後からでも変えられますが、使う人が増えるほど手間が増えるので、最初に揃えておきます。
 
 `minSdk = 26` は、第 6 部で何度も出てきた「Android 8 から動かしたい」の正体です。Ed25519 のために Tink を入れた（[技術カード: Tink](../ref/tink.md)）のも、base64url に `java.util.Base64` を使える（API 26 から）のも、この値が決めています。
 
@@ -228,7 +228,7 @@ implementation(libs.androidx.fragment)   // androidx.fragment:fragment:1.8.8
 
 ### 版を 1 か所に集める: バージョンカタログ
 
-モジュールが増えると、同じライブラリ（OkHttp や `org.json`）を何か所にも書くことになり、版がずれやすくなります。そこで、版を [gradle/libs.versions.toml](../../yorisoi-sanpoguide/gradle/libs.versions.toml) にまとめ、どのモジュールも `libs.…` の名前で参照しています（RFC-002 の R-10）。版を上げるときは、このファイルの 1 行を直すだけです。
+モジュールが増えると、同じライブラリ（OkHttp や `org.json`）を何か所にも書くことになり、版がずれやすくなります。そこで、版を [gradle/libs.versions.toml](../../yorisoi-sanpoguide/gradle/libs.versions.toml) にまとめ、どのモジュールも `libs.…` の名前で参照しています。版を上げるときは、このファイルの 1 行を直すだけです。
 
 ### モジュールへの依存と、別のリポジトリの部品への依存
 
@@ -306,10 +306,10 @@ dependencies {
 org.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8
 android.useAndroidX=true
 # …
-sanpoguidePromptsVersion=2.0.0
+sanpoguidePromptsVersion=1.0.0
 ```
 
-`sanpoguidePromptsVersion` はプロンプト・パックの公開の版です。アプリの版（`0.3.0`）とは別に管理しています。
+`sanpoguidePromptsVersion` はプロンプト・パックの公開の版です。アプリの版（`1.0.0`）とは別に管理しています。
 
 ### 自分で作ったタスク: channelIndex
 

@@ -143,7 +143,7 @@ signOut: async () => {
 
 Cognito の `/logout` は、`client_id` と `logout_uri`（ログアウトのあとに戻る場所）という引数を求めます。OIDC の標準のログアウトの引数（`post_logout_redirect_uri` など）とは名前が違うので、oidc-client-ts の `signoutRedirect()` に任せず、自分で URL を組み立てています。
 
-> **メモ**: コードのコメントは「Cognito には OIDC のログアウトの窓口がない」と書いています。2026-10-05 に開発用のユーザープールのディスカバリー文書を見ると、`end_session_endpoint` として `/logout` が載っていました。ただ、求める引数の名前は上のとおり Cognito 独自のもので、自分で組み立てるやり方はそのまま使えます。
+> **メモ**: コードのコメントは「Cognito には OIDC のログアウトの窓口がない」と書いています。開発用のユーザープールのディスカバリー文書を見ると、`end_session_endpoint` として `/logout` が載っていました。ただ、求める引数の名前は上のとおり Cognito 独自のもので、自分で組み立てるやり方はそのまま使えます。
 
 ## トークンの置き場所
 
@@ -155,7 +155,7 @@ Cognito の `/logout` は、`client_id` と `logout_uri`（ログアウトのあ
 | `sessionStorage` | タブを閉じれば消える。再読み込みでは残る | 同じページの JavaScript からは読める |
 | `localStorage` | ブラウザを閉じても残る | 残り続ける。同じページの JavaScript から読める |
 
-管理画面は `sessionStorage` を選びました（コメントの「aws-auth」は、開発のときに確かめた AWS のログインの決まりの名前です。[開発の記録](../../yorisoi-console/docs/skill-logs/feature_implementation_2026-10-04.md) に、公開クライアントに秘密を付けない・PKCE などと並んで出てきます）。置かれるのは `oidc.user:<authority>:<client_id>` という名前の 1 項目です。
+管理画面は `sessionStorage` を選びました（コメントの「aws-auth」は、開発のときに確かめた AWS のログインの決まりの名前です。公開クライアントに秘密を付けない・PKCE なども同じ決まりにあります）。置かれるのは `oidc.user:<authority>:<client_id>` という名前の 1 項目です。
 
 `sessionStorage` も `localStorage` も、**そのページで動く JavaScript からは読めます**。だから一番の脅威は、ページに悪いスクリプトを入れられること（XSS）です。管理画面はそれを次の重ねで防いでいます。
 
