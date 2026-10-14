@@ -114,8 +114,8 @@ tick 3
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [MainViewModel.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainViewModel.kt) の `select` | `viewModelScope.launch` で AI の解説を待つ | [2-2](../02-compose/02-state-viewmodel.md)、[3-1](../03-walk/01-coroutines.md) |
-| [WalkService.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) の `startTicker` | `lifecycleScope` の中の、キャンセルできるタイマー | [3-1](../03-walk/01-coroutines.md) |
+| [MainViewModel.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/MainViewModel.kt) の `select` | `viewModelScope.launch` で AI の解説を待つ | [2-2](../02-compose/02-state-viewmodel.md)、[3-1](../03-walk/01-coroutines.md) |
+| [WalkService.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/walk/WalkService.kt) の `startTicker` | `lifecycleScope` の中の、キャンセルできるタイマー | [3-1](../03-walk/01-coroutines.md) |
 | 同 `talk` | `Mutex.tryLock` で、話している最中の話を見送る | [3-1](../03-walk/01-coroutines.md)、[3-4](../03-walk/04-maybe-talk.md) |
 | 同 `saveProgress`・`finishWalk` | Service が止まっても保存が打ち切られないよう `appScope` で | [3-1](../03-walk/01-coroutines.md) |
 | [WeatherClient.kt](../../yorisoi-platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/weather/WeatherClient.kt) ほか通信する部品 | 自分の中で `withContext(Dispatchers.IO)` に移る | [3-1](../03-walk/01-coroutines.md) |

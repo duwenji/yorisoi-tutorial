@@ -111,7 +111,7 @@ suspend fun session(apiKey: String, type: GoogleMapType): GoogleTileSession {
 
 Google 純正の地図の部品（Maps SDK for Android）ではなく osmdroid を使うのは、国土地理院のタイルをそのまま使えて、キーも要らないからです。
 
-osmdroid は利用者のアプリを見分けるため、User-Agent の設定を求めています。[SanpoApp.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) の最初で設定しています。
+osmdroid は利用者のアプリを見分けるため、User-Agent の設定を求めています。[SanpoApp.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/SanpoApp.kt) の最初で設定しています。
 
 ```kotlin
 Configuration.getInstance().userAgentValue = "SanpoGuide/${BuildConfig.VERSION_NAME} (Android)"

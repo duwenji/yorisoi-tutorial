@@ -42,7 +42,7 @@ io.github.duwenji.yorisoi : core-format : 1.0.0
 |---|---|---|
 | `io.github.duwenji.yorisoi:core-format`・`core-prompt` | yorisoi-platform | `yorisoiVersion` |
 | `io.github.duwenji.yorisoi:kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`・`kit-companion` | yorisoi-platform | `yorisoiVersion`（7 つすべて同じ版） |
-| `io.github.duwenji.sanpoguide:prompts` | yorisoi-sanpoguide | `sanpoguidePromptsVersion` |
+| `io.github.duwenji.yorisoi.sanpoguide:prompts` | yorisoi-sanpoguide | `sanpoguidePromptsVersion` |
 
 グループが 2 つあるのは、コアとキットがエコシステム（yorisoi）のもので、プロンプト・パックが SanpoGuide のものだからです。キット（Android のライブラリ）は AAR という形で公開します。キットを使うのは今は SanpoGuide だけですが、リポジトリを分けたので、アプリもキットを公開された版で使います（[1-2](../01-kotlin-android/02-gradle.md)）。
 
@@ -90,6 +90,7 @@ yorisoi-platform の中では、コアとキットの版を 1 つにしていま
 | `io.github.duwenji.sanpoguide:prompts` | 1.0.0 | プロンプトと組み込みのチャンネルを切り出した最初の版（RFC-002 手順 1） |
 | 〃 | 1.1.0 | 組み込みの 6 つのチャンネルを format 2 に |
 | 〃 | 2.0.0 | 依存するコアを `io.github.duwenji.yorisoi` の 1.0.0 に。yorisoi-sanpoguide から公開した最初の版 |
+| `io.github.duwenji.yorisoi.sanpoguide:prompts` | 3.0.0 | グループと Kotlin のパッケージを `io.github.duwenji.yorisoi.sanpoguide` に（アプリの `applicationId` に合わせた。ADR-003 1.4）。中身は 2.0.0 と同じ |
 
 コアの 1.x は、改名前のグループ `io.github.duwenji.michizure` で公開しました。エコシステムの名前は最初 michizure（道連れ）でしたが、「道連れにする」の悪い意味に取られるおそれがあるため、2026-10-13 に yorisoi（寄り添い）に改めました。グループが変わると、Maven から見ると **別のライブラリ** なので、新しいグループの版は 1.0.0 から始めています。一方、プロンプト・パックは座標が変わらないまま、依存するコアの名前（使う側の `import`）が変わったので、互換性のない変更として最初の数字を上げて 2.0.0 にしました。
 
@@ -254,14 +255,14 @@ dependencyResolutionManagement {
                 name = "yorisoiSanpoguide"
                 url = uri("https://maven.pkg.github.com/duwenji/yorisoi-sanpoguide")
                 credentials { username = gprUser; password = gprKey }
-                content { includeGroup("io.github.duwenji.sanpoguide") }
+                content { includeGroup("io.github.duwenji.yorisoi.sanpoguide") }
             }
         }
         // Built locally (`./gradlew publishToMavenLocal` in yorisoi-platform and yorisoi-sanpoguide).
         mavenLocal {
             content {
                 includeGroup("io.github.duwenji.yorisoi")
-                includeGroup("io.github.duwenji.sanpoguide")
+                includeGroup("io.github.duwenji.yorisoi.sanpoguide")
             }
         }
     }
@@ -277,7 +278,7 @@ dependencyResolutionManagement {
 
 ```kotlin
 implementation("io.github.duwenji.yorisoi:core-format:1.0.0")
-implementation("io.github.duwenji.sanpoguide:prompts:2.0.0")
+implementation("io.github.duwenji.yorisoi.sanpoguide:prompts:3.0.0")
 ```
 
 コアが新しい版を出しても、管理システムは書いた版を使い続けます。たとえば michizure の `core-format` 1.3.0 が出たときも、管理システムは `1.2.0` のままでした。1.3.0 で足したのはリストの読み方（アプリのため）で、機械審査には要らなかったからです。yorisoi への改名では、パッケージの名前が変わったので、管理システムも改名と同時に上げました。新しい版を使うのは、管理システムの側で版を書き換えて確かめたときです。`station-format` のころも、SanpoGuide が `1.2.0` を出したあと、管理システムは `2.0.0` に上げるまで `1.1.0` を使っていました。**使う側が、上げる時期を自分で決められる** のが、版を固定する利点です。アプリ（yorisoi-sanpoguide）も、yorisoi-platform に対して同じ立場です。

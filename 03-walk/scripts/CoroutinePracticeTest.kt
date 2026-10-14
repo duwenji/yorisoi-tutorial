@@ -1,4 +1,4 @@
-package io.github.duwenji.sanpoguide
+package io.github.duwenji.yorisoi.sanpoguide
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

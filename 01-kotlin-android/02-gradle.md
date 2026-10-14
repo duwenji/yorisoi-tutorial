@@ -120,12 +120,12 @@ plugins {
 
 ```kotlin
 android {
-    namespace = "io.github.duwenji.sanpoguide"
+    namespace = "io.github.duwenji.yorisoi.sanpoguide"
     compileSdk = 35
 
     defaultConfig {
         // The Google Play ID: fixed once uploaded. …
-        applicationId = "io.github.duwenji.sanpoguide"
+        applicationId = "io.github.duwenji.yorisoi.sanpoguide"
         minSdk = 26
         targetSdk = 35
         versionCode = 3
@@ -145,8 +145,8 @@ android {
 
 | 項目 | 値 | 意味 |
 |---|---|---|
-| `namespace` | `io.github.duwenji.sanpoguide` | `R`・`BuildConfig` のクラスが入る Kotlin のパッケージ。ソースのパッケージと同じにする |
-| `applicationId` | `io.github.duwenji.sanpoguide` | 端末やストアでアプリを見分ける ID。**一度公開したら変えない** |
+| `namespace` | `io.github.duwenji.yorisoi.sanpoguide` | `R`・`BuildConfig` のクラスが入る Kotlin のパッケージ。ソースのパッケージと同じにする |
+| `applicationId` | `io.github.duwenji.yorisoi.sanpoguide` | 端末やストアでアプリを見分ける ID。**一度公開したら変えない** |
 | `minSdk` | 26 | 動く最低の Android の版。26 は Android 8.0 |
 | `targetSdk` | 35 | どの版の振る舞いに合わせて作ったか。35 は Android 15 |
 | `compileSdk` | 35 | コンパイルに使う Android の API の版 |
@@ -154,7 +154,7 @@ android {
 | `versionName` | `0.3.0` | 人に見せる版 |
 | `buildConfig = true` | — | `BuildConfig.VERSION_CODE`・`BuildConfig.DEBUG` などをコードから使えるようにする |
 
-`applicationId` は、逆さにしたドメイン名で、世界で重ならない名前にします。Android Studio の雛形が入れる `com.example.…` は仮の名前で、Google Play には上げられません。散策ガイドは Play に上げる前に、自分の GitHub のアドレス（`duwenji.github.io`）を逆さにした `io.github.duwenji.sanpoguide` に変えました。あわせて `namespace`・Kotlin のパッケージ・当時の `station-format` の公開の名前（[5-3](../05-station-format/03-publish.md)）も同じ名前に揃えています（その後、アプリをまたぐコアとキットは `io.github.duwenji.yorisoi` になりました）。`applicationId` は公開後に変えられませんが、パッケージ名は後からでも変えられます。ただ、使う人が増えるほど手間が増えるので、最初に揃えておきました。
+`applicationId` は、逆さにしたドメイン名で、世界で重ならない名前にします。Android Studio の雛形が入れる `com.example.…` は仮の名前で、Google Play には上げられません。散策ガイドは Play に上げる前に、自分の GitHub のアドレス（`duwenji.github.io`）を逆さにした `io.github.duwenji.sanpoguide` に変えました。あわせて `namespace`・Kotlin のパッケージ・当時の `station-format` の公開の名前（[5-3](../05-station-format/03-publish.md)）も同じ名前に揃えています（その後、アプリをまたぐコアとキットは `io.github.duwenji.yorisoi` になりました）。さらに Play に上げる直前に、アプリもエコシステムの下に置く `io.github.duwenji.yorisoi.sanpoguide` に改め、`namespace`・パッケージ・プロンプト・パックの座標も揃えました（ADR-003 1.4）。`io.github.yorisoi` にしなかったのは、github.com/Yorisoi が別の人のアカウントで、その名前空間は自分のものではないからです。`applicationId` は公開後に変えられませんが、公開前なら何度でも変えられます。パッケージ名は後からでも変えられますが、使う人が増えるほど手間が増えるので、早めに揃えておきます。
 
 `minSdk = 26` は、第 6 部で何度も出てきた「Android 8 から動かしたい」の正体です。Ed25519 のために Tink を入れた（[技術カード: Tink](../ref/tink.md)）のも、base64url に `java.util.Base64` を使える（API 26 から）のも、この値が決めています。
 

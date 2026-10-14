@@ -16,10 +16,10 @@
 
 | 保存するもの | 置き場所 | 形 | 部品 |
 |---|---|---|---|
-| 設定（AI のサービス、チャンネル、雰囲気、しきい値…） | SharedPreferences `guide_settings` | 「キー=値」 | [SettingsRepository.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/SettingsRepository.kt) |
+| 設定（AI のサービス、チャンネル、雰囲気、しきい値…） | SharedPreferences `guide_settings` | 「キー=値」 | [SettingsRepository.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/settings/SettingsRepository.kt) |
 | API キー（AI、Google Maps） | 同じ SharedPreferences | **暗号化した文字列** | [KeyCipher.kt](../../yorisoi-platform/kit-llm/src/main/java/io/github/duwenji/yorisoi/kit/llm/KeyCipher.kt) |
-| 散歩の記録（最大 500 回） | `files/walk_history.json` | JSON のファイル | [HistoryStore.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/history/HistoryStore.kt) |
-| 第三者のチャンネルの状態 | `files/channels/state.json` | JSON のファイル | [ChannelStore.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ChannelStore.kt) |
+| 散歩の記録（最大 500 回） | `files/walk_history.json` | JSON のファイル | [HistoryStore.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/history/HistoryStore.kt) |
+| 第三者のチャンネルの状態 | `files/channels/state.json` | JSON のファイル | [ChannelStore.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelStore.kt) |
 | 第三者のチャンネルのパッケージ | `files/channels/pkg/{SHA-256}.zip` | ZIP のファイル | 同上 |
 
 どれも **アプリ専用の領域**（ほかのアプリからは読めない）に置いています。さらにマニフェストで `android:allowBackup="false"` とし、端末のバックアップにも含めません（[1-3](../01-kotlin-android/03-android-components.md)）。README のとおり、散歩の記録は「端末内に保存」し、外には出しません。
@@ -30,7 +30,7 @@
 
 **SharedPreferences** は、「キー=値」の小さなデータを保存する Android の仕組みです。中身は XML のファイルで、アプリの起動時に読み込まれます。
 
-[SettingsRepository.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/settings/SettingsRepository.kt):
+[SettingsRepository.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/settings/SettingsRepository.kt):
 
 ```kotlin
 class SettingsRepository(context: Context) {
@@ -106,7 +106,7 @@ private fun migrateToStations() {
 
 ## 散歩の記録: JSON のファイル
 
-[HistoryStore.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/history/HistoryStore.kt):
+[HistoryStore.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/history/HistoryStore.kt):
 
 ```kotlin
 /**
@@ -163,7 +163,7 @@ private fun write(walks: List<WalkRecord>) {
 
 入れ替えは一瞬で終わる（途中の状態がない）ので、いつ落ちても、ファイルは「前の版」か「新しい版」のどちらかで、壊れた状態にはなりません。
 
-[ChannelStore.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/station/remote/ChannelStore.kt) も、同じことを手で書いています。
+[ChannelStore.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelStore.kt) も、同じことを手で書いています。
 
 ```kotlin
 fun save(state: ChannelState) {
@@ -229,7 +229,7 @@ internal object WalkJson {
 
 散策者の端末には、何年も前の版で保存した記録が残っているかもしれません。**保存したデータの形は、アプリの「約束」の一つ** です。第 6 部の API-002 の「知らない項目は無視する。項目の追加は互換性のある変更」と同じ考え方を、端末の中のデータにも当てはめています。
 
-テスト（[WalkJsonTest.kt](../../yorisoi-sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/history/WalkJsonTest.kt)）は、この約束を守っています。
+テスト（[WalkJsonTest.kt](../../yorisoi-sanpoguide/app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/history/WalkJsonTest.kt)）は、この約束を守っています。
 
 ```kotlin
 @Test
@@ -339,7 +339,7 @@ cd /c/Dev/apps/yorisoi-sanpoguide
 
 ### 2. 古い記録を読めなくしてみる
 
-[HistoryStore.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/history/HistoryStore.kt) の `WalkJson.fromJson` で、
+[HistoryStore.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/history/HistoryStore.kt) の `WalkJson.fromJson` で、
 
 ```kotlin
 val stations = o.optJSONArray("stations") ?: JSONArray()
@@ -362,7 +362,7 @@ val stations = o.getJSONArray("stations")
 ### 3. 元に戻す
 
 ```sh
-git checkout -- app/src/main/java/io/github/duwenji/sanpoguide/history/HistoryStore.kt
+git checkout -- app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/history/HistoryStore.kt
 git status
 ```
 
@@ -371,7 +371,7 @@ git status
 デバッグ版をエミュレータに入れていれば、`run-as` でアプリ専用の領域をのぞけます（Android SDK の `adb` を使います。[3-2](../03-walk/02-service.md) のハンズオンを参照）。
 
 ```sh
-adb shell run-as io.github.duwenji.sanpoguide ls files shared_prefs
+adb shell run-as io.github.duwenji.yorisoi.sanpoguide ls files shared_prefs
 ```
 
 `files/` に `walk_history.json` と `channels/`、`shared_prefs/` に `guide_settings.xml` が見えるはずです。`guide_settings.xml` の中の API キーの値が、暗号化された（読めない）文字列になっていることも確かめられます。

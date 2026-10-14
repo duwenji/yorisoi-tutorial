@@ -16,7 +16,7 @@ SanpoGuide のコードは 2 つのリポジトリに分かれています（202
 yorisoi-sanpoguide/
 ├── app/                         Android アプリ本体（モジュール :app）
 │   └── src/
-│       ├── main/java/io/github/duwenji/sanpoguide/
+│       ├── main/java/io/github/duwenji/yorisoi/sanpoguide/
 │       │   ├── ui/              画面（Compose）と ViewModel
 │       │   ├── walk/            常駐サービス WalkService、きっかけの見せ方
 │       │   ├── companion/       話しかけの判断（TalkDecider・天気・施設・スポットの選び方）

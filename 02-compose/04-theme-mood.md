@@ -320,7 +320,7 @@ yorisoi.platformDir=../yorisoi-platform
 
 ```sh
 cd /c/Dev/apps/yorisoi-sanpoguide
-rm app/src/main/java/io/github/duwenji/sanpoguide/ui/TutorialPreviews.kt
+rm app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/TutorialPreviews.kt
 git status
 cd ../yorisoi-platform
 git checkout -- kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodTheme.kt

@@ -103,9 +103,9 @@ Android Studio のエミュレータの「Extended controls」→「Location」�
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [MainViewModel.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainViewModel.kt) の `refresh` | `getCurrentLocation(…).await()`、取れなければ `lastLocation`、位置情報の設定がオフかの確認 | [3-3](../03-walk/03-location-sensors.md) |
-| [WalkService.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) の `startLocationUpdates` | 10 秒・10m ごとの更新、`onDestroy` で止める | [3-2](../03-walk/02-service.md)、[3-3](../03-walk/03-location-sensors.md) |
-| [WalkSession.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WalkSession.kt) の `onLocation` | 精度の悪い位置を捨て、8m 未満の動きを足さない。30m の「錨」で休憩を判定 | [3-3](../03-walk/03-location-sensors.md) |
+| [MainViewModel.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/MainViewModel.kt) の `refresh` | `getCurrentLocation(…).await()`、取れなければ `lastLocation`、位置情報の設定がオフかの確認 | [3-3](../03-walk/03-location-sensors.md) |
+| [WalkService.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/walk/WalkService.kt) の `startLocationUpdates` | 10 秒・10m ごとの更新、`onDestroy` で止める | [3-2](../03-walk/02-service.md)、[3-3](../03-walk/03-location-sensors.md) |
+| [WalkSession.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/WalkSession.kt) の `onLocation` | 精度の悪い位置を捨て、8m 未満の動きを足さない。30m の「錨」で休憩を判定 | [3-3](../03-walk/03-location-sensors.md) |
 | [Heading.kt](../../yorisoi-platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/Heading.kt) | 方位センサーがない端末では、歩いているときの `location.bearing` を使う | [3-3](../03-walk/03-location-sensors.md) |
 | [SpotRepository.kt](../../yorisoi-platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/SpotRepository.kt) | 300m 動いたら近くのスポットを検索し直す | [3-1](../03-walk/01-coroutines.md) |
 
