@@ -71,7 +71,7 @@ Compose は、Composable が読んでいるデータが変わると、その Com
 
 ## CompanionCard を読む
 
-散策中、画面の上に出る「話しかけのカード」が [CompanionCard.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/CompanionCard.kt) です。140 行ほどの中に、この章の要素が全部入っています。
+散策中、画面の上に出る「話しかけのカード」が [CompanionCard.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/CompanionCard.kt) です。140 行ほどの中に、この章の要素が全部入っています。
 
 ```kotlin
 @Composable
@@ -250,7 +250,7 @@ Android Studio には、アプリを動かさずに Composable を描いて見�
 
 ```sh
 cd /c/Dev/apps/yorisoi-sanpoguide
-cp ../yorisoi-tutorial/02-compose/scripts/TutorialPreviews.kt app/src/main/java/io/github/duwenji/sanpoguide/ui/
+cp ../yorisoi-tutorial/02-compose/scripts/TutorialPreviews.kt app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/
 ```
 
 中身の一部です。
@@ -286,7 +286,7 @@ private fun CompanionCardAutumnEvening() {
 ### 4. 片付け
 
 ```sh
-rm app/src/main/java/io/github/duwenji/sanpoguide/ui/TutorialPreviews.kt
+rm app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/TutorialPreviews.kt
 git status
 ```
 

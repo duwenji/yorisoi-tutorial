@@ -1,4 +1,4 @@
-package io.github.duwenji.sanpoguide.prompt
+package io.github.duwenji.yorisoi.sanpoguide.prompt
 
 import io.github.duwenji.yorisoi.core.format.ArchiveException
 import io.github.duwenji.yorisoi.core.format.MemoryStationFiles

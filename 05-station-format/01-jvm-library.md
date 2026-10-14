@@ -20,7 +20,7 @@ Android に依存しない素の Kotlin（JVM）のモジュールが 3 つあ�
 | `core-format`（yorisoi-platform） | `io.github.duwenji.yorisoi.core.format` | チャンネルのパッケージの形式と確認（`StationValidator`・`StationManifest`・`Slot`・`PackageArchive`・`PublisherSignature`）、素材・きっかけ・見せ方の確認（`Cues`・`CollectionReferences`）、エコシステムの語彙と互換性の判定（`Ecosystem`）、リストの文書の確認（`ProviderDocuments`） | [5-2](02-package-format.md)・[6-5](../06-trust/05-verify-in-app.md) |
 | 〃 | `…core.format.material` | 素材集の形式と確認、素材提供者の共通の形（`Collections`・`Resources`・`Producers`・`Regions`） | [5-4](04-materials-cues.md) |
 | `core-prompt`（yorisoi-platform） | `io.github.duwenji.yorisoi.core.prompt` | プロンプトのテンプレートの仕組み（`PromptTemplates`） | [4-3](../04-outside/03-ai.md) |
-| `:prompts`（プロンプト・パック、yorisoi-sanpoguide） | `io.github.duwenji.sanpoguide.prompt` | SanpoGuide のプロンプトの一覧（`Prompts`）、スロットの差し込み方（`StationPrompts`）、組み込みのチャンネル（`BuiltInChannels`）、審査の見本の場面（`ReviewSamples`） | [4-3](../04-outside/03-ai.md) |
+| `:prompts`（プロンプト・パック、yorisoi-sanpoguide） | `io.github.duwenji.yorisoi.sanpoguide.prompt` | SanpoGuide のプロンプトの一覧（`Prompts`）、スロットの差し込み方（`StationPrompts`）、組み込みのチャンネル（`BuiltInChannels`）、審査の見本の場面（`ReviewSamples`） | [4-3](../04-outside/03-ai.md) |
 | 〃 | リソース | `sanpoguide/prompts/`（プロンプトの文面）、`sanpoguide/channels/`（組み込みの 6 つのチャンネル） | [4-3](../04-outside/03-ai.md) |
 
 コアは「チャンネルとは何か、どう確かめるか」という **エコシステム共通の決まりごと**、プロンプト・パックは「散歩の付き添いとして AI にどう話させるか」という **SanpoGuide の決まりごと** です。どちらにも、画面・位置情報・音・通信といった Android の機能は 1 つも入っていません。アプリ（`:app`）はプロンプト・パックに依存し、プロンプト・パックがコアを `api` で引き連れてきます。
@@ -39,7 +39,7 @@ flowchart LR
     CORE -->|"GitHub Packages<br/>api(libs.yorisoi.core.format)"| PACK
     PACK -->|"project(...)"| APP[":app<br/>Android アプリ"]
     CORE -->|"GitHub Packages<br/>io.github.duwenji.yorisoi:core-format"| VAL["yorisoi-console<br/>validator（Kotlin の Lambda）"]
-    PACK -->|"GitHub Packages<br/>io.github.duwenji.sanpoguide:prompts"| VAL
+    PACK -->|"GitHub Packages<br/>io.github.duwenji.yorisoi.sanpoguide:prompts"| VAL
 ```
 
 チャンネル管理システムは、チャンネル提供者が申請したパッケージを機械で確かめ（機械審査）、運営のために「このチャンネルなら AI はこう話す」という見本のプロンプトを作ります。そのとき、アプリと **違うコード** で確かめると、次のような食い違いが起きます。
@@ -55,7 +55,7 @@ flowchart LR
 
 2 つ目の理由で、`station-format` をさらに分けました。チャンネルの形式はどのアプリでも同じなのでコアに、散歩の場面の見本や SanpoGuide のプロンプトの文面はそのアプリのものなのでプロンプト・パックに置きます（RFC-002 の R-1・R-4）。
 
-> コアとキットは `io.github.duwenji.yorisoi.core.*`・`io.github.duwenji.yorisoi.kit.*`（ADR-003 E-22）。（…）プロンプト・パックとアプリは `io.github.duwenji.sanpoguide.*` のまま（RFC-002 の R-3）
+> コアとキットは `io.github.duwenji.yorisoi.core.*`・`io.github.duwenji.yorisoi.kit.*`（ADR-003 E-22）。（…）プロンプト・パックとアプリは `io.github.duwenji.yorisoi.sanpoguide.*` のまま（RFC-002 の R-3）
 
 Android の部品（音声・地図・AI の呼び出しなど）は、同じく yorisoi-platform の **キット**（`kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`）に分けました。話す判断のルールとゲート（`kit-companion`、RFC-003）もキットです（これだけは素の JVM）。最初はキットを公開していませんでしたが（RFC-002 の R-11）、リポジトリを分けたので、今はコアと一緒に GitHub Packages に公開しています（RFC-004 の R-4）。
 
@@ -106,7 +106,7 @@ dependencies {
 
 ```kotlin
 implementation("io.github.duwenji.yorisoi:core-format:1.0.0")
-implementation("io.github.duwenji.sanpoguide:prompts:2.0.0")
+implementation("io.github.duwenji.yorisoi.sanpoguide:prompts:3.0.0")
 // core-format leaves org.json to its users (Android ships one).
 implementation("org.json:json:20240303")
 ```

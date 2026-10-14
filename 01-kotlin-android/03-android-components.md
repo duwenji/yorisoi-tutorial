@@ -17,9 +17,9 @@
 
 | 部品 | 散策ガイドでは | 役割 |
 |---|---|---|
-| **Application** | [`SanpoApp`](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) | アプリ全体で 1 つ。いちばん最初に作られる |
-| **Activity** | [`MainActivity`](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainActivity.kt) | 画面の入れ物。散策者が操作する |
-| **Service** | [`WalkService`](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) | 画面がなくても動き続ける処理。散歩の追跡 |
+| **Application** | [`SanpoApp`](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/SanpoApp.kt) | アプリ全体で 1 つ。いちばん最初に作られる |
+| **Activity** | [`MainActivity`](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/MainActivity.kt) | 画面の入れ物。散策者が操作する |
+| **Service** | [`WalkService`](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/walk/WalkService.kt) | 画面がなくても動き続ける処理。散歩の追跡 |
 
 ほかに、ほかのアプリや OS からの知らせを受け取る Broadcast Receiver、データをほかのアプリに渡す Content Provider がありますが、散策ガイドは自分では使っていません。
 
@@ -91,7 +91,7 @@ OS は、アプリにどんな部品があり、何をしたいのかを **マ�
 
 ## Application: SanpoApp
 
-アプリの起動時に、ほかのどの部品より先に `SanpoApp.onCreate()` が呼ばれます。[SanpoApp.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt):
+アプリの起動時に、ほかのどの部品より先に `SanpoApp.onCreate()` が呼ばれます。[SanpoApp.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/SanpoApp.kt):
 
 ```kotlin
 class SanpoApp : Application() {
@@ -126,7 +126,7 @@ class SanpoApp : Application() {
 
 ## Activity: MainActivity
 
-散策ガイドの画面は Activity が 1 つだけです。メイン・設定・記録・チャンネルの 4 つの画面は、すべて `MainActivity` の中で Compose によって切り替えています。[MainActivity.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainActivity.kt):
+散策ガイドの画面は Activity が 1 つだけです。メイン・設定・記録・チャンネルの 4 つの画面は、すべて `MainActivity` の中で Compose によって切り替えています。[MainActivity.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/MainActivity.kt):
 
 ```kotlin
 class MainActivity : ComponentActivity() {
@@ -185,7 +185,7 @@ stateDiagram-v2
 
 ## Service: WalkService
 
-散歩の追跡は、画面を閉じても、端末をポケットに入れても続ける必要があります。そこで、画面（Activity）ではなく **Service** で行います。[WalkService.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt):
+散歩の追跡は、画面を閉じても、端末をポケットに入れても続ける必要があります。そこで、画面（Activity）ではなく **Service** で行います。[WalkService.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/walk/WalkService.kt):
 
 ```kotlin
 class WalkService : LifecycleService() {
@@ -298,7 +298,7 @@ android.permission.ACCESS_COARSE_LOCATION
 android.permission.FOREGROUND_SERVICE
 android.permission.FOREGROUND_SERVICE_LOCATION
 android.permission.POST_NOTIFICATIONS
-io.github.duwenji.sanpoguide.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+io.github.duwenji.yorisoi.sanpoguide.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ```
 
 最後の 1 行は、散策ガイドのマニフェストにはありません。AndroidX のライブラリが足したものです。部品の数も数えてみましょう。

@@ -18,7 +18,7 @@
 
 ```mermaid
 flowchart LR
-    SG["yorisoi-platform・yorisoi-sanpoguide<br/>core-format・prompts（Kotlin）"] -->|"GitHub Packages<br/>io.github.duwenji.yorisoi:core-format:1.0.0<br/>io.github.duwenji.sanpoguide:prompts:2.0.0"| V["validator<br/>機械審査の Lambda（Kotlin）"]
+    SG["yorisoi-platform・yorisoi-sanpoguide<br/>core-format・prompts（Kotlin）"] -->|"GitHub Packages<br/>io.github.duwenji.yorisoi:core-format:1.0.0<br/>io.github.duwenji.yorisoi.sanpoguide:prompts:3.0.0"| V["validator<br/>機械審査の Lambda（Kotlin）"]
     SG -->|"project(...)"| APP["アプリ"]
 ```
 
@@ -183,7 +183,7 @@ intakeBucket.addEventNotification(s3.EventType.OBJECT_CREATED, new s3n.LambdaDes
 ```kotlin
 dependencies {
     implementation("io.github.duwenji.yorisoi:core-format:1.0.0")
-    implementation("io.github.duwenji.sanpoguide:prompts:2.0.0")
+    implementation("io.github.duwenji.yorisoi.sanpoguide:prompts:3.0.0")
     // core-format leaves org.json to its users (Android ships one).
     implementation("org.json:json:20240303")
     implementation("com.amazonaws:aws-lambda-java-core:1.4.0")

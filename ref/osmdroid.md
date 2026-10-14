@@ -103,7 +103,7 @@ map.overlays += line
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [SanpoApp.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) | 起動時の User-Agent の設定 | [4-2](../04-outside/02-map.md) |
+| [SanpoApp.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/SanpoApp.kt) | 起動時の User-Agent の設定 | [4-2](../04-outside/02-map.md) |
 | [MapTiles.kt](../../yorisoi-platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/MapTiles.kt) | 国土地理院の 4 種類の地図（`XYTileSource`）、Google Map Tiles（`OnlineTileSourceBase` を継承） | [4-2](../04-outside/02-map.md) |
 | [SpotMap.kt](../../yorisoi-platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/SpotMap.kt) | `AndroidView`、重ねる順番、顔ぶれが変わったときだけマーカーを作り直す、150m 動いたときだけ真ん中を合わせる、向きつきの現在地の印 | [4-2](../04-outside/02-map.md) |
 

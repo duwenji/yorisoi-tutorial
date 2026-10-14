@@ -129,7 +129,7 @@ URL を渡すと、アプリと同じように検出の文書・リスト・パ�
 // yorisoi-console/validator/build.gradle.kts
 dependencies {
     implementation("io.github.duwenji.yorisoi:core-format:1.0.0")
-    implementation("io.github.duwenji.sanpoguide:prompts:2.0.0")
+    implementation("io.github.duwenji.yorisoi.sanpoguide:prompts:3.0.0")
     // core-format leaves org.json to its users (Android ships one).
     implementation("org.json:json:20240303")
     // …

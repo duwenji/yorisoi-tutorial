@@ -27,11 +27,11 @@ Android の端末は、いくつかの方法で位置を知ります。
 private val fused by lazy { LocationServices.getFusedLocationProviderClient(this) }
 ```
 
-`by lazy` は「最初に使われたときに作る」という意味です（[WalkService.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt)）。
+`by lazy` は「最初に使われたときに作る」という意味です（[WalkService.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/walk/WalkService.kt)）。
 
 ### 今の位置を 1 回: 画面
 
-メイン画面の「周辺を再検索」では、今の位置を 1 回だけ取ります（[MainViewModel.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainViewModel.kt) の `refresh`）。
+メイン画面の「周辺を再検索」では、今の位置を 1 回だけ取ります（[MainViewModel.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/MainViewModel.kt) の `refresh`）。
 
 ```kotlin
 val loc = fused.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).await()
@@ -123,7 +123,7 @@ private fun onLocation(location: Location) {
 
 ## GPS の揺れを持ち込まない
 
-GPS の位置は、止まっていても数 m〜十数 m 揺れます。揺れをそのまま足すと、立っているだけで距離が増えていきます。[WalkSession.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/WalkSession.kt) は、3 つの工夫で揺れを除いています。
+GPS の位置は、止まっていても数 m〜十数 m 揺れます。揺れをそのまま足すと、立っているだけで距離が増えていきます。[WalkSession.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/WalkSession.kt) は、3 つの工夫で揺れを除いています。
 
 ```kotlin
 /** Adds movement to the distance, ignoring GPS jitter and poor fixes. */
@@ -280,7 +280,7 @@ private fun angleBetween(a: Float, b: Float): Float = abs(((b - a) % 360 + 540) 
 private fun normalize(degrees: Float) = ((degrees % 360) + 360) % 360
 ```
 
-[FacilityAdvisor.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/FacilityAdvisor.kt) の `relativeDirection` は、歩いている向きに対して施設がどちらにあるかを「前方・右手・左手・後ろ」で答えます。施設の案内（「右手 50m にトイレがあります」）に使われます。
+[FacilityAdvisor.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/FacilityAdvisor.kt) の `relativeDirection` は、歩いている向きに対して施設がどちらにあるかを「前方・右手・左手・後ろ」で答えます。施設の案内（「右手 50m にトイレがあります」）に使われます。
 
 ```kotlin
 fun relativeDirection(heading: Float, bearing: Float): String {
@@ -302,7 +302,7 @@ fun relativeDirection(heading: Float, bearing: Float): String {
 
 ### 1. 方向のテストを読む
 
-[FacilityAdvisorTest.kt](../../yorisoi-sanpoguide/app/src/test/java/io/github/duwenji/sanpoguide/companion/FacilityAdvisorTest.kt) の最後のテストです。
+[FacilityAdvisorTest.kt](../../yorisoi-sanpoguide/app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/companion/FacilityAdvisorTest.kt) の最後のテストです。
 
 ```kotlin
 @Test
@@ -328,7 +328,7 @@ fun `direction relative to heading`() {
 
 ### 2. 素朴な引き算にしてみる
 
-[FacilityAdvisor.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/companion/FacilityAdvisor.kt) の `relativeDirection` の 1 行目を、
+[FacilityAdvisor.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/FacilityAdvisor.kt) の `relativeDirection` の 1 行目を、
 
 ```kotlin
 val diff = bearing - heading
@@ -350,7 +350,7 @@ cd /c/Dev/apps/yorisoi-sanpoguide
 ### 3. 元に戻す
 
 ```sh
-git checkout -- app/src/main/java/io/github/duwenji/sanpoguide/companion/FacilityAdvisor.kt
+git checkout -- app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/FacilityAdvisor.kt
 git status
 ```
 

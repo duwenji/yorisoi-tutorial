@@ -46,7 +46,7 @@ flowchart LR
 | 第三者の素材集 | 観光協会の解説と写真 | 審査で固定。前もって取得する |
 | チャンネルに同梱の素材 | `channel.json` の `resources` | 審査で固定。パッケージに入っている |
 
-ばらばらに見えますが、アプリはすべてを **同じ形** で扱います（API-004 I-1）。アプリの側の形は [Producer.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/material/Producer.kt) の `Producer` です。
+ばらばらに見えますが、アプリはすべてを **同じ形** で扱います（API-004 I-1）。アプリの側の形は [Producer.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Producer.kt) の `Producer` です。
 
 ```kotlin
 interface Producer {
@@ -145,8 +145,8 @@ val AI_GUIDE = ProducerDescriptor(
 
 | 場所 | 何の候補か |
 |---|---|
-| `Producers.first`（[Producer.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/material/Producer.kt)） | きっかけのないふだんの解説と話しかけ（`Narration` の `Shorthand`、[4-3](../04-outside/03-ai.md)） |
-| `CuePresenter`（[Cues.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/material/Cues.kt)） | きっかけの見せ方ごとの候補 |
+| `Producers.first`（[Producer.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Producer.kt)） | きっかけのないふだんの解説と話しかけ（`Narration` の `Shorthand`、[4-3](../04-outside/03-ai.md)） |
+| `CuePresenter`（[Cues.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Cues.kt)） | きっかけの見せ方ごとの候補 |
 
 ふだんの解説も「`builtin:ai-guide` → `builtin:fallback-text`」という候補の並びとして書かれています（API-004「省略形の展開」）。きっかけを持たない組み込みのチャンネルも、同じ仕組みの上で動いているわけです。
 

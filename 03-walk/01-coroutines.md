@@ -32,7 +32,7 @@ Android の画面は **メインスレッド** という 1 本の流れで描か
 
 ## suspend 関数
 
-散策ガイドの AI の呼び出し（[GuideRepository.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/guide/GuideRepository.kt)）は、こう宣言されています。
+散策ガイドの AI の呼び出し（[GuideRepository.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/guide/GuideRepository.kt)）は、こう宣言されています。
 
 ```kotlin
 suspend fun guideFor(poi: Poi, distanceM: Int?, channel: Station): String
@@ -44,7 +44,7 @@ suspend fun guideFor(poi: Poi, distanceM: Int?, channel: Station): String
 - 返事が来たら、止まったところから続きを実行する
 - 呼ぶ側から見ると、普通の関数のように結果（`String`）が返ってくる
 
-[MainViewModel.select](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/ui/MainViewModel.kt) を思い出してください（[2-2](../02-compose/02-state-viewmodel.md)）。`guideFor` は、間に入る `narration`（`suspend` 関数）を通して呼ばれます。
+[MainViewModel.select](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/MainViewModel.kt) を思い出してください（[2-2](../02-compose/02-state-viewmodel.md)）。`guideFor` は、間に入る `narration`（`suspend` 関数）を通して呼ばれます。
 
 ```kotlin
 viewModelScope.launch {
@@ -59,7 +59,7 @@ viewModelScope.launch {
 
 10 秒かかる AI の呼び出しが、ただの 1 行です。コールバックはどこにもありません。
 
-失敗は、普通の `try`/`catch` で受け止められます。この例では、素材の出どころを順に試す `Producers.first`（[Producer.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/material/Producer.kt)）が受け止めて、`MaterialResult.Unavailable` という値に直して返しています。
+失敗は、普通の `try`/`catch` で受け止められます。この例では、素材の出どころを順に試す `Producers.first`（[Producer.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Producer.kt)）が受け止めて、`MaterialResult.Unavailable` という値に直して返しています。
 
 ```kotlin
 val result = try {
@@ -90,7 +90,7 @@ val result = try {
 
 ### 散歩の後片付けは appScope で
 
-[WalkService.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/walk/WalkService.kt) の、散歩の記録を保存するところです。
+[WalkService.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/walk/WalkService.kt) の、散歩の記録を保存するところです。
 
 ```kotlin
 /** Saves the walk so far, in the app scope so a stopping service doesn't cut the write short. */
@@ -104,7 +104,7 @@ private fun saveProgress(s: WalkSession) {
 
 **「この処理は、何が終わったら止まるべきか」を考えてスコープを選ぶ**、というのが大事な点です。
 
-[SanpoApp.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/sanpoguide/SanpoApp.kt) は `appScope` をこう作っています。
+[SanpoApp.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/SanpoApp.kt) は `appScope` をこう作っています。
 
 ```kotlin
 val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -256,7 +256,7 @@ private fun startAmbient() = lifecycleScope.launch {
 
 ```sh
 cd /c/Dev/apps/yorisoi-sanpoguide
-cp ../yorisoi-tutorial/03-walk/scripts/CoroutinePracticeTest.kt app/src/test/java/io/github/duwenji/sanpoguide/
+cp ../yorisoi-tutorial/03-walk/scripts/CoroutinePracticeTest.kt app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/
 ./gradlew :app:testDebugUnitTest --tests '*CoroutinePracticeTest*'
 ```
 
@@ -321,7 +321,7 @@ assertEquals(listOf("話す: スポットの案内", "見送り: 雑談", "話�
 ### 4. 片付け
 
 ```sh
-rm app/src/test/java/io/github/duwenji/sanpoguide/CoroutinePracticeTest.kt
+rm app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/CoroutinePracticeTest.kt
 git status
 ```
 

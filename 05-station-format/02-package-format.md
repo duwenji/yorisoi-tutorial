@@ -433,7 +433,7 @@ ZIP の中に書かれた「展開後の大きさ」は信用せず（いくら�
 
 ```sh
 cd /c/Dev/apps/yorisoi-sanpoguide
-cp ../yorisoi-tutorial/05-station-format/scripts/MyChannelPracticeTest.kt prompts/src/test/kotlin/io/github/duwenji/sanpoguide/prompt/
+cp ../yorisoi-tutorial/05-station-format/scripts/MyChannelPracticeTest.kt prompts/src/test/kotlin/io/github/duwenji/yorisoi/sanpoguide/prompt/
 ./gradlew :prompts:test --tests '*MyChannelPracticeTest*'
 ```
 
@@ -526,7 +526,7 @@ private val persona = "あなたは、町の古い喫茶店を何十年も見て
 ### 5. 片付け
 
 ```sh
-rm prompts/src/test/kotlin/io/github/duwenji/sanpoguide/prompt/MyChannelPracticeTest.kt
+rm prompts/src/test/kotlin/io/github/duwenji/yorisoi/sanpoguide/prompt/MyChannelPracticeTest.kt
 git status
 ```
 
