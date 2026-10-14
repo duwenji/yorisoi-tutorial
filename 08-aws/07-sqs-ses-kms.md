@@ -171,7 +171,7 @@ export async function deliver(ports: NotifyPorts, notice: Notice, attempt: numbe
 
 ```ts
 send: async (mail) => {
-  // Development has no sending domain yet (T-7): record what would be sent, without the address or text.
+  // Development has no sending domain yet (ADR-001 T-2): record what would be sent, without the address or text.
   if (env('NOTIFY_MODE') === 'log') {
     console.log(JSON.stringify({ wouldSend: mail.subject, bodyLength: mail.body.length }));
     return 'log-only';

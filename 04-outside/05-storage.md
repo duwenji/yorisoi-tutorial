@@ -252,13 +252,13 @@ fun `records from before channels still load`() {
 
 AI のキーは、散策者のお金に直結する秘密です。SharedPreferences にそのまま保存すると、端末の中のファイルに平文で残ります。
 
-散策ガイドは、キーを **暗号化してから** 保存しています。[KeyCipher.kt](../../yorisoi-platform/kit-llm/src/main/java/io/github/duwenji/yorisoi/kit/llm/KeyCipher.kt)（RFC-002 でキット `kit-llm` に移りました。Keystore の別名 `sanpo_api_keys` は、変えると保存したキーが読めなくなるので、移したあとも元のままです。コメントにもそう書いてあります）:
+散策ガイドは、キーを **暗号化してから** 保存しています。[KeyCipher.kt](../../yorisoi-platform/kit-llm/src/main/java/io/github/duwenji/yorisoi/kit/llm/KeyCipher.kt)（キット `kit-llm`。Keystore の別名 `sanpo_api_keys` は、変えると保存したキーが読めなくなるので、変えてはいけません。コメントにもそう書いてあります）:
 
 ```kotlin
 /** Encrypts API keys with an AES key that never leaves the Android Keystore. */
 object KeyCipher {
     private const val KEYSTORE = "AndroidKeyStore"
-    /** The Keystore entry holding the key: changing it loses every saved API key (RFC-002 R-8). */
+    /** The Keystore entry holding the key: changing it loses every saved API key. */
     internal const val ALIAS = "sanpo_api_keys"
     private const val TRANSFORMATION = "AES/GCM/NoPadding"
     private const val IV_BYTES = 12

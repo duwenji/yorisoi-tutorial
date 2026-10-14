@@ -257,7 +257,7 @@ fetchMaterials(providerId, list, check.station, entry.publisher, unmetered)
 
 ### 素材集も同じ形で確かめる
 
-リストには、チャンネルのほかに **素材集**（`collections`、API-002 1.2）も載っています。`ProviderDocuments` は、それを `ListedCollection` として読みます（素材集の ID・版・素材提供者・使ってよいチャンネル提供者 `grants`・パッケージの URL と SHA-256 など）。素材集のパッケージを取るときも、チャンネルとまったく同じ順で確かめます（`ChannelSync.fetchCollection`）。
+リストには、チャンネルのほかに **素材集**（`collections`、API-002）も載っています。`ProviderDocuments` は、それを `ListedCollection` として読みます（素材集の ID・版・素材提供者・使ってよいチャンネル提供者 `grants`・パッケージの URL と SHA-256 など）。素材集のパッケージを取るときも、チャンネルとまったく同じ順で確かめます（`ChannelSync.fetchCollection`）。
 
 ```kotlin
 val bytes = http.get(checkedUrl(listed.pkg.url), minOf(listed.pkg.size, ProviderDocuments.MAX_PACKAGE_BYTES))

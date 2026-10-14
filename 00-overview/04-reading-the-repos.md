@@ -10,7 +10,7 @@
 
 ## SanpoGuide のフォルダ
 
-SanpoGuide のコードは 2 つのリポジトリに分かれています（2026-10-13 に分けました。[RFC-004](../../yorisoi-platform/docs/refactoring/RFC-004-split-repositories.md)）。アプリそのものは `yorisoi-sanpoguide`、ほかの付き添いアプリとも共有する部品は `yorisoi-platform` にあります。アプリは、yorisoi-platform が GitHub Packages に公開した版を使います。
+SanpoGuide のコードは 2 つのリポジトリに分かれています。アプリそのものは `yorisoi-sanpoguide`、ほかの付き添いアプリとも共有する部品は `yorisoi-platform` にあります。アプリは、yorisoi-platform が GitHub Packages に公開した版を使います。
 
 ```
 yorisoi-sanpoguide/

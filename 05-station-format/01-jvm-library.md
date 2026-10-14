@@ -7,9 +7,9 @@
 - コア（`core-format`・`core-prompt`）とプロンプト・パック（yorisoi-sanpoguide の `prompts`）が何を持っていて、なぜアプリ本体から切り出したのか
 - Android に依存しない作りにするための 3 つの工夫（差し替え口、`compileOnly`、クラスパスのリソース）
 - ファイルの集まりを抽象化する `StationFiles` と、その 3 つの実装
-- 「アプリの動きを変えずに」切り出すための進め方（RFC-001・RFC-002）
+- コードを「アプリの動きを変えずに」別のモジュールへ移すための進め方
 
-> **名前の移り変わり**: この部の題にある `station-format` は、最初に切り出したときのモジュールの名前です（RFC-001、2026-10-03）。2026-10-12 に、付き添いアプリのエコシステム **yorisoi**（[ADR-003](../../yorisoi-platform/docs/adr/ADR-003-companion-app-platform.md)）のために、アプリをまたいで使う **コア** と、SanpoGuide だけのものを入れた **プロンプト・パック** に分けました（[RFC-002](../../yorisoi-platform/docs/refactoring/RFC-002-platform-stage1.md)）。`station-format` は 2.1.0 を最後に公開をやめています。さらに 2026-10-13 に、コアとキットを別のリポジトリ yorisoi-platform に移しました（[RFC-004](../../yorisoi-platform/docs/refactoring/RFC-004-split-repositories.md)）。この章では今の名前で説明し、フォルダ名（`05-station-format`）だけ元のままにしています。
+> **フォルダ名について**: この部のフォルダ名 `05-station-format` の station は、コード上のチャンネルの名前 `Station` から来ています（[1-1](../01-kotlin-android/01-kotlin-syntax.md)）。中身はコア（yorisoi-platform）とプロンプト・パック（yorisoi-sanpoguide）です。
 
 ## 3 つの JVM モジュールが持っているもの
 
@@ -29,8 +29,8 @@ Android に依存しない素の Kotlin（JVM）のモジュールが 3 つあ�
 
 理由は 2 つあります。
 
-1. **管理システムでも同じコードを使うため**（RFC-001）
-2. **サイクリングの伴走など、2 本目の付き添いアプリでもチャンネルを使うため**（RFC-002、ADR-003）
+1. **管理システムでも同じコードを使うため**
+2. **サイクリングの伴走など、2 本目の付き添いアプリでもチャンネルを使うため**（ADR-003）
 
 ```mermaid
 flowchart LR
@@ -49,15 +49,9 @@ flowchart LR
 
 [6-6](../06-trust/06-same-rules.md) で見たとおり、食い違いを防ぐいちばん確かな方法は **同じコードを使う** ことです。そのためには、そのコードが Android の上でも、AWS の Lambda（普通の JVM）の上でも動く必要があります。だからコアとプロンプト・パックは、Android に依存しない素の Kotlin（JVM）のライブラリになっています。
 
-最初の切り出しの経緯は [RFC-001](../../yorisoi-sanpoguide/docs/refactoring/RFC-001-prompts-to-station-format.md) に記録されています。
+2 つ目の理由で、コアとプロンプト・パックを分けています。チャンネルの形式はどのアプリでも同じなのでコアに、散歩の場面の見本や SanpoGuide のプロンプトの文面はそのアプリのものなのでプロンプト・パックに置きます。パッケージ名も、コアとキットは `io.github.duwenji.yorisoi.core.*`・`io.github.duwenji.yorisoi.kit.*`、プロンプト・パックとアプリは `io.github.duwenji.yorisoi.sanpoguide.*` と分けています（ADR-003 E-22）。
 
-> 管理システム（sanpo-channel-console）は、審査でアプリと同じプロンプトを組み立てて AI に話させる。そのため、アプリ本体にあったプロンプトの組み立て（…）と、空いたスロットを埋める組み込みのチャンネルを、Android に依存しない `:station-format` に移す。（RFC-001「目的・背景」より要約。文書の名前は当時のまま）
-
-2 つ目の理由で、`station-format` をさらに分けました。チャンネルの形式はどのアプリでも同じなのでコアに、散歩の場面の見本や SanpoGuide のプロンプトの文面はそのアプリのものなのでプロンプト・パックに置きます（RFC-002 の R-1・R-4）。
-
-> コアとキットは `io.github.duwenji.yorisoi.core.*`・`io.github.duwenji.yorisoi.kit.*`（ADR-003 E-22）。（…）プロンプト・パックとアプリは `io.github.duwenji.yorisoi.sanpoguide.*` のまま（RFC-002 の R-3）
-
-Android の部品（音声・地図・AI の呼び出しなど）は、同じく yorisoi-platform の **キット**（`kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`）に分けました。話す判断のルールとゲート（`kit-companion`、RFC-003）もキットです（これだけは素の JVM）。最初はキットを公開していませんでしたが（RFC-002 の R-11）、リポジトリを分けたので、今はコアと一緒に GitHub Packages に公開しています（RFC-004 の R-4）。
+Android の部品（音声・地図・AI の呼び出しなど）は、同じく yorisoi-platform の **キット**（`kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`）にあります。話す判断のルールとゲート（`kit-companion`）もキットです（これだけは素の JVM）。キットもコアと一緒に GitHub Packages に公開しています。
 
 ## Android に依存しないための 3 つの工夫
 
@@ -94,7 +88,7 @@ dependencies {
 }
 ```
 
-`compileOnly` は「コンパイルのときだけ使い、配るもの（jar や、使う側の依存）には含めない」という指定です（[1-2](../01-kotlin-android/02-gradle.md)）。`libs.json` は、版をそろえるためのバージョンカタログ（`gradle/libs.versions.toml`）の名前です（RFC-002 の R-10）。
+`compileOnly` は「コンパイルのときだけ使い、配るもの（jar や、使う側の依存）には含めない」という指定です（[1-2](../01-kotlin-android/02-gradle.md)）。`libs.json` は、版をそろえるためのバージョンカタログ（`gradle/libs.versions.toml`）の名前です。
 
 | 使う側 | `org.json` はどこから |
 |---|---|
@@ -106,7 +100,7 @@ dependencies {
 
 ```kotlin
 implementation("io.github.duwenji.yorisoi:core-format:1.0.0")
-implementation("io.github.duwenji.yorisoi.sanpoguide:prompts:3.0.0")
+implementation("io.github.duwenji.yorisoi.sanpoguide:prompts:1.0.0")
 // core-format leaves org.json to its users (Android ships one).
 implementation("org.json:json:20240303")
 ```
@@ -115,9 +109,9 @@ implementation("org.json:json:20240303")
 
 ### 工夫 3: ファイルは Android の仕組みではなく、クラスパスから読む
 
-プロンプトの文面や組み込みのチャンネルは、以前はアプリの `assets/` に置き、Android の `AssetManager` で読んでいました。`AssetManager` は Android にしかないので、管理システムでは使えません。
+Android のアプリでは、ファイルを `assets/` に置き、`AssetManager` で読むのがふつうです。でも `AssetManager` は Android にしかないので、管理システムでは使えません。
 
-そこで、ファイルを JVM のモジュールの **リソース**（`src/main/resources/`）に移し、Java の標準の仕組み（クラスパス）で読むようにしました（RFC-001 の R-1）。今はプロンプト・パックのリソースです。
+そこで、プロンプトの文面や組み込みのチャンネルは、JVM のモジュール（プロンプト・パック）の **リソース**（`src/main/resources/`）に置き、Java の標準の仕組み（クラスパス）で読みます。
 
 ```kotlin
 // prompts/…/Prompts.kt
@@ -138,7 +132,7 @@ fun fromResources() = PromptTemplates { name ->
 
 ただし、クラスパスのリソースには弱点があります。**フォルダの中にどんなファイルがあるかを一覧できない** のです（jar や APK の中は、普通のフォルダではないため）。組み込みのチャンネルを読むには、`history/` の中にどんなファイルがあるかを知る必要があります。
 
-そこで、ビルドのときにファイルの一覧（`index.txt`）を作って一緒に入れています。[1-2](../01-kotlin-android/02-gradle.md) で見た自作のタスク `channelIndex` です（RFC-001 の R-5。今は `prompts/build.gradle.kts` にある）。
+そこで、ビルドのときにファイルの一覧（`index.txt`）を作って一緒に入れています。[1-2](../01-kotlin-android/02-gradle.md) で見た自作のタスク `channelIndex` です（`prompts/build.gradle.kts`）。
 
 ```kotlin
 // BuiltInChannels.kt
@@ -203,22 +197,21 @@ object BuiltInChannels {
 
 ## 動きを変えずに切り出す
 
-アプリの中にあったコードとファイルを別のモジュールに移すのは、アプリの動きを変えてはいけない **リファクタリング** です。RFC-001 は、それを小さな手順に分け、手順ごとに「何で確かめるか」を決めて進めました。
+アプリの中にあるコードとファイルを別のモジュールに移すのは、アプリの動きを変えてはいけない **リファクタリング** です。小さな手順に分け、手順ごとに「何で確かめるか」を決めて進めます。プロンプトを移す場合なら、たとえば次のようになります。
 
 | 手順 | 内容 | 確かめ方 |
 |---|---|---|
-| 0 | 改行を LF に固定 | 失敗していた 12 件のテストが通る |
+| 0 | 改行を LF に固定する | テストが通る |
 | 1 | `PromptTemplates`・`Prompts` を移す | テストを移して通す |
-| 2 | プロンプトのファイルと組み込みのチャンネルを移す | 全チャンネルのプロンプトと、見本（48 件）が、移す前と **1 文字も変わらない** |
+| 2 | プロンプトのファイルと組み込みのチャンネルを移す | 全チャンネルのプロンプトと見本が、移す前と **1 文字も変わらない** |
 | 3 | スロットの差し込み方を `StationPrompts` に移す | 同じ比較 |
-| 4 | 審査の見本の場面（`ReviewSamples`）を足す | 単体テスト |
-| 5 | GitHub Packages への公開 | ローカルに公開して、jar と `org.json` だけで見本を作れるか確かめる |
+| 4 | 公開する | ローカルに公開して、jar と `org.json` だけで見本を作れるか確かめる |
 
-手順 2 の「1 文字も変わらない」が要です。移す前に、全部のプロンプトを描き出して保存しておき、移したあとに描き出した結果と比べます。1 文字でも違えば、動きが変わったということです。[4-3](../04-outside/03-ai.md) で見た `PromptFilesTest` の見本の書き出し（`build/prompt-samples/`）や、テストの資源の `prompt-baseline/` は、こうした比較のためのものです。
+手順 2 の「1 文字も変わらない」が要です。移す前に、全部のプロンプトを描き出して保存しておき、移したあとに描き出した結果と比べます。1 文字でも違えば、動きが変わったということです。[4-3](../04-outside/03-ai.md) で見た `PromptFilesTest` の見本の書き出し（`build/prompt-samples/`）や、プロンプト・パックの `PromptGoldenTest` は、こうした比較のためのものです。
 
-コアとプロンプト・パックに分けた RFC-002 も、同じ進め方です。手順 0 で「端末に保存したものの名前（設定のキー・通知のチャンネル ID など）が変わらない」ことを確かめるテストを先に足し、手順ごとに単体テストとエミュレータで動きが変わらないことを確かめてから次へ進みました。保存したデータの名前を変えると、更新した散策者の設定が消えてしまうからです（RFC-002 の R-8）。
+もう 1 つ大事なのは、**端末に保存したものの名前**（設定のキー・通知のチャンネル ID・Keystore の鍵の名前など）を変えないことです。パッケージを移すと、クラス名から作った名前が変わってしまうことがあります。名前が変わると、更新した散策者の設定や保存した API キーが読めなくなります。そこで、名前が変わらないことを確かめるテスト（`StoredNamesTest`・`KeyCipherTest`）を先に置いてから移します。
 
-手順 0 も興味深い話です。Windows（`core.autocrlf=true`）で取り出すと、組み込みのチャンネルのファイルの改行が CRLF になり、**自分の確認**（スロットに CR があれば拒む、[5-2](02-package-format.md)）に落ちていました。そこで `.gitattributes` で LF に固定しました（[0-3](../00-overview/03-setup.md)）。
+手順 0 の改行にも理由があります。Windows（`core.autocrlf=true`）で取り出すと、組み込みのチャンネルのファイルの改行が CRLF になり、**自分の確認**（スロットに CR があれば拒む、[5-2](02-package-format.md)）に落ちます。そこで `.gitattributes` で LF に固定しています（[0-3](../00-overview/03-setup.md)）。
 
 ## ハンズオン: jar の中を確かめる
 
@@ -243,12 +236,12 @@ cd ../yorisoi-platform
 ls core-format/build/libs/
 ```
 
-`prompts-2.0.0.jar` と `core-format-1.0.0.jar` のように、それぞれの `gradle.properties` の版（yorisoi-sanpoguide は `sanpoguidePromptsVersion`、yorisoi-platform は `yorisoiVersion`）が付いた jar ができます（前の版の jar が残っていることもあります）。
+`prompts-1.0.0.jar` と `core-format-1.0.0.jar` のように、それぞれの `gradle.properties` の版（yorisoi-sanpoguide は `sanpoguidePromptsVersion`、yorisoi-platform は `yorisoiVersion`）が付いた jar ができます（前の版の jar が残っていることもあります）。
 
 まずプロンプト・パックの中です。
 
 ```sh
-P=../yorisoi-sanpoguide/prompts/build/libs/prompts-2.0.0.jar
+P=../yorisoi-sanpoguide/prompts/build/libs/prompts-1.0.0.jar
 unzip -l "$P" | awk '{print $4}' | sed 's#^\([^/]*/[^/]*/[^/]*\)/.*#\1/…#' | sort | uniq -c | sort -rn | head -10
 ```
 
@@ -322,9 +315,9 @@ unzip -l "$J" | grep -c "org/json"
 </details>
 
 <details>
-<summary>問 3. <code>station-format</code> を、コア（<code>core-format</code>・<code>core-prompt</code>）とプロンプト・パックに分けたのはなぜですか。</summary>
+<summary>問 3. コア（<code>core-format</code>・<code>core-prompt</code>）とプロンプト・パックを分けているのはなぜですか。</summary>
 
-チャンネルの形式は、SanpoGuide のほかの付き添いアプリ（サイクリングの伴走など）でも同じものを使うので、アプリをまたぐコアに置きます。一方、散歩のプロンプトの文面や場面の見本は SanpoGuide だけのものなので、プロンプト・パックに置きます。こうすると、2 本目のアプリは自分のプロンプト・パックを作るだけで、同じコアとチャンネルを使えます（ADR-003、RFC-002）。
+チャンネルの形式は、SanpoGuide のほかの付き添いアプリ（サイクリングの伴走など）でも同じものを使うので、アプリをまたぐコアに置きます。一方、散歩のプロンプトの文面や場面の見本は SanpoGuide だけのものなので、プロンプト・パックに置きます。こうすると、2 本目のアプリは自分のプロンプト・パックを作るだけで、同じコアとチャンネルを使えます（ADR-003）。
 
 </details>
 

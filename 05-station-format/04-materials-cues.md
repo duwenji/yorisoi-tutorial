@@ -15,7 +15,7 @@
 
 ## なぜ素材を切り出したのか
 
-最初の形（API-003 1.1）では、素材はチャンネルのパッケージの一部（`channel.json` の `resources`）でした。それでは困ることが 4 つありました（[ADR-002](../../yorisoi-platform/docs/adr/ADR-002-material-producers.md)「目的・背景」）。
+素材をチャンネルのパッケージの一部（`channel.json` の `resources`）だけにすると、困ることが 4 つあります（[ADR-002](../../yorisoi-platform/docs/adr/ADR-002-material-producers.md)「目的・背景」）。
 
 | 困ること | 例 |
 |---|---|
@@ -162,7 +162,7 @@ val AI_GUIDE = ProducerDescriptor(
 ```kotlin
 sealed interface Trigger {
     data class Spot(val osm: String, val name: String?) : Trigger
-    /** Any spot of these kinds (API-003 1.2, `"any": true`). */
+    /** Any spot of these kinds (API-003, `"any": true`). */
     data class AnySpot(val categories: List<SpotKind>) : Trigger
     data class Point(val lat: Double, val lon: Double, val radiusM: Int) : Trigger
     data class Event(val event: CueEvent) : Trigger
@@ -312,7 +312,7 @@ sealed interface CollectionStatus {
 
 ## 宣伝: 表示つきで認める
 
-店舗・施設・商品の紹介が主な目的のチャンネル・素材集も、**表示つきで** 認めています（[ADR-002](../../yorisoi-platform/docs/adr/ADR-002-material-producers.md) の D-29〜D-36、2026-10-11 の開発者の決定）。決まりは 4 つです。
+店舗・施設・商品の紹介が主な目的のチャンネル・素材集も、**表示つきで** 認めています（[ADR-002](../../yorisoi-platform/docs/adr/ADR-002-material-producers.md) の D-29〜D-36）。決まりは 4 つです。
 
 | 決まり | 中身 |
 |---|---|
@@ -325,7 +325,7 @@ sealed interface CollectionStatus {
 
 印は、パッケージには書きません。申請の項目で、管理システムの公開の Lambda がリストを作るときに付けます（[8-3](../08-aws/03-lambda-apigw.md)、管理システムの DES-012）。素材集があとから宣伝の版になっても、それを宣言したチャンネルの印は、次にリストを作るときに付きます。
 
-古いアプリへの備えもあります（P-17・D-36）。`promotional` を知らないアプリが表示なしで宣伝を出さないよう、宣伝を含むものの必要なアプリの版（`minAppVersions`）を、表示に対応した版（SanpoGuide は versionCode 3）以上に上げます。その版を Google Play に出すまでは、どのアプリにもない版にしておきます。
+宣伝を表示できないアプリへの備えもあります（P-17・D-36）。`promotional` を知らないアプリが表示なしで宣伝を出さないよう、宣伝を含むものの必要なアプリの版（`minAppVersions`）を、表示に対応した版（SanpoGuide は versionCode 1）以上に上げます。本番では、その版を Google Play に出すまで、どのアプリにもない版にしておきます。
 
 ## 段階: アプリが出せるものだけ
 
@@ -334,7 +334,7 @@ sealed interface CollectionStatus {
 | 段 | 出せるもの | アプリ |
 |---|---|---|
 | 0 | 素材なし | `versionCode` 1 |
-| 1 | 文字・画像 | `versionCode` 2（今） |
+| 1 | 文字・画像 | `versionCode` 1（今） |
 | 2 | 音声（`play`・`ambient`） | まだない |
 | 3 | 映像 | まだない |
 
@@ -452,7 +452,7 @@ git status
 </details>
 
 <details>
-<summary>問 3. 音声を流すきっかけを持つチャンネルが承認されました。今のアプリ（<code>versionCode</code> 2）を使っている散策者には、どう見えますか。</summary>
+<summary>問 3. 音声を流すきっかけを持つチャンネルが承認されました。今のアプリ（<code>versionCode</code> 1）を使っている散策者には、どう見えますか。</summary>
 
 チャンネルの一覧には出ますが、「アプリの更新が必要です」と表示され、取り込めません。管理システムは、音声を使うチャンネルの `minAppVersion` を、第 2 段の版（今は `9999`、[8-2](../08-aws/02-cdk.md) の `appStageVersions`）にしてリストに載せます。今のアプリはそれより古いので、`ChannelSync.install` がパッケージを取りに行く前に止めます。仮にパッケージを取ってきても、`StationValidator` が `MEDIA_STAGE` 1 で確かめて `unsupported_resource` で拒みます。
 

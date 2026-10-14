@@ -29,7 +29,7 @@
 利用者の名簿を **ユーザープール** と呼びます。[console-app.ts](../../yorisoi-console/infra/lib/console-app.ts):
 
 ```ts
-// ---- Cognito (ADR-001 A-4, 1.2: one pool, TOTP MFA for everyone) ----
+// ---- Cognito (ADR-001 A-4: one pool, TOTP MFA for everyone) ----
 const userPool = new cognito.UserPool(this, 'UserPool', {
   userPoolName: `yorisoi-console-${config.name}`,
   // Publishers register themselves (D-7); operators are created by an administrator.
@@ -56,7 +56,7 @@ const userPool = new cognito.UserPool(this, 'UserPool', {
 | `passwordPolicy` | 12 文字以上、大文字・小文字・数字・記号を含む |
 | `accountRecovery: EMAIL_ONLY` | パスワードを忘れたら、メールで |
 
-ADR-001 の A-4（1.2 で改訂）は「MFA（TOTP）は全員に必須」としています。Cognito の MFA はユーザープールの単位で決まるので、運営だけに求めることはできません。運営が署名を出す操作（承認・取り下げ・鍵セットの登録）を担う以上、運営の MFA は外せない。だから全員に求める、という判断です。
+ADR-001 の A-4 は「MFA（TOTP）は全員に必須」としています。Cognito の MFA はユーザープールの単位で決まるので、運営だけに求めることはできません。運営が署名を出す操作（承認・取り下げ・鍵セットの登録）を担う以上、運営の MFA は外せない。だから全員に求める、という判断です。
 
 ## グループで分ける: 運営とチャンネル提供者
 

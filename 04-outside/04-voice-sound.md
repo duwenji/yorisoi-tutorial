@@ -357,7 +357,7 @@ val dropsPerSample = 14f / sr
 
 を `140f / sr`（1 秒に 140 粒）に変えて、もう一度手順 1 を実行し、`rain.wav` を聞き比べてください。雨脚が強くなったように聞こえるはずです。
 
-音のテストも流してみましょう。音の大きさの範囲を確かめるテストは、[VoicesTest.kt](../../yorisoi-platform/kit-voice/src/test/java/io/github/duwenji/yorisoi/kit/voice/VoicesTest.kt) にあります（音の部品は、RFC-002 でキット `kit-voice` に移りました）。
+音のテストも流してみましょう。音の大きさの範囲を確かめるテストは、[VoicesTest.kt](../../yorisoi-platform/kit-voice/src/test/java/io/github/duwenji/yorisoi/kit/voice/VoicesTest.kt) にあります（音の部品はキット `kit-voice` にあります）。
 
 ```sh
 ./gradlew :kit-voice:testDebugUnitTest --tests '*VoicesTest*'
