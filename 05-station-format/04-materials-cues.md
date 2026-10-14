@@ -341,7 +341,7 @@ sealed interface CollectionStatus {
 チャンネルが必要とする段は `MediaStage.required` が数えます。見せ方と素材の種類の両方を見るので、「解説の画面（`sheet`）に映像を並べた」チャンネルは第 3 段になります。
 
 - アプリは `ChannelSync.MEDIA_STAGE`（1）を渡して確かめ、出せないチャンネルは `unsupported_resource` で取り込まない
-- 管理システムはすべての段で確かめ、段に応じた `minAppVersion` をリストに書く（[8-2](../08-aws/02-cdk.md) の `appStageVersions`）。古いアプリは、そのチャンネルを一覧に「アプリの更新が必要です」と出すだけで、取り込まない（`ChannelSync.install`）
+- 管理システムはすべての段で確かめ、段に応じた `minAppVersions` をリストに書く（[8-2](../08-aws/02-cdk.md) の `appStageVersions`）。古いアプリは、そのチャンネルを一覧に「アプリの更新が必要です」と出すだけで、取り込まない（`ChannelSync.install`）
 
 ## ハンズオン: 自分のチャンネルに素材ときっかけを足す
 
@@ -454,7 +454,7 @@ git status
 <details>
 <summary>問 3. 音声を流すきっかけを持つチャンネルが承認されました。今のアプリ（<code>versionCode</code> 1）を使っている散策者には、どう見えますか。</summary>
 
-チャンネルの一覧には出ますが、「アプリの更新が必要です」と表示され、取り込めません。管理システムは、音声を使うチャンネルの `minAppVersion` を、第 2 段の版（今は `9999`、[8-2](../08-aws/02-cdk.md) の `appStageVersions`）にしてリストに載せます。今のアプリはそれより古いので、`ChannelSync.install` がパッケージを取りに行く前に止めます。仮にパッケージを取ってきても、`StationValidator` が `MEDIA_STAGE` 1 で確かめて `unsupported_resource` で拒みます。
+チャンネルの一覧には出ますが、「アプリの更新が必要です」と表示され、取り込めません。管理システムは、音声を使うチャンネルの `minAppVersions` を、第 2 段の版（今は `9999`、[8-2](../08-aws/02-cdk.md) の `appStageVersions`）にしてリストに載せます。今のアプリはそれより古いので、`ChannelSync.install` がパッケージを取りに行く前に止めます。仮にパッケージを取ってきても、`StationValidator` が `MEDIA_STAGE` 1 で確かめて `unsupported_resource` で拒みます。
 
 </details>
 

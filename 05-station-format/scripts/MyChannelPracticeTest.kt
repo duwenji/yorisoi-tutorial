@@ -23,7 +23,7 @@ class MyChannelPracticeTest {
     /** 自分のチャンネルの channel.json。値を変えて試す。 */
     private val manifest = """
         {
-          "format": 2,
+          "format": 1,
           "activities": ["walk"],
           "genres": ["history"],
           "id": "my-cafe-walk",

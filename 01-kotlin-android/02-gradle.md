@@ -158,7 +158,7 @@ android {
 
 `minSdk = 26` は、第 6 部で何度も出てきた「Android 8 から動かしたい」の正体です。Ed25519 のために Tink を入れた（[技術カード: Tink](../ref/tink.md)）のも、base64url に `java.util.Base64` を使える（API 26 から）のも、この値が決めています。
 
-`BuildConfig` は第 6 部にも出てきました。`ThirdPartyChannels` が `appVersion = BuildConfig.VERSION_CODE`（`minAppVersion` との比較）と、`allowLocalHttp = BuildConfig.DEBUG`（デバッグビルドだけ `http://localhost` を許す）に使っています。
+`BuildConfig` は第 6 部にも出てきました。`ThirdPartyChannels` が `appVersion = BuildConfig.VERSION_CODE`（`minAppVersions` との比較）と、`allowLocalHttp = BuildConfig.DEBUG`（デバッグビルドだけ `http://localhost` を許す）に使っています。
 
 ## 依存ライブラリ
 

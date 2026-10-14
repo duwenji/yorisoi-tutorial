@@ -19,7 +19,7 @@ class MyCuesPracticeTest {
     private fun manifest() = JSONObject(
         """
         {
-          "format": 2, "activities": ["walk"], "id": "my-cafe-walk", "version": 1,
+          "format": 1, "activities": ["walk"], "id": "my-cafe-walk", "version": 1,
           "name": "喫茶店さんぽ", "summary": "古い喫茶店と、そのまわりの路地を、のんびり語る", "lang": "ja",
           "greeting": "ここからは、喫茶店めぐりの気分で歩きましょう。",
           "talk": { "level": "normal",

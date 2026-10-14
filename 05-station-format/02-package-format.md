@@ -60,7 +60,7 @@ resources/                   パッケージに入れる素材（任意。第三
 
 ```json
 {
-  "format": 2,
+  "format": 1,
   "id": "quiet",
   "version": 1,
   "name": "しずかに",
@@ -141,17 +141,17 @@ enum class TalkLevel(override val json: String) : JsonValue { QUIET("quiet"), NO
 
 `talk.events` には、`spot`・`revisit`・`milestone`・`rest`・`start`・`finish` の 6 つしかありません。**天気の急変・日の入り・施設の案内は、項目そのものがない** ので、止める書き方がありません（F-4）。安全に関わる知らせは、どのチャンネルでも必ず話されます（[3-4](../03-walk/04-maybe-talk.md)）。
 
-## format 2: どのアプリで使えるチャンネルか
+## どのアプリで使えるチャンネルか
 
-`"format": 2` は、format 1 に 3 つの項目を足したものです（API-003 の G-1）。チャンネルは特定のアプリに結びつかず、「どんな過ごし方に合い、何が要るか」だけを書きます。
+チャンネルは 3 つの項目で、自分の前提を宣言します（API-003 の G-1）。チャンネルは特定のアプリに結びつかず、「どんな過ごし方に合い、何が要るか」だけを書きます。
 
 | 項目 | 書けるもの | 意味 |
 |---|---|---|
-| `activities` | `walk`・`cycle` から 1〜4 個（format 2 では必須） | このチャンネルが合う過ごし方 |
+| `activities` | `walk`・`cycle` から 1〜4 個（必須） | このチャンネルが合う過ごし方 |
 | `genres` | `general`・`history`・`nature`・`food`・`shopping` から 0〜3 個 | 散策者が探すときの分類 |
 | `requires.features` | `slot:guide`・`present:card` など 0〜20 個 | これがないアプリでは成り立たない機能 |
 
-語彙はエコシステムで 1 つで、コアの [Ecosystem.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/Ecosystem.kt) にあります（`Activity`・`Genre`・`Feature`）。format 1 のパッケージは、`activities: ["walk"]`・`genres: []`・`requires` なしとして読みます（G-6）。今ある format 1 のチャンネルは、書き換えなくてもそのまま散歩のチャンネルとして動きます。
+語彙はエコシステムで 1 つで、コアの [Ecosystem.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/Ecosystem.kt) にあります（`Activity`・`Genre`・`Feature`）。
 
 ### 確かめ方は 2 段
 
@@ -179,7 +179,7 @@ fun reasons(manifest: StationManifest, app: AppProfile): List<String> = buildLis
 
 SanpoGuide のプロファイル（`SanpoProfile`）は「散歩（`walk`）と、録音した音を流す見せ方（`present:play`・`present:ambient`）を除くすべての機能」です。だから `cycle` だけのチャンネルは、リストに載っていても SanpoGuide の一覧には出ません。同じ判定をリストの値（パッケージを取る前）にも行います（[6-5](../06-trust/05-verify-in-app.md)、API-002 P-19）。
 
-組み込みの 6 つのチャンネルも format 2 です（`activities: ["walk"]` と、それぞれのジャンル）。
+組み込みの 6 つのチャンネルも、`activities: ["walk"]` と、それぞれのジャンルを書いています。
 
 ## スロット: 差し込めるのは文章だけ
 
@@ -280,9 +280,9 @@ private fun readMedia(json: JSONObject, files: StationFiles, paths: List<String>
 }
 ```
 
-- 引数の `lenient` は、[format 2](#format-2-どのアプリで使えるチャンネルか) の 2 段の確かめ方で、アプリとして読む（`Strictness.APP`）format 2 のパッケージで真になる（`val lenient = strictness == Strictness.APP && format >= 2`）。アプリが知らない新しいきっかけ・見せ方を、拒まずに飛ばすため。format 1 では、今までどおり知らない値を拒む（G-3）
+- 引数の `lenient` は、[どのアプリで使えるチャンネルか](#どのアプリで使えるチャンネルか) の 2 段の確かめ方で、アプリとして読む（`Strictness.APP`）ときに真になる（`val lenient = strictness == Strictness.APP`）。アプリが知らない新しいきっかけ・見せ方を、拒まずに飛ばすため。管理システムの審査（`Strictness.REVIEW`）では、知らない値を拒む（G-3）
 - アプリは `ChannelSync.MEDIA_STAGE`（今は 1）を渡す。音声を使うチャンネルは `unsupported_resource` で取り込まない
-- 管理システムの機械審査は `StationValidator.ALL_STAGES`（3）を渡し、すべてを確かめる（[8-8](../08-aws/08-kotlin-lambda.md)）。どの版のアプリから使えるかは、リストの `minAppVersions`（アプリごと）と `minAppVersion`（古い SanpoGuide のため）で伝える
+- 管理システムの機械審査は `StationValidator.ALL_STAGES`（3）を渡し、すべてを確かめる（[8-8](../08-aws/08-kotlin-lambda.md)）。どの版のアプリから使えるかは、リストの `minAppVersions`（アプリごと）で伝える
 - 素材集の中身は、パッケージだけでは分からない（リストに載った素材集を取ってきて初めて分かる）。そのため、素材集が持ち込む素材の段は、取り込むときに別に数える（`CollectionReferences`）
 
 素材集そのものの形式（API-004）と確認は、コアの `material` パッケージ（`Collections.kt`）の `CollectionValidator` にあります。素材集も ZIP で、素材提供者の署名（次の `signature.json` と同じ形）が付きます。 素材の出どころの共通の形、きっかけと見せ方の安全、素材集の借り方は [5-4](04-materials-cues.md) でくわしく見ます。
@@ -429,7 +429,7 @@ ZIP の中に書かれた「展開後の大きさ」は信用せず（いくら�
 
 ### 1. 練習用のテストを置いて流す
 
-[scripts/MyChannelPracticeTest.kt](scripts/MyChannelPracticeTest.kt) をコピーして流します。確認（コアの `StationValidator`）とプロンプトの組み立て（プロンプト・パックの `StationPrompts`）の両方を使うので、プロンプト・パックのテストに置きます。コアは、プロンプト・パックから `api` で見えます（[5-1](01-jvm-library.md)）。format 2 で書いているので、`activities`・`genres` も確かめられます。
+[scripts/MyChannelPracticeTest.kt](scripts/MyChannelPracticeTest.kt) をコピーして流します。確認（コアの `StationValidator`）とプロンプトの組み立て（プロンプト・パックの `StationPrompts`）の両方を使うので、プロンプト・パックのテストに置きます。コアは、プロンプト・パックから `api` で見えます（[5-1](01-jvm-library.md)）。`activities`・`genres` を書いているので、それらも確かめられます。
 
 ```sh
 cd /c/Dev/apps/yorisoi-sanpoguide
@@ -454,7 +454,7 @@ cp ../yorisoi-tutorial/05-station-format/scripts/MyChannelPracticeTest.kt prompt
 ```kotlin
 private val manifest = """
     {
-      "format": 2,
+      "format": 1,
       "activities": ["walk"],
       "genres": ["history"],
       "id": "my-cafe-walk",
