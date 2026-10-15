@@ -70,7 +70,7 @@ flowchart LR
 | [4-2 地図](04-outside/02-map.md) | タイルの仕組み、地理院地図と Google Map Tiles、`AndroidView`、重ねる順番、作り直さない工夫、出典。タイルを 1 枚取る |
 | [4-3 AI を組み込む](04-outside/03-ai.md) | `LlmClient` と 2 つの実装、プロンプトのファイルとテンプレート、チャンネルが変えられる部分と変えられない部分、定型文、キャッシュ、位置情報の扱い |
 | [4-4 声と音](04-outside/04-voice-sound.md) | TTS とオーディオフォーカス、背景音の合成（ノイズとフィルター）、AudioTrack、専用のスレッドと `@Volatile`。WAV に書き出して聞く |
-| [4-5 端末にデータを置く](04-outside/05-storage.md) | SharedPreferences と変えた値だけの保存、設定の移行、`AtomicFile`、古い記録を読めるようにする、Android Keystore での暗号化 |
+| [4-5 端末にデータを置く](04-outside/05-storage.md) | SharedPreferences と変えた値だけの保存、保存のキーは変えない、`AtomicFile`、記録の形は約束、Android Keystore での暗号化 |
 
 ### 第 5 部 共有ライブラリ（コアとプロンプト・パック） ✅
 

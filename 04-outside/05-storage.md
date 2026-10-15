@@ -9,7 +9,7 @@
 - 散策ガイドが端末に保存しているものと、置き場所の選び方
 - SharedPreferences（小さな設定）と、JSON のファイル（散歩の記録）
 - 書き込みの途中で落ちてもファイルを壊さない工夫
-- アプリの版が上がっても、古いデータを読めるようにする工夫
+- 保存したデータの形（キーや項目の名前）を約束として扱い、テストで守る工夫
 - API キーを、端末の外に出ない鍵（Android Keystore）で暗号化する方法
 
 ## 何をどこに置くか
@@ -79,30 +79,13 @@ Threshold.entries.forEach { t ->
 
 チャンネルごとのカスタマイズ（話しかけの頻度など）も同じ考え方で、チャンネルの値と違うものだけを保存しています。
 
-### 古い設定を新しい形に移す
+### 保存のキーは変えない
 
-チャンネルの仕組みができる前、話しかけの頻度はアプリ全体で 1 つの設定でした。今は、チャンネルごとの設定です。古い版から更新した散策者の設定を、新しい形に移す必要があります。
+SharedPreferences のキー（`guide_settings` のファイル名、`station_{id}_{項目}` など）は、一度アプリを公開したら変えません。キーを変えると、新しい版は前の版が保存した値を見つけられず、散策者の設定が黙って初期値に戻ってしまうからです。
 
-```kotlin
-private fun migrateToStations() {
-    if (!prefs.contains(KEY_TALK_LEVEL)) return
-    val moved = StationMigration.fromLegacy(
-        talkLevel = prefs.getString(KEY_TALK_LEVEL, null),
-        moodEnabled = prefs.getBoolean(KEY_MOOD, DEFAULTS.moodEnabled),
-    )
-    prefs.edit {
-        remove(KEY_TALK_LEVEL)
-        moved.talkLevel?.let { putString(stationPref(STANDARD, FIELD_TALK_LEVEL), it.name) }
-        moved.moodTone?.let { putBoolean(stationPref(STANDARD, FIELD_MOOD_TONE), it) }
-    }
-}
-```
+形を変えなければならなくなったら、新しい版の起動時に「古いキーの値を読み、新しいキーに書き、古いキーを消す」処理（移行）を入れます。古いキーがなければ何もしないように書けば、起動のたびに呼んでも安全です。散策ガイドはまだ公開前なので、そうした移行の処理はありません。
 
-- 古いキー（`KEY_TALK_LEVEL`）が残っていたら、その値を「標準」チャンネルの設定に移し、古いキーを消す
-- 古いキーがなければ（新しく入れた人、移し終わった人）何もしない。だから、起動のたびに呼んでも安全
-- 移し方の判断（`StationMigration.fromLegacy`）は、Android に依存しない小さな部品に出し、テストしている（`StationMigrationTest`。[2-3](../02-compose/03-manual-di.md)）
-
-`SettingsRepository` の `init` で、設定を読む **前に** 呼んでいます。
+キーの名前が変わっていないことは、テスト（[StoredNamesTest.kt](../../yorisoi-sanpoguide/app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/settings/StoredNamesTest.kt)）で確かめています。名前を変えるとテストが落ちるので、うっかり変えることがありません。
 
 ## 散歩の記録: JSON のファイル
 
@@ -192,17 +175,17 @@ private fun read(): List<WalkRecord> = try {
 
 それでも読めなかった場合は、アプリを落とさず、空の記録から始めます。記録が読めないことは残念ですが、アプリが起動しなくなるよりはずっとよいからです。
 
-## 古い記録も読めるようにする
+## 記録の形は約束
 
-アプリの版が上がると、保存する項目が増えることがあります。散歩の記録には、チャンネルの仕組みができたときに「どのチャンネルで歩いたか」（`stations`）が加わりました。では、その前の版で保存した記録は？
+ファイルに保存した JSON の項目の名前も、SharedPreferences のキーと同じく、アプリの「約束」の一つです。
 
 ```kotlin
-/** The history file's format, one walk at a time. Fields added later are optional, so old files still load. */
+/** The history file's format, one walk at a time. Its field names are a promise: renaming one loses every saved walk. */
 internal object WalkJson {
     fun fromJson(o: JSONObject): WalkRecord {
-        val route = o.optJSONArray("route") ?: JSONArray()
-        val visits = o.optJSONArray("visits") ?: JSONArray()
-        val stations = o.optJSONArray("stations") ?: JSONArray()
+        val route = o.getJSONArray("route")
+        val visits = o.getJSONArray("visits")
+        val stations = o.getJSONArray("stations")
         return WalkRecord(
             id = o.getLong("id"),
             startedAt = o.getLong("startedAt"),
@@ -211,9 +194,10 @@ internal object WalkJson {
                 val v = visits.getJSONObject(it)
                 SpotVisit(
                     // …
-                    lat = if (v.has("lat")) v.getDouble("lat") else null,
-                    lon = if (v.has("lon")) v.getDouble("lon") else null,
-                    station = v.optString("station").ifEmpty { null },
+                    remark = if (v.isNull("remark")) null else v.getString("remark"),
+                    lat = v.getDouble("lat"),
+                    lon = v.getDouble("lon"),
+                    station = v.getString("station"),
                 )
             },
             // …
@@ -222,31 +206,19 @@ internal object WalkJson {
 }
 ```
 
-コメントのとおり、**あとから足した項目は、なくても読めるように** しています（[4-1](01-http-json.md) の `get…` と `opt…` の使い分け）。
+- 必ずある項目は `get…` で読む。なければ壊れたデータなので例外になり、[前の節](#読めなかったら空から始める)のとおり空から始める
+- 値がないこともある項目（`remark`。AI が何も言わなかったとき）は、null を書き、`isNull` で確かめる（[4-1](01-http-json.md) の `get…` と `opt…` の使い分け）
 
-- 最初からある項目（`id`・`startedAt` など）は `get…`。なければ壊れたデータなので例外
-- あとから足した項目（`stations`・`station`・`lat`・`lon`）は `opt…` や `has` で確かめる。なければ空や null
+公開したあとで項目を **足す** ときは、前の版が保存した記録にはその項目がありません。そのときは、足した項目を `opt…` や `has` で読み、なければ空や null として扱います。第 6 部の API-002 の「知らない項目は無視する。項目の追加は互換性のある変更」と同じ考え方を、端末の中のデータにも当てはめます。
 
-散策者の端末には、何年も前の版で保存した記録が残っているかもしれません。**保存したデータの形は、アプリの「約束」の一つ** です。第 6 部の API-002 の「知らない項目は無視する。項目の追加は互換性のある変更」と同じ考え方を、端末の中のデータにも当てはめています。
-
-テスト（[WalkJsonTest.kt](../../yorisoi-sanpoguide/app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/history/WalkJsonTest.kt)）は、この約束を守っています。
+テスト（[WalkJsonTest.kt](../../yorisoi-sanpoguide/app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/history/WalkJsonTest.kt)）は、書いて読み直すと同じものに戻ることを確かめています。
 
 ```kotlin
 @Test
-fun `records from before channels still load`() {
-    val old = JSONObject(
-        """
-        {"id": 1, "startedAt": 1, "endedAt": 2, "distanceM": 10.0, "route": [],
-         "visits": [{"poiId": "way/1", "name": "段葛", "category": "史跡", "at": 1, "remark": null, "lat": 35.3, "lon": 139.5}]}
-        """.trimIndent(),
-    )
-    val read = WalkJson.fromJson(old)
-    assertTrue(read.stations.isEmpty())
-    assertNull(read.visits.single().station)
+fun `a walk survives a round trip, channels included`() {
+    assertEquals(walk, WalkJson.fromJson(JSONObject(WalkJson.toJson(walk).toString())))
 }
 ```
-
-チャンネルより前の形の記録（`stations` も `station` もない）を、本物の JSON の文字列で用意し、読めることを確かめています。
 
 ## API キーを暗号化する: Android Keystore
 
@@ -326,7 +298,7 @@ object KeyCipher {
 
 端末の設定を変えたり、アプリのデータが一部だけ消えたりすると、Keystore の鍵がなくなることがあります。そのときは例外で落とさず null を返し、「キーが設定されていない」状態として扱います。散策者はキーを入れ直せば元どおり使えます。
 
-## ハンズオン: 古い記録が読めることを守る
+## ハンズオン: 記録の形の約束を確かめる
 
 ### 1. テストを流す
 
@@ -335,29 +307,29 @@ cd /c/Dev/apps/yorisoi-sanpoguide
 ./gradlew :app:testDebugUnitTest --tests '*WalkJsonTest*'
 ```
 
-2 件のテストが通ります。1 つは「保存して読み直すと同じものになる」、もう 1 つは「チャンネルより前の記録も読める」です。
+「保存して読み直すと同じものになる」テストが通ります。
 
-### 2. 古い記録を読めなくしてみる
+### 2. 読む側の名前だけ変えてみる
 
 [HistoryStore.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/history/HistoryStore.kt) の `WalkJson.fromJson` で、
-
-```kotlin
-val stations = o.optJSONArray("stations") ?: JSONArray()
-```
-
-を
 
 ```kotlin
 val stations = o.getJSONArray("stations")
 ```
 
+を
+
+```kotlin
+val stations = o.getJSONArray("segments")
+```
+
 に変えて、テストを流します。
 
 ```
-2 tests completed, 1 failed
+1 test completed, 1 failed
 ```
 
-`records from before channels still load` が `JSONObject["stations"] not found.` で落ちます。もしこの変更がそのまま出荷されたら、古い版から更新した散策者は、`read()` の `catch` で「読めないので空から始める」ことになり、**それまでの散歩の記録がすべて画面から消えて** しまいます。小さな変更が大きな事故につながる例です。
+`JSONObject["segments"] not found.` で落ちます。書く側（`toJson`）は今までどおり `stations` と書くので、すでに保存された記録はどれも読めなくなります。もしこの変更がそのまま出荷されたら、更新した散策者は `read()` の `catch` で「読めないので空から始める」ことになり、**それまでの散歩の記録がすべて画面から消えて** しまいます。小さな変更が大きな事故につながる例です。
 
 ### 3. 元に戻す
 
@@ -381,7 +353,7 @@ adb shell run-as io.github.duwenji.yorisoi.sanpoguide ls files shared_prefs
 ## つまずきやすいところ
 
 - **書き込みの途中で落ちる前提で書く**: `AtomicFile` や「一時ファイルに書いて名前を変える」で、ファイルを壊さない
-- **保存した形は約束**: あとから足した項目は、なくても読めるように。古い形のデータでのテストを用意する
+- **保存した形は約束**: キーや項目の名前を変えない。公開したあとで足した項目は、なくても読めるように
 - **既定値は保存しない**: 変えた値だけを保存すれば、次の版の既定値の見直しが届く
 - **秘密は平文で保存しない**: Keystore の鍵で暗号化する。鍵そのものをファイルに置かない
 - **読めなくても落とさない**: 空から始める、キーがない扱いにする

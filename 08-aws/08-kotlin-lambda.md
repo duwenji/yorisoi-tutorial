@@ -76,7 +76,7 @@ object MachineReview {
     // …
     fun review(upload: Upload, zip: ByteArray, icon: ByteArray, catalog: Catalog = Catalog.NONE): Outcome {
         // …
-            // Every stage: the console checks it all, and the app version a channel needs is minAppVersion's job (J-1).
+            // Every stage: the console checks it all, and the app version a channel needs is minAppVersions' job (J-1).
             when (val result = StationValidator.checkArchive(zip, listedAs = null, verifier = JcaEd25519, mediaStage = StationValidator.ALL_STAGES)) {
                 is StationCheck.Rejected -> findings += Finding(result.code.json, result.detail)
                 is StationCheck.Ok -> {
@@ -101,7 +101,7 @@ object MachineReview {
 ```
 
 - **アプリと同じ確認**: `StationValidator.checkArchive`（[5-2](../05-station-format/02-package-format.md)）。署名の確認には、Java 標準の `JcaEd25519` を渡す（アプリは Tink。[6-5](../06-trust/05-verify-in-app.md) の差し替え口）
-- **素材はすべての段階で確かめる**: `mediaStage = StationValidator.ALL_STAGES`。今のアプリが出せるのは文字と画像（第 1 段）までですが、管理システムは音声・映像も含めて形を確かめます。どの版のアプリで使えるかは、リストの `minAppVersion` で決めます
+- **素材はすべての段階で確かめる**: `mediaStage = StationValidator.ALL_STAGES`。今のアプリが出せるのは文字と画像（第 1 段）までですが、管理システムは音声・映像も含めて形を確かめます。どの版のアプリで使えるかは、リストの `minAppVersions` で決めます
 - **使う素材集を、今のリストと照らす**: `resolveCollections`。チャンネルが宣言した素材集が公開中か（`catalog`）、このチャンネル提供者に使う許しがあるか（素材集の `grants`）を確かめる
 - **管理システムだけが知っていること**: どのチャンネルへの申請か、どのチャンネル提供者か、前に承認した版はいくつか。アプリはリストを見て確かめるが、申請の時点では管理システムが確かめる
 - **アイコン**: PNG で、256×256 以下、100KB 以下か。PNG の先頭の決まったバイト（シグネチャ）と、`IHDR` の幅と高さを読んで確かめる
