@@ -121,13 +121,13 @@ plugins {
 ```kotlin
 android {
     namespace = "io.github.duwenji.yorisoi.sanpoguide"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         // The Google Play ID: fixed once uploaded. …
         applicationId = "io.github.duwenji.yorisoi.sanpoguide"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
     }
@@ -148,8 +148,8 @@ android {
 | `namespace` | `io.github.duwenji.yorisoi.sanpoguide` | `R`・`BuildConfig` のクラスが入る Kotlin のパッケージ。ソースのパッケージと同じにする |
 | `applicationId` | `io.github.duwenji.yorisoi.sanpoguide` | 端末やストアでアプリを見分ける ID。**一度公開したら変えない** |
 | `minSdk` | 26 | 動く最低の Android の版。26 は Android 8.0 |
-| `targetSdk` | 35 | どの版の振る舞いに合わせて作ったか。35 は Android 15 |
-| `compileSdk` | 35 | コンパイルに使う Android の API の版 |
+| `targetSdk` | 36 | どの版の振る舞いに合わせて作ったか。36 は Android 16。Google Play は新しいアプリと更新にこの版を求める |
+| `compileSdk` | 36 | コンパイルに使う Android の API の版 |
 | `versionCode` | 1 | 更新のたびに増やす整数。端末は大きい方を新しいと判断する。管理システムは、アプリが対応した機能（素材の段など）をこの値で見分ける |
 | `versionName` | `1.0.0` | 人に見せる版 |
 | `buildConfig = true` | — | `BuildConfig.VERSION_CODE`・`BuildConfig.DEBUG` などをコードから使えるようにする |
