@@ -111,8 +111,6 @@ export interface EnvConfig {
    * then material needs a version no app has.
    */
   appStageVersions: Record<string, Record<number, number>>;
-  /** By app id: the version (versionCode) that first labels promotion (DES-012 R-5, …). */
-  promotionalMinAppVersions: Record<string, number>;
   cost: {
     waf: boolean;
     pointInTimeRecovery: boolean;
@@ -132,11 +130,10 @@ export interface EnvConfig {
 | `cost.pointInTimeRecovery` | なし | あり |
 | `cost.logRetentionDays` | 14 日 | 消さない |
 | `appStageVersions` | `{ sanpoguide: { 0: 1, 1: 1, 2: 9999, 3: 9999 } }` | 同じ |
-| `promotionalMinAppVersions` | `{ sanpoguide: 1 }`（エミュレータで試すため） | `{}`（Google Play に出したら 1 に） |
 
 `notify` の型に注目してください。`{ mode: 'log' } | { mode: 'ses'; from: string; … }` は、[7-1](../07-typescript/01-typescript-syntax.md) の **判別できるユニオン** です。`ses` にしたのに送り主（`from`）を書き忘れると、コンパイルエラーになります。インフラの設定も、型で守られています。
 
-`appStageVersions` は、アプリの ID ごとに、素材の段（[5-2](../05-station-format/02-package-format.md)）ごとに、どの版のアプリ（`versionCode`）から使えるかの表です。チャンネルを承認するとき、管理システムはこれを見て、リストの `minAppVersions`（アプリごと）を決めます（DES-011）。文字と画像（段 1）は `versionCode` 1 のアプリから。音声・映像（段 2・3）を出せるアプリはまだないので、`9999`（どのアプリも届かない版）にしてあります。新しいアプリを出したら、ここをプルリクエストで書き換えます。`promotionalMinAppVersions` も同じ考え方で、宣伝を「宣伝を含む」と示せる版（[5-4](../05-station-format/04-materials-cues.md)）を書きます。
+`appStageVersions` は、アプリの ID ごとに、素材の段（[5-2](../05-station-format/02-package-format.md)）ごとに、どの版のアプリ（`versionCode`）から使えるかの表です。チャンネルを承認するとき、管理システムはこれを見て、リストの `minAppVersions`（アプリごと）を決めます（DES-011）。文字と画像（段 1）は `versionCode` 1 のアプリから。音声・映像（段 2・3）を出せるアプリはまだないので、`9999`（どのアプリも届かない版）にしてあります。新しいアプリを出したら、ここをプルリクエストで書き換えます。
 
 ### スタックとコンストラクト
 

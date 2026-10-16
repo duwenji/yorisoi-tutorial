@@ -35,7 +35,7 @@ Android の画面は **メインスレッド** という 1 本の流れで描か
 散策ガイドの AI の呼び出し（[GuideRepository.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/guide/GuideRepository.kt)）は、こう宣言されています。
 
 ```kotlin
-suspend fun guideFor(poi: Poi, distanceM: Int?, channel: Station): String
+suspend fun guideFor(poi: Poi, distanceM: Int?, channel: Station, grounds: List<Ground> = emptyList()): String
 ```
 
 `suspend` は「この関数は途中で **一時停止（中断）** することがある」という印です。
