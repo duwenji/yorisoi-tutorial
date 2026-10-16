@@ -36,6 +36,8 @@ flowchart LR
 
 素材提供者は「何を」、チャンネルは「いつ・どう」、アプリは「安全に」を受け持ちます。1 つの決まりを 1 か所が持つように分けたわけです。
 
+AI の語りも、この分け方に入っています（[ADR-004](../../yorisoi-platform/docs/adr/ADR-004-roles-of-ai-and-stakeholders.md) H-1）。素材は AI の **根拠** にもなり、チャンネルは **演出**、AI はその場で話す **実演**、アプリは **枠**、運営は **考査**（事前に枠と演出の意図を確かめ、事後に通報を受けて止める）を受け持ちます。AI の発言は前もって審査できないので、根拠と枠と事後の対応で守る、という考え方です（[4-3](../04-outside/03-ai.md)「資料を根拠に話す」）。
+
 ## すべての出どころを 1 つの形で: Producer
 
 素材の出どころは 3 種類あります（ADR-002 D-2）。
@@ -79,7 +81,8 @@ sealed interface MaterialResult {
     /** The producer can't produce now; [detail] is for the log or an error message. */
     data class Unavailable(val reason: Reason, val detail: String? = null) : MaterialResult
 
-    enum class Reason { OFFLINE, METERED, NO_KEY, REVOKED, NOT_PREPARED, FAILED }
+    /** [LIMIT]: today's AI calls reached the user's limit (platform ADR-004 H-9). */
+    enum class Reason { OFFLINE, METERED, NO_KEY, LIMIT, REVOKED, NOT_PREPARED, FAILED }
 }
 ```
 
@@ -244,7 +247,7 @@ enum class PresentAs(override val json: String, val types: Set<MaterialType>) : 
   "name": "鎌倉音声ガイド",
   "summary": "鎌倉市観光協会による寺社の音声ガイド",
   "lang": "ja",
-  "grants": { "publishers": "*" },
+  "grants": { "publishers": "*", "grounding": true },
   "resources": [
     { "id": "hachimangu-intro", "type": "text", "file": "resources/text/hachimangu.md", "tags": ["history", "faith"],
       "about": { "type": "spot", "osm": "way/123456", "name": "鶴岡八幡宮", "lat": 35.3260, "lon": 139.5565 } }
@@ -253,6 +256,7 @@ enum class PresentAs(override val json: String, val types: Set<MaterialType>) : 
 ```
 
 - `grants`: どのチャンネル提供者に使わせるか。`"*"`（誰でも）か、アカウントIDの一覧（ADR-002 D-9）。素材提供者が署名するので、自己申告ではなくなる
+- `grants.grounding`: AI の根拠に使ってよいか（API-004 I-13。書かなければ使わない）。AI が言い換えて話すことを、素材提供者が前もって選べるようにしてある。リストにも同じ値が写り、アプリはパッケージと一致するかを確かめる
 - `about`: 何についての素材か。チャンネルは素材の ID で選ぶほかに、「きっかけのスポットについての素材があれば」と題材で選べる
 - `tags`: 何の話か（`history`・`faith`・`nature` など決まった一覧）。基準で選ぶとき（下で見ます）に使う
 
@@ -309,23 +313,6 @@ sealed interface CollectionStatus {
 - だから素材集の置き場所に伝わるのは「どの 150km 四方の素材集を取ったか」まで。どのスポットにいるかは伝わらない
 
 管理システム（TypeScript の [geo.ts](../../yorisoi-console/packages/protocol/src/geo.ts)）とアプリ（Kotlin の `Regions.geohash`）は、同じ計算を別の言語で書いています。食い違いを防ぐため、Kotlin のテスト（`RegionsTest`）には鎌倉が `xn7` になることを書き、管理システムの準拠テストの V-25 は、リストに載った地域（Kotlin の機械審査が計算したもの）を TypeScript で計算し直して照らします。[6-6](../06-trust/06-same-rules.md) と同じ考え方です。
-
-## 宣伝: 表示つきで認める
-
-店舗・施設・商品の紹介が主な目的のチャンネル・素材集も、**表示つきで** 認めています（[ADR-002](../../yorisoi-platform/docs/adr/ADR-002-material-producers.md) の D-29〜D-36）。決まりは 4 つです。
-
-| 決まり | 中身 |
-|---|---|
-| 出せる場所（D-30） | 素材（審査した固定の文・画像）の中だけ。AI への指示（スロット）で宣伝させることは認めない。AI の発言は審査で確かめきれないため |
-| 印（D-31） | 申請のときに「宣伝を含む」と申告し、運営が確かめる。リストでは素材集とチャンネルに `promotional: true`。宣伝の素材集を `collections` で宣言したチャンネルにも付く（API-002 1.3 の P-16） |
-| 見せ方（D-32） | 一覧と選ぶ画面に「宣伝を含む」。素材の出典の行に「宣伝: 名前」、読み上げる前に「ここからは〇〇の宣伝です」 |
-| 止め方（D-33・D-34） | 宣伝の素材集は **基準では選ばない**（名指しされたときだけ）。散策者は設定「宣伝の素材を出さない」で止められ、そのときは次の候補へ進む |
-
-止め方は、[候補を前から順に試す](#候補を前から順に試す) 仕組みをそのまま使っています。アプリの `ResourceProducer` は、宣伝の素材で設定がオンなら「出せない」（`MaterialResult.None`）を返すだけで、候補の並びの次（AI の解説など）に代わります。
-
-印は、パッケージには書きません。申請の項目で、管理システムの公開の Lambda がリストを作るときに付けます（[8-3](../08-aws/03-lambda-apigw.md)、管理システムの DES-012）。素材集があとから宣伝の版になっても、それを宣言したチャンネルの印は、次にリストを作るときに付きます。
-
-宣伝を表示できないアプリへの備えもあります（P-17・D-36）。`promotional` を知らないアプリが表示なしで宣伝を出さないよう、宣伝を含むものの必要なアプリの版（`minAppVersions`）を、表示に対応した版（SanpoGuide は versionCode 1）以上に上げます。本番では、その版を Google Play に出すまで、どのアプリにもない版にしておきます。
 
 ## 段階: アプリが出せるものだけ
 
