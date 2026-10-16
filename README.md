@@ -159,5 +159,5 @@ flowchart LR
 
 | 項目 | 値 |
 |---|---|
-| 最後に照合した日 | 2026-10-14 |
-| 照合したコミット | 各リポジトリの `docs/reset-history`（文書の履歴の整理と、アプリの版を 1.0.0 にした内容） |
+| 最後に照合した日 | 2026-10-16 |
+| 照合したコミット | yorisoi-platform `eac2424`・yorisoi-sanpoguide `ef47db6`・yorisoi-console `0050512` |

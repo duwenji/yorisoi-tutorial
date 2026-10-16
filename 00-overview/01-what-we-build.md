@@ -83,7 +83,7 @@ flowchart LR
 
 ## 境界は 1 つの契約書だけ
 
-2 つのリポジトリの境界は、SanpoGuide にある **API-002（承認済みチャンネル・リスト 契約書）** だけです。
+2 つのリポジトリの境界は、yorisoi-platform にある **API-002（承認済みチャンネル・リスト 契約書）** だけです。
 
 - [yorisoi-platform/docs/channel-list-api.md](../../yorisoi-platform/docs/channel-list-api.md)
 
