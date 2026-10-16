@@ -43,7 +43,7 @@ yorisoi-platform/                アプリをまたいで使う部品（yorisoi�
 ├── kit-geo/                     キット: スポット・施設・ルート・写真・天気の取得、地図
 ├── kit-mood/                    キット: 雰囲気
 ├── kit-companion/               キット: 話す判断のルールとゲート（素の JVM）
-└── docs/                        エコシステム全体の文書（ADR-001〜003、契約書 API-002〜004 など）
+└── docs/                        エコシステム全体の文書（ADR-001〜003、契約書 API-001〜004、TODO など）
 ```
 
 パッケージ（フォルダ）は **機能ごと** に分かれています。「画面・ロジック・データ」のような層ごとではありません。たとえば話しかけに関わるものは `companion/` に集まっています。何かを探すときは、まず機能の名前でフォルダを探してください。
@@ -105,17 +105,18 @@ yorisoi-console/
 
 | 番号 | 文書 | 場所 |
 |---|---|---|
-| API-002 | 承認済みチャンネル・リスト 契約書 | [yorisoi-platform/docs/channel-list-api.md](../../yorisoi-platform/docs/channel-list-api.md) |
-| API-003 | チャンネル・パッケージ形式 | [yorisoi-platform/docs/channel-package-format.md](../../yorisoi-platform/docs/channel-package-format.md) |
-| API-004 | 素材の素材提供者インタフェース（素材集の形式を含む） | [yorisoi-platform/docs/material-producer-api.md](../../yorisoi-platform/docs/material-producer-api.md) |
-| ADR-001（yorisoi-platform） | 第三者のチャンネルは審査と署名を経たものだけ取り込む | [yorisoi-platform/docs/adr/](../../yorisoi-platform/docs/adr/) |
-| ADR-002（yorisoi-platform） | 素材の素材提供者をチャンネルから切り出し、共通のインタフェースで扱う | [yorisoi-platform/docs/adr/](../../yorisoi-platform/docs/adr/) |
+| platform API-001 | 秘密メッセージ サーバー API 契約書（OpenAPI は `docs/api/`） | [yorisoi-platform/docs/secret-messages-api.md](../../yorisoi-platform/docs/secret-messages-api.md) |
+| platform API-002 | 承認済みチャンネル・リスト 契約書 | [yorisoi-platform/docs/channel-list-api.md](../../yorisoi-platform/docs/channel-list-api.md) |
+| platform API-003 | チャンネル・パッケージ形式 | [yorisoi-platform/docs/channel-package-format.md](../../yorisoi-platform/docs/channel-package-format.md) |
+| platform API-004 | 素材の素材提供者インタフェース（素材集の形式を含む） | [yorisoi-platform/docs/material-producer-api.md](../../yorisoi-platform/docs/material-producer-api.md) |
+| platform ADR-001 | 第三者のチャンネルは審査と署名を経たものだけ取り込む | [yorisoi-platform/docs/adr/](../../yorisoi-platform/docs/adr/) |
+| platform ADR-002 | 素材の素材提供者をチャンネルから切り出し、共通のインタフェースで扱う | [yorisoi-platform/docs/adr/](../../yorisoi-platform/docs/adr/) |
 | 関係者と呼び方 | 散策者・チャンネル提供者・素材提供者・運営、リスト（呼び方の正本） | [yorisoi-platform/docs/stakeholders.md](../../yorisoi-platform/docs/stakeholders.md) |
-| ADR-001（console） | AWS の構成 | [yorisoi-console/docs/adr/](../../yorisoi-console/docs/adr/) |
-| API-001（console） | 管理 API | [yorisoi-console/docs/console-api.md](../../yorisoi-console/docs/console-api.md) |
-| DM-001 | データモデル | [yorisoi-console/docs/data-model.md](../../yorisoi-console/docs/data-model.md) |
+| console ADR-001 | AWS の構成 | [yorisoi-console/docs/adr/](../../yorisoi-console/docs/adr/) |
+| console API-001 | 管理 API | [yorisoi-console/docs/console-api.md](../../yorisoi-console/docs/console-api.md) |
+| console DM-001 | データモデル | [yorisoi-console/docs/data-model.md](../../yorisoi-console/docs/data-model.md) |
 
-**同じ番号でもリポジトリが違えば別の文書** なので注意してください。ADR-001 は yorisoi-platform と console の両方にあり、API-001 も SanpoGuide 側（秘密メッセージ API。yorisoi-sanpoguide）と console 側（管理 API）で別物です。
+**同じ番号でもリポジトリが違えば別の文書** なので注意してください。ADR-001 と API-001 は、yorisoi-platform と console の両方にあります。そのため、ほかのリポジトリの文書は「platform ADR-001」「console API-001」のように、リポジトリ名を添えて呼びます。同じリポジトリの中では番号だけで呼びます。この決まりと文書の一覧は [yorisoi-platform/docs/README.md](../../yorisoi-platform/docs/README.md) にあります。
 
 ## コードの中で迷ったら
 
