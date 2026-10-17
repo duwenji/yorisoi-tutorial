@@ -46,11 +46,11 @@ A は手軽ですが、`ChannelSync` は **いつも本物のインターネッ�
 
 B では、使う側が依存を渡します。アプリでは本物を、テストでは代役を渡せます。これを **依存性の注入**（Dependency Injection、略して **DI**）と呼びます。名前はいかめしいですが、「必要なものはコンストラクタの引数でもらう」というだけのことです。
 
-[ChannelSync.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelSync.kt) は B の書き方です。
+[ChannelSync.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelSync.kt) は B の書き方です。
 
 ## アプリでは本物を渡す
 
-[ThirdPartyChannels.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ThirdPartyChannels.kt) が、本物を渡して `ChannelSync` を作っています。
+[ThirdPartyChannels.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ThirdPartyChannels.kt) が、本物を渡して `ChannelSync` を作っています。
 
 ```kotlin
 private val sync = ChannelSync(
@@ -71,7 +71,7 @@ private val sync = ChannelSync(
 
 ## テストでは代役を渡す
 
-[ChannelSyncTest.kt](../../yorisoi-sanpoguide/app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelSyncTest.kt) は、代役を渡しています。
+[ChannelSyncTest.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelSyncTest.kt) は、代役を渡しています。
 
 ```kotlin
 private val start = Instant.parse("2026-10-05T00:00:00Z")
@@ -125,7 +125,7 @@ fun `an expired list stops its channels and is said once`() {
 
 ## 関数を渡す: Narration と WalkCompanion
 
-依存は、オブジェクトだけでなく **関数** でも渡せます。[Narration.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Narration.kt) は、散歩と画面が使う素材（解説・話しかけ・写真・背景音）を、素材の出どころ（`Producers`）に頼む部品です。
+依存は、オブジェクトだけでなく **関数** でも渡せます。[Narration.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Narration.kt) は、散歩と画面が使う素材（解説・話しかけ・写真・背景音）を、素材の出どころ（`Producers`）に頼む部品です。
 
 ```kotlin
 /** Asks [producers] for the material the walk and the screens use, on the channel [station] returns. */
@@ -138,7 +138,7 @@ class Narration(private val producers: Producers, private val station: () -> Sta
 
 `station: () -> Station` は「呼ぶと今のチャンネルを返す関数」です。チャンネルそのもの（`Station`）を渡さないのは、**チャンネルは散歩の途中でも変わる** からです。値を渡すと、作ったときのチャンネルに固定されてしまいます。関数を渡せば、頼むたびに **その時点の** チャンネルを聞けます。聞いたチャンネルは要求（`MaterialContext`）に入れて渡すので、その先の部品（AI の解説を作る `GuideRepository.guideFor` など）は、チャンネルを引数で受け取るだけです。「今のチャンネルを聞く」のは `Narration` の 1 か所に決まっています。
 
-[WalkCompanion.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/WalkCompanion.kt) も、同じように関数を受け取ります。
+[WalkCompanion.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/WalkCompanion.kt) も、同じように関数を受け取ります。
 
 ```kotlin
 class WalkCompanion(
@@ -233,7 +233,7 @@ flowchart TB
 
 Android では、部品をつなぐ仕事を自動でやってくれる DI のライブラリ（Google の **Hilt**、Kotlin 向けの **Koin** など）がよく使われます。部品に「これが必要」と印を付けておくと、ライブラリが順番を考えて作り、渡してくれます。
 
-散策ガイドはこれを使っていません（[architecture.md](../../yorisoi-sanpoguide/docs/architecture.md) の図 1: 「DI ライブラリは使っていない」）。
+散策ガイドはこれを使っていません（[architecture.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/architecture.md) の図 1: 「DI ライブラリは使っていない」）。
 
 ## この構成の良いところと限界
 
@@ -284,7 +284,7 @@ cd /c/Dev/apps/yorisoi-sanpoguide
 
 ### 2. テストの名前を眺める
 
-レポートか [ChannelSyncTest.kt](../../yorisoi-sanpoguide/app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelSyncTest.kt) で、テストの名前を見てください。
+レポートか [ChannelSyncTest.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelSyncTest.kt) で、テストの名前を見てください。
 
 - an older list is refused as a rollback（古いリストは巻き戻しとして拒む）
 - an expired list stops its channels and is said once（期限切れのリストのチャンネルは止まり、1 回だけ知らせる）

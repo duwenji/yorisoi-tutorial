@@ -12,7 +12,7 @@
 
 ## 読み上げ: Speaker
 
-散策ガイドの声は、Android に入っている **TTS**（Text To Speech、文章の読み上げ）です。[Speaker.kt](../../yorisoi-platform/kit-voice/src/main/java/io/github/duwenji/yorisoi/kit/voice/Speaker.kt) が受け持っています。
+散策ガイドの声は、Android に入っている **TTS**（Text To Speech、文章の読み上げ）です。[Speaker.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-voice/src/main/java/io/github/duwenji/yorisoi/kit/voice/Speaker.kt) が受け持っています。
 
 ```kotlin
 /**
@@ -92,7 +92,7 @@ private val focus = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANS
 
 ## 背景音: その場で合成する
 
-散策ガイドは、散策中に雰囲気に合わせた背景音（雨音・波・風・鳥の声・虫の音・遠くの鐘）を流せます（既定はオフ）。そして、**音源のファイルを 1 つも持っていません**。[README](../../yorisoi-sanpoguide/README.md) はその理由をこう書いています。
+散策ガイドは、散策中に雰囲気に合わせた背景音（雨音・波・風・鳥の声・虫の音・遠くの鐘）を流せます（既定はオフ）。そして、**音源のファイルを 1 つも持っていません**。[README](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/README.md) はその理由をこう書いています。
 
 > 音源ファイルは同梱せず、端末でその場で合成する（`sound/Voices.kt`）。ライセンスの問題がなく、つなぎ目のないループになり、APK も大きくならない。
 
@@ -100,7 +100,7 @@ private val focus = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANS
 
 ### どの音を流すか: Soundscape
 
-[Soundscape.kt](../../yorisoi-platform/kit-voice/src/main/java/io/github/duwenji/yorisoi/kit/voice/Soundscape.kt):
+[Soundscape.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-voice/src/main/java/io/github/duwenji/yorisoi/kit/voice/Soundscape.kt):
 
 ```kotlin
 /**
@@ -130,7 +130,7 @@ fun forMood(mood: Mood): Soundscape {
 
 デジタルの音は、**サンプル**（ある瞬間の空気の圧力を表す数）の並びです。散策ガイドは 1 秒に 22,050 個のサンプルを作り、スピーカーに送ります。
 
-[Voices.kt](../../yorisoi-platform/kit-voice/src/main/java/io/github/duwenji/yorisoi/kit/voice/Voices.kt) は、1 回呼ぶたびにサンプルを 1 つ返す `Voice` を作ります。
+[Voices.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-voice/src/main/java/io/github/duwenji/yorisoi/kit/voice/Voices.kt) は、1 回呼ぶたびにサンプルを 1 つ返す `Voice` を作ります。
 
 ```kotlin
 /** An endless mono sound, one sample at a time in -1..1. Pure Kotlin, so it can be tested off the device. */
@@ -180,7 +180,7 @@ object Voices {
 
 ### 音を流す: AmbientPlayer
 
-作ったサンプルを流すのが [AmbientPlayer.kt](../../yorisoi-platform/kit-voice/src/main/java/io/github/duwenji/yorisoi/kit/voice/AmbientPlayer.kt) です。
+作ったサンプルを流すのが [AmbientPlayer.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-voice/src/main/java/io/github/duwenji/yorisoi/kit/voice/AmbientPlayer.kt) です。
 
 ```kotlin
 val track = AudioTrack.Builder()
@@ -349,7 +349,7 @@ for (scape in Soundscape.entries) {
 
 ### 3. 雨粒を増やしてみる
 
-[Voices.kt](../../yorisoi-platform/kit-voice/src/main/java/io/github/duwenji/yorisoi/kit/voice/Voices.kt) の `rain` の
+[Voices.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-voice/src/main/java/io/github/duwenji/yorisoi/kit/voice/Voices.kt) の `rain` の
 
 ```kotlin
 val dropsPerSample = 14f / sr
@@ -357,7 +357,7 @@ val dropsPerSample = 14f / sr
 
 を `140f / sr`（1 秒に 140 粒）に変えて、もう一度手順 1 を実行し、`rain.wav` を聞き比べてください。雨脚が強くなったように聞こえるはずです。
 
-音のテストも流してみましょう。音の大きさの範囲を確かめるテストは、[VoicesTest.kt](../../yorisoi-platform/kit-voice/src/test/java/io/github/duwenji/yorisoi/kit/voice/VoicesTest.kt) にあります（音の部品はキット `kit-voice` にあります）。
+音のテストも流してみましょう。音の大きさの範囲を確かめるテストは、[VoicesTest.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-voice/src/test/java/io/github/duwenji/yorisoi/kit/voice/VoicesTest.kt) にあります（音の部品はキット `kit-voice` にあります）。
 
 ```sh
 ./gradlew :kit-voice:testDebugUnitTest --tests '*VoicesTest*'

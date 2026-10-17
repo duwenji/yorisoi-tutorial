@@ -40,7 +40,7 @@ Android は、**署名されていない APK をインストールしません**
 
 ## 散策ガイドの署名の設定
 
-[app/build.gradle.kts](../../yorisoi-sanpoguide/app/build.gradle.kts):
+[app/build.gradle.kts](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/build.gradle.kts):
 
 ```kotlin
 // Release signing keys live outside Git, in keystore.properties at the project root
@@ -83,7 +83,7 @@ android {
 | `keystore.properties` | **入れない** | 本物のパスワード |
 | `release.jks` | **入れない** | 署名の鍵 |
 
-[keystore.properties.example](../../yorisoi-sanpoguide/keystore.properties.example):
+[keystore.properties.example](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/keystore.properties.example):
 
 ```properties
 # Copy to keystore.properties (not committed) and fill in. storeFile is relative to this folder.
@@ -93,13 +93,13 @@ keyAlias=sanpoguide
 keyPassword=
 ```
 
-[.gitignore](../../yorisoi-sanpoguide/.gitignore) に `keystore.properties`・`*.jks`・`*.keystore` が入っているので、うっかり `git add` しても入りません。**見本だけを Git に入れ、本物はそれぞれの手元で作る** のは、秘密を扱う設定でよく使うやり方です。管理システムの `.gitignore` が `*.pem`・`*.key` を除いているのも同じ考え方です。
+[.gitignore](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/.gitignore) に `keystore.properties`・`*.jks`・`*.keystore` が入っているので、うっかり `git add` しても入りません。**見本だけを Git に入れ、本物はそれぞれの手元で作る** のは、秘密を扱う設定でよく使うやり方です。管理システムの `.gitignore` が `*.pem`・`*.key` を除いているのも同じ考え方です。
 
 ハンズオンで `git ls-files` を使って、実際に入っていないことを確かめます。
 
 ### リリース版の作り方
 
-[SanpoGuide の README](../../yorisoi-sanpoguide/README.md) の「リリース版のビルド」に手順があります。
+[SanpoGuide の README](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/README.md) の「リリース版のビルド」に手順があります。
 
 ```sh
 keytool -genkeypair -v -keystore release.jks -alias sanpoguide -keyalg RSA -keysize 2048 -validity 10000

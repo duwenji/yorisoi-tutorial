@@ -52,7 +52,7 @@ flowchart TB
 
 ### 作る側
 
-[conformance/src/app-vectors.ts](../../yorisoi-console/conformance/src/app-vectors.ts) が、検出の文書・リスト・試用チケットを作ります。
+[conformance/src/app-vectors.ts](https://github.com/duwenji/yorisoi-console/blob/main/conformance/src/app-vectors.ts) が、検出の文書・リスト・試用チケットを作ります。
 
 ```ts
 const PKCS8_ED25519 = Buffer.from('302e020100300506032b657004220420', 'hex');
@@ -74,7 +74,7 @@ npm run vectors -w conformance -- ../yorisoi-platform/core-format/src/test/resou
 
 ### 確かめる側
 
-SanpoGuide の [ProviderDocumentsTest.kt](../../yorisoi-platform/core-format/src/test/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocumentsTest.kt) が、そのファイルを読みます。
+SanpoGuide の [ProviderDocumentsTest.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/test/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocumentsTest.kt) が、そのファイルを読みます。
 
 ```kotlin
 /**
@@ -105,7 +105,7 @@ class ProviderDocumentsTest {
 
 ## ③ 準拠テスト: 公開されたものを外から確かめる
 
-テストベクタは「コードどうし」の食い違いを防ぎます。もう 1 つ、**実際に公開されているもの** が契約書どおりかを確かめる道具があります。それが **準拠テスト**（[conformance/src/check.ts](../../yorisoi-console/conformance/src/check.ts)）です。
+テストベクタは「コードどうし」の食い違いを防ぎます。もう 1 つ、**実際に公開されているもの** が契約書どおりかを確かめる道具があります。それが **準拠テスト**（[conformance/src/check.ts](https://github.com/duwenji/yorisoi-console/blob/main/conformance/src/check.ts)）です。
 
 ```sh
 npm run check -w conformance -- https://channels.example.com --provider sc1…

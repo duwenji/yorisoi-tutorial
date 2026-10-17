@@ -131,10 +131,10 @@ adb shell dumpsys notification                       # 通知とチャンネル�
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [AndroidManifest.xml](../../yorisoi-sanpoguide/app/src/main/AndroidManifest.xml) | `WalkService` の登録と、位置情報のフォアグラウンドサービスの権限 | [1-3](../01-kotlin-android/03-android-components.md) |
-| [SanpoApp.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/SanpoApp.kt) | 4 つの通知のチャンネル（チャンネルの案内・散策モード・スポット案内・雷雨の予報）と重要度 | [1-3](../01-kotlin-android/03-android-components.md)、[3-2](../03-walk/02-service.md) |
-| [WalkService.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/walk/WalkService.kt) | 散策の開始と終了、通知の上書き、「終了」ボタン、雷雨だけ音つきの通知 | [3-2](../03-walk/02-service.md) |
-| [MainActivity.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/MainActivity.kt) | Android 13 以上でだけ通知の権限を求める | [1-3](../01-kotlin-android/03-android-components.md) |
+| [AndroidManifest.xml](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/AndroidManifest.xml) | `WalkService` の登録と、位置情報のフォアグラウンドサービスの権限 | [1-3](../01-kotlin-android/03-android-components.md) |
+| [SanpoApp.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/SanpoApp.kt) | 4 つの通知のチャンネル（チャンネルの案内・散策モード・スポット案内・雷雨の予報）と重要度 | [1-3](../01-kotlin-android/03-android-components.md)、[3-2](../03-walk/02-service.md) |
+| [WalkService.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/walk/WalkService.kt) | 散策の開始と終了、通知の上書き、「終了」ボタン、雷雨だけ音つきの通知 | [3-2](../03-walk/02-service.md) |
+| [MainActivity.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/MainActivity.kt) | Android 13 以上でだけ通知の権限を求める | [1-3](../01-kotlin-android/03-android-components.md) |
 
 ## よくある間違い
 

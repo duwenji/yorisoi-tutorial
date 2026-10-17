@@ -26,7 +26,7 @@
 
 ## ユーザープール
 
-利用者の名簿を **ユーザープール** と呼びます。[console-app.ts](../../yorisoi-console/infra/lib/console-app.ts):
+利用者の名簿を **ユーザープール** と呼びます。[console-app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-app.ts):
 
 ```ts
 // ---- Cognito (ADR-001 A-4: one pool, TOTP MFA for everyone) ----
@@ -95,7 +95,7 @@ export async function handler(event: PostConfirmationTriggerEvent) {
 ```
 
 - 登録した人は、必ずチャンネル提供者になる
-- 運営のグループに入れる道は、AWS の管理者が手で入れることだけ（[docs/operations/deploy.md](../../yorisoi-console/docs/operations/deploy.md) の「運営の担当者を足す」）
+- 運営のグループに入れる道は、AWS の管理者が手で入れることだけ（[docs/operations/deploy.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/deploy.md) の「運営の担当者を足す」）
 - だから、どんな登録も、運営の API には届かない
 
 この Lambda に許しているのは `cognito-idp:AdminAddUserToGroup` だけです。コメントのとおり、許可のリソースを `userpool/*` にしているのは、ユーザープールとトリガーが互いを参照する **循環** を避けるためです（ユーザープールはトリガーを名指しし、トリガーの許可がユーザープールを名指しすると、どちらを先に作ればよいか決まらない）。
@@ -200,7 +200,7 @@ authorizer: new authorizers.HttpJwtAuthorizer('Jwt', issuer, { jwtAudience: [cli
 | ③ チャンネル提供者ごとの上限（チャンネルは 5 つ、申請は 1 日 20 回、試用チケットは 1 日 10 回） | DM-001 M-2、[8-5](05-dynamodb.md) |
 | ④ 全員に MFA | この章 |
 
-WAF は月に約 7 USD かかるので、登録を公開していない開発用では外しています（`config.cost.waf`、[docs/operations/cost.md](../../yorisoi-console/docs/operations/cost.md)）。
+WAF は月に約 7 USD かかるので、登録を公開していない開発用では外しています（`config.cost.waf`、[docs/operations/cost.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/cost.md)）。
 
 ## ハンズオン: ログインの設定と、トークンの中身を見る
 
@@ -235,7 +235,7 @@ API Gateway の確認: JWT
 
 CDK の `mfa: REQUIRED`・`otp: true` が、テンプレートでは `MfaConfiguration: ON`・`SOFTWARE_TOKEN_MFA` になっています。
 
-[infra/test/console-stack.test.ts](../../yorisoi-console/infra/test/console-stack.test.ts) の `requires TOTP MFA from everyone and lets only sign-ups become publishers` は、これらの設定をテストで守っています。
+[infra/test/console-stack.test.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/test/console-stack.test.ts) の `requires TOTP MFA from everyone and lets only sign-ups become publishers` は、これらの設定をテストで守っています。
 
 ### 2. JWT の中身を開いてみる
 

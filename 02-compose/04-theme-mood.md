@@ -12,7 +12,7 @@
 
 ## 雰囲気とは
 
-散策ガイドは、時間帯・季節・天気・近くの場所の種類から「今の雰囲気」を決め、それに合わせて次のものを変えます（[README](../../yorisoi-sanpoguide/README.md) の「雰囲気」）。
+散策ガイドは、時間帯・季節・天気・近くの場所の種類から「今の雰囲気」を決め、それに合わせて次のものを変えます（[README](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/README.md) の「雰囲気」）。
 
 - 画面の配色（夜は暗く、雨は青く、夕方は暖かく…）
 - 文字の書体（寺社や史跡の近くでは明朝体）
@@ -69,7 +69,7 @@ Surface(color = MaterialTheme.colorScheme.primaryContainer, /* … */) {
 
 ## MoodTheme: 雰囲気でテーマを切り替える
 
-[MoodTheme.kt](../../yorisoi-platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodTheme.kt) は、雰囲気から色の組み合わせと文字の決まりを作り、`MaterialTheme` に渡します。
+[MoodTheme.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodTheme.kt) は、雰囲気から色の組み合わせと文字の決まりを作り、`MaterialTheme` に渡します。
 
 ```kotlin
 @Composable
@@ -167,7 +167,7 @@ private const val FADE_MS = 2_000
 
 ## MoodScene: 絵をコードで描く
 
-カードの上の小さな風景（[MoodScene.kt](../../yorisoi-platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodScene.kt)）は、画像ファイルではなく、コードで描いています。
+カードの上の小さな風景（[MoodScene.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodScene.kt)）は、画像ファイルではなく、コードで描いています。
 
 ```kotlin
 /**
@@ -221,7 +221,7 @@ private fun DrawScope.drawScene(mood: Mood) {
 
 ## 雰囲気を決める: MoodSource
 
-最後に、雰囲気（`Mood`）そのものがどう決まるかを見ます。[MoodSource.kt](../../yorisoi-platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodSource.kt):
+最後に、雰囲気（`Mood`）そのものがどう決まるかを見ます。[MoodSource.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodSource.kt):
 
 ```kotlin
 class MoodSource(spots: SpotRepository, weather: StateFlow<Weather?>, scope: CoroutineScope) {
@@ -264,7 +264,7 @@ class MoodSource(spots: SpotRepository, weather: StateFlow<Weather?>, scope: Cor
 class PlaceSmoother(private val holdMs: Long = HOLD_MS) { /* … */ }
 ```
 
-このロジックは Android に依存しないので、単体テスト（[MoodTest.kt](../../yorisoi-platform/kit-mood/src/test/java/io/github/duwenji/yorisoi/kit/mood/MoodTest.kt)）で確かめられています。テストの名前を見ると、振る舞いがよく分かります。
+このロジックは Android に依存しないので、単体テスト（[MoodTest.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-mood/src/test/java/io/github/duwenji/yorisoi/kit/mood/MoodTest.kt)）で確かめられています。テストの名前を見ると、振る舞いがよく分かります。
 
 - the first place is taken at once（最初の場所はすぐに採用する）
 - a new place is taken only after it lasts（新しい場所は、続いたときだけ採用する）
@@ -295,7 +295,7 @@ private fun CompanionCardAutumnEveningDark() {
 
 ### 2. 夕方の色を変える
 
-[MoodTheme.kt](../../yorisoi-platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodTheme.kt) の `Evening` の 2 つ目の色（`container`）を、たとえば `Color(0xFFE0F0FF)`（薄い水色）に変えて、プレビューを更新します。夕方のカードの背景が変わります。
+[MoodTheme.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodTheme.kt) の `Evening` の 2 つ目の色（`container`）を、たとえば `Color(0xFFE0F0FF)`（薄い水色）に変えて、プレビューを更新します。夕方のカードの背景が変わります。
 
 `MoodTheme.kt` はアプリではなく yorisoi-platform（`kit-mood`）にあります。アプリはふつう、公開された `kit-mood` を使うので、手元で直しただけではプレビューに出ません。直したソースをアプリに使わせるには、`~/.gradle/gradle.properties` に次の 1 行を足し、Android Studio で「Sync Now」を押します（[1-2](../01-kotlin-android/02-gradle.md) の composite build）。
 

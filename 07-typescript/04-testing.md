@@ -40,7 +40,7 @@ npx vitest run
 | `infra/test/console-stack.test.ts` | CDK の定義（第 8 部） | 要らない |
 | `web/test/publisher-crypto.test.ts`・`ai.test.ts` | 画面の中の鍵と署名、審査の見本（[9-3](../09-console/03-keys-in-browser.md)） | 要らない |
 
-どのファイルを流すかは、[vitest.config.ts](../../yorisoi-console/vitest.config.ts) が決めています。
+どのファイルを流すかは、[vitest.config.ts](https://github.com/duwenji/yorisoi-console/blob/main/vitest.config.ts) が決めています。
 
 ```ts
 export default defineConfig({
@@ -57,7 +57,7 @@ export default defineConfig({
 
 **Vitest** は、TypeScript のテストを書いて流す道具です。`.ts` のテストを、事前のビルドなしで直接流せます（[7-2](02-workspaces.md) の表）。
 
-[packages/protocol/test/protocol.test.ts](../../yorisoi-console/packages/protocol/test/protocol.test.ts) から:
+[packages/protocol/test/protocol.test.ts](https://github.com/duwenji/yorisoi-console/blob/main/packages/protocol/test/protocol.test.ts) から:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -114,7 +114,7 @@ beforeEach(async () => {
 | CloudFront（`CloudFrontCdn`） | `noCdn`（何もしない） |
 | KMS（`kmsSigner`） | `p.signing`（手元の鍵、`makeTestProvider`） |
 
-これは第 6 部のハンズオンの `npm run publish:local -w api` と同じ代役です。**本物と代役が同じ約束（`PublicationStore` などのインターフェース）を守っている** ので、`publish` のロジックは、代役でテストすれば本物でも同じように動きます。約束は [api/src/publish/ports.ts](../../yorisoi-console/api/src/publish/ports.ts) にまとめてあります。
+これは第 6 部のハンズオンの `npm run publish:local -w api` と同じ代役です。**本物と代役が同じ約束（`PublicationStore` などのインターフェース）を守っている** ので、`publish` のロジックは、代役でテストすれば本物でも同じように動きます。約束は [api/src/publish/ports.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/publish/ports.ts) にまとめてあります。
 
 ## 方法 2: SDK の呼び出しを代役に受け止めさせる
 
@@ -155,7 +155,7 @@ it('signs with KMS as pure Ed25519 over the raw message', async () => {
 
 管理 API は、DynamoDB の **条件つき書き込み**（「`rev` が 4 のときだけ書く」）や **トランザクション**（複数の項目をまとめて書く）、**GSI**（別の並べ方の索引）に深く頼っています（第 8 部）。こうした振る舞いをメモリの代役で真似るのは難しく、真似方を間違えると、テストは通るのに本番で動かない、ということになります。
 
-そこで、AWS が配っている **DynamoDB Local**（手元で動く DynamoDB）を、**Docker** のコンテナで動かしています。[api/test/dynamo-local.ts](../../yorisoi-console/api/test/dynamo-local.ts):
+そこで、AWS が配っている **DynamoDB Local**（手元で動く DynamoDB）を、**Docker** のコンテナで動かしています。[api/test/dynamo-local.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/test/dynamo-local.ts):
 
 ```ts
 /**
@@ -195,7 +195,7 @@ export async function freshTable(endpoint: string) {
 
 ### API を通しでテストする
 
-[api/test/console.test.ts](../../yorisoi-console/api/test/console.test.ts) は、ルーター（`route`）に要求を渡して、応答を確かめます。
+[api/test/console.test.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/test/console.test.ts) は、ルーター（`route`）に要求を渡して、応答を確かめます。
 
 ```ts
 async function call(method: string, path: string, options: { body?: unknown; ifMatch?: number | string; caller?: Caller; query?: Record<string, string> } = {}) {
@@ -265,7 +265,7 @@ npx vitest run packages/protocol
 
 ### 2. SDK の代役のテストを壊す
 
-[api/src/publish/aws.ts](../../yorisoi-console/api/src/publish/aws.ts) の末尾の `kmsSigner` で、`MessageType: 'RAW'` を `MessageType: 'DIGEST'` に変えて、公開の処理のテストを流します。
+[api/src/publish/aws.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/publish/aws.ts) の末尾の `kmsSigner` で、`MessageType: 'RAW'` を `MessageType: 'DIGEST'` に変えて、公開の処理のテストを流します。
 
 ```sh
 npx vitest run api/test/publisher.test.ts
@@ -304,7 +304,7 @@ npx vitest run api/test/console.test.ts -t "If-Match"
 
 ### 4. If-Match の決まりを壊す
 
-[api/src/console/http.ts](../../yorisoi-console/api/src/console/http.ts) の `ifMatch` で、
+[api/src/console/http.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/console/http.ts) の `ifMatch` で、
 
 ```ts
 if (!header) return fail('precondition_required', 'If-Match is required');

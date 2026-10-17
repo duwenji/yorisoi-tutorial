@@ -111,9 +111,9 @@ greeting -> …/ws-min/packages/greeting
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [yorisoi-console/package.json](../../yorisoi-console/package.json) | 8 つのパッケージ、共通の道具（`typescript`・`vitest`・`tsx`）はいちばん上に 1 回 | [7-2](../07-typescript/02-workspaces.md) |
-| [packages/protocol/package.json](../../yorisoi-console/packages/protocol/package.json) | `exports` が `.ts` のソースを直接指す。テスト用の入口 `./testing` を分ける | [7-2](../07-typescript/02-workspaces.md) |
-| [api/package.json](../../yorisoi-console/api/package.json) | `"@yorisoi-console/protocol": "0.1.0"` のように、同じリポジトリのパッケージに依存 | [7-2](../07-typescript/02-workspaces.md) |
+| [yorisoi-console/package.json](https://github.com/duwenji/yorisoi-console/blob/main/package.json) | 8 つのパッケージ、共通の道具（`typescript`・`vitest`・`tsx`）はいちばん上に 1 回 | [7-2](../07-typescript/02-workspaces.md) |
+| [packages/protocol/package.json](https://github.com/duwenji/yorisoi-console/blob/main/packages/protocol/package.json) | `exports` が `.ts` のソースを直接指す。テスト用の入口 `./testing` を分ける | [7-2](../07-typescript/02-workspaces.md) |
+| [api/package.json](https://github.com/duwenji/yorisoi-console/blob/main/api/package.json) | `"@yorisoi-console/protocol": "0.1.0"` のように、同じリポジトリのパッケージに依存 | [7-2](../07-typescript/02-workspaces.md) |
 | 第 6 部のハンズオン | `npm run publish:local -w api`・`npm run check -w conformance -- …` | [6-7](../06-trust/07-hands-on.md) |
 
 ## よくある間違い

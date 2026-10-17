@@ -62,7 +62,7 @@ export async function notifyAfter(deps: Deps, notice: Omit<Notice, 'noticeId'>):
 
 ### 待ち行列の設定
 
-[console-app.ts](../../yorisoi-console/infra/lib/console-app.ts):
+[console-app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-app.ts):
 
 ```ts
 const deadNotices = new sqs.Queue(this, 'NotifyDeadLetters', { retentionPeriod: Duration.days(14), enforceSSL: true });
@@ -85,7 +85,7 @@ notifier.addEventSource(new SqsEventSource(notices, { batchSize: 10, reportBatch
 
 ### 失敗したものだけをやり直す
 
-メールの Lambda（[api/src/notify/handler.ts](../../yorisoi-console/api/src/notify/handler.ts)）:
+メールの Lambda（[api/src/notify/handler.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/notify/handler.ts)）:
 
 ```ts
 export async function handler(event: SQSEvent): Promise<SQSBatchResponse> {
@@ -127,7 +127,7 @@ new cloudwatch.Alarm(this, 'NoticesNotSent', {
 
 SQS は、メッセージを **少なくとも 1 回** 渡すことを約束します。裏を返すと、**まれに同じメッセージを 2 回渡す** ことがあります。また、メールは送れたのに、その直後に Lambda が止まって「完了」を伝えられず、渡し直される、ということも起こりえます。
 
-何も備えなければ、チャンネル提供者に同じメールが 2 通届きます。そこで、メールの処理を **冪等**（何回行っても、1 回行ったのと同じ結果になる）にしています。[api/src/notify/notify.ts](../../yorisoi-console/api/src/notify/notify.ts) の `deliver`:
+何も備えなければ、チャンネル提供者に同じメールが 2 通届きます。そこで、メールの処理を **冪等**（何回行っても、1 回行ったのと同じ結果になる）にしています。[api/src/notify/notify.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/notify/notify.ts) の `deliver`:
 
 ```ts
 export async function deliver(ports: NotifyPorts, notice: Notice, attempt: number, maxAttempts: number): Promise<'sent' | 'skipped' | 'duplicate'> {
@@ -200,7 +200,7 @@ SES でメールを送るには、準備が要ります。
 - 送り先は、データベースに **持っていません**。送るたびに Cognito から、確認済みのメールアドレスを引きます（`emailOf`）。確認していないアドレスや、退会したチャンネル提供者には送りません（`skipped`）
 - 操作の記録には、送ったこと（`notification.sent`）と、SES のメッセージ ID だけを残し、宛先は書きません
 
-テスト（[api/test/notify.test.ts](../../yorisoi-console/api/test/notify.test.ts)）の名前が、この決まりを表しています。
+テスト（[api/test/notify.test.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/test/notify.test.ts)）の名前が、この決まりを表しています。
 
 - sends once to the verified address and records it without the address（確認済みのアドレスに 1 回だけ送り、宛先なしで記録する）
 - retries a failed send and records the failure on the last attempt（失敗したらやり直し、最後の挑戦で失敗を記録する）
@@ -236,7 +236,7 @@ npx vitest run api/test/notify.test.ts
 
 ### 2. 「送ったことがあるか」の確かめを外す
 
-[api/src/notify/notify.ts](../../yorisoi-console/api/src/notify/notify.ts) の `deliver` の、
+[api/src/notify/notify.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/notify/notify.ts) の `deliver` の、
 
 ```ts
 if ((await ports.db.send(new GetCommand({ TableName: ports.table, Key: key, ConsistentRead: true }))).Item) return 'duplicate';

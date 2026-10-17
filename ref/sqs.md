@@ -64,9 +64,9 @@ await sqs.send(new SendMessageCommand({ QueueUrl, MessageBody: JSON.stringify({ 
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [infra/lib/console-app.ts](../../yorisoi-console/infra/lib/console-app.ts) | 知らせの待ち行列、3 回でデッドレターキューへ、たまったら警報 | [8-7](../08-aws/07-sqs-ses-kms.md) |
-| [api/src/console/deps.ts](../../yorisoi-console/api/src/console/deps.ts) の `notifyAfter` | 送るのに失敗しても、本来の操作（承認など）は失敗させない | [8-7](../08-aws/07-sqs-ses-kms.md) |
-| [api/src/notify/handler.ts](../../yorisoi-console/api/src/notify/handler.ts)・[notify.ts](../../yorisoi-console/api/src/notify/notify.ts) | 失敗したものだけを返す。`noticeId` で 2 回送らない（冪等） | [8-7](../08-aws/07-sqs-ses-kms.md) |
+| [infra/lib/console-app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-app.ts) | 知らせの待ち行列、3 回でデッドレターキューへ、たまったら警報 | [8-7](../08-aws/07-sqs-ses-kms.md) |
+| [api/src/console/deps.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/console/deps.ts) の `notifyAfter` | 送るのに失敗しても、本来の操作（承認など）は失敗させない | [8-7](../08-aws/07-sqs-ses-kms.md) |
+| [api/src/notify/handler.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/notify/handler.ts)・[notify.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/notify/notify.ts) | 失敗したものだけを返す。`noticeId` で 2 回送らない（冪等） | [8-7](../08-aws/07-sqs-ses-kms.md) |
 
 ## よくある間違い
 

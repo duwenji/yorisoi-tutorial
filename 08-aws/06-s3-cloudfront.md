@@ -30,7 +30,7 @@
 
 ### どのバケットも公開しない
 
-[console-stack.ts](../../yorisoi-console/infra/lib/console-stack.ts):
+[console-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-stack.ts):
 
 ```ts
 const bucketDefaults: s3.BucketProps = {
@@ -63,7 +63,7 @@ const publicBucket = new s3.Bucket(this, 'PublicBucket', {
 const recordsBucket = new s3.Bucket(this, 'RecordsBucket', { ...bucketDefaults, versioned: true });
 ```
 
-受付用のバケット（[console-app.ts](../../yorisoi-console/infra/lib/console-app.ts)）:
+受付用のバケット（[console-app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-app.ts)）:
 
 ```ts
 lifecycleRules: [
@@ -107,7 +107,7 @@ sequenceDiagram
     S->>V: ファイルが届いた（S3 のイベント、8-8）
 ```
 
-[api/src/console/handler.ts](../../yorisoi-console/api/src/console/handler.ts) の `presignUpload`:
+[api/src/console/handler.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/console/handler.ts) の `presignUpload`:
 
 ```ts
 presignUpload: async (key, contentType, maxBytes) => {
@@ -141,7 +141,7 @@ presignUpload: async (key, contentType, maxBytes) => {
 
 ### 公開用の配信: OAC
 
-[console-stack.ts](../../yorisoi-console/infra/lib/console-stack.ts):
+[console-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-stack.ts):
 
 ```ts
 const distribution = new cloudfront.Distribution(this, 'PublicDistribution', {
@@ -200,7 +200,7 @@ publishApproved: async ({ packageKey, packageSha256, iconKey, iconSha256 }) => {
 
 ## 画面と API を 1 つの CloudFront から
 
-管理画面の CloudFront（[console-app.ts](../../yorisoi-console/infra/lib/console-app.ts)）は、画面のファイルと API の両方の入口です（API-001 C-5）。
+管理画面の CloudFront（[console-app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-app.ts)）は、画面のファイルと API の両方の入口です（API-001 C-5）。
 
 ```ts
 const consoleDistribution = new cloudfront.Distribution(this, 'ConsoleDistribution', {

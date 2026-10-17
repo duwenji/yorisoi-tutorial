@@ -6,7 +6,7 @@
 
 - 月に 1 回
 - 次のような大きな変更が `main` に入ったとき
-  - 契約書（platform API-001〜004、console API-001）やデータモデル（console DM-001）の版が上がった
+  - platform の契約書（API-SECRET-MESSAGES・API-CHANNEL-LIST・API-CHANNEL-PACKAGE・API-MATERIAL-PRODUCER）や、console の管理 API（console API-001）・データモデル（console DM-001）の版が上がった
   - パッケージ・モジュール・Lambda を足した、消した、名前を変えた
   - 依存ライブラリの大きな更新（Kotlin・AGP・Compose BOM・TypeScript・CDK・React など）
 
@@ -81,5 +81,5 @@ cd ../yorisoi-console && git diff 5b1c05f..main -- '**/package.json'
 - 場所は **ファイルと関数の名前** で示す。行番号は書かない（すぐずれるため）
 - コードの断片は、説明に要る部分だけを短く引用する。省いたところは `// …` と書く
 - 契約書の決定事項（P-1、V-03 など）を引くときは、番号も添える。読者が元の文書で根拠をたどれるようにする
-- 未実装の機能に触れるときは、両リポジトリの文書にならって 🚧 を付ける
-- 人の呼び方は yorisoi-platform の [docs/stakeholders.md](../yorisoi-platform/docs/stakeholders.md) に従う（散策者・チャンネル提供者・素材提供者・運営、リスト・リストID）。コードや JSON の名前（`publisher`・`producer`・`provider`）はそのまま書き、地の文の呼び方とは分ける。プロンプトやコミットのメッセージを引用するときは、元の言葉（「利用者」など）のまま写す
+- 未実装の機能に触れるときは、各リポジトリの文書にならって 🚧 を付ける
+- 人の呼び方は yorisoi-platform の [関係者と共通用語](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/roles-and-vocabulary.md) に従う（散策者・チャンネル提供者・素材提供者・運営、リスト・リストID）。コードや JSON の名前（`publisher`・`producer`・`provider`）はそのまま書き、地の文の呼び方とは分ける。プロンプトやコミットのメッセージを引用するときは、元の言葉（「利用者」など）のまま写す

@@ -32,7 +32,7 @@ flowchart TB
 
 ## 散策ガイドの地図
 
-設定画面で 6 種類から選べます（[MapStyle.kt](../../yorisoi-platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/MapStyle.kt)）。
+設定画面で 6 種類から選べます（[MapStyle.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/MapStyle.kt)）。
 
 ```kotlin
 enum class MapStyle(val label: String, val description: String, val google: GoogleMapType? = null) {
@@ -56,7 +56,7 @@ enum class MapStyle(val label: String, val description: String, val google: Goog
 
 ### 国土地理院のタイル
 
-[MapTiles.kt](../../yorisoi-platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/MapTiles.kt):
+[MapTiles.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/MapTiles.kt):
 
 ```kotlin
 private fun gsi(name: String, layer: String, minZoom: Int, maxZoom: Int, ext: String, credit: String) =
@@ -72,7 +72,7 @@ private val GsiRelief = gsi("GSI_relief", "relief", 5, 15, ".png", /* 出典 */)
 
 ### Google のタイル: セッションと出典
 
-Google Map Tiles API は、タイルを取る前に **セッション** を作る必要があります（[GoogleMapTiles.kt](../../yorisoi-platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/GoogleMapTiles.kt)）。
+Google Map Tiles API は、タイルを取る前に **セッション** を作る必要があります（[GoogleMapTiles.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/GoogleMapTiles.kt)）。
 
 ```kotlin
 suspend fun session(apiKey: String, type: GoogleMapType): GoogleTileSession {
@@ -111,7 +111,7 @@ suspend fun session(apiKey: String, type: GoogleMapType): GoogleTileSession {
 
 Google 純正の地図の部品（Maps SDK for Android）ではなく osmdroid を使うのは、国土地理院のタイルをそのまま使えて、キーも要らないからです。
 
-osmdroid は利用者のアプリを見分けるため、User-Agent の設定を求めています。[SanpoApp.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/SanpoApp.kt) の最初で設定しています。
+osmdroid は利用者のアプリを見分けるため、User-Agent の設定を求めています。[SanpoApp.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/SanpoApp.kt) の最初で設定しています。
 
 ```kotlin
 Configuration.getInstance().userAgentValue = "SanpoGuide/${BuildConfig.VERSION_NAME} (Android)"
@@ -119,7 +119,7 @@ Configuration.getInstance().userAgentValue = "SanpoGuide/${BuildConfig.VERSION_N
 
 ## Compose の中に地図を置く
 
-osmdroid の `MapView` は、Compose ではない昔ながらの部品（View）です。[SpotMap.kt](../../yorisoi-platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/SpotMap.kt) は、これを `AndroidView` で Compose の中に置いています（[2-1](../02-compose/01-compose-basics.md) で少し触れました）。
+osmdroid の `MapView` は、Compose ではない昔ながらの部品（View）です。[SpotMap.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/SpotMap.kt) は、これを `AndroidView` で Compose の中に置いています（[2-1](../02-compose/01-compose-basics.md) で少し触れました）。
 
 ```kotlin
 @Composable
@@ -284,7 +284,7 @@ if (last == null || last.distanceTo(location) > 150f) {
 - 国土地理院: osmdroid の `CopyrightOverlay` が、タイルの設定に書いた出典の文（「出典：国土地理院」）を地図の隅に描く
 - Google: 見ている範囲の出典を `copyright` で聞いて、ロゴと一緒に画面が描く。だから Google のときは `CopyrightOverlay` を重ねない（`if (tiles !is MapTiles.Google) map.overlays += copyright`）
 
-スポットの写真（Wikimedia Commons）にも、作者とライセンスを表示しています（[README](../../yorisoi-sanpoguide/README.md) の「スポットの写真」）。外のデータを使うときは、その条件を守ることが欠かせません。
+スポットの写真（Wikimedia Commons）にも、作者とライセンスを表示しています（[README](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/README.md) の「スポットの写真」）。外のデータを使うときは、その条件を守ることが欠かせません。
 
 ## ハンズオン: タイルを 1 枚取ってみる
 

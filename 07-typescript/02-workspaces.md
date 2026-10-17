@@ -49,7 +49,7 @@ SanpoGuide と管理システムの間は、**別のリポジトリ** にして�
 
 ## npm workspaces
 
-[package.json](../../yorisoi-console/package.json)（いちばん上）:
+[package.json](https://github.com/duwenji/yorisoi-console/blob/main/package.json)（いちばん上）:
 
 ```json
 {
@@ -132,7 +132,7 @@ npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provi
 
 ## ソースをそのまま公開する
 
-各パッケージが「外にどのファイルを見せるか」は、`package.json` の `exports` で決まります。[packages/protocol/package.json](../../yorisoi-console/packages/protocol/package.json):
+各パッケージが「外にどのファイルを見せるか」は、`package.json` の `exports` で決まります。[packages/protocol/package.json](https://github.com/duwenji/yorisoi-console/blob/main/packages/protocol/package.json):
 
 ```json
 {
@@ -174,7 +174,7 @@ npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provi
 
 ### 共通の設定
 
-[tsconfig.base.json](../../yorisoi-console/tsconfig.base.json):
+[tsconfig.base.json](https://github.com/duwenji/yorisoi-console/blob/main/tsconfig.base.json):
 
 ```json
 {
@@ -196,7 +196,7 @@ npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provi
 
 ### パッケージごとの設定と参照
 
-[api/tsconfig.json](../../yorisoi-console/api/tsconfig.json):
+[api/tsconfig.json](https://github.com/duwenji/yorisoi-console/blob/main/api/tsconfig.json):
 
 ```json
 {
@@ -218,7 +218,7 @@ npm run check -w conformance -- http://127.0.0.1:8787 --allow-local-http --provi
 - `composite: true`（共通の設定）: 参照される側になれる、という印。確かめた結果を `dist/tsconfig.tsbuildinfo` に記録する
 - `emitDeclarationOnly: true`: JavaScript は書き出さず、型の情報（`.d.ts`）だけを書き出す。JavaScript を作るのは、上の表の道具の仕事だから
 
-いちばん上の [tsconfig.json](../../yorisoi-console/tsconfig.json) は、全パッケージを参照しているだけです。
+いちばん上の [tsconfig.json](https://github.com/duwenji/yorisoi-console/blob/main/tsconfig.json) は、全パッケージを参照しているだけです。
 
 ```json
 {

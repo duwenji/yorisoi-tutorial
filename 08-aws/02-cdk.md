@@ -64,7 +64,7 @@ infra/
 
 ### 入口: bin/app.ts
 
-[infra/bin/app.ts](../../yorisoi-console/infra/bin/app.ts):
+[infra/bin/app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/app.ts):
 
 ```ts
 // npx cdk synth -c env=dev -c rootPublicKey=<base64url of the dev root key>
@@ -93,7 +93,7 @@ const stack = new ConsoleStack(app, `YorisoiConsole-${name}`, {
 
 ### 環境ごとの設定: lib/config.ts
 
-[infra/lib/config.ts](../../yorisoi-console/infra/lib/config.ts) は、開発用と本番用の違いを 1 か所にまとめています。
+[infra/lib/config.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/config.ts) は、開発用と本番用の違いを 1 か所にまとめています。
 
 ```ts
 export interface EnvConfig {
@@ -156,7 +156,7 @@ flowchart TB
     CA --> Q["NotifyQueue（SQS）"]
 ```
 
-[console-stack.ts](../../yorisoi-console/infra/lib/console-stack.ts) が公開に要る部品を、[console-app.ts](../../yorisoi-console/infra/lib/console-app.ts) が管理の面（ログイン・API・画面）の部品を作っています。`ConsoleApp` は、部品をまとめた **自作のコンストラクト** です。
+[console-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-stack.ts) が公開に要る部品を、[console-app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-app.ts) が管理の面（ログイン・API・画面）の部品を作っています。`ConsoleApp` は、部品をまとめた **自作のコンストラクト** です。
 
 ```ts
 export class ConsoleApp extends Construct {
@@ -270,7 +270,7 @@ AWS の SDK（`@aws-sdk/…`）は含まれていません。Node.js 22 の Lamb
 
 ## CDK の定義をテストする
 
-インフラの定義も、テストできます。[infra/test/console-stack.test.ts](../../yorisoi-console/infra/test/console-stack.test.ts) は、合成したテンプレートに、大事な設定が入っているかを確かめています。
+インフラの定義も、テストできます。[infra/test/console-stack.test.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/test/console-stack.test.ts) は、合成したテンプレートに、大事な設定が入っているかを確かめています。
 
 ```ts
 import { Match, Template } from 'aws-cdk-lib/assertions';
@@ -325,7 +325,7 @@ npx vitest run infra
 
 ### 2. 「同時に 1 つだけ」を壊す
 
-[infra/lib/console-stack.ts](../../yorisoi-console/infra/lib/console-stack.ts) の公開の Lambda で、
+[infra/lib/console-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-stack.ts) の公開の Lambda で、
 
 ```ts
 // A-10: one run at a time; the conditional write on seq guards the rest.

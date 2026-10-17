@@ -76,10 +76,10 @@ cd infra && npx tsx ../.local/cdk-cards/app.ts
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [infra/bin/app.ts](../../yorisoi-console/infra/bin/app.ts) | `-c env=dev -c rootPublicKey=…`。ルート鍵の公開鍵を外から必ず渡させる。タグ | [8-2](../08-aws/02-cdk.md) |
-| [infra/lib/config.ts](../../yorisoi-console/infra/lib/config.ts) | 開発用・本番用の違いを 1 か所に。判別できるユニオンで設定を守る | [8-2](../08-aws/02-cdk.md) |
-| [infra/lib/console-stack.ts](../../yorisoi-console/infra/lib/console-stack.ts)・[console-app.ts](../../yorisoi-console/infra/lib/console-app.ts) | スタックと自作のコンストラクト。`RETAIN` と `DESTROY` の使い分け | [8-2](../08-aws/02-cdk.md) |
-| [infra/test/console-stack.test.ts](../../yorisoi-console/infra/test/console-stack.test.ts) | `Template.hasResourceProperties` で、大事な設定をテストで守る | [8-2](../08-aws/02-cdk.md) |
+| [infra/bin/app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/app.ts) | `-c env=dev -c rootPublicKey=…`。ルート鍵の公開鍵を外から必ず渡させる。タグ | [8-2](../08-aws/02-cdk.md) |
+| [infra/lib/config.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/config.ts) | 開発用・本番用の違いを 1 か所に。判別できるユニオンで設定を守る | [8-2](../08-aws/02-cdk.md) |
+| [infra/lib/console-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-stack.ts)・[console-app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-app.ts) | スタックと自作のコンストラクト。`RETAIN` と `DESTROY` の使い分け | [8-2](../08-aws/02-cdk.md) |
+| [infra/test/console-stack.test.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/test/console-stack.test.ts) | `Template.hasResourceProperties` で、大事な設定をテストで守る | [8-2](../08-aws/02-cdk.md) |
 
 ## よくある間違い
 

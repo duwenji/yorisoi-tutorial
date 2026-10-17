@@ -41,7 +41,7 @@ provider: sc1yajr5krpx5u2nb4x45rijsrnvvtizhwl
 
 ### 何が起きたか
 
-[api/src/publish/local-cli.ts](../../yorisoi-console/api/src/publish/local-cli.ts) が次のことをしました。
+[api/src/publish/local-cli.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/publish/local-cli.ts) が次のことをしました。
 
 1. テスト用のリストを作る（ルート鍵・署名鍵を新しく作り、鍵セットにルート鍵で署名する。`makeTestProvider`）
 2. 見本のチャンネルを 1 つ用意する（パッケージとアイコンは中身のない仮のファイル）
@@ -215,7 +215,7 @@ cd /c/Dev/apps/yorisoi-platform
 
 ### 5-2. リストの期限の上限を 13 日に変える
 
-[ProviderDocuments.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocuments.kt) の `companion object` にある次の行を探して、
+[ProviderDocuments.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocuments.kt) の `companion object` にある次の行を探して、
 
 ```kotlin
 val LIST_LIFETIME: Duration = Duration.ofDays(14)

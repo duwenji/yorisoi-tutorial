@@ -83,9 +83,9 @@ export default defineConfig({
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [web/vite.config.ts](../../yorisoi-console/web/vite.config.ts) | `CONSOLE_URL` があれば、`/api` と `/config.json` を配備済みの開発用に中継。ソースマップつきのビルド | [9-1](../09-console/01-react-vite.md) |
-| [web/tsconfig.json](../../yorisoi-console/web/tsconfig.json) | JavaScript を書くのは Vite。`tsc` は型を確かめ、宣言だけを書く（`emitDeclarationOnly`） | [9-1](../09-console/01-react-vite.md) |
-| [.github/workflows/ci.yml](../../yorisoi-console/.github/workflows/ci.yml) | `tsc -b` と `npm run build -w web` の両方を流す | [9-4](../09-console/04-ci.md) |
+| [web/vite.config.ts](https://github.com/duwenji/yorisoi-console/blob/main/web/vite.config.ts) | `CONSOLE_URL` があれば、`/api` と `/config.json` を配備済みの開発用に中継。ソースマップつきのビルド | [9-1](../09-console/01-react-vite.md) |
+| [web/tsconfig.json](https://github.com/duwenji/yorisoi-console/blob/main/web/tsconfig.json) | JavaScript を書くのは Vite。`tsc` は型を確かめ、宣言だけを書く（`emitDeclarationOnly`） | [9-1](../09-console/01-react-vite.md) |
+| [.github/workflows/ci.yml](https://github.com/duwenji/yorisoi-console/blob/main/.github/workflows/ci.yml) | `tsc -b` と `npm run build -w web` の両方を流す | [9-4](../09-console/04-ci.md) |
 | CloudFront | ハッシュの名前のファイルは 1 年、`index.html` は毎回確かめる | [8-6](../08-aws/06-s3-cloudfront.md) |
 
 ## よくある間違い

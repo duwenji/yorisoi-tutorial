@@ -60,7 +60,7 @@ ViewModel は、状態を `StateFlow` で画面に見せます。
 - 値が変わると、集めている（`collect` している）側に新しい値が届く
 - **同じ値を入れても知らせない**（data class なら中身で比べる）
 
-[MainViewModel.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/MainViewModel.kt) の、選んだスポットの状態です。
+[MainViewModel.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/MainViewModel.kt) の、選んだスポットの状態です。
 
 ```kotlin
 private val _selected = MutableStateFlow<SelectedSpot?>(null)
@@ -123,7 +123,7 @@ private fun updateSelected(item: SpotItem, change: (SelectedSpot) -> SelectedSpo
 
 ## Compose で受け取る
 
-[MainScreen.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/MainScreen.kt) の冒頭です。
+[MainScreen.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/MainScreen.kt) の冒頭です。
 
 ```kotlin
 @Composable
@@ -231,7 +231,7 @@ flowchart LR
     STR --> WS["WalkService"]
 ```
 
-[StationRepository.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/StationRepository.kt) の `current` も、設定とチャンネルの一覧を `combine` して作っています。
+[StationRepository.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/StationRepository.kt) の `current` も、設定とチャンネルの一覧を `combine` して作っています。
 
 ```kotlin
 val current: StateFlow<Station> = combine(settings, list) { s, l -> select(s, l) }
@@ -242,7 +242,7 @@ val current: StateFlow<Station> = combine(settings, list) { s, l -> select(s, l)
 
 ## 下書きを持つ: 設定画面
 
-設定画面は「保存」を押すまで、変更を反映しません。[SettingsViewModel.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/SettingsViewModel.kt):
+設定画面は「保存」を押すまで、変更を反映しません。[SettingsViewModel.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/SettingsViewModel.kt):
 
 ```kotlin
 /** Edits a draft of the AI settings; nothing is persisted until [save]. */

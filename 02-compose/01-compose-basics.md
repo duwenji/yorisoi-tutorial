@@ -71,7 +71,7 @@ Compose は、Composable が読んでいるデータが変わると、その Com
 
 ## CompanionCard を読む
 
-散策中、画面の上に出る「話しかけのカード」が [CompanionCard.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/CompanionCard.kt) です。140 行ほどの中に、この章の要素が全部入っています。
+散策中、画面の上に出る「話しかけのカード」が [CompanionCard.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/CompanionCard.kt) です。140 行ほどの中に、この章の要素が全部入っています。
 
 ```kotlin
 @Composable
@@ -230,7 +230,7 @@ shown.forEach { line -> /* Text を 2 つ */ }
 
 ## Compose の中に昔の部品を置く
 
-地図（osmdroid）は Compose ではなく、昔ながらの部品（View）です。[SpotMap.kt](../../yorisoi-platform/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/SpotMap.kt) は、それを `AndroidView` で Compose の中に置いています。
+地図（osmdroid）は Compose ではなく、昔ながらの部品（View）です。[SpotMap.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/SpotMap.kt) は、それを `AndroidView` で Compose の中に置いています。
 
 ```kotlin
 AndroidView(factory = { mapView }, modifier = modifier) { map ->
@@ -281,7 +281,7 @@ private fun CompanionCardAutumnEvening() {
 
 ### 3. 自分で場面を足す
 
-`CompanionCardWinterNight` を写して、「春の朝・公園」のカードを足してみてください。`Season.SPRING`、`TimeOfDay.MORNING`、`Place` の値は [Mood.kt](../../yorisoi-platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/Mood.kt) にあります。
+`CompanionCardWinterNight` を写して、「春の朝・公園」のカードを足してみてください。`Season.SPRING`、`TimeOfDay.MORNING`、`Place` の値は [Mood.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/Mood.kt) にあります。
 
 ### 4. 片付け
 

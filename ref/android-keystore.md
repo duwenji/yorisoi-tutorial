@@ -95,9 +95,9 @@ val apiKey: String? = prefs.getString("api_key", null)?.let(SecretBox::decrypt)
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [KeyCipher.kt](../../yorisoi-platform/kit-llm/src/main/java/io/github/duwenji/yorisoi/kit/llm/KeyCipher.kt) | AI のキーと Google Maps のキーを AES-GCM で暗号化。IV を前に付けて保存。復号できなければ null | [4-5](../04-outside/05-storage.md) |
-| [SettingsRepository.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/settings/SettingsRepository.kt) | 保存のときに `KeyCipher.encrypt`、読むときに `KeyCipher.decrypt` | [4-5](../04-outside/05-storage.md) |
-| [AndroidManifest.xml](../../yorisoi-sanpoguide/app/src/main/AndroidManifest.xml) | `android:allowBackup="false"`（バックアップに含めない） | [1-3](../01-kotlin-android/03-android-components.md) |
+| [KeyCipher.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-llm/src/main/java/io/github/duwenji/yorisoi/kit/llm/KeyCipher.kt) | AI のキーと Google Maps のキーを AES-GCM で暗号化。IV を前に付けて保存。復号できなければ null | [4-5](../04-outside/05-storage.md) |
+| [SettingsRepository.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/settings/SettingsRepository.kt) | 保存のときに `KeyCipher.encrypt`、読むときに `KeyCipher.decrypt` | [4-5](../04-outside/05-storage.md) |
+| [AndroidManifest.xml](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/AndroidManifest.xml) | `android:allowBackup="false"`（バックアップに含めない） | [1-3](../01-kotlin-android/03-android-components.md) |
 
 ## よくある間違い
 

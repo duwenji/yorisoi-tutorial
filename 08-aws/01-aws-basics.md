@@ -41,11 +41,11 @@
 | OS の更新・故障への備え | 自分で | AWS が |
 | 利用者が増えたとき | サーバーを足す設定を自分で | 自動で増える |
 
-管理システムは、使う人が運営とチャンネル提供者だけで、1 日に数回しか使われないこともあります。アプリが取りに来るのは、CDN に置いた静的なファイルだけです（[0-1](../00-overview/01-what-we-build.md)）。こうした使われ方には、使った分だけ払うサーバーレスがよく合います。開発用の環境の費用は、月に約 1.5 USD です（[docs/operations/cost.md](../../yorisoi-console/docs/operations/cost.md)）。
+管理システムは、使う人が運営とチャンネル提供者だけで、1 日に数回しか使われないこともあります。アプリが取りに来るのは、CDN に置いた静的なファイルだけです（[0-1](../00-overview/01-what-we-build.md)）。こうした使われ方には、使った分だけ払うサーバーレスがよく合います。開発用の環境の費用は、月に約 1.5 USD です（[docs/operations/cost.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/cost.md)）。
 
 ## 管理システムが使う AWS のサービス
 
-[構成図（architecture.md）](../../yorisoi-console/docs/architecture.md) の図 1 を思い出しながら見てください。
+[構成図（architecture.md）](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) の図 1 を思い出しながら見てください。
 
 | サービス | 何をするものか | 管理システムでの役割 | 章 |
 |---|---|---|---|
@@ -89,7 +89,7 @@ flowchart LR
 
 IAM の大原則は **最小の権限**（least privilege）です。部品には、仕事に要る **最小限** の許可だけを与えます。乗っ取られたり、プログラムに誤りがあったりしても、被害がその範囲に収まるからです。
 
-CDK では、`grant…` という関数で許可を与えます。[infra/lib/console-app.ts](../../yorisoi-console/infra/lib/console-app.ts) から:
+CDK では、`grant…` という関数で許可を与えます。[infra/lib/console-app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-app.ts) から:
 
 ```ts
 // Presigning needs the right to put; moving to archive/ needs read, put and delete.
@@ -148,7 +148,7 @@ S3 のバケットの許可（バケットポリシー）や、Lambda を呼ん�
 
 ### タグと予算
 
-[infra/bin/app.ts](../../yorisoi-console/infra/bin/app.ts):
+[infra/bin/app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/app.ts):
 
 ```ts
 // Cost allocation tags: activate `project` once in the Billing console so the budget can count it.
@@ -160,7 +160,7 @@ Tags.of(stack).add('environment', name);
 
 開発用では、そのタグで絞った費用の **予算**（AWS Budgets）を月 5 USD にし、実績が 80% を超えたとき、または予測が 100% を超えたときにメールで知らせます（`console-stack.ts` の `MonthlyBudget`）。
 
-[docs/operations/cost.md](../../yorisoi-console/docs/operations/cost.md) には、開発用で外したもの（WAF、DynamoDB の PITR など）と、その理由、採らなかった案まで書かれています。**費用も設計の一部として、理由とともに記録する** のが、この管理システムの進め方です。
+[docs/operations/cost.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/cost.md) には、開発用で外したもの（WAF、DynamoDB の PITR など）と、その理由、採らなかった案まで書かれています。**費用も設計の一部として、理由とともに記録する** のが、この管理システムの進め方です。
 
 ## ハンズオン: 部品の一覧と権限を見る
 

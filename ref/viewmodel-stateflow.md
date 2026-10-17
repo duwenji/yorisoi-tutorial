@@ -126,11 +126,11 @@ val label: StateFlow<String> = combine(stationId, names) { id, n -> n[id] ?: "?"
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [MainViewModel.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/MainViewModel.kt) | `_selected` と `selected`、sealed の状態（`GuideState`）、遅れて届く結果を捨てる `updateSelected`、3 つの流れの `combine` | [2-2](../02-compose/02-state-viewmodel.md) |
-| [SettingsViewModel.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/SettingsViewModel.kt) | 保存するまでの下書き（`_draft`） | [2-2](../02-compose/02-state-viewmodel.md) |
-| [SettingsRepository.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/settings/SettingsRepository.kt) | 画面と常駐サービスが共有する設定の StateFlow | [2-2](../02-compose/02-state-viewmodel.md) |
-| [StationRepository.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/StationRepository.kt) | 設定とチャンネルの一覧を `combine` して、今のチャンネルを作る（`Eagerly`） | [2-2](../02-compose/02-state-viewmodel.md) |
-| [MoodSource.kt](../../yorisoi-platform/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodSource.kt) | 時計・位置・スポット・天気の 4 つを `combine` して雰囲気を作る | [2-4](../02-compose/04-theme-mood.md) |
+| [MainViewModel.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/MainViewModel.kt) | `_selected` と `selected`、sealed の状態（`GuideState`）、遅れて届く結果を捨てる `updateSelected`、3 つの流れの `combine` | [2-2](../02-compose/02-state-viewmodel.md) |
+| [SettingsViewModel.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/SettingsViewModel.kt) | 保存するまでの下書き（`_draft`） | [2-2](../02-compose/02-state-viewmodel.md) |
+| [SettingsRepository.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/settings/SettingsRepository.kt) | 画面と常駐サービスが共有する設定の StateFlow | [2-2](../02-compose/02-state-viewmodel.md) |
+| [StationRepository.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/StationRepository.kt) | 設定とチャンネルの一覧を `combine` して、今のチャンネルを作る（`Eagerly`） | [2-2](../02-compose/02-state-viewmodel.md) |
+| [MoodSource.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/MoodSource.kt) | 時計・位置・スポット・天気の 4 つを `combine` して雰囲気を作る | [2-4](../02-compose/04-theme-mood.md) |
 
 散策ガイドの ViewModel は、Android が作る `AndroidViewModel` を使い、`SanpoApp` から部品を取り出しています。その理由と限界は [2-3](../02-compose/03-manual-di.md) にあります。
 

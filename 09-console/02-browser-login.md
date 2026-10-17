@@ -9,7 +9,7 @@
 - OIDC（OpenID Connect）と、ブラウザのアプリのためのログインの流れ（認可コード ＋ PKCE）
 - PKCE が、横取りされたコードを使えなくする仕組み
 - oidc-client-ts が代わりにしてくれること
-- 管理画面の [auth.ts](../../yorisoi-console/web/src/auth.ts): ログイン・戻り・ログアウト・トークンの置き場所
+- 管理画面の [auth.ts](https://github.com/duwenji/yorisoi-console/blob/main/web/src/auth.ts): ログイン・戻り・ログアウト・トークンの置き場所
 - ログインが切れたとき、取り直すとき
 
 ## なぜ自分でパスワードを受け取らないのか
@@ -75,7 +75,7 @@ sequenceDiagram
 
 ## 管理画面の auth.ts
 
-[auth.ts](../../yorisoi-console/web/src/auth.ts) の `createAuth` を見ます。
+[auth.ts](https://github.com/duwenji/yorisoi-console/blob/main/web/src/auth.ts) の `createAuth` を見ます。
 
 ```ts
 /**
@@ -121,7 +121,7 @@ finishSignIn: async (): Promise<string> => {
 - 戻り先が `/` で始まるときだけ使う。`https://evil.example` のような外の場所へ飛ばされないため（オープンリダイレクトの防止）
 - [9-1](01-react-vite.md) の `Callback` の部品が `finishSignIn` を呼ぶ。コードは 1 回しか引き換えられないので、StrictMode で 2 回呼ばれても 1 回にしている
 
-`Gate`（[main.tsx](../../yorisoi-console/web/src/main.tsx)）は、トークンがなければ `signIn()` で Cognito へ送り出し、あれば `GET /api/me` を呼びます。API がトークンを確かめ、役割を答えます。
+`Gate`（[main.tsx](https://github.com/duwenji/yorisoi-console/blob/main/web/src/main.tsx)）は、トークンがなければ `signIn()` で Cognito へ送り出し、あれば `GET /api/me` を呼びます。API がトークンを確かめ、役割を答えます。
 
 ### ログアウト
 
@@ -161,7 +161,7 @@ Cognito の `/logout` は、`client_id` と `logout_uri`（ログアウトのあ
 
 - React は、`{…}` で描く文字を自動でエスケープする（申請の説明文に `<script>` が書かれていても、文字として出る）
 - CSP（[8-6](../08-aws/06-s3-cloudfront.md)）で、スクリプトは自分の場所から来たものだけ（`script-src 'self'`）、通信先も決めた場所だけ（`connect-src`）
-- アクセストークンの期限は 60 分、リフレッシュトークンは 12 時間（[console-app.ts](../../yorisoi-console/infra/lib/console-app.ts)）。漏れても長くは使えない
+- アクセストークンの期限は 60 分、リフレッシュトークンは 12 時間（[console-app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-app.ts)）。漏れても長くは使えない
 
 ちなみに、ログインの途中の値（`code_verifier` と `state`）は、`stateStore` を指定していないので、oidc-client-ts の既定の `localStorage` に `oidc.` で始まる名前で置かれ、戻ってきて引き換えたときに消されます。
 
@@ -170,9 +170,9 @@ Cognito の `/logout` は、`client_id` と `logout_uri`（ログアウトのあ
 | 場面 | 何が起きるか |
 |---|---|
 | アクセストークンの期限が近い | `automaticSilentRenew` がリフレッシュトークンで取り直す（画面は何も変わらない） |
-| API が `401` を返した | [api.ts](../../yorisoi-console/web/src/api.ts) のミドルウェアが `signIn()` を呼び、Cognito へ。戻ったら同じ道へ |
+| API が `401` を返した | [api.ts](https://github.com/duwenji/yorisoi-console/blob/main/web/src/api.ts) のミドルウェアが `signIn()` を呼び、Cognito へ。戻ったら同じ道へ |
 | タブを閉じた | `sessionStorage` ごと消える。次に開いたらログインから |
-| 運営のグループから外された | API は役割を、トークンの中の `cognito:groups` から決める（[router.ts](../../yorisoi-console/api/src/console/router.ts)）。トークンを取り直すまでは古いままなので、グループの変更が効くのは次にトークンを取ったとき（最長 60 分） |
+| 運営のグループから外された | API は役割を、トークンの中の `cognito:groups` から決める（[router.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/console/router.ts)）。トークンを取り直すまでは古いままなので、グループの変更が効くのは次にトークンを取ったとき（最長 60 分） |
 
 ## ハンズオン: PKCE を手で作る
 

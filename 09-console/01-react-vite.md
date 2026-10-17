@@ -15,7 +15,7 @@
 
 ## SPA とは
 
-管理画面（[web/](../../yorisoi-console/web/)）は **SPA**（Single Page Application）です。
+管理画面（[web/](https://github.com/duwenji/yorisoi-console/tree/main/web)）は **SPA**（Single Page Application）です。
 
 ```mermaid
 sequenceDiagram
@@ -32,7 +32,7 @@ sequenceDiagram
     Note over B: 道が変わっても、ページは読み込み直さない<br/>JavaScript が描き替える
 ```
 
-サーバーから届くのは、空に近い [index.html](../../yorisoi-console/web/index.html) と、1 つにまとめた JavaScript だけです。
+サーバーから届くのは、空に近い [index.html](https://github.com/duwenji/yorisoi-console/blob/main/web/index.html) と、1 つにまとめた JavaScript だけです。
 
 ```html
 <body>
@@ -58,7 +58,7 @@ function Empty({ children }: { children: ReactNode }) {
 }
 ```
 
-（[pages/common.tsx](../../yorisoi-console/web/src/pages/common.tsx)）
+（[pages/common.tsx](https://github.com/duwenji/yorisoi-console/blob/main/web/src/pages/common.tsx)）
 
 - 関数の名前は大文字で始める（`Empty`）。使うときは `<Empty>まだありません</Empty>` と、HTML の要素のように書く
 - 引数（**props**）は 1 つのオブジェクト。`children` は、開きと閉じの間に書いた中身
@@ -91,7 +91,7 @@ const [reason, setReason] = useState('');
 <button disabled={busy || reason.trim() === ''}>{label}</button>
 ```
 
-（[pages/common.tsx](../../yorisoi-console/web/src/pages/common.tsx) の `ReasonForm`。運営の操作には必ず理由を書かせる部品）
+（[pages/common.tsx](https://github.com/duwenji/yorisoi-console/blob/main/web/src/pages/common.tsx) の `ReasonForm`。運営の操作には必ず理由を書かせる部品）
 
 - `useState('')` は「今の値」と「値を変える関数」の組を返す
 - `setReason` を呼ぶと、React は `ReasonForm` の関数をもう一度呼び、新しい `reason` で描き直す
@@ -105,7 +105,7 @@ const [keys, setKeys] = useState<Record<string, string>>({});
 onChange={(e) => setKeys((k) => ({ ...k, [service.id]: e.target.value }))}
 ```
 
-（[pages/review.tsx](../../yorisoi-console/web/src/pages/review.tsx)）
+（[pages/review.tsx](https://github.com/duwenji/yorisoi-console/blob/main/web/src/pages/review.tsx)）
 
 `k[service.id] = …` と中身を書き換えると、React は「同じオブジェクトだ」と見て描き直しません。`{ ...k, … }` で新しいオブジェクトを作ります。`setKeys((k) => …)` と関数を渡すと、「その時点の最新の値」を元に作れます。
 
@@ -134,7 +134,7 @@ export function useLoad<T>(load: () => Promise<T | undefined>, deps: unknown[]) 
 }
 ```
 
-使う側は、こう書くだけです（[pages/home.tsx](../../yorisoi-console/web/src/pages/home.tsx)）。
+使う側は、こう書くだけです（[pages/home.tsx](https://github.com/duwenji/yorisoi-console/blob/main/web/src/pages/home.tsx)）。
 
 ```tsx
 const keys = useLoad(async () => (await api.GET('/api/admin/signing-keys')).data, [api]);
@@ -150,7 +150,7 @@ const keys = useLoad(async () => (await api.GET('/api/admin/signing-keys')).data
 
 ### StrictMode が 2 回呼ぶ
 
-[main.tsx](../../yorisoi-console/web/src/main.tsx) は、全体を `<StrictMode>` で包んでいます。開発中、React は **わざと `useEffect` を 2 回呼び**、片付けの漏れや「2 回呼ばれると困る処理」をあぶり出します。
+[main.tsx](https://github.com/duwenji/yorisoi-console/blob/main/web/src/main.tsx) は、全体を `<StrictMode>` で包んでいます。開発中、React は **わざと `useEffect` を 2 回呼び**、片付けの漏れや「2 回呼ばれると困る処理」をあぶり出します。
 
 ログインから戻ったときの処理（[9-2](02-browser-login.md)）は、まさに 2 回呼ばれると困ります。Cognito から受け取ったコードは 1 回しか使えないからです。
 
@@ -170,7 +170,7 @@ function Callback({ auth }: { auth: Auth }) {
 
 ## 管理画面の部品の木
 
-[main.tsx](../../yorisoi-console/web/src/main.tsx) の全体の形です。
+[main.tsx](https://github.com/duwenji/yorisoi-console/blob/main/web/src/main.tsx) の全体の形です。
 
 ```mermaid
 flowchart TB
@@ -193,7 +193,7 @@ export async function loadConfig(): Promise<ConsoleConfig> {
 }
 ```
 
-（[auth.ts](../../yorisoi-console/web/src/auth.ts)）
+（[auth.ts](https://github.com/duwenji/yorisoi-console/blob/main/web/src/auth.ts)）
 
 Cognito の場所やクライアントの ID は、環境（開発用・本番）ごとに違います。それをビルドに焼き込まず、配備のときに CDK が `config.json` を画面の横に置きます（[8-6](../08-aws/06-s3-cloudfront.md) の `BucketDeployment`）。だから **同じビルドを、どの環境にも配れます**。
 
@@ -232,7 +232,7 @@ const publisher = session.me.roles.includes('publisher');
 )}
 ```
 
-チャンネル提供者の画面には、素材集の画面（`/collections`、[pages/publisher/collections.tsx](../../yorisoi-console/web/src/pages/publisher/collections.tsx)）もあります。素材提供者は別のアカウントではなく、同じアカウントの役割（`roles` の `producer`）なので、同じ画面の中で「素材提供者として始める」を押して使い始めます（[8-4](../08-aws/04-cognito.md)）。運営の側にも、素材集の審査の画面（`/review/collections/…`、[pages/collection-review.tsx](../../yorisoi-console/web/src/pages/collection-review.tsx)）が加わっています。
+チャンネル提供者の画面には、素材集の画面（`/collections`、[pages/publisher/collections.tsx](https://github.com/duwenji/yorisoi-console/blob/main/web/src/pages/publisher/collections.tsx)）もあります。素材提供者は別のアカウントではなく、同じアカウントの役割（`roles` の `producer`）なので、同じ画面の中で「素材提供者として始める」を押して使い始めます（[8-4](../08-aws/04-cognito.md)）。運営の側にも、素材集の審査の画面（`/review/collections/…`、[pages/collection-review.tsx](https://github.com/duwenji/yorisoi-console/blob/main/web/src/pages/collection-review.tsx)）が加わっています。
 
 役割は、トークンの中身ではなく **API（`GET /api/me`）が答えたもの** を使います。そして、画面で運営のメニューを隠すのは **使いやすさのため** で、守りではありません。ブラウザのコードは書き換えられるからです。守りは API が、呼ばれるたびにグループを確かめることで行っています（[8-3](../08-aws/03-lambda-apigw.md)、[8-4](../08-aws/04-cognito.md)）。
 
@@ -253,7 +253,7 @@ const publisher = session.me.roles.includes('publisher');
 
 ## API を呼ぶ: OpenAPI の型つき
 
-[7-3](../07-typescript/03-openapi.md) で、OpenAPI から TypeScript の型（`@yorisoi-console/api-types`）を作りました。画面は、その型を **openapi-fetch** に渡して API を呼びます（[api.ts](../../yorisoi-console/web/src/api.ts)）。
+[7-3](../07-typescript/03-openapi.md) で、OpenAPI から TypeScript の型（`@yorisoi-console/api-types`）を作りました。画面は、その型を **openapi-fetch** に渡して API を呼びます（[api.ts](https://github.com/duwenji/yorisoi-console/blob/main/web/src/api.ts)）。
 
 ```ts
 const client = createClient<paths>({ baseUrl: window.location.origin });
@@ -309,7 +309,7 @@ const bearer: Middleware = {
 
 ビルドの名前にハッシュが付くので、中身が変われば名前も変わります。だから CloudFront で **1 年キャッシュ** させても、新しい版を配ったときに古いものが残りません（[8-6](../08-aws/06-s3-cloudfront.md)）。`index.html` だけは毎回確かめさせます。
 
-[web/vite.config.ts](../../yorisoi-console/web/vite.config.ts):
+[web/vite.config.ts](https://github.com/duwenji/yorisoi-console/blob/main/web/vite.config.ts):
 
 ```ts
 // `npm run dev -w web` with CONSOLE_URL set to a deployed console serves its config and API

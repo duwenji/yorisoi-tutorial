@@ -12,7 +12,7 @@
 
 ## 形式は約束
 
-チャンネルのパッケージの形式は、契約書 **API-003**（[yorisoi-platform/docs/channel-package-format.md](../../yorisoi-platform/docs/channel-package-format.md)）で決まっています。第 6 部の API-002 が「承認済みチャンネル・リスト」の約束だったのに対し、API-003 は **そのリストが指すパッケージの中身** の約束です。
+チャンネルのパッケージの形式は、platform の契約書 **API-CHANNEL-PACKAGE（旧 API-003）** で決まっています。第 6 部で扱う [API-CHANNEL-LIST（旧 API-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md) が「承認済みチャンネル・リスト」の約束なのに対し、API-CHANNEL-PACKAGE は **そのリストが指すパッケージの中身** の約束です（[契約本文](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-PACKAGE.md)）。
 
 ```mermaid
 flowchart LR
@@ -52,7 +52,7 @@ resources/                   パッケージに入れる素材（任意。第三
 - **これ以外のファイルを入れると拒む**（API-003 F-5）
 - テキストは UTF-8（BOM なし）、改行は LF
 
-組み込みの 6 つのチャンネル（プロンプト・パックの [sanpoguide/channels/](../../yorisoi-sanpoguide/prompts/src/main/resources/sanpoguide/channels/)）も、`signature.json` がないだけで同じ形です。「しずかに」チャンネル（`quiet/`）は `channel.json` だけで、スロットは全部「標準」のものを使っています。
+組み込みの 6 つのチャンネル（プロンプト・パックの [sanpoguide/channels/](https://github.com/duwenji/yorisoi-sanpoguide/tree/main/prompts/src/main/resources/sanpoguide/channels)）も、`signature.json` がないだけで同じ形です。「しずかに」チャンネル（`quiet/`）は `channel.json` だけで、スロットは全部「標準」のものを使っています。
 
 ## channel.json: 選択肢から選ぶ設定
 
@@ -79,7 +79,7 @@ resources/                   パッケージに入れる素材（任意。第三
 }
 ```
 
-[StationManifest.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/StationManifest.kt) が、これを Kotlin のデータクラスで表しています。
+[StationManifest.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/StationManifest.kt) が、これを Kotlin のデータクラスで表しています。
 
 ```kotlin
 /** `channel.json` of a channel package (API-003). Only the values the format allows can be held. */
@@ -151,7 +151,7 @@ enum class TalkLevel(override val json: String) : JsonValue { QUIET("quiet"), NO
 | `genres` | `general`・`history`・`nature`・`food`・`shopping` から 0〜3 個 | 散策者が探すときの分類 |
 | `requires.features` | `slot:guide`・`present:card` など 0〜20 個 | これがないアプリでは成り立たない機能 |
 
-語彙はエコシステムで 1 つで、コアの [Ecosystem.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/Ecosystem.kt) にあります（`Activity`・`Genre`・`Feature`）。
+語彙はエコシステムで 1 つで、コアの [Ecosystem.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/Ecosystem.kt) にあります（`Activity`・`Genre`・`Feature`）。
 
 ### 確かめ方は 2 段
 
@@ -183,7 +183,7 @@ SanpoGuide のプロファイル（`SanpoProfile`）は「散歩（`walk`）と�
 
 ## スロット: 差し込めるのは文章だけ
 
-[4-3](../04-outside/03-ai.md) で見たとおり、チャンネルが変えられるのは、アプリのプロンプトの決まった **枠（スロット）** に入る文章だけです（F-1）。[Slot.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/Slot.kt):
+[4-3](../04-outside/03-ai.md) で見たとおり、チャンネルが変えられるのは、アプリのプロンプトの決まった **枠（スロット）** に入る文章だけです（F-1）。[Slot.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/Slot.kt):
 
 ```kotlin
 /**
@@ -217,7 +217,7 @@ if (HEADING_PATTERN.containsMatchIn(text)) reject(RejectCode.FORBIDDEN_TEXT, "${
 // … 文字数の上限、合計 4,000 字 …
 ```
 
-`URL_PATTERN`・`HEADING_PATTERN` や、UTF-8 として読む `decodeUtf8` は、[Checks.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/Checks.kt) にまとめてあります。素材の文章や素材集（下で見ます）の確認でも同じ決まりを使うので、チャンネル専用の `StationValidator` から外に出しました。
+`URL_PATTERN`・`HEADING_PATTERN` や、UTF-8 として読む `decodeUtf8` は、[Checks.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/Checks.kt) にまとめてあります。素材の文章や素材集（下で見ます）の確認でも同じ決まりを使うので、チャンネル専用の `StationValidator` から外に出しました。
 
 | 禁止 | 理由 |
 |---|---|
@@ -374,7 +374,7 @@ enum class StationOrigin { BUILT_IN, THIRD_PARTY }
 
 ## 外から来た ZIP を安全に開く
 
-第三者のパッケージは ZIP です。外から来た ZIP には、2 つの有名な危険があります。[PackageArchive.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/PackageArchive.kt) は、その両方に備えています。
+第三者のパッケージは ZIP です。外から来た ZIP には、2 つの有名な危険があります。[PackageArchive.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/PackageArchive.kt) は、その両方に備えています。
 
 ### 危険 1: パスの細工（Zip Slip）
 

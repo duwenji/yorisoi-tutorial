@@ -46,7 +46,7 @@ io.github.duwenji.yorisoi : core-format : 1.0.0
 
 グループが 2 つあるのは、コアとキットがエコシステム（yorisoi）のもので、プロンプト・パックが SanpoGuide のものだからです。キット（Android のライブラリ）は AAR という形で公開します。キットを使うのは今は SanpoGuide だけですが、リポジトリを分けたので、アプリもキットを公開された版で使います（[1-2](../01-kotlin-android/02-gradle.md)）。
 
-yorisoi-platform では、グループと版を **全体の** [build.gradle.kts](../../yorisoi-platform/build.gradle.kts) でまとめて決めています。
+yorisoi-platform では、グループと版を **全体の** [build.gradle.kts](https://github.com/duwenji/yorisoi-platform/blob/main/build.gradle.kts) でまとめて決めています。
 
 ```kotlin
 subprojects {
@@ -96,7 +96,7 @@ yorisoi-platform の中では、コアとキットの版を 1 つにしていま
 
 ## maven-publish の設定
 
-yorisoi-platform は、7 つのモジュールの公開の設定を、全体の [build.gradle.kts](../../yorisoi-platform/build.gradle.kts) の `subprojects { … }` に 1 回だけ書いています（少し省略しています）。
+yorisoi-platform は、7 つのモジュールの公開の設定を、全体の [build.gradle.kts](https://github.com/duwenji/yorisoi-platform/blob/main/build.gradle.kts) の `subprojects { … }` に 1 回だけ書いています（少し省略しています）。
 
 ```kotlin
 subprojects {
@@ -161,11 +161,11 @@ subprojects {
 
 `core-format` の説明文に "Requires org.json on the classpath."（クラスパスに org.json が要る）とあるのは、[5-1](01-jvm-library.md) の `compileOnly` のためです。使う側に、自分で足してもらう必要があることを伝えています。
 
-プロンプト・パック（yorisoi-sanpoguide の [prompts/build.gradle.kts](../../yorisoi-sanpoguide/prompts/build.gradle.kts)）は 1 つだけなので、`publishing { … }` をモジュールの中に直接書いています。中身は同じ形です。
+プロンプト・パック（yorisoi-sanpoguide の [prompts/build.gradle.kts](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/prompts/build.gradle.kts)）は 1 つだけなので、`publishing { … }` をモジュールの中に直接書いています。中身は同じ形です。
 
 ## タグを押すと公開される
 
-公開は、手元のパソコンではなく **GitHub Actions**（GitHub の上でコマンドを自動で実行する仕組み）で行います。yorisoi-platform の [.github/workflows/publish.yml](../../yorisoi-platform/.github/workflows/publish.yml):
+公開は、手元のパソコンではなく **GitHub Actions**（GitHub の上でコマンドを自動で実行する仕組み）で行います。yorisoi-platform の [.github/workflows/publish.yml](https://github.com/duwenji/yorisoi-platform/blob/main/.github/workflows/publish.yml):
 
 ```yaml
 # Publishes every module to GitHub Packages when the tag v<version> is pushed.
@@ -203,7 +203,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-yorisoi-sanpoguide の [publish.yml](../../yorisoi-sanpoguide/.github/workflows/publish.yml) も同じ形で、タグ `prompts-v<版>` を押すとプロンプト・パックだけを公開します。
+yorisoi-sanpoguide の [publish.yml](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/.github/workflows/publish.yml) も同じ形で、タグ `prompts-v<版>` を押すとプロンプト・パックだけを公開します。
 
 ```mermaid
 flowchart LR
@@ -226,7 +226,7 @@ flowchart LR
 
 ## 使う側: validator の設定
 
-管理システムの [validator/settings.gradle.kts](../../yorisoi-console/validator/settings.gradle.kts) は、GitHub Packages からコアとプロンプト・パックを取ってくる設定をしています。2 つは別のリポジトリから公開されているので、取ってくる場所も 2 つです。
+管理システムの [validator/settings.gradle.kts](https://github.com/duwenji/yorisoi-console/blob/main/validator/settings.gradle.kts) は、GitHub Packages からコアとプロンプト・パックを取ってくる設定をしています。2 つは別のリポジトリから公開されているので、取ってくる場所も 2 つです。
 
 ```kotlin
 dependencyResolutionManagement {
@@ -275,7 +275,7 @@ implementation("io.github.duwenji.yorisoi.sanpoguide:prompts:1.0.0")
 
 コアが新しい版を出しても、管理システムは書いた版を使い続けます。たとえばコアがリストの新しい項目の読み方（アプリのためのもの）を足した版を出しても、機械審査に要らなければ、管理システムは前の版のままでかまいません。新しい版を使うのは、管理システムの側で版を書き換えて確かめたときです。**使う側が、上げる時期を自分で決められる** のが、版を固定する利点です。アプリ（yorisoi-sanpoguide）も、yorisoi-platform に対して同じ立場です。
 
-管理システムの CI（[ci.yml](../../yorisoi-console/.github/workflows/ci.yml)）も、`packages: read` の権限と `GITHUB_TOKEN` でコアとプロンプト・パックを取ってきて、`validator` をビルドしています。
+管理システムの CI（[ci.yml](https://github.com/duwenji/yorisoi-console/blob/main/.github/workflows/ci.yml)）も、`packages: read` の権限と `GITHUB_TOKEN` でコアとプロンプト・パックを取ってきて、`validator` をビルドしています。
 
 ## 落とし穴: Permission denied
 

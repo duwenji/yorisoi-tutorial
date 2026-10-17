@@ -35,11 +35,11 @@ yorisoi-platform/
 
 ファイル名が `.kts` で終わるのは、設定を **Kotlin で書いている**（Kotlin DSL）からです。1-1 の文法がそのまま使えます。
 
-> 共通の部品（コアとキット）は、付き添いアプリのエコシステム（[ADR-003](../../yorisoi-platform/docs/adr/ADR-003-companion-app-platform.md)）のために、別のリポジトリ yorisoi-platform にあります（[5-1](../05-station-format/01-jvm-library.md)）。
+> 共通の部品（コアとキット）は、付き添いアプリのエコシステム（[platform ADR-ECOSYSTEM-PLATFORM（旧 ADR-003）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-ECOSYSTEM-PLATFORM.md)）のために、別のリポジトリ yorisoi-platform にあります（[5-1](../05-station-format/01-jvm-library.md)）。
 
 ## settings.gradle.kts: 全体の地図
 
-[settings.gradle.kts](../../yorisoi-sanpoguide/settings.gradle.kts)（アプリ側。少し省略しています）:
+[settings.gradle.kts](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/settings.gradle.kts)（アプリ側。少し省略しています）:
 
 ```kotlin
 pluginManagement {
@@ -90,7 +90,7 @@ providers.gradleProperty("yorisoi.platformDir").orNull?.let { includeBuild(it) }
 
 ## build.gradle.kts（全体）: プラグインの版
 
-[build.gradle.kts](../../yorisoi-sanpoguide/build.gradle.kts):
+[build.gradle.kts](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/build.gradle.kts):
 
 ```kotlin
 plugins {
@@ -116,7 +116,7 @@ plugins {
 
 ## app/build.gradle.kts: アプリの設定
 
-[app/build.gradle.kts](../../yorisoi-sanpoguide/app/build.gradle.kts) の中心部分です。
+[app/build.gradle.kts](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/build.gradle.kts) の中心部分です。
 
 ```kotlin
 android {
@@ -228,7 +228,7 @@ implementation(libs.androidx.fragment)   // androidx.fragment:fragment:1.8.8
 
 ### 版を 1 か所に集める: バージョンカタログ
 
-モジュールが増えると、同じライブラリ（OkHttp や `org.json`）を何か所にも書くことになり、版がずれやすくなります。そこで、版を [gradle/libs.versions.toml](../../yorisoi-sanpoguide/gradle/libs.versions.toml) にまとめ、どのモジュールも `libs.…` の名前で参照しています。版を上げるときは、このファイルの 1 行を直すだけです。
+モジュールが増えると、同じライブラリ（OkHttp や `org.json`）を何か所にも書くことになり、版がずれやすくなります。そこで、版を [gradle/libs.versions.toml](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/gradle/libs.versions.toml) にまとめ、どのモジュールも `libs.…` の名前で参照しています。版を上げるときは、このファイルの 1 行を直すだけです。
 
 ### モジュールへの依存と、別のリポジトリの部品への依存
 
@@ -279,7 +279,7 @@ CI ではこの値を設定しません。CI は常に、公開された版で�
 
 ## コアの build.gradle.kts: JVM ライブラリ
 
-[core-format/build.gradle.kts](../../yorisoi-platform/core-format/build.gradle.kts)（yorisoi-platform）は、Android ではなく **普通の JVM のライブラリ** の設定です。
+[core-format/build.gradle.kts](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/build.gradle.kts)（yorisoi-platform）は、Android ではなく **普通の JVM のライブラリ** の設定です。
 
 ```kotlin
 plugins {
@@ -298,9 +298,9 @@ dependencies {
 
 - `kotlin.jvm` プラグインなので、Android の SDK がなくてもビルド・テストできます（[0-3](../00-overview/03-setup.md) で最初に流したのはこれです）
 - `org.json` は `compileOnly`: Android は `org.json` を標準で持っているので、ライブラリに同梱すると重複して lint に叱られます。使う側（管理システムの `validator`）が自分で足します
-- `group`・`version`・公開の設定は、モジュールごとには書かず、yorisoi-platform の全体の [build.gradle.kts](../../yorisoi-platform/build.gradle.kts) の `subprojects { … }` でまとめて決めています。版は [gradle.properties](../../yorisoi-platform/gradle.properties) の `yorisoiVersion`（すべてのモジュールで 1 つ）です。公開の仕組みは [5-3](../05-station-format/03-publish.md) で見ます
+- `group`・`version`・公開の設定は、モジュールごとには書かず、yorisoi-platform の全体の [build.gradle.kts](https://github.com/duwenji/yorisoi-platform/blob/main/build.gradle.kts) の `subprojects { … }` でまとめて決めています。版は [gradle.properties](https://github.com/duwenji/yorisoi-platform/blob/main/gradle.properties) の `yorisoiVersion`（すべてのモジュールで 1 つ）です。公開の仕組みは [5-3](../05-station-format/03-publish.md) で見ます
 
-アプリ側の [gradle.properties](../../yorisoi-sanpoguide/gradle.properties):
+アプリ側の [gradle.properties](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/gradle.properties):
 
 ```properties
 org.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8
@@ -313,7 +313,7 @@ sanpoguidePromptsVersion=1.0.0
 
 ### 自分で作ったタスク: channelIndex
 
-プロンプト・パックの [build.gradle.kts](../../yorisoi-sanpoguide/prompts/build.gradle.kts) には、自分で作ったタスクがあります。
+プロンプト・パックの [build.gradle.kts](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/prompts/build.gradle.kts) には、自分で作ったタスクがあります。
 
 ```kotlin
 // A jar (or the APK) can't list a resource folder, so the built-in channels come with a list of

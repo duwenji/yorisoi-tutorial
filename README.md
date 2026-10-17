@@ -1,8 +1,8 @@
 # 散策ガイドで学ぶ Kotlin・Android・TypeScript・AWS
 
-SanpoGuide（Android アプリ）と yorisoi-console（AWS 上のチャンネル管理システム）の 2 つのリポジトリを教材にして、そこで使われている技術を順に学ぶチュートリアルです。
+SanpoGuide（Android アプリ）と yorisoi-console（チャンネル管理システム）の 2 つのシステムを、そこで使われている技術を題材に学ぶチュートリアルです。SanpoGuide のアプリ側は yorisoi-platform と yorisoi-sanpoguide の 2 つのリポジトリに分かれます。
 
-> SanpoGuide のコードは、**yorisoi-platform**（ほかの付き添いアプリとも共有する部品: コアとキット）と **yorisoi-sanpoguide**（アプリそのもの）の 2 つのリポジトリに分かれています。本書で「SanpoGuide」「2 つのリポジトリ」と言うときは、この 2 つを合わせたアプリ側と、管理システム（yorisoi-console）を指します。
+> SanpoGuide のアプリ側は、**yorisoi-platform**（エコシステム共通の方針・契約・共有部品）と **yorisoi-sanpoguide**（Android アプリとアプリ固有の文書）の 2 つのリポジトリに分かれています。第三のリポジトリ **yorisoi-console** は、チャンネル管理システムを実装します。このチュートリアルは学習用の説明であり正本ではありません。共通ルールは platform の ADR・契約、console の実装判断は console の文書、アプリ固有の動作は SanpoGuide のコードと文書を参照してください。
 
 ## このチュートリアルの考え方
 
@@ -153,7 +153,7 @@ flowchart LR
 
 ## コードへのリンクについて
 
-このフォルダは `yorisoi-platform`・`yorisoi-sanpoguide`・`yorisoi-console` と同じ親フォルダ（`c:\Dev\apps`）に置く前提で、`../../yorisoi-sanpoguide/...` のような相対パスでリンクしています。VS Code ならクリックで開けます。
+別リポジトリのコードや文書へのリンクは、GitHub 上でも開けるよう `main` のファイル・フォルダリンクにしています。手元でコードを追う場合は、[開発環境の準備](00-overview/03-setup.md)にあるとおり、3 つのリポジトリを同じ親フォルダに置いてください。シェルの例にある `../yorisoi-*` は、そのローカル配置で使うパスです。
 
 コードは日々変わるので、行番号ではなく **ファイルと関数の名前** で場所を示しています。リンク先で見つからないときは、関数名で検索してください。見直しの手順は [MAINTENANCE.md](MAINTENANCE.md) にあります。
 

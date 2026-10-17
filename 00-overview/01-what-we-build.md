@@ -35,13 +35,13 @@
 
 第三者のチャンネルは、語り手を変えるだけでなく、**素材**（文字・画像。将来は音声・映像も）を見せることもできます。「この寺に近づいたら、観光協会の解説と写真を出す」のように、**きっかけ**（スポット・地点・散歩の開始などの出来事）と **見せ方**（読み上げ・カード・通知など）を決めて出します。
 
-素材は、チャンネルとは別の **素材集** として作り、チャンネルとは別に審査します（yorisoi-platform の [ADR-002](../../yorisoi-platform/docs/adr/ADR-002-material-producers.md)）。観光協会や写真家が、チャンネルを作らなくても素材を届けられるようにするためです。素材集を作る人が、どのチャンネル提供者に使わせるかを決めて署名します。
+素材は、チャンネルとは別の **素材集** として作り、チャンネルとは別に審査します（[platform ADR-MATERIAL-PRODUCERS（旧 ADR-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIAL-PRODUCERS.md)）。観光協会や写真家が、チャンネルを作らなくても素材を届けられるようにするためです。素材集を作る人が、どのチャンネル提供者に使わせるかを決めて署名します。
 
 AI の解説や Wikimedia の写真、背景音のように、アプリが自分で用意する素材もあります。アプリは、どの出どころの素材も同じ形（`Producer`）で扱います。今のアプリが出せるのは文字と画像までです（第 1 段）。くわしくは [5-4](../05-station-format/04-materials-cues.md) で扱います。
 
 ## 登場人物
 
-このチュートリアルでは、次の言葉を区別して使います。呼び方は 2 つのリポジトリで共通で、正本は [yorisoi-platform/docs/stakeholders.md](../../yorisoi-platform/docs/stakeholders.md) です。
+このチュートリアルでは、次の言葉を区別して使います。呼び方はエコシステム共通で、正本は platform の [関係者と共通用語](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/roles-and-vocabulary.md) です。
 
 | 言葉 | だれ・何か | 例 | コード上の名前 |
 |---|---|---|---|
@@ -83,11 +83,11 @@ flowchart LR
 
 ## 境界は 1 つの契約書だけ
 
-2 つのリポジトリの境界は、yorisoi-platform にある **API-002（承認済みチャンネル・リスト 契約書）** だけです。
+アプリとチャンネル管理システムの境界は、yorisoi-platform の **API-CHANNEL-LIST（旧 API-002、承認済みチャンネル・リスト）** です。
 
-- [yorisoi-platform/docs/channel-list-api.md](../../yorisoi-platform/docs/channel-list-api.md)
+- [platform API-CHANNEL-LIST（旧 API-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md)
 
-リストに載るものの中身の形は、別の契約書で決めてあります。チャンネルのパッケージは API-003（[channel-package-format.md](../../yorisoi-platform/docs/channel-package-format.md)）、素材集と素材提供者の共通の形は API-004（[material-producer-api.md](../../yorisoi-platform/docs/material-producer-api.md)）です。どれも SanpoGuide の側にあり、管理システムはそれに従います。
+リストに載るチャンネルや素材集の形式は、platform の [API-CHANNEL-PACKAGE（旧 API-003）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-PACKAGE.md) と [API-MATERIAL-PRODUCER（旧 API-004）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-MATERIAL-PRODUCER.md) が定めます。これらの共通契約に、アプリと管理システムの両方が従います。
 
 この契約書には、公開するファイルの形、署名の付け方、アプリが確かめる順番、エラーの種類が決めてあります。契約書を守っていれば、管理システムをどう作るか（AWS でも別のクラウドでも）は自由です。実際、契約書には「本書に準拠していれば、管理システムの実装方法と置き場所は問わない」と書かれています。
 

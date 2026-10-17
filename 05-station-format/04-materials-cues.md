@@ -15,7 +15,7 @@
 
 ## なぜ素材を切り出したのか
 
-素材をチャンネルのパッケージの一部（`channel.json` の `resources`）だけにすると、困ることが 4 つあります（[ADR-002](../../yorisoi-platform/docs/adr/ADR-002-material-producers.md)「目的・背景」）。
+素材をチャンネルのパッケージの一部（`channel.json` の `resources`）だけにすると、困ることが 4 つあります（[platform ADR-MATERIAL-PRODUCERS（旧 ADR-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIAL-PRODUCERS.md)「目的・背景」）。
 
 | 困ること | 例 |
 |---|---|
@@ -24,7 +24,7 @@
 | 更新の波及 | 写真を 1 枚直すと、使っているチャンネルがすべて申請し直し |
 | 利用許諾を確かめられない | 「この写真を使ってよい」は、チャンネル提供者の自己申告でしか示せない |
 
-そこで、素材を **素材集** として別に作り、別に審査することにしました。役割はこう分かれます（ADR-002 D-1）。
+そこで、素材を **素材集** として別に作り、別に審査することにしました。役割はこう分かれます（platform ADR-MATERIAL-PRODUCERS D-1）。
 
 ```mermaid
 flowchart LR
@@ -36,7 +36,7 @@ flowchart LR
 
 素材提供者は「何を」、チャンネルは「いつ・どう」、アプリは「安全に」を受け持ちます。1 つの決まりを 1 か所が持つように分けたわけです。
 
-AI の語りも、この分け方に入っています（[ADR-004](../../yorisoi-platform/docs/adr/ADR-004-roles-of-ai-and-stakeholders.md) H-1）。素材は AI の **根拠** にもなり、チャンネルは **演出**、AI はその場で話す **実演**、アプリは **枠**、運営は **考査**（事前に枠と演出の意図を確かめ、事後に通報を受けて止める）を受け持ちます。AI の発言は前もって審査できないので、根拠と枠と事後の対応で守る、という考え方です（[4-3](../04-outside/03-ai.md)「資料を根拠に話す」）。
+AI の語りも、この分け方に入っています（[platform ADR-AI-ROLES（旧 ADR-004）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-AI-ROLES.md) H-1）。素材は AI の **根拠** にもなり、チャンネルは **演出**、AI はその場で話す **実演**、アプリは **枠**、運営は **考査**（事前に枠と演出の意図を確かめ、事後に通報を受けて止める）を受け持ちます。AI の発言は前もって審査できないので、根拠と枠と事後の対応で守る、という考え方です（[4-3](../04-outside/03-ai.md)「資料を根拠に話す」）。
 
 ## すべての出どころを 1 つの形で: Producer
 
@@ -48,7 +48,7 @@ AI の語りも、この分け方に入っています（[ADR-004](../../yorisoi
 | 第三者の素材集 | 観光協会の解説と写真 | 審査で固定。前もって取得する |
 | チャンネルに同梱の素材 | `channel.json` の `resources` | 審査で固定。パッケージに入っている |
 
-ばらばらに見えますが、アプリはすべてを **同じ形** で扱います（API-004 I-1）。アプリの側の形は [Producer.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Producer.kt) の `Producer` です。
+ばらばらに見えますが、アプリはすべてを **同じ形** で扱います（API-004 I-1）。アプリの側の形は [Producer.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Producer.kt) の `Producer` です。
 
 ```kotlin
 interface Producer {
@@ -92,7 +92,7 @@ sealed interface MaterialResult {
 
 組み込みの AI と第三者の素材集では、許してよいことがまるで違います。AI は散策者の位置（スポット名）を外の AI サービスに送りますが、第三者の素材集にそれを許すと、散策者の居場所が第三者に伝わります。
 
-この違いを、散策ガイドは **クラスの種類ではなく、記述の属性** で表します（API-004 I-2）。[Producers.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/material/Producers.kt) の `ProducerDescriptor`:
+この違いを、散策ガイドは **クラスの種類ではなく、記述の属性** で表します（API-004 I-2）。[Producers.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/material/Producers.kt) の `ProducerDescriptor`:
 
 | 属性 | 値 | 意味 |
 |---|---|---|
@@ -148,8 +148,8 @@ val AI_GUIDE = ProducerDescriptor(
 
 | 場所 | 何の候補か |
 |---|---|
-| `Producers.first`（[Producer.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Producer.kt)） | きっかけのないふだんの解説と話しかけ（`Narration` の `Shorthand`、[4-3](../04-outside/03-ai.md)） |
-| `CuePresenter`（[Cues.kt](../../yorisoi-sanpoguide/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Cues.kt)） | きっかけの見せ方ごとの候補 |
+| `Producers.first`（[Producer.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Producer.kt)） | きっかけのないふだんの解説と話しかけ（`Narration` の `Shorthand`、[4-3](../04-outside/03-ai.md)） |
+| `CuePresenter`（[Cues.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Cues.kt)） | きっかけの見せ方ごとの候補 |
 
 ふだんの解説も「`builtin:ai-guide` → `builtin:fallback-text`」という候補の並びとして書かれています（API-004「省略形の展開」）。きっかけを持たない組み込みのチャンネルも、同じ仕組みの上で動いているわけです。
 
@@ -160,7 +160,7 @@ val AI_GUIDE = ProducerDescriptor(
 
 ## きっかけ: いつ出すか
 
-きっかけの条件（`trigger`）は 4 種類です（[Cues.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/Cues.kt) の `Trigger`）。
+きっかけの条件（`trigger`）は 4 種類です（[Cues.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/Cues.kt) の `Trigger`）。
 
 ```kotlin
 sealed interface Trigger {
@@ -270,7 +270,7 @@ enum class PresentAs(override val json: String, val types: Set<MaterialType>) : 
 
 ### 使えるかどうかは、リストで決まる
 
-宣言した素材集が使えるかは、`CollectionReferences.resolve`（[CollectionReferences.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/CollectionReferences.kt)）がリストと照らして決めます（API-004 確かめる手順 3・4）。
+宣言した素材集が使えるかは、`CollectionReferences.resolve`（[CollectionReferences.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/CollectionReferences.kt)）がリストと照らして決めます（API-004 確かめる手順 3・4）。
 
 ```kotlin
 sealed interface CollectionStatus {
@@ -306,13 +306,13 @@ sealed interface CollectionStatus {
 
 ここで問題になるのが取得の時期です。日本中の素材集を前もって全部取るわけにはいきません。かといって、スポットに近づいてから取りに行けば、散策者の居場所が伝わります。そこで、**今いる大まかな地域とその周り** の素材集だけを、Wi-Fi のときに取ります（API-004 P-6）。
 
-地域は **ジオハッシュ** の 3 文字で表します（[技術カード: ジオハッシュ](../ref/geohash.md)）。3 文字で約 150km 四方です。[Regions.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/material/Regions.kt) の `around` は、今いるマスと周りの 8 マスを返します。
+地域は **ジオハッシュ** の 3 文字で表します（[技術カード: ジオハッシュ](../ref/geohash.md)）。3 文字で約 150km 四方です。[Regions.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/material/Regions.kt) の `around` は、今いるマスと周りの 8 マスを返します。
 
 - 管理システムは、素材集の素材の `about` の位置から、その素材集の地域（`regions`）を計算してリストに載せる
 - アプリは、自分のまわり 9 マスに地域が重なる素材集だけを取る
 - だから素材集の置き場所に伝わるのは「どの 150km 四方の素材集を取ったか」まで。どのスポットにいるかは伝わらない
 
-管理システム（TypeScript の [geo.ts](../../yorisoi-console/packages/protocol/src/geo.ts)）とアプリ（Kotlin の `Regions.geohash`）は、同じ計算を別の言語で書いています。食い違いを防ぐため、Kotlin のテスト（`RegionsTest`）には鎌倉が `xn7` になることを書き、管理システムの準拠テストの V-25 は、リストに載った地域（Kotlin の機械審査が計算したもの）を TypeScript で計算し直して照らします。[6-6](../06-trust/06-same-rules.md) と同じ考え方です。
+管理システム（TypeScript の [geo.ts](https://github.com/duwenji/yorisoi-console/blob/main/packages/protocol/src/geo.ts)）とアプリ（Kotlin の `Regions.geohash`）は、同じ計算を別の言語で書いています。食い違いを防ぐため、Kotlin のテスト（`RegionsTest`）には鎌倉が `xn7` になることを書き、管理システムの準拠テストの V-25 は、リストに載った地域（Kotlin の機械審査が計算したもの）を TypeScript で計算し直して照らします。[6-6](../06-trust/06-same-rules.md) と同じ考え方です。
 
 ## 段階: アプリが出せるものだけ
 

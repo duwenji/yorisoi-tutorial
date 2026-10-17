@@ -113,10 +113,10 @@ npx vitest run .local/vt
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [vitest.config.ts](../../yorisoi-console/vitest.config.ts) | 全パッケージの `test/**/*.test.ts` を 1 回で流す | [7-4](../07-typescript/04-testing.md) |
-| [packages/protocol/test/protocol.test.ts](../../yorisoi-console/packages/protocol/test/protocol.test.ts) | 時刻を固定して、署名つき文書の検証を確かめる | [7-4](../07-typescript/04-testing.md) |
-| [api/test/publisher.test.ts](../../yorisoi-console/api/test/publisher.test.ts) | メモリの代役と aws-sdk-client-mock | [7-4](../07-typescript/04-testing.md) |
-| [api/test/console.test.ts](../../yorisoi-console/api/test/console.test.ts) | DynamoDB Local（Docker）で管理 API を通しで確かめる | [7-4](../07-typescript/04-testing.md) |
+| [vitest.config.ts](https://github.com/duwenji/yorisoi-console/blob/main/vitest.config.ts) | 全パッケージの `test/**/*.test.ts` を 1 回で流す | [7-4](../07-typescript/04-testing.md) |
+| [packages/protocol/test/protocol.test.ts](https://github.com/duwenji/yorisoi-console/blob/main/packages/protocol/test/protocol.test.ts) | 時刻を固定して、署名つき文書の検証を確かめる | [7-4](../07-typescript/04-testing.md) |
+| [api/test/publisher.test.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/test/publisher.test.ts) | メモリの代役と aws-sdk-client-mock | [7-4](../07-typescript/04-testing.md) |
+| [api/test/console.test.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/test/console.test.ts) | DynamoDB Local（Docker）で管理 API を通しで確かめる | [7-4](../07-typescript/04-testing.md) |
 
 ## よくある間違い
 

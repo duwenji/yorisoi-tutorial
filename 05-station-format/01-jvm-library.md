@@ -59,7 +59,7 @@ Android の部品（音声・地図・AI の呼び出しなど）は、同じく
 
 署名の確認には Ed25519 が要ります。でも Android 8〜12 には Ed25519 がなく、Tink が要りました。Tink の Android 版をコアに入れると、管理システムでは使えません。
 
-そこで `core-format` は、確認の約束（`Ed25519Verifier`）だけを決め、実装は使う側が渡します（[PublisherSignature.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/PublisherSignature.kt)、[6-5](../06-trust/05-verify-in-app.md)）。
+そこで `core-format` は、確認の約束（`Ed25519Verifier`）だけを決め、実装は使う側が渡します（[PublisherSignature.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/PublisherSignature.kt)、[6-5](../06-trust/05-verify-in-app.md)）。
 
 ```kotlin
 fun interface Ed25519Verifier {
@@ -96,7 +96,7 @@ dependencies {
 | 管理システムの `validator` | 自分で `implementation("org.json:json:20240303")` を足す |
 | コアの単体テスト | `testImplementation` で足している |
 
-管理システムの [validator/build.gradle.kts](../../yorisoi-console/validator/build.gradle.kts) には、そのとおりのコメントがあります。
+管理システムの [validator/build.gradle.kts](https://github.com/duwenji/yorisoi-console/blob/main/validator/build.gradle.kts) には、そのとおりのコメントがあります。
 
 ```kotlin
 implementation("io.github.duwenji.yorisoi:core-format:1.0.0")
@@ -153,7 +153,7 @@ const val INDEX = "$RESOURCE_DIR/index.txt"
 | クラスパスのリソース | アプリや機械審査で、組み込みのチャンネルを読む |
 | ZIP の中身（メモリ） | 第三者のチャンネルのパッケージを展開したもの |
 
-確かめる側（`StationValidator`）が、それぞれの読み方を知っていたら大変です。そこで「ファイルの一覧と、ファイルの中身を返す」という約束だけを決めています（[StationFiles.kt](../../yorisoi-platform/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/StationFiles.kt)）。
+確かめる側（`StationValidator`）が、それぞれの読み方を知っていたら大変です。そこで「ファイルの一覧と、ファイルの中身を返す」という約束だけを決めています（[StationFiles.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/StationFiles.kt)）。
 
 ```kotlin
 /** The files of one channel, by path relative to its root (`channel.json`, `prompts/...`). */
