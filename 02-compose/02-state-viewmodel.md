@@ -242,10 +242,10 @@ val current: StateFlow<Station> = combine(settings, list) { s, l -> select(s, l)
 
 ## 下書きを持つ: 設定画面
 
-設定画面は「保存」を押すまで、変更を反映しません。[SettingsViewModel.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/SettingsViewModel.kt):
+設定画面は、上部の「保存」を押すまで変更を反映しません。[SettingsViewModel.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/SettingsViewModel.kt):
 
 ```kotlin
-/** Edits a draft of the AI settings; nothing is persisted until [save]. */
+/** Edits a draft of the settings; nothing is persisted until [save], apart from developer mode and clearing the spot cache. */
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val repo = (application as SanpoApp).settings
 
@@ -254,20 +254,46 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun reset() {
         _draft.value = repo.settings.value
+        clearTest()
     }
 
     fun selectProvider(p: Provider) = edit { it.copy(provider = p) }
     fun setApiKey(key: String) = edit { it.copy(apiKeys = it.apiKeys + (it.provider to key)) }
     fun setModel(model: String) = edit { it.copy(models = it.models + (it.provider to model)) }
     // …
+
+    fun save() = repo.save(_draft.value)
+
+    /** Whether the draft differs from what is saved; developer mode is saved at once, so it isn't a change. */
+    fun hasChanges(): Boolean {
+        val saved = repo.settings.value
+        return _draft.value.copy(developerMode = saved.developerMode) != saved
+    }
 }
 ```
 
 - 開いたときに、保存されている設定を **写して下書き**（`_draft`）にする
 - 画面での変更は、すべて下書きだけを `copy` で書き換える。保存されている設定（`repo.settings`）は変わらない
 - 「保存」で初めて `repo` に書き込む。書き込むと `repo.settings` の StateFlow が変わり、それを見ているほかの画面や `WalkService` に伝わる
+- 下書きと保存済みを比べれば、変えたかどうかが分かる（`hasChanges`）。開発者モードだけはその場で保存するので、比べる前に保存済みの値にそろえる
 
-`GuideSettings` が data class で、`copy` で新しい値を作るだけなので、「下書き」と「保存済み」を 2 つの値として素直に持てます。
+`GuideSettings` が data class で、`copy` で新しい値を作るだけなので、「下書き」と「保存済み」を 2 つの値として素直に持てます。data class の `!=` はすべての項目を比べるので、変えたかどうかも 1 行で分かります。
+
+### 保存しないで戻るときに確かめる
+
+下書きがあると、「変えたのに保存しないで戻ってしまう」ことが起きます。[SettingsScreen.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/SettingsScreen.kt) は、戻る前に確かめます。
+
+```kotlin
+var askLeave by rememberSaveable { mutableStateOf(false) }
+fun leave() {
+    if (viewModel.hasChanges()) askLeave = true else onClose()
+}
+BackHandler(onBack = ::leave)
+```
+
+- 上部の戻るボタンも、端末の戻る操作も、同じ `leave` を呼ぶ。変更があれば、ダイアログで「保存して戻る」か「保存しないで戻る」かを尋ねる
+- `BackHandler` は、端末の戻る操作を横取りする。`MainActivity` にも「メイン画面に戻る」`BackHandler` があるが、あとから置いた（内側の）ものが先に呼ばれるので、設定画面のほうが勝つ
+- ダイアログを出しているかどうか（`askLeave`）は `rememberSaveable` で覚えるので、画面を回転してもダイアログが消えない
 
 ## ハンズオン: StateFlow の性質を確かめる
 
