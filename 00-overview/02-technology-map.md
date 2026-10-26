@@ -44,20 +44,21 @@ flowchart TB
 | 分野 | 技術 | 何に使っているか | 学ぶ部 |
 |---|---|---|---|
 | 言語 | Kotlin 2.2 | アプリのすべてのコード | 1 |
-| ビルド | Gradle（Kotlin DSL）、Android Gradle Plugin、バージョンカタログ | ビルド、依存関係、アプリ・プロンプト・パック・コア・キットの 9 モジュール | 1 |
-| 画面 | Jetpack Compose、Material3 | メイン・設定・記録・チャンネルの画面 | 2 |
+| ビルド | Gradle（Kotlin DSL）、Android Gradle Plugin、バージョンカタログ | ビルド、依存関係、アプリ・プロンプト・パック・コア・キットの 10 モジュール | 1 |
+| 画面 | Jetpack Compose、Material3 | メイン・散歩の計画・設定・記録・チャンネルの画面 | 2 |
 | 状態 | ViewModel、StateFlow | 画面に出すデータの保持 | 2 |
 | 非同期 | Kotlin Coroutines、Flow | 通信や待ち合わせを、画面を止めずに行う | 3 |
 | 端末 | Service、通知、Fused Location、方位センサー | 散歩の追跡、話しかけ | 3 |
 | 通信 | OkHttp、`org.json` | Overpass（スポット）・OSRM（ルート）・Open-Meteo（天気）・Wikimedia（写真） | 4 |
 | 地図 | osmdroid | 地図の表示、タイル | 4 |
-| AI | anthropic-java、OpenAI 互換 API | 解説や話しかけの文章を作る | 4 |
+| AI | anthropic-java、OpenAI 互換 API、運営の AI の中継 | 解説や話しかけの文章を作る | 4 |
 | 音 | Android の TTS、AudioTrack | 読み上げ、背景音（音をその場で合成して流す） | 4 |
 | 保存 | JSON ファイル、Android Keystore | 散歩の記録、API キーの暗号化 | 4 |
 | 暗号 | Tink（Ed25519） | 第三者のチャンネルの署名を確かめる | 6 |
 | 読み取り | Google Code Scanner | 試用チケットの QR コード | 6 |
 | 公開 | maven-publish、GitHub Packages、GitHub Actions | コアとプロンプト・パックを管理システムに渡す | 5 |
 | テスト | JUnit 4 | 判定のロジック、形式の確認 | 各部 |
+| 配布 | Google Play（AAB・Play App Signing・Play Developer API）、Play Integrity | ストアで配る、本物のアプリかを中継に示す | 10 |
 
 ## yorisoi-console で使われている技術
 

@@ -9,7 +9,7 @@
 
 ## カードの一覧
 
-✅ は執筆済みです（36 枚）。章を書くときに、その章で出てくる技術のカードを一緒に作りました。
+✅ は執筆済みです（40 枚）。章を書くときに、その章で出てくる技術のカードを一緒に作りました。
 
 ### 暗号
 
@@ -63,6 +63,15 @@
 | [SES](ses.md) | ✅ | 第 8 部 |
 | [Amazon Bedrock](bedrock.md) | ✅ | 8-9 |
 | [Parameter Store](parameter-store.md) | ✅ | 8-9 |
+
+### Google Play
+
+| カード | 状態 | 主に出てくる章 |
+|---|---|---|
+| [Android App Bundle](android-app-bundle.md) | ✅ | 10-1 |
+| [Google Play Developer API](play-developer-api.md) | ✅ | 10-4 |
+| [サービス アカウントと OAuth 2.0](service-account-oauth.md) | ✅ | 10-4、10-5 |
+| [Play Integrity API](play-integrity.md) | ✅ | 8-9、10-5 |
 
 ### 開発の道具
 
