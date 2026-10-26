@@ -22,7 +22,7 @@ Android は、**署名されていない APK をインストールしません**
 
 更新には **同じ鍵** が要ります。リリース用の鍵（とそのパスワード）をなくすと、同じアプリとして更新を出せなくなります。散策者には、いったん消して新しいアプリを入れ直してもらうしかありません。第 6 部の「ルート鍵をなくすと別のリストになる」とまったく同じ構図です。
 
-> 散策ガイドは Google Play で配っていて、「Play App Signing」を使っています。手元の `release.jks` は、Play に上げるファイル（AAB）に署名する **アップロード鍵** です。散策者の端末に届くアプリは、Google が預かっている **アプリ署名鍵** で署名し直されます。だからアップロード鍵をなくしても、Play Console から新しいアップロード鍵に替えてもらえます（アプリ署名鍵は Google の手元にあるので、なくなりません）。それでも手間と時間がかかるので、アップロード鍵も別の場所に写しを置きます。Play に上げる流れは、SanpoGuide の [docs/release.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/release.md) にあります。
+> 散策ガイドは Google Play で配っていて、「Play App Signing」を使っています。手元の `release.jks` は、Play に上げるファイル（AAB）に署名する **アップロード鍵** です。散策者の端末に届くアプリは、Google が預かっている **アプリ署名鍵** で署名し直されます。だからアップロード鍵をなくしても、Play Console から新しいアップロード鍵に替えてもらえます（アプリ署名鍵は Google の手元にあるので、なくなりません）。それでも手間と時間がかかるので、アップロード鍵も別の場所に写しを置きます。Play に上げる流れは、[第 10 部](../10-play/01-app-bundle.md)で読みます（正本は SanpoGuide の [docs/release.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/release.md)）。
 
 ## デバッグ用とリリース用
 

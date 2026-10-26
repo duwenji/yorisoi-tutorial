@@ -324,7 +324,7 @@ sealed interface CollectionStatus {
 | 2 | 音声（`play`・`ambient`） | まだない | まだない |
 | 3 | 映像 | まだない | まだない |
 
-どの版からどの段を出せるかは、アプリごとに違います。CycleGuide はチャンネルの素材をあとから足したので、第 1 段を出せるのは後の版からです。管理システムの設定（[config.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/config.ts) の `appStageVersions`）では、本番の CycleGuide の第 1 段は、その版が Google Play に出てから書き換えます。先に書き換えると、「アプリの更新が必要です」と出るのに、更新しようにもその版がまだストアにない、ということになるからです。
+どの版からどの段を出せるかは、アプリごとに違います。CycleGuide はチャンネルの素材をあとから足したので、第 1 段を出せるのは後の版からです。管理システムの設定（[config.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/config.ts) の `appStageVersions`）では、本番の CycleGuide の第 1 段は、その版が Google Play に出てから書き換えます。先に書き換えると、「アプリの更新が必要です」と出るのに、更新しようにもその版がまだストアにない、ということになるからです（Google Play での配り方は[第 10 部](../10-play/02-tracks.md)）。
 
 チャンネルが必要とする段は `MediaStage.required` が数えます。見せ方と素材の種類の両方を見るので、「解説の画面（`sheet`）に映像を並べた」チャンネルは第 3 段になります。
 

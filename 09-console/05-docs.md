@@ -251,4 +251,4 @@ ID だけでなく中身を一言添えると、コードを読む人が、文�
 
 ---
 
-前: [9-4 CI](04-ci.md) ／ [目次へ戻る](../README.md)
+前: [9-4 CI](04-ci.md) ／ 次: [第 10 部 10-1 AAB と Play App Signing](../10-play/01-app-bundle.md)

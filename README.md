@@ -18,9 +18,10 @@ flowchart LR
     P0 --> P7["第 7〜9 部<br/>管理システム"]
     P1 --> P6["第 6 部<br/>信頼の仕組み<br/>（2 つをつなぐ）"]
     P7 --> P6
+    P1 --> P10["第 10 部<br/>Google Play で届ける"]
 ```
 
-第 0 部は必ず最初に読んでください。そのあとは、アプリから入っても管理システムから入ってもかまいません。第 6 部は両方にまたがる話なので、どちらか一方を読んだあとが読みやすいですが、第 0 部だけ読んでから挑戦することもできます（必要な文法はその場で補います）。
+第 0 部は必ず最初に読んでください。そのあとは、アプリから入っても管理システムから入ってもかまいません。第 6 部は両方にまたがる話なので、どちらか一方を読んだあとが読みやすいですが、第 0 部だけ読んでから挑戦することもできます（必要な文法はその場で補います）。第 10 部は、できたアプリを Google Play で配る話です。第 1〜5 部（とくに 1-4 の署名）のあとに読んでください。10-5 は 8-9（運営の AI の中継）とつながっています。
 
 ## 目次
 
@@ -127,6 +128,16 @@ flowchart LR
 | [9-4 CI](09-console/04-ci.md) | ci.yml を読む、サービスコンテナ、捨てる鍵での合成、配備はしない理由、注意書きを読む |
 | [9-5 決めたことを残す](09-console/05-docs.md) | ADR・契約書・データモデル・設計書、捨てた案を残す、文書の ID でコードまでたどる、決定が変わるとき |
 
+### 第 10 部 Google Play で届ける ✅
+
+| 章 | 内容 |
+|---|---|
+| [10-1 AAB と Play App Signing](10-play/01-app-bundle.md) | APK と AAB、アップロード鍵とアプリ署名鍵、`versionCode` は戻せない。AAB を作って中を見る |
+| [10-2 トラックと版を出す](10-play/02-tracks.md) | 内部テスト・クローズドテスト・製品版、審査、段階的な公開と停止、リリースノートの決まり、テスターのつまずき |
+| [10-3 Play Console の申告](10-play/03-console.md) | データ セーフティ（外に送れば「収集」）、フォアグラウンドサービスの申告、プライバシーポリシー、ストアの掲載情報、送る情報を変えたときの順番 |
+| [10-4 API で出す](10-play/04-api.md) | サービス アカウント、認証と認可の分担、JWT とアクセス トークン、編集（edit）にまとめて確かめてから確定、`tools/play.mjs`。JWT を手で作る |
+| [10-5 Play Integrity](10-play/05-integrity.md) | 本物のアプリかを確かめる、Standard request と `requestHash`、サーバーで読み解いて確かめる、開発用と本番、判定に頼りすぎない |
+
 ### 技術カード
 
 章とは別に、1 つの技術を 1 ページで説明する [技術カード](ref/README.md) があります。章は「このコードはなぜこう書かれているか」を、カードは「その技術がどう動き、最小限どう使うか」を説明します。章を書くときに、その章で出てくる技術のカードを一緒に作ります。
@@ -142,6 +153,7 @@ flowchart LR
 | 第 6 部の 5 枚: [SHA-256](ref/sha-256.md)・[Ed25519](ref/ed25519.md)・[base64url と base32](ref/base64url-base32.md)・[AWS KMS](ref/aws-kms.md)・[Tink](ref/tink.md) | ✅ |
 | 第 8 部: [IAM](ref/iam.md)・[AWS CDK](ref/aws-cdk.md)・[Lambda](ref/lambda.md)・[API Gateway](ref/api-gateway.md)・[Cognito](ref/cognito.md)・[DynamoDB](ref/dynamodb.md)・[S3](ref/s3.md)・[CloudFront](ref/cloudfront.md)・[SQS](ref/sqs.md)・[SES](ref/ses.md)・[Amazon Bedrock](ref/bedrock.md)・[Parameter Store](ref/parameter-store.md) | ✅ |
 | 第 9 部: [React](ref/react.md)・[Vite](ref/vite.md)・[OIDC](ref/oidc.md)・[WebCrypto](ref/webcrypto.md) | ✅ |
+| 第 10 部: [Android App Bundle](ref/android-app-bundle.md)・[Google Play Developer API](ref/play-developer-api.md)・[サービス アカウントと OAuth 2.0](ref/service-account-oauth.md)・[Play Integrity API](ref/play-integrity.md) | ✅ |
 
 ## 各章の形
 
