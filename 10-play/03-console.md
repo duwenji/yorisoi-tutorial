@@ -77,7 +77,7 @@ Google の定義では、**端末の外に送るものは、送り先が運営�
 
 ## プライバシーポリシー
 
-位置の権限を使うアプリには、プライバシーポリシーの URL が要ります。散策ガイドは、[privacy-policy.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/privacy-policy.md) を GitHub Pages（リポジトリの `docs/` を Web に出す GitHub の機能）で公開しています。
+位置の権限を使うアプリには、プライバシーポリシーの URL が要ります。散策ガイドは、[privacy-policy.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/privacy-policy.md) を GitHub Pages（リポジトリの `docs/` を Web に出す GitHub の機能）で公開しています。出すページの選び方と、URL を変えてはいけない理由は [11-6](../11-github/06-pages-releases.md) で見ます。
 
 ポリシーもコードと同じリポジトリにあるので、送る情報を変える PR で、ポリシーも一緒に直せます。
 

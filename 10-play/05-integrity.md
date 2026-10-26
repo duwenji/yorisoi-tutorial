@@ -207,4 +207,4 @@ Play Integrity も、すり抜けられないとは言い切れないからで�
 
 ---
 
-前: [10-4 API で出す](04-api.md) ／ [目次へ戻る](../README.md)
+前: [10-4 API で出す](04-api.md) ／ 次: [11-1 Git と 5 つのリポジトリ](../11-github/01-git-and-repos.md)
