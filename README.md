@@ -1,6 +1,6 @@
 # 散策ガイドで学ぶ Kotlin・Android・TypeScript・AWS
 
-SanpoGuide（Android アプリ）と yorisoi-console（チャンネル管理システム）の 2 つのシステムを、そこで使われている技術を題材に学ぶチュートリアルです。SanpoGuide のアプリ側は yorisoi-platform と yorisoi-sanpoguide の 2 つのリポジトリに分かれます。
+SanpoGuide（Android アプリ）と yorisoi-console（チャンネル管理システム）の 2 つのシステムを、そこで使われている技術を題材に学ぶチュートリアルです。SanpoGuide のアプリ側は yorisoi-platform と yorisoi-sanpoguide の 2 つのリポジトリに分かれます。同じ部品を使う 2 本目のアプリ CycleGuide（yorisoi-cycleguide）も、部品の使い回しの例として 5-5 で読みます。
 
 > SanpoGuide のアプリ側は、**yorisoi-platform**（エコシステム共通の方針・契約・共有部品）と **yorisoi-sanpoguide**（Android アプリとアプリ固有の文書）の 2 つのリポジトリに分かれています。第三のリポジトリ **yorisoi-console** は、チャンネル管理システムを実装します。このチュートリアルは学習用の説明であり正本ではありません。共通ルールは platform の ADR・契約、console の実装判断は console の文書、アプリ固有の動作は SanpoGuide のコードと文書を参照してください。
 
@@ -68,9 +68,9 @@ flowchart LR
 |---|---|
 | [4-1 HTTP と JSON](04-outside/01-http-json.md) | OkHttp、タイムアウトの選び方、予備のサーバー、`org.json`、重複のまとめ方。curl で同じサービスを呼ぶ |
 | [4-2 地図](04-outside/02-map.md) | タイルの仕組み、地理院地図と Google Map Tiles、`AndroidView`、重ねる順番、作り直さない工夫、出典。タイルを 1 枚取る |
-| [4-3 AI を組み込む](04-outside/03-ai.md) | `LlmClient` と 2 つの実装、プロンプトのファイルとテンプレート、チャンネルが変えられる部分と変えられない部分、定型文、キャッシュ、位置情報の扱い |
+| [4-3 AI を組み込む](04-outside/03-ai.md) | `LlmClient` と 2 つの実装、運営の AI と自分のキーの 2 つの経路（`AiGateway`・`RelayClient`）、プロンプトのファイルとテンプレート、チャンネルが変えられる部分と変えられない部分、定型文、キャッシュ、位置情報の扱い |
 | [4-4 声と音](04-outside/04-voice-sound.md) | TTS とオーディオフォーカス、背景音の合成（ノイズとフィルター）、AudioTrack、専用のスレッドと `@Volatile`。WAV に書き出して聞く |
-| [4-5 端末にデータを置く](04-outside/05-storage.md) | SharedPreferences と変えた値だけの保存、保存のキーは変えない、`AtomicFile`、記録の形は約束、Android Keystore での暗号化 |
+| [4-5 端末にデータを置く](04-outside/05-storage.md) | SharedPreferences と変えた値だけの保存、保存のキーは変えない、`AtomicFile`、記録の形は約束、スポット検索のキャッシュ（`cacheDir`）、開発者のための詳しい記録、Android Keystore での暗号化 |
 
 ### 第 5 部 共有ライブラリ（コアとプロンプト・パック） ✅
 
@@ -80,6 +80,7 @@ flowchart LR
 | [5-2 チャンネル・パッケージの形式](05-station-format/02-package-format.md) | `channel.json` は選択肢だけ、スロットの決まり、`signature.json`、確かめる順番、ZIP を安全に開く。自分のチャンネルを作って確かめる |
 | [5-3 ライブラリを公開する](05-station-format/03-publish.md) | Maven の座標と版、`maven-publish`、タグで公開する GitHub Actions、使う側の設定、`Permission denied` の実話 |
 | [5-4 素材ときっかけ](05-station-format/04-materials-cues.md) | 素材を切り出した理由、すべての出どころを同じ形（`Producer`）で扱い属性で許可を決める、候補を順に試す、きっかけと見せ方の安全、素材集を名前で借りる、ジオハッシュの地域、アプリの段階。自分のチャンネルにきっかけを足す |
+| [5-5 2 本目のアプリで部品を使い回す](05-station-format/05-second-app.md) | CycleGuide と散策ガイドが共有するもの・アプリが持つもの、2 本目が使う直前に移す、前提を引数にする（`AppProfile`・ルールの並び・検索の中心）、共有の部品を直したら両方で確かめる |
 
 ### 第 6 部 信頼の仕組み（2 つのリポジトリをつなぐ） ✅
 
@@ -114,6 +115,7 @@ flowchart LR
 | [8-6 S3 と CloudFront](08-aws/06-s3-cloudfront.md) | 4 つのバケット、署名つき POST、OAC、キャッシュの長さと無効化、画面と API を 1 つの場所に |
 | [8-7 SQS・SES・KMS](08-aws/07-sqs-ses-kms.md) | 待ち行列とデッドレターキュー、少なくとも 1 回と冪等、メールを送る前の準備、KMS の鍵ポリシー |
 | [8-8 Kotlin の Lambda](08-aws/08-kotlin-lambda.md) | `validator`、`RequestHandler`、zip の形、JVM の起動を速くする工夫、S3 のイベントが 2 回来るとき |
+| [8-9 運営の AI の中継](08-aws/09-ai-relay.md) | 別のスタック、REST API と WAF、使い捨ての値と Play Integrity とトークン、回数と予算を条件つきの更新で守る、Parameter Store、Bedrock の Converse、残さないものをテストで守る |
 
 ### 第 9 部 管理画面と開発の進め方 ✅
 
@@ -138,7 +140,7 @@ flowchart LR
 | 第 5 部: [GitHub Actions](ref/github-actions.md)・[ジオハッシュ](ref/geohash.md) | ✅ |
 | 第 7 部: [npm workspaces](ref/npm-workspaces.md)・[OpenAPI](ref/openapi.md)・[Vitest](ref/vitest.md)・[Docker](ref/docker.md) | ✅ |
 | 第 6 部の 5 枚: [SHA-256](ref/sha-256.md)・[Ed25519](ref/ed25519.md)・[base64url と base32](ref/base64url-base32.md)・[AWS KMS](ref/aws-kms.md)・[Tink](ref/tink.md) | ✅ |
-| 第 8 部: [IAM](ref/iam.md)・[AWS CDK](ref/aws-cdk.md)・[Lambda](ref/lambda.md)・[API Gateway](ref/api-gateway.md)・[Cognito](ref/cognito.md)・[DynamoDB](ref/dynamodb.md)・[S3](ref/s3.md)・[CloudFront](ref/cloudfront.md)・[SQS](ref/sqs.md)・[SES](ref/ses.md) | ✅ |
+| 第 8 部: [IAM](ref/iam.md)・[AWS CDK](ref/aws-cdk.md)・[Lambda](ref/lambda.md)・[API Gateway](ref/api-gateway.md)・[Cognito](ref/cognito.md)・[DynamoDB](ref/dynamodb.md)・[S3](ref/s3.md)・[CloudFront](ref/cloudfront.md)・[SQS](ref/sqs.md)・[SES](ref/ses.md)・[Amazon Bedrock](ref/bedrock.md)・[Parameter Store](ref/parameter-store.md) | ✅ |
 | 第 9 部: [React](ref/react.md)・[Vite](ref/vite.md)・[OIDC](ref/oidc.md)・[WebCrypto](ref/webcrypto.md) | ✅ |
 
 ## 各章の形
@@ -160,4 +162,4 @@ flowchart LR
 | 項目 | 値 |
 |---|---|
 | 最後に照合した日 | 2026-10-26 |
-| 照合したコミット | yorisoi-platform `21028df`・yorisoi-sanpoguide `b8931f9`・yorisoi-console `6e0d89c` |
+| 照合したコミット | yorisoi-platform `21028df`・yorisoi-sanpoguide `b8931f9`・yorisoi-console `6e0d89c`・yorisoi-cycleguide `40f6462` |

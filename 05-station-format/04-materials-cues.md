@@ -448,4 +448,4 @@ git status
 
 ---
 
-前: [5-3 ライブラリを公開する](03-publish.md) ／ 次: [第 6 部 信頼の仕組み](../06-trust/01-why-signatures.md)（管理システム側から読むなら [7-1 TypeScript の文法](../07-typescript/01-typescript-syntax.md)）
+前: [5-3 ライブラリを公開する](03-publish.md) ／ 次: [5-5 2 本目のアプリで部品を使い回す](05-second-app.md)

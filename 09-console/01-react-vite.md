@@ -456,4 +456,4 @@ SPA だからです。届けるのは `index.html` と、まとめた JavaScript
 
 ---
 
-前: [8-8 Kotlin の Lambda](../08-aws/08-kotlin-lambda.md) ／ 次: [9-2 ブラウザでログインする](02-browser-login.md)
+前: [8-9 運営の AI の中継](../08-aws/09-ai-relay.md) ／ 次: [9-2 ブラウザでログインする](02-browser-login.md)

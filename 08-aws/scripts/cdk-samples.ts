@@ -16,6 +16,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 
 const app = new App();
 const stack = new Stack(app, 'CardSamples', { env: { region: 'ap-northeast-1', account: '123456789012' } });
@@ -115,6 +116,21 @@ const worker = new lambda.Function(stack, 'Worker', {
 });
 worker.addEventSource(new SqsEventSource(queue, { batchSize: 10, reportBatchItemFailures: true }));
 queue.grantSendMessages(hello);
+
+// ---- Parameter Store ----
+const limit = new ssm.StringParameter(stack, 'DailyLimit', {
+  parameterName: '/my-app/dev/daily-limit',
+  stringValue: '30',
+  description: 'Calls a day: an integer from 5 to 100',
+});
+limit.grantRead(hello);
+hello.addEnvironment('PARAM_DAILY_LIMIT', limit.parameterName);
+
+// ---- Bedrock: the listed model only ----
+hello.addToRolePolicy(new iam.PolicyStatement({
+  actions: ['bedrock:InvokeModel'],
+  resources: [`arn:${stack.partition}:bedrock:ap-northeast-1::foundation-model/deepseek.v3.2`],
+}));
 
 // 合成して、大事な設定を確かめ、部品の種類と数を表示する（AWS にはつながらない）
 const template = Template.fromStack(stack);

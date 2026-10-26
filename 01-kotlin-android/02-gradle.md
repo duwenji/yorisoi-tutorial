@@ -318,7 +318,7 @@ sanpoguidePromptsVersion=4.2.1
 
 ```kotlin
 // A jar (or the APK) can't list a resource folder, so the built-in channels come with a list of
-// their files (BuiltInChannels.INDEX).
+// their files (kit-channel's ResourceChannels.index).
 val channelsDir = layout.projectDirectory.dir("src/main/resources/sanpoguide/channels")
 val channelIndexDir = layout.buildDirectory.dir("generated/channel-index")
 val channelIndex by tasks.registering {

@@ -11,6 +11,7 @@
 - 書き込みの途中で落ちてもファイルを壊さない工夫
 - 保存したデータの形（キーや項目の名前）を約束として扱い、テストで守る工夫
 - API キーを、端末の外に出ない鍵（Android Keystore）で暗号化する方法
+- 消えてもよいもの（スポット検索の答え）をキャッシュのフォルダに置く作りと、開発者のための詳しい記録
 
 ## 何をどこに置くか
 
@@ -21,6 +22,10 @@
 | 散歩の記録（最大 500 回） | `files/walk_history.json` | JSON のファイル | [HistoryStore.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/history/HistoryStore.kt) |
 | 第三者のチャンネルの状態 | `files/channels/state.json` | JSON のファイル | [ChannelStore.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/remote/ChannelStore.kt) |
 | 第三者のチャンネルのパッケージ | `files/channels/pkg/{SHA-256}.zip` | ZIP のファイル | 同上 |
+| 自分のキーで今日 AI を呼んだ回数 | SharedPreferences `ai_usage` | 「キー=値」 | [AiUsage.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-llm/src/main/java/io/github/duwenji/yorisoi/kit/llm/AiUsage.kt) |
+| 運営の AI のインストール ID とトークン | SharedPreferences `ai_relay` | 「キー=値」 | [OperatorAi.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-llm/src/main/java/io/github/duwenji/yorisoi/kit/llm/OperatorAi.kt) |
+| スポット検索の答え | `cache/spots/*.json` | 検索の答えをそのまま | [SpotCache.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/SpotCache.kt) |
+| 散歩の詳しい記録（開発者モードだけ） | `files/diagnostics/{散歩の ID}.jsonl` | 1 行に 1 つの JSON | [SessionRecorder.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-companion/src/main/kotlin/io/github/duwenji/yorisoi/kit/companion/SessionRecorder.kt) |
 
 どれも **アプリ専用の領域**（ほかのアプリからは読めない）に置いています。さらにマニフェストで `android:allowBackup="false"` とし、端末のバックアップにも含めません（[1-3](../01-kotlin-android/03-android-components.md)）。README のとおり、散歩の記録は「端末内に保存」し、外には出しません。
 
@@ -219,6 +224,86 @@ fun `a walk survives a round trip, channels included`() {
     assertEquals(walk, WalkJson.fromJson(JSONObject(WalkJson.toJson(walk).toString())))
 }
 ```
+
+## 消えてもよいもの: スポット検索のキャッシュ
+
+近くのスポットは、OpenStreetMap のデータを Overpass という公開のサーバーに聞いて探します（[4-1](01-http-json.md)）。このサーバーはよく混んでいて、`429`・`504` を返したり、何十秒も待たされたりします。ところが OpenStreetMap のデータは、ゆっくりとしか変わりません。昨日歩いた道のスポットは、今日もほとんど同じです。
+
+そこで、検索の答えを端末に残しておき、近くで検索するときに使います（kit-geo の [SpotCache.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/SpotCache.kt)）。
+
+### filesDir ではなく cacheDir に置く
+
+```kotlin
+spotCache = SpotCache(File(cacheDir, "spots"))
+```
+
+Android のアプリには、自分専用のフォルダが 2 つあります。
+
+| フォルダ | 中身 | 消えるとき |
+|---|---|---|
+| `filesDir` | なくなると困るもの（散歩の記録、チャンネル） | アプリを消したとき |
+| `cacheDir` | なくなっても作り直せるもの | 端末の容量が足りなくなると、Android が消すことがある。設定の「キャッシュを削除」でも消える |
+
+検索の答えは、消えても Overpass に聞き直せば済むので `cacheDir` に置きます。そのぶん、消えていても困らないように作ります（ないときは、ふつうに検索するだけ）。
+
+### ファイルの名前に、何の答えかを書く
+
+```kotlin
+val name = String.format(Locale.ROOT, "%d_%.5f_%.5f_%s%s", fetchedAt, lat, lon, key, SUFFIX)
+val tmp = File(dir, "$name.tmp")
+tmp.writeText(body)
+if (!tmp.renameTo(File(dir, name))) { /* … */ }
+```
+
+- いつ（`fetchedAt`）・どこで（緯度・経度）・何を（お店の種類など）探した答えかを、**ファイルの名前** に書きます。一覧の表（インデックス）を別に持たないので、表と中身が食い違うことがありません。探すときは、名前だけを読んで、近くて新しいものを選びます
+- 中身は、Overpass が返した答えを **そのまま** 書きます。読むときに同じ `parse` を通すので、読み方を 2 通り持たずに済みます
+- 書くときは、まず `.tmp` に書いてから名前を変えます。[AtomicFile](#書き込みの途中で落ちても壊さない-atomicfile) と同じく、書いている途中で落ちても、中途半端なファイルが「答え」として読まれません
+
+### 新しさで使い分ける
+
+| 答えの古さ | どう使うか | `SpotSource` |
+|---|---|---|
+| 設定の日数（既定 7 日）以内 | Overpass に聞かずに、そのまま使う | `CACHE` |
+| それより古い（90 日まで） | すぐ見せておき、裏で Overpass に聞き直す | `STALE` |
+| Overpass が失敗した | 600m 以内の答えがあれば、それを見せる | `FALLBACK` |
+
+Overpass が失敗したら、すぐに聞き直さず、30 秒・1 分・2 分・5 分と間を空けます（`RETRY_DELAYS_MS`）。混んでいるサーバーに、10 秒ごとの位置のたびに聞き直すと、もっと混ませてしまうからです。
+
+全部で 10MB を超えたら古いものから消し、90 日を過ぎたものも消します（`trim`）。消えてもよいフォルダでも、置きっぱなしにはしません。
+
+### 残すことの重さ
+
+検索の答えは、置いてある場所を並べると **散策者がどこを歩いたか** がおおよそ分かります。だから、
+
+- 設定で、残すかどうか・何日まで使うかを選べ、「今すぐ消す」もある
+- 記録の画面で散歩の記録を全部消すと、検索の答えも一緒に消す（`HistoryViewModel.clearAll`）
+
+便利のために残すものも、何が分かってしまうかを考えて、消す手段を用意します。
+
+## 開発者のための詳しい記録: SessionRecorder
+
+散歩のあとで「なぜあのとき話しかけたのか」「AI に何を頼み、何が返ったのか」を確かめたいことがあります。開発者モードで散歩すると、kit-companion の [SessionRecorder.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-companion/src/main/kotlin/io/github/duwenji/yorisoi/kit/companion/SessionRecorder.kt) が、出来事を 1 つずつ書き残します。
+
+```kotlin
+fun event(type: String, fields: List<Pair<String, Any?>>) {
+    val f = file ?: return
+    val o = JSONObject().put("t", clock()).put("type", type)
+    fields.forEach { (k, v) -> o.put(k, v ?: JSONObject.NULL) }
+    val line = o.toString()
+    writer.execute {
+        try {
+            f.appendText(line + "\n")
+        } catch (e: IOException) {
+            onWriteError(e)
+        }
+    }
+}
+```
+
+- **1 行に 1 つの JSON**（JSON Lines、`.jsonl`）で、ファイルの最後に **足していく** だけです。散歩の記録（`walk_history.json`）のように全体を書き直さないので、出来事が多くても軽く済みます。途中で落ちて最後の行が欠けても、読むときにその行だけを飛ばします
+- 書くのは、ただ 1 つのスレッド（`newSingleThreadExecutor`）です。書く順番が出来事の順番のまま保たれ、散歩の判断（メインのスレッド）はファイルを待ちません
+- 残すのは最近の 30 回の散歩だけで、端末の外には送りません。開発者が記録の画面から書き出したときだけ、外に出ます（[WalkExport.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/diagnostics/WalkExport.kt)）
+- 素の JVM のキットなので、CycleGuide も同じ部品で走行を記録します。どんな出来事を書くかは、アプリが決めます（`startType = "walk_start"` など）
 
 ## API キーを暗号化する: Android Keystore
 

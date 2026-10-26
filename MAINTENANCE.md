@@ -1,12 +1,12 @@
 # チュートリアルの見直し手順
 
-このチュートリアルは、yorisoi-platform・yorisoi-sanpoguide・yorisoi-console の `main` を追いかけます。コミットに固定しないので、コードが変わると説明が古くなります。次の手順で定期的に見直してください。
+このチュートリアルは、yorisoi-platform・yorisoi-sanpoguide・yorisoi-console の `main` と、5-5 で読む yorisoi-cycleguide の `main` を追いかけます。コミットに固定しないので、コードが変わると説明が古くなります。次の手順で定期的に見直してください。
 
 ## いつ見直すか
 
 - 月に 1 回
 - 次のような大きな変更が `main` に入ったとき
-  - platform の契約書（API-SECRET-MESSAGES・API-CHANNEL-LIST・API-CHANNEL-PACKAGE・API-MATERIAL-PRODUCER）や、console の管理 API（console API-001）・データモデル（console DM-001）の版が上がった
+  - platform の契約書（API-SECRET-MESSAGES・API-CHANNEL-LIST・API-CHANNEL-PACKAGE・API-MATERIAL-PRODUCER・API-AI-RELAY）や、console の管理 API（console API-001）・データモデル（console DM-001）の版が上がった
   - パッケージ・モジュール・Lambda を足した、消した、名前を変えた
   - 依存ライブラリの大きな更新（Kotlin・AGP・Compose BOM・TypeScript・CDK・React など）
 
@@ -20,6 +20,7 @@
 cd ../yorisoi-platform && git pull && git log --oneline 21028df..main
 cd ../yorisoi-sanpoguide && git pull && git log --oneline b8931f9..main
 cd ../yorisoi-console && git pull && git log --oneline 6e0d89c..main
+cd ../yorisoi-cycleguide && git pull && git log --oneline 40f6462..main
 ```
 
 ファイル名だけを見るなら `git diff --stat <前回>..main` が便利です。
@@ -48,7 +49,7 @@ done
 
 ```sh
 grep -rn "fun channelList\|export function verifyChannelList\|export async function signChannelList" \
-  ../yorisoi-platform ../yorisoi-sanpoguide ../yorisoi-console --include=*.kt --include=*.ts
+  ../yorisoi-platform ../yorisoi-sanpoguide ../yorisoi-cycleguide ../yorisoi-console --include=*.kt --include=*.ts
 ```
 
 ### 4. 引用したコードを照合する
@@ -70,6 +71,7 @@ grep -rn "fun channelList\|export function verifyChannelList\|export async funct
 cd ../yorisoi-platform && git diff 21028df..main -- '*.gradle.kts' gradle/
 cd ../yorisoi-sanpoguide && git diff b8931f9..main -- '*.gradle.kts' gradle/
 cd ../yorisoi-console && git diff 6e0d89c..main -- '**/package.json'
+cd ../yorisoi-cycleguide && git diff 40f6462..main -- '*.gradle.kts' gradle/
 ```
 
 ### 7. 記録を更新する
