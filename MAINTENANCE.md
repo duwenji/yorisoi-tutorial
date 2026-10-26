@@ -17,9 +17,9 @@
 [README.md](README.md) の「照合したコミット」から今の `main` までの差分を見ます。
 
 ```sh
-cd ../yorisoi-platform && git pull && git log --oneline ed83915..main
-cd ../yorisoi-sanpoguide && git pull && git log --oneline 9d92e60..main
-cd ../yorisoi-console && git pull && git log --oneline 5b1c05f..main
+cd ../yorisoi-platform && git pull && git log --oneline 21028df..main
+cd ../yorisoi-sanpoguide && git pull && git log --oneline b8931f9..main
+cd ../yorisoi-console && git pull && git log --oneline 6e0d89c..main
 ```
 
 ファイル名だけを見るなら `git diff --stat <前回>..main` が便利です。
@@ -67,9 +67,9 @@ grep -rn "fun channelList\|export function verifyChannelList\|export async funct
 依存ライブラリの版が上がっていたら、該当する技術カード（`ref/`）の「版と公式ドキュメント」の表を直し、「最小の使い方」が今の版でも動くかを確かめます。AWS のサービスは、上限（例: KMS の Sign は 4,096 バイト）や料金が変わることがあるので、公式ドキュメントと料金のページも見直します。
 
 ```sh
-cd ../yorisoi-platform && git diff ed83915..main -- '*.gradle.kts' gradle/
-cd ../yorisoi-sanpoguide && git diff 9d92e60..main -- '*.gradle.kts' gradle/
-cd ../yorisoi-console && git diff 5b1c05f..main -- '**/package.json'
+cd ../yorisoi-platform && git diff 21028df..main -- '*.gradle.kts' gradle/
+cd ../yorisoi-sanpoguide && git diff b8931f9..main -- '*.gradle.kts' gradle/
+cd ../yorisoi-console && git diff 6e0d89c..main -- '**/package.json'
 ```
 
 ### 7. 記録を更新する

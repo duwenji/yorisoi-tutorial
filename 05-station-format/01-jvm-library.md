@@ -13,7 +13,7 @@
 
 ## 3 つの JVM モジュールが持っているもの
 
-Android に依存しない素の Kotlin（JVM）のモジュールが 3 つあります（[1-2](../01-kotlin-android/02-gradle.md)）。コアの 2 つは yorisoi-platform に、プロンプト・パックは yorisoi-sanpoguide にあります。
+この部で扱うのは、Android に依存しない素の Kotlin（JVM）のモジュールのうち次の 3 つです（[1-2](../01-kotlin-android/02-gradle.md)）。コアの 2 つは yorisoi-platform に、プロンプト・パックは yorisoi-sanpoguide にあります。
 
 | モジュール | パッケージ | 中身 | 章 |
 |---|---|---|---|
@@ -30,16 +30,20 @@ Android に依存しない素の Kotlin（JVM）のモジュールが 3 つあ�
 理由は 2 つあります。
 
 1. **管理システムでも同じコードを使うため**
-2. **サイクリングの伴走など、2 本目の付き添いアプリでもチャンネルを使うため**（ADR-003）
+2. **2 本目の付き添いアプリ（自転車の CycleGuide）でもチャンネルを使うため**（ADR-003）
 
 ```mermaid
 flowchart LR
     CORE["yorisoi-platform<br/>core-format・core-prompt<br/>（コア・素の JVM）"]
     PACK["yorisoi-sanpoguide<br/>:prompts<br/>（プロンプト・パック・素の JVM）"]
+    CPACK["yorisoi-cycleguide<br/>:prompts<br/>（CycleGuide のプロンプト・パック）"]
     CORE -->|"GitHub Packages<br/>api(libs.yorisoi.core.format)"| PACK
-    PACK -->|"project(...)"| APP[":app<br/>Android アプリ"]
+    CORE -->|"GitHub Packages"| CPACK
+    PACK -->|"project(...)"| APP[":app<br/>散策ガイド"]
+    CPACK -->|"project(...)"| CAPP[":app<br/>CycleGuide"]
     CORE -->|"GitHub Packages<br/>io.github.duwenji.yorisoi:core-format"| VAL["yorisoi-console<br/>validator（Kotlin の Lambda）"]
     PACK -->|"GitHub Packages<br/>io.github.duwenji.yorisoi.sanpoguide:prompts"| VAL
+    CPACK -->|"GitHub Packages<br/>io.github.duwenji.yorisoi.cycleguide:prompts"| VAL
 ```
 
 チャンネル管理システムは、チャンネル提供者が申請したパッケージを機械で確かめ（機械審査）、運営のために「このチャンネルなら AI はこう話す」という見本のプロンプトを作ります。そのとき、アプリと **違うコード** で確かめると、次のような食い違いが起きます。
@@ -49,9 +53,9 @@ flowchart LR
 
 [6-6](../06-trust/06-same-rules.md) で見たとおり、食い違いを防ぐいちばん確かな方法は **同じコードを使う** ことです。そのためには、そのコードが Android の上でも、AWS の Lambda（普通の JVM）の上でも動く必要があります。だからコアとプロンプト・パックは、Android に依存しない素の Kotlin（JVM）のライブラリになっています。
 
-2 つ目の理由で、コアとプロンプト・パックを分けています。チャンネルの形式はどのアプリでも同じなのでコアに、散歩の場面の見本や SanpoGuide のプロンプトの文面はそのアプリのものなのでプロンプト・パックに置きます。パッケージ名も、コアとキットは `io.github.duwenji.yorisoi.core.*`・`io.github.duwenji.yorisoi.kit.*`、プロンプト・パックとアプリは `io.github.duwenji.yorisoi.sanpoguide.*` と分けています（ADR-003 E-22）。
+2 つ目の理由で、コアとプロンプト・パックを分けています。チャンネルの形式はどのアプリでも同じなのでコアに、散歩の場面の見本や SanpoGuide のプロンプトの文面はそのアプリのものなのでプロンプト・パックに置きます。CycleGuide は、同じコアに自分のプロンプト・パック（yorisoi-cycleguide の `prompts`）を足しています。管理システムは、チャンネルの過ごし方（`activities`）を見て、散歩なら SanpoGuide の、自転車なら CycleGuide のプロンプト・パックで見本を作ります（両方なら両方）。パッケージ名も、コアとキットは `io.github.duwenji.yorisoi.core.*`・`io.github.duwenji.yorisoi.kit.*`、プロンプト・パックとアプリは `io.github.duwenji.yorisoi.sanpoguide.*` と分けています（ADR-003 E-22）。
 
-Android の部品（音声・地図・AI の呼び出しなど）は、同じく yorisoi-platform の **キット**（`kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`）にあります。話す判断のルールとゲート（`kit-companion`）もキットです（これだけは素の JVM）。キットもコアと一緒に GitHub Packages に公開しています。
+Android の部品（音声・地図・AI の呼び出しなど）は、同じく yorisoi-platform の **キット**（`kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`）にあります。話す判断のルールとゲート・散歩の記録（`kit-companion`）と、アプリの中のチャンネル（取り込み・素材・きっかけ、`kit-channel`）もキットです。この 2 つは素の JVM です。キットもコアと一緒に GitHub Packages に公開していて、散策ガイドと CycleGuide が同じキットを使います。
 
 ## Android に依存しないための 3 つの工夫
 
@@ -69,7 +73,7 @@ fun interface Ed25519Verifier {
 
 | 使う側 | 渡す実装 |
 |---|---|
-| アプリ（Android 8 以上） | `TinkEd25519`（アプリにある） |
+| アプリ（Android 8 以上） | `TinkEd25519`（`kit-channel` にある。Tink は `compileOnly` で、使うアプリが入れる） |
 | 管理システムの機械審査（Java 17） | `JcaEd25519`（`core-format` の `PublisherSignature.kt` にある、Java 標準の暗号） |
 
 [2-3](../02-compose/03-manual-di.md) の「依存を外から渡す」は、テストのためだけでなく、**同じコードを違う環境で使うため** にも役立つわけです。
@@ -99,8 +103,9 @@ dependencies {
 管理システムの [validator/build.gradle.kts](https://github.com/duwenji/yorisoi-console/blob/main/validator/build.gradle.kts) には、そのとおりのコメントがあります。
 
 ```kotlin
-implementation("io.github.duwenji.yorisoi:core-format:1.0.0")
-implementation("io.github.duwenji.yorisoi.sanpoguide:prompts:1.0.0")
+implementation("io.github.duwenji.yorisoi:core-format:2.15.0")
+implementation("io.github.duwenji.yorisoi.sanpoguide:prompts:4.2.0")
+implementation("io.github.duwenji.yorisoi.cycleguide:prompts:0.1.0")
 // core-format leaves org.json to its users (Android ships one).
 implementation("org.json:json:20240303")
 ```
@@ -236,13 +241,14 @@ cd ../yorisoi-platform
 ls core-format/build/libs/
 ```
 
-`prompts-1.0.0.jar` と `core-format-1.0.0.jar` のように、それぞれの `gradle.properties` の版（yorisoi-sanpoguide は `sanpoguidePromptsVersion`、yorisoi-platform は `yorisoiVersion`）が付いた jar ができます（前の版の jar が残っていることもあります）。
+`prompts-<版>.jar` と `core-format-<版>.jar` のように、それぞれの `gradle.properties` の版（yorisoi-sanpoguide は `sanpoguidePromptsVersion`、yorisoi-platform は `yorisoiVersion`）が付いた jar ができます（前の版の jar が残っていることもあります）。下のコマンドは、版を `gradle.properties` から読んでいます。
 
 まずプロンプト・パックの中です。
 
 ```sh
-P=../yorisoi-sanpoguide/prompts/build/libs/prompts-1.0.0.jar
-unzip -l "$P" | awk '{print $4}' | sed 's#^\([^/]*/[^/]*/[^/]*\)/.*#\1/…#' | sort | uniq -c | sort -rn | head -10
+PV=$(grep '^sanpoguidePromptsVersion=' ../yorisoi-sanpoguide/gradle.properties | cut -d= -f2)
+P=../yorisoi-sanpoguide/prompts/build/libs/prompts-$PV.jar
+unzip -l "$P" | awk '{print $4}' | sed 's#^\([^/]*/[^/]*/[^/]*\)/.*#\1/…#' | sort | uniq -c | sort -rn | head -11
 ```
 
 ```
@@ -256,6 +262,7 @@ unzip -l "$P" | awk '{print $4}' | sed 's#^\([^/]*/[^/]*/[^/]*\)/.*#\1/…#' | s
       9 sanpoguide/channels/gourmet/…
       4 sanpoguide/prompts/shared/…
       3 sanpoguide/prompts/guide/…
+      3 sanpoguide/prompts/connection_test/…
 ```
 
 - `io/github/duwenji/…`: コンパイルした Kotlin のクラス。プロンプトの組み立て方だけなので、少ない
@@ -278,7 +285,8 @@ gourmet/prompts/companion/topics.md
 コアの jar を見ます。
 
 ```sh
-J=core-format/build/libs/core-format-1.0.0.jar
+V=$(grep '^yorisoiVersion=' gradle.properties | cut -d= -f2)
+J=core-format/build/libs/core-format-$V.jar
 unzip -l "$J" | grep -c "io/github/duwenji/yorisoi/core"
 unzip -l "$J" | grep -c "org/json"
 ```
@@ -317,7 +325,7 @@ unzip -l "$J" | grep -c "org/json"
 <details>
 <summary>問 3. コア（<code>core-format</code>・<code>core-prompt</code>）とプロンプト・パックを分けているのはなぜですか。</summary>
 
-チャンネルの形式は、SanpoGuide のほかの付き添いアプリ（サイクリングの伴走など）でも同じものを使うので、アプリをまたぐコアに置きます。一方、散歩のプロンプトの文面や場面の見本は SanpoGuide だけのものなので、プロンプト・パックに置きます。こうすると、2 本目のアプリは自分のプロンプト・パックを作るだけで、同じコアとチャンネルを使えます（ADR-003）。
+チャンネルの形式は、SanpoGuide のほかの付き添いアプリ（自転車の CycleGuide）でも同じものを使うので、アプリをまたぐコアに置きます。一方、散歩のプロンプトの文面や場面の見本は SanpoGuide だけのものなので、プロンプト・パックに置きます。こうすると、2 本目のアプリは自分のプロンプト・パックを作るだけで、同じコアとチャンネルを使えます（ADR-003）。実際に CycleGuide は、yorisoi-cycleguide に自分のプロンプト・パックを持っています。
 
 </details>
 

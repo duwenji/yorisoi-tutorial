@@ -280,7 +280,7 @@ private fun angleBetween(a: Float, b: Float): Float = abs(((b - a) % 360 + 540) 
 private fun normalize(degrees: Float) = ((degrees % 360) + 360) % 360
 ```
 
-[FacilityAdvisor.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/FacilityAdvisor.kt) の `relativeDirection` は、歩いている向きに対して施設がどちらにあるかを「前方・右手・左手・後ろ」で答えます。施設の案内（「右手 50m にトイレがあります」）に使われます。
+platform の `kit-geo` にある [Facility.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/Facility.kt) の `relativeDirection` は、歩いている向きに対して施設がどちらにあるかを「前方・右手・左手・後ろ」で答えます。施設の案内（「右手 50m にトイレがあります」）に使われます。
 
 ```kotlin
 fun relativeDirection(heading: Float, bearing: Float): String {
@@ -302,15 +302,15 @@ fun relativeDirection(heading: Float, bearing: Float): String {
 
 ### 1. 方向のテストを読む
 
-[FacilityAdvisorTest.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/companion/FacilityAdvisorTest.kt) の最後のテストです。
+[OverpassFacilitiesTest.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/test/java/io/github/duwenji/yorisoi/kit/geo/OverpassFacilitiesTest.kt) の最後のテストです。
 
 ```kotlin
 @Test
-fun `direction relative to heading`() {
-    assertEquals("前方", FacilityAdvisor.relativeDirection(heading = 350f, bearing = 10f))
-    assertEquals("右手", FacilityAdvisor.relativeDirection(heading = 0f, bearing = 90f))
-    assertEquals("左手", FacilityAdvisor.relativeDirection(heading = 90f, bearing = 0f))
-    assertEquals("後ろ", FacilityAdvisor.relativeDirection(heading = 0f, bearing = -170f))
+fun `a place's side is told from the way the user goes`() {
+    assertEquals("前方", relativeDirection(heading = 350f, bearing = 10f))
+    assertEquals("右手", relativeDirection(heading = 0f, bearing = 90f))
+    assertEquals("左手", relativeDirection(heading = 90f, bearing = 0f))
+    assertEquals("後ろ", relativeDirection(heading = 0f, bearing = -170f))
 }
 ```
 
@@ -328,7 +328,7 @@ fun `direction relative to heading`() {
 
 ### 2. 素朴な引き算にしてみる
 
-[FacilityAdvisor.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/FacilityAdvisor.kt) の `relativeDirection` の 1 行目を、
+[Facility.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/Facility.kt) の `relativeDirection` の 1 行目を、
 
 ```kotlin
 val diff = bearing - heading
@@ -337,12 +337,13 @@ val diff = bearing - heading
 に変えて、テストを流します。
 
 ```sh
-cd /c/Dev/apps/yorisoi-sanpoguide
-./gradlew :app:testDebugUnitTest --tests '*FacilityAdvisorTest*'
+cd ../yorisoi-platform
+./gradlew :kit-geo:testDebugUnitTest --tests '*OverpassFacilitiesTest*'
 ```
 
 ```
-9 tests completed, 1 failed
+OverpassFacilitiesTest > a place's side is told from the way the user goes FAILED
+5 tests completed, 1 failed
 ```
 
 レポートを開くと `expected:<[前方]> but was:<[後ろ]>` と出ています。北北西を向いて北北東の施設を「後ろ」と案内してしまうわけです。北をまたぐ角度だけで起きる誤りなので、テストがなければ気づきにくい不具合です。
@@ -350,7 +351,7 @@ cd /c/Dev/apps/yorisoi-sanpoguide
 ### 3. 元に戻す
 
 ```sh
-git checkout -- app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/FacilityAdvisor.kt
+git checkout -- kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/Facility.kt
 git status
 ```
 

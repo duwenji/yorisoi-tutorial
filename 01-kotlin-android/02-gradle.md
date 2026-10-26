@@ -86,7 +86,7 @@ providers.gradleProperty("yorisoi.platformDir").orNull?.let { includeBuild(it) }
 | アプリ | `:app` | yorisoi-sanpoguide | 画面・散策のサービス・設定など、SanpoGuide そのもの |
 | プロンプト・パック | `:prompts` | yorisoi-sanpoguide | SanpoGuide のプロンプトの文面と組み込みのチャンネル（素の JVM） |
 | コア | `:core-format`・`:core-prompt` | yorisoi-platform | チャンネルの形式と確認、テンプレートの仕組み（素の JVM。アプリをまたいで使う） |
-| キット | `:kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`・`kit-companion` | yorisoi-platform | 音声・AI の呼び出し・地図と天気・雰囲気（Android のライブラリ）、話す判断のルールとゲート（`kit-companion` だけは素の JVM） |
+| キット | `:kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`・`kit-companion`・`kit-channel` | yorisoi-platform | 音声・AI の呼び出し・地図と天気・雰囲気（Android のライブラリ）、話す判断のルールとゲートと散歩の記録（`kit-companion`）、アプリの中のチャンネル（`kit-channel`）。この 2 つは素の JVM |
 
 ## build.gradle.kts（全体）: プラグインの版
 
@@ -128,8 +128,9 @@ android {
         applicationId = "io.github.duwenji.yorisoi.sanpoguide"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 9
+        versionName = "1.5.2"
+        // … 運営の AI の中継の URL などの buildConfigField …
     }
     // … signingConfigs・buildTypes（1-4 で見ます）…
     compileOptions {
@@ -150,8 +151,8 @@ android {
 | `minSdk` | 26 | 動く最低の Android の版。26 は Android 8.0 |
 | `targetSdk` | 36 | どの版の振る舞いに合わせて作ったか。36 は Android 16。Google Play は新しいアプリと更新にこの版を求める |
 | `compileSdk` | 36 | コンパイルに使う Android の API の版 |
-| `versionCode` | 1 | 更新のたびに増やす整数。端末は大きい方を新しいと判断する。管理システムは、アプリが対応した機能（素材の段など）をこの値で見分ける |
-| `versionName` | `1.0.0` | 人に見せる版 |
+| `versionCode` | 9 | 更新のたびに増やす整数。端末と Google Play は大きい方を新しいと判断し、同じ値は二度と使えない。管理システムは、アプリが対応した機能（素材の段など）をこの値で見分ける |
+| `versionName` | `1.5.2` | 人に見せる版。ストアのリリース名にもなる |
 | `buildConfig = true` | — | `BuildConfig.VERSION_CODE`・`BuildConfig.DEBUG` などをコードから使えるようにする |
 
 `applicationId` は、逆さにしたドメイン名で、世界で重ならない名前にします。Android Studio の雛形が入れる `com.example.…` は仮の名前で、Google Play には上げられません。散策ガイドは、自分の GitHub のアドレス（`duwenji.github.io`）を逆さにした `io.github.duwenji` の下に、エコシステムの名前 `yorisoi` とアプリの名前を続けた `io.github.duwenji.yorisoi.sanpoguide` にしています。`namespace`・Kotlin のパッケージ・プロンプト・パックの公開の名前（[5-3](../05-station-format/03-publish.md)）も同じ名前に揃えています（ADR-003 E-22）。`io.github.yorisoi` にしないのは、github.com/Yorisoi が別の人のアカウントで、その名前空間は自分のものではないからです。`applicationId` は公開後に変えられません。パッケージ名は後からでも変えられますが、使う人が増えるほど手間が増えるので、最初に揃えておきます。
@@ -239,14 +240,14 @@ implementation(libs.androidx.fragment)   // androidx.fragment:fragment:1.8.8
 ```toml
 # gradle/libs.versions.toml
 [versions]
-yorisoi = "1.0.0"
+yorisoi = "2.15.0"
 
 [libraries]
 yorisoi-kit-voice = { module = "io.github.duwenji.yorisoi:kit-voice", version.ref = "yorisoi" }
 yorisoi-core-format = { module = "io.github.duwenji.yorisoi:core-format", version.ref = "yorisoi" }
 ```
 
-アプリから見ると、yorisoi-platform の部品は OkHttp と同じ「外のライブラリ」です。版（`yorisoi = "1.0.0"`）を固定して使うので、yorisoi-platform が変わっても、アプリは自分の都合の良いときに版を上げられます。
+アプリから見ると、yorisoi-platform の部品は OkHttp と同じ「外のライブラリ」です。版（`yorisoi = "2.15.0"`）を固定して使うので、yorisoi-platform が変わっても、アプリは自分の都合の良いときに版を上げられます。
 
 プロンプト・パックは、コアに `api` で依存しています。
 
@@ -306,10 +307,10 @@ dependencies {
 org.gradle.jvmargs=-Xmx3g -Dfile.encoding=UTF-8
 android.useAndroidX=true
 # …
-sanpoguidePromptsVersion=1.0.0
+sanpoguidePromptsVersion=4.2.1
 ```
 
-`sanpoguidePromptsVersion` はプロンプト・パックの公開の版です。アプリの版（`1.0.0`）とは別に管理しています。
+`sanpoguidePromptsVersion` はプロンプト・パックの公開の版です。アプリの版（`versionName`）とは別に管理しています。
 
 ### 自分で作ったタスク: channelIndex
 
@@ -352,7 +353,7 @@ Root project 'SanpoGuide'
 \--- Project ':prompts'
 ```
 
-yorisoi-platform で同じことをすると、コアとキットの 7 つが出ます。
+yorisoi-platform で同じことをすると、コアとキットの 8 つが出ます。
 
 ```sh
 cd ../yorisoi-platform && ./gradlew projects && cd ../yorisoi-sanpoguide
@@ -372,16 +373,16 @@ cd ../yorisoi-platform && ./gradlew projects && cd ../yorisoi-sanpoguide
 …
 +--- com.anthropic:anthropic-java:2.34.0
 +--- project :prompts
-+--- io.github.duwenji.yorisoi:kit-voice:1.0.0
++--- io.github.duwenji.yorisoi:kit-voice:2.15.0
 …
-+--- io.github.duwenji.yorisoi:kit-companion:1.0.0
++--- io.github.duwenji.yorisoi:kit-channel:2.15.0
 +--- com.google.crypto.tink:tink-android:1.23.0
 \--- com.google.android.gms:play-services-code-scanner:16.1.0
 ```
 
 `ui -> 1.8.2` が、BOM が決めた版です。`grep` を外すと、それぞれのライブラリが連れてくるライブラリまで木の形で全部見えます（とても長いです）。
 
-同じコマンドに `-Pyorisoi.platformDir=../yorisoi-platform` を付けると、yorisoi の部品が `io.github.duwenji.yorisoi:kit-voice:1.0.0 -> project :yorisoi-platform:kit-voice` のように、ソースに置き換わったことが分かります。
+同じコマンドに `-Pyorisoi.platformDir=../yorisoi-platform` を付けると、yorisoi の部品が `io.github.duwenji.yorisoi:kit-voice:2.15.0 -> project :yorisoi-platform:kit-voice` のように、ソースに置き換わったことが分かります（[5-3](../05-station-format/03-publish.md) の composite build）。GitHub Packages を読むトークンがまだないときも、こうすれば手元でビルドできます。
 
 ### 3. 自分で作ったタスクを動かす
 

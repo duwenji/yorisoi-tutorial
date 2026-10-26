@@ -234,7 +234,7 @@ PendingIntent は、「この Intent を、あとで、このアプリの代わ�
 ```kotlin
 // Without earphones the spoken warning goes unheard; lightning is worth a sound.
 if (change.kind == WeatherChangeKind.THUNDER) {
-    getSystemService(NotificationManager::class.java).notify(ALERT_NOTIFICATION_ID, alertNotification(line))
+    getSystemService(NotificationManager::class.java).notify(ALERT_NOTIFICATION_ID, alertNotification(CueShow.textOf(line).orEmpty()))
 }
 speakLine(line)
 ```

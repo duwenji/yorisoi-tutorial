@@ -78,34 +78,49 @@ val selected: StateFlow<SelectedSpot?> = _selected.asStateFlow()
 
 ```kotlin
 sealed interface GuideState {
+    /** Not written yet: only when the user asks to hear or read it, since it may cost an AI call. */
+    data object NotAsked : GuideState
     data object Loading : GuideState
-    data class Ready(val text: String) : GuideState
+    data class Ready(val text: String, val credit: String? = null, val byAi: Boolean = false) : GuideState
     data class Failed(val message: String) : GuideState
 }
 
 data class SelectedSpot(val item: SpotItem, val guide: GuideState, val photo: PhotoState = PhotoState.None)
 ```
 
-スポットの解説は「生成中」「できた（文章あり）」「失敗した（理由あり）」のどれか 1 つです。1-1 で学んだ sealed で表すと、「生成中なのに文章がある」のようなありえない組み合わせを、型で作れなくできます。画面の側は `when` で 3 つを描き分け、書き忘れはコンパイラが見つけます。
+スポットの解説は「まだ頼んでいない」「生成中」「できた（文章あり）」「失敗した（理由あり）」のどれか 1 つです。1-1 で学んだ sealed で表すと、「生成中なのに文章がある」のようなありえない組み合わせを、型で作れなくできます。画面の側は `when` で 4 つを描き分け、書き忘れはコンパイラが見つけます。
+
+「まだ頼んでいない」があるのは、解説を作るのに AI の呼び出し（料金がかかる）が要ることがあるからです。地図でスポットを選んだだけでは作らず、散策者が「聞く」「読む」を押したときに初めて作ります。
 
 ### 状態を変える
 
-スポットを選んだときの `select`:
+スポットを選んだときの `select` と、解説を作る `guideFor`:
 
 ```kotlin
 fun select(item: SpotItem) {
     routeTarget.value = item.poi
-    val photo = initialPhotoState(item.poi)
-    _selected.value = SelectedSpot(item, GuideState.Loading, photo)
-    viewModelScope.launch {
+    // The same spot again keeps the guide already written for it.
+    if (_selected.value?.item?.poi?.id == item.poi.id) return
+    _guideOpen.value = false
+    guide = null
+    _selected.value = SelectedSpot(item, GuideState.NotAsked)
+}
+
+/** Written once per selection; asked again after it failed. */
+private fun guideFor(item: SpotItem): Deferred<GuideState> {
+    // … 同じスポットで作っている途中なら、それを返す …
+    updateSelected(item) { it.copy(guide = GuideState.Loading) }
+    val job = viewModelScope.async {
         val state = when (val result = app.narration.sheetGuide(item.poi, item.distanceM)) {
-            is MaterialResult.Ready -> GuideState.Ready((result.material.content as Content.Text).text)
+            is MaterialResult.Ready -> GuideState.Ready((result.material.content as Content.Text).text, /* … */)
             is MaterialResult.Unavailable -> GuideState.Failed("解説の生成に失敗しました: ${result.detail}")
             MaterialResult.None -> GuideState.Failed("解説の生成に失敗しました")
         }
         updateSelected(item) { it.copy(guide = state) }
+        state
     }
-    // … 写真も同じように …
+    guide = item.poi.id to job
+    return job
 }
 
 /** Ignores results for a spot the user has already moved on from. */
@@ -113,9 +128,10 @@ private fun updateSelected(item: SpotItem, change: (SelectedSpot) -> SelectedSpo
     _selected.update { current -> if (current?.item?.poi?.id == item.poi.id) change(current) else current }
 ```
 
-1. まず「生成中」の状態にする。画面はすぐに「生成中」を表示できる
-2. `viewModelScope.launch` で、裏で解説を頼む（コルーチン、第 3 部）。`viewModelScope` は、ViewModel が片付けられると自動で止まる。頼む先の `narration` は、AI（キーがなければ定型文）に解説を作らせ、結果を `MaterialResult` で返す（素材の共通の形。[2-3](03-manual-di.md)）
+1. 選んだときは「まだ頼んでいない」にするだけ。画面はすぐにスポットのカードを出せる
+2. 「聞く」（`listen`）や「読む」（`readGuide`）が押されると `guideFor` を呼ぶ。まず「生成中」にし、`viewModelScope.async` で裏で解説を頼む（コルーチン、第 3 部）。`viewModelScope` は、ViewModel が片付けられると自動で止まる。頼む先の `narration` は、AI（使えなければ定型文）に解説を作らせ、結果を `MaterialResult` で返す（素材の共通の形。[2-3](03-manual-di.md)）
 3. 結果が来たら、「できた」か「失敗した」に書き換える。`MaterialResult` は sealed（[1-1](../01-kotlin-android/01-kotlin-syntax.md)）なので、`when` で 3 つの場合を漏れなく書き分けられる
+4. 作っている途中の仕事（`Deferred`）を `guide` に覚えておくので、「聞く」と「読む」を続けて押しても、AI は 1 回しか呼ばれない
 
 `updateSelected` の工夫に注目してください。AI の解説には数秒かかります。その間に散策者が **別のスポットを選び直していたら**、遅れて届いた前のスポットの解説で上書きしてはいけません。そこで、今選ばれているスポットと、結果のスポットが同じときだけ書き換えています。非同期の処理では、こうした「結果が届いたときには状況が変わっている」場面への備えが欠かせません。
 
@@ -169,17 +185,25 @@ flowchart TB
 
 こうすると、「この値を変えたのはだれか」が必ず ViewModel の中で見つかります。値があちこちで書き換えられて、追いきれなくなることがありません。
 
-ボタンの例:
+ボタンの例（下から引き上げるシートの `SpotSheet`）:
 
 ```kotlin
-ExtendedFloatingActionButton(
-    onClick = { onToggleWalk(walking) },
-    text = { Text(if (walking) "散策を終える" else "散策をはじめる") },
-    // …
-)
+if (walking) {
+    FilledTonalButton(onClick = onToggleWalk, modifier = Modifier.heightIn(min = 48.dp)) {
+        // …
+        Text("散策を終える")
+    }
+}
+// …
+if (!walking) {
+    Button(onClick = onToggleWalk, /* … */) {
+        // …
+        Text("散策をはじめる", style = MaterialTheme.typography.titleSmall)
+    }
+}
 ```
 
-ボタンは「押された」と伝えるだけです。散策を始めるか終えるかは、受け取った `MainActivity` が決め、`WalkService` を起動します。ボタンの文字は `walking`（状態）から決まります。散策が始まると `WalkService.walking` が `true` になり、それを読んでいるボタンが「散策を終える」に描き直されます。ボタンが自分で文字を書き換えることはありません。
+ボタンは「押された」と伝えるだけです。散策を始めるか終えるかは、`MainScreen` から受け取った `onToggleWalk` の先にある `MainActivity` が決め、`WalkService` を起動します。どちらのボタンを出すかは `walking`（状態）から決まります。散策が始まると `WalkService.walking` が `true` になり、それを読んでいるシートが「散策を終える」のボタンに描き直されます。ボタンが自分で文字を書き換えることはありません。
 
 ## 流れを組み合わせる: combine と stateIn
 
@@ -231,11 +255,11 @@ flowchart LR
     STR --> WS["WalkService"]
 ```
 
-[StationRepository.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/StationRepository.kt) の `current` も、設定とチャンネルの一覧を `combine` して作っています。
+[StationRepository.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/StationRepository.kt) の `current` も、散策者の選んだチャンネル（設定から作る `ChannelChoice`）とチャンネルの一覧を `combine` して作っています。`StationRepository` は platform の `kit-channel` にあり、アプリは設定を `ChannelChoice` の流れに変えて渡します。
 
 ```kotlin
-val current: StateFlow<Station> = combine(settings, list) { s, l -> select(s, l) }
-    .stateIn(scope, SharingStarted.Eagerly, select(settings.value, list.value))
+val current: StateFlow<Station> = combine(choice, list) { c, l -> select(c, l) }
+    .stateIn(scope, SharingStarted.Eagerly, select(choice.value, list.value))
 ```
 
 ここでは `SharingStarted.Eagerly`（見ている人がいなくても、ずっと計算する）です。`WalkService` が画面と関係なく使うので、画面の都合で止めるわけにいかないからです。

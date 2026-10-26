@@ -38,7 +38,7 @@ class ChannelSync(
     private val appVersion: Int,
     private val now: () -> Instant,
     private val allowLocalHttp: Boolean = false,
-    // … 素材の段階（mediaStage）と、今いる大まかな地域（region）…
+    // … 素材の段階（mediaStage）、今いる大まかな地域（region）、アプリの種類（profile）…
 )
 ```
 
@@ -46,23 +46,24 @@ A は手軽ですが、`ChannelSync` は **いつも本物のインターネッ�
 
 B では、使う側が依存を渡します。アプリでは本物を、テストでは代役を渡せます。これを **依存性の注入**（Dependency Injection、略して **DI**）と呼びます。名前はいかめしいですが、「必要なものはコンストラクタの引数でもらう」というだけのことです。
 
-[ChannelSync.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelSync.kt) は B の書き方です。
+[ChannelSync.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/remote/ChannelSync.kt) は B の書き方です。`ChannelSync` は platform の `kit-channel`（Android に依存しない JVM のライブラリ）にあり、散策ガイドも CycleGuide も同じものを使います。B の書き方だから、アプリごとに違うもの（保存先・アプリの版など）を外から渡すだけで使い回せます。
 
 ## アプリでは本物を渡す
 
-[ThirdPartyChannels.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ThirdPartyChannels.kt) が、本物を渡して `ChannelSync` を作っています。
+[ThirdPartyChannels.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/remote/ThirdPartyChannels.kt) が `ChannelSync` を作ります。`ThirdPartyChannels` も依存を受け取るだけで、本物を選ぶのはアプリの `SanpoApp` です。
 
 ```kotlin
-private val sync = ChannelSync(
-    store = ChannelStore(File(context.filesDir, "channels")),
-    http = OkHttpProviderHttp(),
+channels = ThirdPartyChannels(
+    dir = File(filesDir, "channels"),
+    http = OkHttpProviderHttp("SanpoGuide/${BuildConfig.VERSION_NAME}"),
     verifier = TinkEd25519,
-    appVersion = BuildConfig.VERSION_CODE,
-    now = Instant::now,
+    profile = SanpoProfile.of(BuildConfig.VERSION_CODE),
     allowLocalHttp = BuildConfig.DEBUG,
-    region = region,
+    // … 従量制の回線か、組み込みの標準チャンネル、スコープ、開発者モード、今いる大まかな地域 …
 )
 ```
+
+`ThirdPartyChannels` は、受け取ったものを `ChannelSync` にそのまま渡し、時計だけは本物（`Instant::now`）を入れます。
 
 - 保存先は端末のアプリ専用のフォルダ
 - 通信は OkHttp（第 4 部）
@@ -71,7 +72,7 @@ private val sync = ChannelSync(
 
 ## テストでは代役を渡す
 
-[ChannelSyncTest.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelSyncTest.kt) は、代役を渡しています。
+[ChannelSyncTest.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/test/kotlin/io/github/duwenji/yorisoi/kit/channel/remote/ChannelSyncTest.kt) は、代役を渡しています。
 
 ```kotlin
 private val start = Instant.parse("2026-10-05T00:00:00Z")
@@ -84,7 +85,7 @@ private val http = ProviderHttp { url, max ->
     bytes
 }
 
-private fun newSync() = ChannelSync(ChannelStore(folder.root), http, TinkEd25519, appVersion = 1, now = { clock })
+private fun newSync() = ChannelSync(ChannelStore(folder.root), http, TinkEd25519, appVersion = 1, now = { clock }, profile = walkProfile(1))
 ```
 
 | 依存 | 本物 | テストでの代役 |
@@ -93,6 +94,7 @@ private fun newSync() = ChannelSync(ChannelStore(folder.root), http, TinkEd25519
 | 時刻 `now` | 端末の時計 | 変数 `clock`。テストが好きなように進められる |
 | 保存先 `store` | アプリのフォルダ | JUnit が用意する使い捨てのフォルダ |
 | アプリの版 | `BuildConfig.VERSION_CODE` | 1（古いアプリを試すときは 0） |
+| アプリの種類 `profile` | `SanpoProfile`（散策ガイド） | `walkProfile(1)`（テスト用の散歩のアプリ） |
 
 `ProviderHttp` は 1-1 で見た `fun interface`（関数を 1 つだけ持つインターフェース）なので、ラムダ 1 つで代役を作れます。
 
@@ -128,15 +130,14 @@ fun `an expired list stops its channels and is said once`() {
 依存は、オブジェクトだけでなく **関数** でも渡せます。[Narration.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Narration.kt) は、散歩と画面が使う素材（解説・話しかけ・写真・背景音）を、素材の出どころ（`Producers`）に頼む部品です。
 
 ```kotlin
-/** Asks [producers] for the material the walk and the screens use, on the channel [station] returns. */
-class Narration(private val producers: Producers, private val station: () -> Station) {
+class Narration(private val producers: Producers, private val station: () -> Station, private val mood: () -> Mood? = { null }) {
     // …
     private fun request(subject: Subject, type: MaterialType, session: WalkSession? = null, weather: Weather? = null) =
-        MaterialRequest(subject, type, MaterialContext(station(), session, weather))
+        MaterialRequest(subject, type, walkContext(station(), session, weather))
 }
 ```
 
-`station: () -> Station` は「呼ぶと今のチャンネルを返す関数」です。チャンネルそのもの（`Station`）を渡さないのは、**チャンネルは散歩の途中でも変わる** からです。値を渡すと、作ったときのチャンネルに固定されてしまいます。関数を渡せば、頼むたびに **その時点の** チャンネルを聞けます。聞いたチャンネルは要求（`MaterialContext`）に入れて渡すので、その先の部品（AI の解説を作る `GuideRepository.guideFor` など）は、チャンネルを引数で受け取るだけです。「今のチャンネルを聞く」のは `Narration` の 1 か所に決まっています。
+`station: () -> Station` は「呼ぶと今のチャンネルを返す関数」です。チャンネルそのもの（`Station`）を渡さないのは、**チャンネルは散歩の途中でも変わる** からです。値を渡すと、作ったときのチャンネルに固定されてしまいます。関数を渡せば、頼むたびに **その時点の** チャンネルを聞けます。聞いたチャンネルは要求の文脈（`walkContext` が作る `MaterialContext`）に入れて渡すので、その先の部品（AI の解説を作る `GuideRepository.guideFor` など）は、チャンネルを引数で受け取るだけです。「今のチャンネルを聞く」のは `Narration` の 1 か所に決まっています。
 
 [WalkCompanion.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/WalkCompanion.kt) も、同じように関数を受け取ります。
 
@@ -161,7 +162,7 @@ companion = WalkCompanion(
     shareLocation = { settings.settings.value.shareLocationWithAi },
 )
 // …
-narration = Narration(producers, station = { stations.current.value })
+narration = Narration(producers, station = { stations.current.value }, mood = { mood.mood.value })
 ```
 
 `WalkCompanion` は StateFlow も `SettingsRepository` も知りません。「今の雰囲気（使わない設定なら null）」「位置を AI に渡してよいか」を、聞けば答えてくれる関数があることだけを知っています。必要なことだけを知っている部品は、テストしやすく、変更にも強くなります。
@@ -176,13 +177,18 @@ narration = Narration(producers, station = { stations.current.value })
 override fun onCreate() {
     super.onCreate()
     settings = SettingsRepository(this)
-    spots = SpotRepository(OverpassClient(), shops = { stations.current.value.searchedKinds })
+    diagnostics = SessionRecorder(File(filesDir, "diagnostics"), startType = "walk_start", endType = "walk_end") { /* … */ }
+    spotCache = SpotCache(File(cacheDir, "spots"))
+    spots = SpotRepository(OverpassClient(overpassHttp()), shops = { stations.current.value.searchedKinds }, cache = spotCache, /* … */)
     prompts = Prompts.fromResources()
     val developerMode = settings.settings.map { it.developerMode }.stateIn(appScope, SharingStarted.Eagerly, settings.settings.value.developerMode)
-    channels = ThirdPartyChannels(this, BuiltInStations.standardPackage(), appScope, developerMode) { /* 今いる大まかな地域 */ }
-    stations = StationRepository(BuiltInStations.load(), settings.settings, appScope, channels.stations)
+    channels = ThirdPartyChannels(dir = File(filesDir, "channels"), /* …上で見た本物… */)
+    val choice = settings.settings.map { it.channelChoice }.stateIn(appScope, SharingStarted.Eagerly, settings.settings.value.channelChoice)
+    stations = StationRepository(BuiltInStations.load(), BuiltInStations.STANDARD, choice, appScope, channels.stations)
     // …
-    guides = GuideRepository(settings, prompts)
+    aiUsage = AiUsage.of(this)
+    relay = OperatorAi.create(this, BuildConfig.AI_RELAY_URL, BuildConfig.PLAY_CLOUD_PROJECT_NUMBER)
+    guides = GuideRepository(settings, prompts, aiUsage, relay)
     speaker = Speaker(this)
     photos = SpotPhotos(this)
     history = HistoryStore(this)
@@ -196,14 +202,15 @@ override fun onCreate() {
             CommonsPhotoProducer(photos, settings),
             AmbientProducer(),
             MoodSceneProducer(),
-        )
+        ),
+        log = { message, e -> /* … */ },
     )
-    narration = Narration(producers, station = { stations.current.value })
+    narration = Narration(producers, station = { stations.current.value }, mood = { mood.mood.value })
     // … きっかけ（cues）の部品、通知のチャンネル …
 }
 ```
 
-上から順に、**先に要る部品から作って、次の部品に渡していく** だけです。`stations` は `settings` と `channels` を、組み込みの素材の出どころ（`AiGuideProducer` など）は `guides`・`companion`・`photos` を使うので、その後に作ります。最後の `narration` が、それらをまとめて使います。
+上から順に、**先に要る部品から作って、次の部品に渡していく** だけです。`stations` は `settings`（から作った `choice`）と `channels` を、`guides` は AI の回数（`aiUsage`）と運営の AI の中継（`relay`）を、組み込みの素材の出どころ（`AiGuideProducer` など）は `guides`・`companion`・`photos` を使うので、その後に作ります。最後の `narration` が、それらをまとめて使います。
 
 このように、DI のライブラリを使わず、手で部品を作ってつなぐやり方を **手動 DI**（Manual DI）と呼びます。部品をつなぐ場所（ここでは `SanpoApp`）を **コンポジション・ルート** と呼ぶこともあります。
 
@@ -266,8 +273,8 @@ ViewModel は `by viewModels()` で Android が作るので、コンストラク
 |---|---|---|
 | `FacilityAdvisor` | 近くの施設を、いま案内するか | `FacilityAdvisorTest`（1-1 のハンズオン） |
 | `SpotChooser` | どのスポットを話題にするか | `SpotChooserTest` |
-| `WeatherChangeDetector` など | 天気の急変を知らせるか | `WeatherChangeDetectorTest` |
-| `ChannelSync` | 第三者のチャンネルの取得と確認 | `ChannelSyncTest`（この章） |
+| `WeatherChangeDetector`（platform の `kit-geo`） | 天気の急変を知らせるか | `WeatherChangeDetectorTest` |
+| `ChannelSync`（platform の `kit-channel`） | 第三者のチャンネルの取得と確認 | `ChannelSyncTest`（この章） |
 
 ViewModel と Service は、それらを呼んで結果を画面や声にする「つなぎ」に徹しています。**ロジックを Android の部品の外に出す** のは、DI のライブラリを使う場合でも有効な作り方です。
 
@@ -275,16 +282,18 @@ ViewModel と Service は、それらを呼んで結果を画面や声にする�
 
 ### 1. 流す
 
+`ChannelSync` は platform の `kit-channel` にあるので、platform のリポジトリで流します。
+
 ```sh
-cd /c/Dev/apps/yorisoi-sanpoguide
-./gradlew :app:testDebugUnitTest --tests '*ChannelSyncTest*'
+cd ../yorisoi-platform
+./gradlew :kit-channel:test --tests '*ChannelSyncTest*'
 ```
 
-11 件のテストが通ります。レポート（`app/build/reports/tests/testDebugUnitTest/index.html`）の `ChannelSyncTest` を開くと、全体で 1 秒かからずに終わっているのが分かります。
+11 件のテストが通ります。レポート（`kit-channel/build/reports/tests/test/index.html`）の `ChannelSyncTest` を開くと、全体で 1 秒かからずに終わっているのが分かります。
 
 ### 2. テストの名前を眺める
 
-レポートか [ChannelSyncTest.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelSyncTest.kt) で、テストの名前を見てください。
+レポートか [ChannelSyncTest.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/test/kotlin/io/github/duwenji/yorisoi/kit/channel/remote/ChannelSyncTest.kt) で、テストの名前を見てください。
 
 - an older list is refused as a rollback（古いリストは巻き戻しとして拒む）
 - an expired list stops its channels and is said once（期限切れのリストのチャンネルは止まり、1 回だけ知らせる）
@@ -306,7 +315,7 @@ clock = clock.plus(Duration.ofDays(15))
 確かめたら元に戻します。
 
 ```sh
-git checkout -- app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelSyncTest.kt
+git checkout -- kit-channel/src/test/kotlin/io/github/duwenji/yorisoi/kit/channel/remote/ChannelSyncTest.kt
 git status
 ```
 

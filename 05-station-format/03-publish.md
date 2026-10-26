@@ -15,7 +15,7 @@
 
 ## なぜ公開するのか
 
-同じリポジトリの中なら、アプリは `implementation(project(":prompts"))` でプロンプト・パックを使えます（[1-2](../01-kotlin-android/02-gradle.md)、[5-1](01-jvm-library.md)）。でもコア（yorisoi-platform）はアプリから見て **別のリポジトリ** で、管理システム（yorisoi-console）から見れば、コアもプロンプト・パックも別のリポジトリです。`project(…)` では参照できません。
+同じリポジトリの中なら、アプリは `implementation(project(":prompts"))` でプロンプト・パックを使えます（[1-2](../01-kotlin-android/02-gradle.md)、[5-1](01-jvm-library.md)）。でもコアとキット（yorisoi-platform）はアプリから見て **別のリポジトリ** で、管理システム（yorisoi-console）から見れば、コアもプロンプト・パックも別のリポジトリです。`project(…)` では参照できません。
 
 方法はいくつか考えられます。
 
@@ -36,15 +36,16 @@ io.github.duwenji.yorisoi : core-format : 1.0.0
 └────── グループ ──────┘   └─ 名前 ──┘   └ 版 ┘
 ```
 
-公開しているのは、2 つのリポジトリで合わせて 8 つです。
+公開しているのは、3 つのリポジトリで合わせて 10 です。
 
 | 座標 | 公開するリポジトリ | 版を決める値（`gradle.properties`） |
 |---|---|---|
 | `io.github.duwenji.yorisoi:core-format`・`core-prompt` | yorisoi-platform | `yorisoiVersion` |
-| `io.github.duwenji.yorisoi:kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`・`kit-companion` | yorisoi-platform | `yorisoiVersion`（7 つすべて同じ版） |
+| `io.github.duwenji.yorisoi:kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`・`kit-companion`・`kit-channel` | yorisoi-platform | `yorisoiVersion`（8 つすべて同じ版） |
 | `io.github.duwenji.yorisoi.sanpoguide:prompts` | yorisoi-sanpoguide | `sanpoguidePromptsVersion` |
+| `io.github.duwenji.yorisoi.cycleguide:prompts` | yorisoi-cycleguide | `cycleguidePromptsVersion` |
 
-グループが 2 つあるのは、コアとキットがエコシステム（yorisoi）のもので、プロンプト・パックが SanpoGuide のものだからです。キット（Android のライブラリ）は AAR という形で公開します。キットを使うのは今は SanpoGuide だけですが、リポジトリを分けたので、アプリもキットを公開された版で使います（[1-2](../01-kotlin-android/02-gradle.md)）。
+グループが分かれているのは、コアとキットがエコシステム（yorisoi）のもので、プロンプト・パックがそれぞれのアプリのものだからです。Android のライブラリのキットは AAR という形で、素の JVM のキット（`kit-companion`・`kit-channel`）は jar で公開します。キットは散策ガイドと CycleGuide の両方が、公開された版で使います（[1-2](../01-kotlin-android/02-gradle.md)）。
 
 yorisoi-platform では、グループと版を **全体の** [build.gradle.kts](https://github.com/duwenji/yorisoi-platform/blob/main/build.gradle.kts) でまとめて決めています。
 
@@ -66,12 +67,12 @@ subprojects {
 # yorisoi-platform/gradle.properties
 # The version of every module published to GitHub Packages (io.github.duwenji.yorisoi:<module>).
 # Bump it, then push the tag v<version> (.github/workflows/publish.yml).
-yorisoiVersion=1.0.0
+yorisoiVersion=2.16.0
 ```
 
 ```properties
 # yorisoi-sanpoguide/gradle.properties
-sanpoguidePromptsVersion=1.0.0
+sanpoguidePromptsVersion=4.2.1
 ```
 
 アプリの版（`versionName = "1.0.0"`）とは **別** です。アプリの画面を直しても、コアもプロンプト・パックも変わらないので、版を上げる必要はありません。逆に、プロンプトの文面を直したら、アプリの版はそのままでもプロンプト・パックの版は上げます。管理システムの見本が、新しい文面で作られるようにするためです。コアとプロンプト・パックの版を分けたのも同じ理由で、プロンプトの文面を直すたびに、形式の確認（コア）の版まで上げずに済みます。
@@ -96,7 +97,7 @@ yorisoi-platform の中では、コアとキットの版を 1 つにしていま
 
 ## maven-publish の設定
 
-yorisoi-platform は、7 つのモジュールの公開の設定を、全体の [build.gradle.kts](https://github.com/duwenji/yorisoi-platform/blob/main/build.gradle.kts) の `subprojects { … }` に 1 回だけ書いています（少し省略しています）。
+yorisoi-platform は、8 つのモジュールの公開の設定を、全体の [build.gradle.kts](https://github.com/duwenji/yorisoi-platform/blob/main/build.gradle.kts) の `subprojects { … }` に 1 回だけ書いています（少し省略しています）。
 
 ```kotlin
 subprojects {
@@ -148,9 +149,9 @@ subprojects {
 
 | 部分 | 意味 |
 |---|---|
-| `subprojects { … }` | すべてのモジュールに同じ設定をする。モジュールごとに書くと、7 か所で少しずつずれていく |
+| `subprojects { … }` | すべてのモジュールに同じ設定をする。モジュールごとに書くと、8 か所で少しずつずれていく |
 | `maven-publish` | Maven リポジトリに公開するタスクを足す Gradle の標準のプラグイン |
-| `plugins.withId(…) { … }` | 「そのプラグインを使っているモジュールなら」という条件。素の JVM（コア・`kit-companion`）と Android のライブラリ（キット）で、公開するものの作り方が違うので分けている |
+| `plugins.withId(…) { … }` | 「そのプラグインを使っているモジュールなら」という条件。素の JVM（コア・`kit-companion`・`kit-channel`）と Android のライブラリ（ほかのキット）で、公開するものの作り方が違うので分けている |
 | `withSourcesJar()` | ソースコードの jar も一緒に公開する。使う側の IDE で、ライブラリの中身を読める |
 | `from(components["java"])` | 素の JVM のモジュールは jar と依存の情報を公開する |
 | `singleVariant("release")`・`from(components["release"])` | Android のライブラリは、リリース版の AAR を公開する。`release` の部品は Android のプラグインが評価を終えてから作られるので、`afterEvaluate` の中で使う |
@@ -203,7 +204,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-yorisoi-sanpoguide の [publish.yml](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/.github/workflows/publish.yml) も同じ形で、タグ `prompts-v<版>` を押すとプロンプト・パックだけを公開します。
+yorisoi-sanpoguide の [publish.yml](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/.github/workflows/publish.yml) も同じ形で、タグ `prompts-v<版>` を押すとプロンプト・パックだけを公開します。yorisoi-cycleguide も同じです。
 
 ```mermaid
 flowchart LR
@@ -226,13 +227,13 @@ flowchart LR
 
 ## 使う側: validator の設定
 
-管理システムの [validator/settings.gradle.kts](https://github.com/duwenji/yorisoi-console/blob/main/validator/settings.gradle.kts) は、GitHub Packages からコアとプロンプト・パックを取ってくる設定をしています。2 つは別のリポジトリから公開されているので、取ってくる場所も 2 つです。
+管理システムの [validator/settings.gradle.kts](https://github.com/duwenji/yorisoi-console/blob/main/validator/settings.gradle.kts) は、GitHub Packages からコアと 2 つのプロンプト・パックを取ってくる設定をしています。3 つは別のリポジトリから公開されているので、取ってくる場所も 3 つです。
 
 ```kotlin
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
-        // core-format from yorisoi-platform, SanpoGuide's prompt pack from yorisoi-sanpoguide (…).
+        // core-format from yorisoi-platform, the prompt packs from yorisoi-sanpoguide and yorisoi-cycleguide.
         // Both are public repositories. Reading GitHub Packages needs a token with read:packages: …
         val gprUser = providers.gradleProperty("gpr.user").orElse(providers.environmentVariable("GITHUB_ACTOR")).orNull
         val gprKey = providers.gradleProperty("gpr.key").orElse(providers.environmentVariable("GITHUB_TOKEN")).orNull
@@ -249,6 +250,7 @@ dependencyResolutionManagement {
                 credentials { username = gprUser; password = gprKey }
                 content { includeGroup("io.github.duwenji.yorisoi.sanpoguide") }
             }
+            // … yorisoiCycleguide も同じ形（io.github.duwenji.yorisoi.cycleguide）…
         }
         // Built locally (`./gradlew publishToMavenLocal` in yorisoi-platform and yorisoi-sanpoguide).
         mavenLocal {
@@ -269,11 +271,14 @@ dependencyResolutionManagement {
 `validator/build.gradle.kts` の依存は、版を固定しています。
 
 ```kotlin
-implementation("io.github.duwenji.yorisoi:core-format:1.0.0")
-implementation("io.github.duwenji.yorisoi.sanpoguide:prompts:1.0.0")
+implementation("io.github.duwenji.yorisoi:core-format:2.15.0")
+implementation("io.github.duwenji.yorisoi.sanpoguide:prompts:4.2.0")
+implementation("io.github.duwenji.yorisoi.cycleguide:prompts:0.1.0")
 ```
 
-コアが新しい版を出しても、管理システムは書いた版を使い続けます。たとえばコアがリストの新しい項目の読み方（アプリのためのもの）を足した版を出しても、機械審査に要らなければ、管理システムは前の版のままでかまいません。新しい版を使うのは、管理システムの側で版を書き換えて確かめたときです。**使う側が、上げる時期を自分で決められる** のが、版を固定する利点です。アプリ（yorisoi-sanpoguide）も、yorisoi-platform に対して同じ立場です。
+コアが新しい版を出しても、管理システムは書いた版を使い続けます。たとえばコアがリストの新しい項目の読み方（アプリのためのもの）を足した版を出しても、機械審査に要らなければ、管理システムは前の版のままでかまいません。新しい版を使うのは、管理システムの側で版を書き換えて確かめたときです。**使う側が、上げる時期を自分で決められる** のが、版を固定する利点です。アプリ（yorisoi-sanpoguide・yorisoi-cycleguide）も、yorisoi-platform に対して同じ立場で、`gradle/libs.versions.toml` の `yorisoi = "…"` で版を固定しています。
+
+版を固定すると、キットとアプリを **同時に** 直したいときに困ります。キットを直すたびに公開して、アプリの版を上げて…とやっていては進みません。そのときは、公開の版の代わりに手元の yorisoi-platform のソースを使います（[1-2](../01-kotlin-android/02-gradle.md) の composite build、`-Pyorisoi.platformDir=../yorisoi-platform`）。yorisoi-platform の全体の `build.gradle.kts` が `group` を座標と同じにしているのは、この差し替えのためでもあります。CI では使わず、公開された版で組み立てられることを確かめます。
 
 管理システムの CI（[ci.yml](https://github.com/duwenji/yorisoi-console/blob/main/.github/workflows/ci.yml)）も、`packages: read` の権限と `GITHUB_TOKEN` でコアとプロンプト・パックを取ってきて、`validator` をビルドしています。
 
@@ -329,7 +334,7 @@ cat core-format/build/publications/maven/pom-default.xml
 ```xml
   <groupId>io.github.duwenji.yorisoi</groupId>
   <artifactId>core-format</artifactId>
-  <version>1.0.0</version>
+  <version>2.16.0</version>
   <name>yorisoi core-format</name>
   <description>… Requires org.json on the classpath.</description>
   …
@@ -343,17 +348,18 @@ cat core-format/build/publications/maven/pom-default.xml
   </dependencies>
 ```
 
-- 座標（`groupId`・`artifactId`・`version`）と説明が入っている
+- 座標（`groupId`・`artifactId`・`version`）と説明が入っている。`version` は `yorisoiVersion` の値
 - 依存は `kotlin-stdlib` だけ。`compileOnly` の `org.json` は **入っていない**。使う側に `org.json` が連れてこられないことが分かる
 
-タスクの名前 `generatePomFileForMavenPublication` の `Maven` は、`create<MavenPublication>("maven")` の名前から来ています。キットの POM（`./gradlew :kit-mood:generatePomFileForMavenPublication`）を見ると、依存に `kit-geo`・`kit-voice`・`core-format` が `io.github.duwenji.yorisoi:…:1.0.0` として入っていることを確かめられます。同じリポジトリの中の `project(…)` への依存が、公開すると座標への依存に置き換わるのです。
+タスクの名前 `generatePomFileForMavenPublication` の `Maven` は、`create<MavenPublication>("maven")` の名前から来ています。キットの POM（`./gradlew :kit-mood:generatePomFileForMavenPublication`）を見ると、依存に `kit-geo`・`kit-voice`・`core-format` が `io.github.duwenji.yorisoi:…:<yorisoiVersion の値>` として入っていることを確かめられます。同じリポジトリの中の `project(…)` への依存が、公開すると座標への依存に置き換わるのです。
 
 ### 2. タグと版の照合を手元で再現する
 
 ワークフローの「Check the tag」と同じ処理を、手元で動かしてみます。
 
 ```sh
-for tag in v1.0.0 v1.1.0; do
+V=$(grep '^yorisoiVersion=' gradle.properties | cut -d= -f2)
+for tag in "v$V" v0.0.1; do
   GITHUB_REF_NAME=$tag bash -c '
     version=$(grep "^yorisoiVersion=" gradle.properties | cut -d= -f2)
     if [ "${GITHUB_REF_NAME#v}" != "${version}" ]; then
@@ -364,11 +370,11 @@ done
 ```
 
 ```
-OK v1.0.0
-Tag v1.1.0 does not match yorisoiVersion=1.0.0
+OK v2.16.0
+Tag v0.0.1 does not match yorisoiVersion=2.16.0
 ```
 
-版を上げずにタグだけ `1.1.0` を押すと、ここで止まることが分かります。
+（数字は、そのときの `yorisoiVersion` です。）`gradle.properties` と違う版のタグを押すと、ここで止まることが分かります。
 
 ### 3. gradlew の権限を確かめる
 
@@ -400,7 +406,7 @@ gh run list -R duwenji/yorisoi-sanpoguide --workflow publish.yml --limit 8
 - **公開した版の中身を差し替えない**: 直すときは新しい版を出す
 - **タグと版をそろえる**: CI で照合して止める
 - **トークンをファイルに書かない**: 環境変数や、リポジトリの外の `~/.gradle/gradle.properties` に
-- **使う側は版を固定する**: 上げる時期を自分で決められる
+- **使う側は版を固定する**: 上げる時期を自分で決められる。一緒に直すときは、手元のソースに差し替える（composite build）
 - **依存されるもの（コア）から先に公開する**: プロンプト・パックは、使うコアが公開されてから
 - **パッケージはリポジトリに結びつく**: ライブラリを別のリポジトリへ移すときは、名前を変えるか、古いパッケージを消す
 - **Windows で作ったスクリプトの実行権限**: `git update-index --chmod=+x`。改行も LF に
@@ -415,9 +421,9 @@ gh run list -R duwenji/yorisoi-sanpoguide --workflow publish.yml --limit 8
 </details>
 
 <details>
-<summary>問 2. yorisoi-platform が <code>core-format</code> の 1.1.0 を公開しました。管理システムの <code>validator</code> は、すぐに 1.1.0 を使い始めますか。</summary>
+<summary>問 2. yorisoi-platform が <code>core-format</code> の新しい版を公開しました。管理システムの <code>validator</code> は、すぐに新しい版を使い始めますか。</summary>
 
-使い始めません。`validator/build.gradle.kts` が `1.0.0` に固定しているからです。管理システムの側で版を書き換え、テストで確かめてから上げます。
+使い始めません。`validator/build.gradle.kts` が版を固定しているからです。管理システムの側で版を書き換え、テストで確かめてから上げます。
 
 </details>
 

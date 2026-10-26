@@ -91,7 +91,7 @@ flowchart TB
 
 | 用語 | 意味 |
 |---|---|
-| リポジトリ | Git で管理しているフォルダ一式。ここでは SanpoGuide と yorisoi-console の 2 つ |
+| リポジトリ | Git で管理しているフォルダ一式。ここでは yorisoi-platform・yorisoi-sanpoguide・yorisoi-console の 3 つ |
 | モノレポ | 複数のパッケージ（部品）を 1 つのリポジトリに入れる構成。yorisoi-console がこれ |
 | 依存関係 | 自分のコードが使う、他人が作ったライブラリ |
 | ビルド | ソースコードを、実行できる形（APK、JavaScript のファイルなど）に変換すること |

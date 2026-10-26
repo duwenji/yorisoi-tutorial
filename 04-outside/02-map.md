@@ -129,11 +129,15 @@ fun SpotMap(
     heading: Float?,
     spots: List<SpotItem>,
     facilities: List<FacilityItem>,
+    walked: List<LatLon>,
     route: RouteToSpot?,
     focus: Facility?,
     onSpotClick: (SpotItem) -> Unit,
     onViewportChanged: (zoom: Int, north: Double, south: Double, east: Double, west: Double) -> Unit,
     modifier: Modifier = Modifier,
+    selected: Poi? = null,
+    recenterRequests: Int = 0,
+    fitWalked: Boolean = false,
 ) {
     val mapView = remember {
         MapView(context).apply {
@@ -162,6 +166,26 @@ fun SpotMap(
 | `AndroidView` の最後のブロック | 引数（位置・スポットなど）が変わるたびに呼ばれる。ここで地図を書き換える |
 
 最後のブロックは、宣言的な Compose と、書き換えて使う昔の部品の **つなぎ目** です。Compose の側からは「位置はここ、スポットはこれ」と宣言するだけで、ブロックの中で昔の部品のやり方（マーカーを足す、消す）に翻訳しています。
+
+### 「1 回だけの操作」を数で伝える
+
+地図の右下の「現在地に戻る」ボタンは、状態ではなく **出来事** です。「現在地に戻っている」という状態があるわけではなく、押した瞬間に 1 回だけ地図を動かしたい。宣言的な部品には、こうした出来事を渡しにくいものです。
+
+そこで `SpotMap` は、`recenterRequests: Int` という **数** を受け取ります。`MainScreen` は押されるたびに `recenter++` で数を 1 つ増やし、`SpotMap` は前回の値と違ったときだけ現在地へ動かします。
+
+```kotlin
+// MainScreen
+var recenter by remember { mutableIntStateOf(0) }
+// …
+SpotMap(/* … */ recenterRequests = recenter)
+SmallFloatingActionButton(onClick = { recenter++ }) { /* … */ }
+
+// SpotMap の AndroidView のブロックの中
+val asked = recenterRequests != markers.recenterRequests
+markers.recenterRequests = recenterRequests
+```
+
+値が変わったかどうかで出来事を表すので、再コンポーズで何度呼ばれても、地図が動くのは押した回数だけです。選んだスポット（`selected`）が変わったときに地図をそこへ動かすのも、同じ「前回と比べる」やり方です。`fitWalked` は、走り終えたあとに走った道の全体を映すための引数で、CycleGuide の「前回の走行」の地図が使っています。
 
 ## 地図の上に描く
 
