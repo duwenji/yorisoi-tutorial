@@ -78,6 +78,7 @@ flowchart TB
 | メール | Amazon SES | チャンネル提供者・素材提供者への通知 | 8 |
 | 鍵 | AWS KMS | 承認済みチャンネル・リストへの署名 | 6・8 |
 | 機械審査 | Kotlin の Lambda、コア・プロンプト・パック | 申請されたパッケージと素材集をアプリと同じ規則で確かめる | 8 |
+| 運営の AI | API Gateway（REST API）・AWS WAF・Amazon Bedrock・Parameter Store | アプリからの AI の呼び出しを、運営の負担で中継する（管理システムとは別のスタック） | 8 |
 | 画面 | React 19、Vite、react-router | 運営・チャンネル提供者・素材提供者の画面 | 9 |
 | ログイン（画面） | oidc-client-ts | ブラウザから Cognito にログインする | 9 |
 | 暗号（画面） | WebCrypto | チャンネル提供者の秘密鍵をブラウザの中で作る | 9 |

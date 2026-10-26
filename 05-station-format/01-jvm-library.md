@@ -137,15 +137,17 @@ fun fromResources() = PromptTemplates { name ->
 
 ただし、クラスパスのリソースには弱点があります。**フォルダの中にどんなファイルがあるかを一覧できない** のです（jar や APK の中は、普通のフォルダではないため）。組み込みのチャンネルを読むには、`history/` の中にどんなファイルがあるかを知る必要があります。
 
-そこで、ビルドのときにファイルの一覧（`index.txt`）を作って一緒に入れています。[1-2](../01-kotlin-android/02-gradle.md) で見た自作のタスク `channelIndex` です（`prompts/build.gradle.kts`）。
+そこで、ビルドのときにファイルの一覧（`index.txt`）を作って一緒に入れています。[1-2](../01-kotlin-android/02-gradle.md) で見た自作のタスク `channelIndex` です（`prompts/build.gradle.kts`）。読む側は、kit-channel の [ResourceChannels.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/ResourceChannels.kt) です。
 
 ```kotlin
-// BuiltInChannels.kt
 /**
- * Every file under [RESOURCE_DIR], one relative path per line. Written by the build
- * (`channelIndex` in prompts/build.gradle.kts), since a jar can't list a folder.
+ * … A jar (or an APK) can't list a resource folder, so the app's build writes every file under
+ * [resourceDir], one relative path per line, to [index].
  */
-const val INDEX = "$RESOURCE_DIR/index.txt"
+open class ResourceChannels(val resourceDir: String, val standardId: String, val ids: List<String>) {
+    val index: String get() = "$resourceDir/index.txt"
+    // …
+}
 ```
 
 ## ファイルの集まりを抽象化する: StationFiles
@@ -174,29 +176,36 @@ interface StationFiles {
 | 実装 | 場所 | 中身 |
 |---|---|---|
 | `DirectoryStationFiles` | `core-format` の `StationFiles.kt` | 普通のフォルダを `File` で読む |
-| `ResourceStationFiles` | プロンプト・パックの `BuiltInChannels.kt` | クラスパスのリソースを、`index.txt` の一覧で読む |
+| `Resources`（外からは見えない） | kit-channel の `ResourceChannels.kt` | クラスパスのリソースを、`index.txt` の一覧で読む |
 | `MemoryStationFiles` | `core-format` の `PackageArchive.kt` | ZIP を展開した中身（`Map<String, ByteArray>`）を返す |
 
-`StationValidator.check(files, …)` は、`StationFiles` さえ受け取れば、どこから来たファイルでも同じように確かめられます。リソースを読む実装がプロンプト・パックの側にあるのは、どのリソースを持つかがアプリごとに違うからです。
+`StationValidator.check(files, …)` は、`StationFiles` さえ受け取れば、どこから来たファイルでも同じように確かめられます。リソースを読む仕組みは kit-channel にあり、どのフォルダのどのチャンネルを読むかは、アプリのプロンプト・パックが決めます（下で見ます）。散策ガイドと CycleGuide は、同じ仕組みで、それぞれ自分の組み込みのチャンネルを読みます。
 
 ### 組み込みのチャンネルも同じ確認を通す
 
+プロンプト・パックの [BuiltInChannels.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/prompts/src/main/kotlin/io/github/duwenji/yorisoi/sanpoguide/prompt/BuiltInChannels.kt) は、どこに・どのチャンネルがあるかを決めるだけです。
+
 ```kotlin
-/**
- * The channels that ship with the app, as resources under `sanpoguide/channels/{id}/` in the
- * same layout as a third-party package. They go through the same checks, so a mistake in the
- * format shows up here first. …
- */
-object BuiltInChannels {
-    /** Reads and checks the built-in channel in [files]; a rejection means the app's own files are wrong. */
-    fun read(id: String, files: StationFiles): StationPackage =
-        when (val result = StationValidator.check(files, StationOrigin.BUILT_IN)) {
-            is StationCheck.Ok -> result.station.also { /* … */ }
-            // Fail loudly rather than run with a broken channel.
-            is StationCheck.Rejected -> error("Built-in channel \"$id\" is invalid: ${result.code.json} ${result.detail}")
-        }
-}
+object BuiltInChannels : ResourceChannels(
+    resourceDir = "sanpoguide/channels",
+    standardId = "standard",
+    ids = listOf("standard", "history", "nature", "gourmet", "shopping", "quiet"),
+)
 ```
+
+読んで確かめるのは、kit-channel の `ResourceChannels.read` です。
+
+```kotlin
+/** Reads and checks the built-in channel in [files]; a rejection means the app's own files are wrong. */
+fun read(id: String, files: StationFiles): StationPackage =
+    when (val result = StationValidator.check(files, StationOrigin.BUILT_IN)) {
+        is StationCheck.Ok -> result.station.also { /* … */ }
+        // Fail loudly rather than run with a broken channel.
+        is StationCheck.Rejected -> error("Built-in channel \"$id\" is invalid: ${result.code.json} ${result.detail}")
+    }
+```
+
+`ResourceChannels` は、リソースを `javaClass.classLoader` で読みます。`BuiltInChannels` は `ResourceChannels` を受け継いだ `object` なので、`javaClass` はプロンプト・パックのクラスになり、プロンプト・パックの jar の中のリソースが見つかります。
 
 アプリに入っている 6 つのチャンネルも、**第三者のパッケージとまったく同じ形** で置き、**同じ確認** を通しています（署名だけは要らない）。コメントのとおり、形式の間違いは、まず自分の組み込みのチャンネルで見つかります。そして組み込みのチャンネルが確認に落ちたら、静かに続けず、はっきり止めます（"Fail loudly"）。自分のファイルが壊れているということだからです。
 

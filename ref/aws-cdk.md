@@ -59,7 +59,7 @@ console.log(Object.keys(t.toJSON().Resources).length, 'resources');
 cd /c/Dev/apps/yorisoi-console
 mkdir -p .local/cdk-cards && cp ../yorisoi-tutorial/08-aws/scripts/cdk-samples.ts .local/cdk-cards/app.ts
 cd infra && npx tsx ../.local/cdk-cards/app.ts
-#  → 27 resources …
+#  → 28 resources …
 ```
 
 ### よく使うコマンド（CDK のプロジェクトで）

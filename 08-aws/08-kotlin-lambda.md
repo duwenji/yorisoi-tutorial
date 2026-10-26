@@ -388,4 +388,4 @@ git status
 
 ---
 
-前: [8-7 SQS・SES・KMS](07-sqs-ses-kms.md) ／ 次: [9-1 React と Vite](../09-console/01-react-vite.md)
+前: [8-7 SQS・SES・KMS](07-sqs-ses-kms.md) ／ 次: [8-9 運営の AI の中継](09-ai-relay.md)

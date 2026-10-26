@@ -32,12 +32,13 @@
 
 ## リポジトリの置き方
 
-4 つのフォルダを同じ親フォルダに並べてください。このチュートリアルのリンクも、管理システムの一部のスクリプトも、この並びを前提にしています。
+フォルダを同じ親フォルダに並べてください。このチュートリアルのリンクも、管理システムの一部のスクリプトも、この並びを前提にしています。2 本目のアプリ yorisoi-cycleguide は、[5-5](../05-station-format/05-second-app.md) を読むときだけ要ります。
 
 ```
 c:\Dev\apps\
 ├── yorisoi-platform\   共通の部品（コアとキット）
 ├── yorisoi-sanpoguide\ Android アプリ SanpoGuide
+├── yorisoi-cycleguide\ 2 本目の Android アプリ CycleGuide（5-5 で）
 ├── yorisoi-console\    チャンネル管理システム
 └── yorisoi-tutorial\   このチュートリアル
 ```
@@ -46,6 +47,7 @@ c:\Dev\apps\
 cd /c/Dev/apps
 git clone https://github.com/duwenji/yorisoi-platform.git
 git clone https://github.com/duwenji/yorisoi-sanpoguide.git
+git clone https://github.com/duwenji/yorisoi-cycleguide.git
 git clone https://github.com/duwenji/yorisoi-console.git
 ```
 
