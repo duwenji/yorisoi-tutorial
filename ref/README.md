@@ -9,7 +9,7 @@
 
 ## カードの一覧
 
-✅ は執筆済みです（40 枚）。章を書くときに、その章で出てくる技術のカードを一緒に作りました。
+✅ は執筆済みです（46 枚）。章を書くときに、その章で出てくる技術のカードを一緒に作りました。
 
 ### 暗号
 
@@ -77,8 +77,19 @@
 
 | カード | 状態 | 主に出てくる章 |
 |---|---|---|
-| [GitHub Actions](github-actions.md) | ✅ | 第 5 部、第 9 部 |
 | [Docker](docker.md) | ✅ | 第 7 部 |
+
+### GitHub
+
+| カード | 状態 | 主に出てくる章 |
+|---|---|---|
+| [Git](git.md) | ✅ | 11-1、11-2 |
+| [プルリクエスト](pull-request.md) | ✅ | 11-2 |
+| [gh CLI](gh-cli.md) | ✅ | 9-4、第 11 部 |
+| [GitHub Actions](github-actions.md) | ✅ | 5-3、9-4、11-3 |
+| [GITHUB_TOKEN と個人用のトークン](github-token.md) | ✅ | 11-4 |
+| [GitHub Packages](github-packages.md) | ✅ | 5-3、11-5 |
+| [GitHub Pages](github-pages.md) | ✅ | 10-3、11-6 |
 
 ### 位置
 

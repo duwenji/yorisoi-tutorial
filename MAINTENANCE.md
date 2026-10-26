@@ -74,7 +74,29 @@ cd ../yorisoi-console && git diff 6e0d89c..main -- '**/package.json'
 cd ../yorisoi-cycleguide && git diff 40f6462..main -- '*.gradle.kts' gradle/
 ```
 
-### 7. 記録を更新する
+### 7. GitHub の設定とワークフローを確かめる
+
+第 11 部は、ワークフローのファイルと、GitHub の上の設定（コードの外にあるもの）を説明しています。ワークフローの差分と、設定の今の値を見ます。
+
+```sh
+cd ../yorisoi-platform && git diff 21028df..main -- .github/ .gitattributes .gitignore
+cd ../yorisoi-sanpoguide && git diff b8931f9..main -- .github/ .gitattributes .gitignore docs/_config.yml
+cd ../yorisoi-console && git diff 6e0d89c..main -- .github/ .gitattributes .gitignore
+cd ../yorisoi-cycleguide && git diff 40f6462..main -- .github/ .gitattributes .gitignore docs/_config.yml
+
+for r in yorisoi-platform yorisoi-sanpoguide yorisoi-console yorisoi-cycleguide; do
+  echo "== $r"
+  gh api repos/duwenji/$r --jq '{visibility,delete_branch_on_merge}'
+  gh api repos/duwenji/$r/actions/permissions/workflow --jq .default_workflow_permissions
+  gh api repos/duwenji/$r/actions/secrets --jq .total_count
+  gh api repos/duwenji/$r/rulesets --jq length
+done
+gh api repos/duwenji/yorisoi-sanpoguide/releases --jq length
+```
+
+公開のまま・既定の権限が `read`・シークレットが 0・ルールセットが 0・リリースが 0 でなくなっていたら、11-2・11-4・11-6 の該当する節を直します。
+
+### 8. 記録を更新する
 
 [README.md](README.md) の「最後に照合した日」と「照合したコミット」を更新します。
 

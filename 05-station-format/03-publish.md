@@ -2,7 +2,7 @@
 
 [目次](../README.md) ＞ 第 5 部 ＞ 5-3
 
-> GitHub Actions の仕組みと最小の使い方は [技術カード: GitHub Actions](../ref/github-actions.md) にあります。
+> GitHub Actions の仕組みと最小の使い方は [技術カード: GitHub Actions](../ref/github-actions.md) にあります。同じ公開を GitHub の側（権限・タグ・消さない決まり）から見るのは [11-5](../11-github/05-packages-tags.md) です。
 
 ## この章で学ぶこと
 

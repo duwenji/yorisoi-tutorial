@@ -56,7 +56,8 @@ flowchart TB
 | 保存 | JSON ファイル、Android Keystore | 散歩の記録、API キーの暗号化 | 4 |
 | 暗号 | Tink（Ed25519） | 第三者のチャンネルの署名を確かめる | 6 |
 | 読み取り | Google Code Scanner | 試用チケットの QR コード | 6 |
-| 公開 | maven-publish、GitHub Packages、GitHub Actions | コアとプロンプト・パックを管理システムに渡す | 5 |
+| 公開 | maven-publish、GitHub Packages、GitHub Actions | コアとプロンプト・パックを管理システムに渡す | 5・11 |
+| 開発の流れ | Git、GitHub（プルリクエスト・Actions・Pages）、gh | ブランチとプルリクエストで変更を入れる、CI、プライバシーポリシーの公開 | 11 |
 | テスト | JUnit 4 | 判定のロジック、形式の確認 | 各部 |
 | 配布 | Google Play（AAB・Play App Signing・Play Developer API）、Play Integrity | ストアで配る、本物のアプリかを中継に示す | 10 |
 
@@ -83,7 +84,7 @@ flowchart TB
 | 画面 | React 19、Vite、react-router | 運営・チャンネル提供者・素材提供者の画面 | 9 |
 | ログイン（画面） | oidc-client-ts | ブラウザから Cognito にログインする | 9 |
 | 暗号（画面） | WebCrypto | チャンネル提供者の秘密鍵をブラウザの中で作る | 9 |
-| CI | GitHub Actions | 型の確認、テスト、ビルド、`cdk synth` | 9 |
+| CI | GitHub Actions | 型の確認、テスト、ビルド、`cdk synth` | 9・11 |
 
 ## 用語集
 

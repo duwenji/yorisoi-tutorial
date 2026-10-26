@@ -19,9 +19,10 @@ flowchart LR
     P1 --> P6["第 6 部<br/>信頼の仕組み<br/>（2 つをつなぐ）"]
     P7 --> P6
     P1 --> P10["第 10 部<br/>Google Play で届ける"]
+    P0 --> P11["第 11 部<br/>GitHub で開発を回す"]
 ```
 
-第 0 部は必ず最初に読んでください。そのあとは、アプリから入っても管理システムから入ってもかまいません。第 6 部は両方にまたがる話なので、どちらか一方を読んだあとが読みやすいですが、第 0 部だけ読んでから挑戦することもできます（必要な文法はその場で補います）。第 10 部は、できたアプリを Google Play で配る話です。第 1〜5 部（とくに 1-4 の署名）のあとに読んでください。10-5 は 8-9（運営の AI の中継）とつながっています。
+第 0 部は必ず最初に読んでください。そのあとは、アプリから入っても管理システムから入ってもかまいません。第 6 部は両方にまたがる話なので、どちらか一方を読んだあとが読みやすいですが、第 0 部だけ読んでから挑戦することもできます（必要な文法はその場で補います）。第 10 部は、できたアプリを Google Play で配る話です。第 1〜5 部（とくに 1-4 の署名）のあとに読んでください。10-5 は 8-9（運営の AI の中継）とつながっています。第 11 部は、5 つのリポジトリで共通の GitHub の使い方（ブランチとプルリクエスト・Actions・トークン・Packages・Pages）をまとめて読む部です。第 0 部のあと、いつ読んでもかまいません。5-3（公開）と 9-4（CI）を読んだあとだと、具体的な例がつかみやすくなります。
 
 ## 目次
 
@@ -138,6 +139,17 @@ flowchart LR
 | [10-4 API で出す](10-play/04-api.md) | サービス アカウント、認証と認可の分担、JWT とアクセス トークン、編集（edit）にまとめて確かめてから確定、`tools/play.mjs`。JWT を手で作る |
 | [10-5 Play Integrity](10-play/05-integrity.md) | 本物のアプリかを確かめる、Standard request と `requestHash`、サーバーで読み解いて確かめる、開発用と本番、判定に頼りすぎない |
 
+### 第 11 部 GitHub で開発を回す ✅
+
+| 章 | 内容 |
+|---|---|
+| [11-1 Git と 5 つのリポジトリ](11-github/01-git-and-repos.md) | Git の 3 つの場所、5 つのリポジトリが GitHub の何を使っているか、`.gitignore` で秘密を入れない、`.gitattributes` で改行を固定する、実行の権限、改名で転送されるものと自分で直すもの。改行の固定を外してテストを落とす |
+| [11-2 ブランチとプルリクエスト](11-github/02-pull-requests.md) | ブランチの名前、説明の書き方、merge commit と `--first-parent`、番号で理由までたどる、複数のリポジトリにまたがる変更の順番（公開前の版で CI が落ちた実話）、使っていない仕組み（ルールセットなど）。練習用のリポジトリでプルリクエストを通す |
+| [11-3 GitHub Actions を読み比べる](11-github/03-actions.md) | 7 つのワークフロー、きっかけごとに試されるもの、4 つの CI の同じところと違うところ、`concurrency`・`if: failure()` と成果物・キャッシュ。CI を落としてログと成果物を読む |
+| [11-4 トークンと権限](11-github/04-tokens.md) | `GITHUB_TOKEN` の一生と `permissions`、ほかのリポジトリのパッケージを読める条件、フォークからのプルリクエスト、手元のトークン、シークレットを使わない設計。権限を外して拒まれるのを見る |
+| [11-5 GitHub Packages とタグ](11-github/05-packages-tags.md) | 3 つの置き場所、パッケージはリポジトリに従う、タグの押し方と名前の分け方、消さない・動かさない。すべてのタグが版と合っているかを確かめる |
+| [11-6 GitHub Pages と Releases](11-github/06-pages-releases.md) | `docs/` の一部だけを出す `_config.yml`、`relative_url`、Play に出した URL を変えない、Releases を使わない理由。練習用のリポジトリで Pages を出す |
+
 ### 技術カード
 
 章とは別に、1 つの技術を 1 ページで説明する [技術カード](ref/README.md) があります。章は「このコードはなぜこう書かれているか」を、カードは「その技術がどう動き、最小限どう使うか」を説明します。章を書くときに、その章で出てくる技術のカードを一緒に作ります。
@@ -154,6 +166,7 @@ flowchart LR
 | 第 8 部: [IAM](ref/iam.md)・[AWS CDK](ref/aws-cdk.md)・[Lambda](ref/lambda.md)・[API Gateway](ref/api-gateway.md)・[Cognito](ref/cognito.md)・[DynamoDB](ref/dynamodb.md)・[S3](ref/s3.md)・[CloudFront](ref/cloudfront.md)・[SQS](ref/sqs.md)・[SES](ref/ses.md)・[Amazon Bedrock](ref/bedrock.md)・[Parameter Store](ref/parameter-store.md) | ✅ |
 | 第 9 部: [React](ref/react.md)・[Vite](ref/vite.md)・[OIDC](ref/oidc.md)・[WebCrypto](ref/webcrypto.md) | ✅ |
 | 第 10 部: [Android App Bundle](ref/android-app-bundle.md)・[Google Play Developer API](ref/play-developer-api.md)・[サービス アカウントと OAuth 2.0](ref/service-account-oauth.md)・[Play Integrity API](ref/play-integrity.md) | ✅ |
+| 第 11 部: [Git](ref/git.md)・[プルリクエスト](ref/pull-request.md)・[gh CLI](ref/gh-cli.md)・[GITHUB_TOKEN と個人用のトークン](ref/github-token.md)・[GitHub Packages](ref/github-packages.md)・[GitHub Pages](ref/github-pages.md) | ✅ |
 
 ## 各章の形
 
