@@ -21,9 +21,11 @@ yorisoi-sanpoguide/
 │       │   ├── walk/            常駐サービス WalkService、きっかけの見せ方
 │       │   ├── companion/       話しかけの判断（TalkDecider・天気・施設・スポットの選び方）
 │       │   ├── guide/           AI への解説の頼み方
-│       │   ├── material/        素材の出どころ（Producer）、チャンネルのきっかけ
-│       │   ├── station/         チャンネル（remote/ は第三者のチャンネル）、アプリのプロファイル
+│       │   ├── material/        アプリの素材提供者（AI・定型文・写真・背景音・絵）と、散歩の題材
+│       │   ├── station/         組み込みのチャンネル、アプリのプロファイル
 │       │   ├── history/         散歩の記録
+│       │   ├── diagnostics/     開発者モードの詳しい記録の書き出し
+│       │   ├── report/          チャンネルや発言の通報
 │       │   └── settings/        設定
 │       └── test/                単体テスト
 ├── prompts/                     プロンプト・パック（:prompts、素の JVM）
@@ -39,10 +41,11 @@ yorisoi-platform/                エコシステム共通の方針・契約と�
 ├── core-format/                 コア: チャンネル・パッケージと素材集の形式、署名の確認、リストの文書（素の JVM）
 ├── core-prompt/                 コア: プロンプトのテンプレートの仕組み（素の JVM）
 ├── kit-voice/                   キット: 読み上げ、背景音
-├── kit-llm/                     キット: AI の呼び出し、API キーの暗号化
-├── kit-geo/                     キット: スポット・施設・ルート・写真・天気の取得、地図
+├── kit-llm/                     キット: AI の接続（自分のキー・運営の AI の中継）、API キーの暗号化、回数、返事の確認
+├── kit-geo/                     キット: スポット・施設・ルート・写真・天気の取得、地図、スポット検索のキャッシュ
 ├── kit-mood/                    キット: 雰囲気
-├── kit-companion/               キット: 話す判断のルールとゲート（素の JVM）
+├── kit-companion/               キット: 話す判断のルールとゲート、散歩の詳しい記録（素の JVM）
+├── kit-channel/                 キット: アプリの中のチャンネル、第三者のチャンネルの取り込み（remote/）、素材ときっかけ（material/）（素の JVM）
 └── docs/                        共通文書（decisions/・contracts/・overview/・policies/・work/）とアプリの手引き
 ```
 
@@ -60,7 +63,8 @@ yorisoi-console/
 ├── api/src/
 │   ├── publish/         公開の処理（リストを作って署名して置く）★第 6 部
 │   ├── console/         管理 API
-│   └── notify/          チャンネル提供者・素材提供者へのメール
+│   ├── notify/          チャンネル提供者・素材提供者へのメール
+│   └── relay/           運営の AI の中継（アプリからの AI の呼び出しを、運営の鍵で取り次ぐ）
 ├── web/                 画面（React）
 ├── validator/           機械審査（Kotlin）
 ├── infra/               AWS CDK

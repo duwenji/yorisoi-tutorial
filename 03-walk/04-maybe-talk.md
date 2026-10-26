@@ -158,7 +158,7 @@ data class TalkSituation(
 ) : TalkGates<WalkGate> { /* … isOpen … */ }
 ```
 
-コメントのとおり、Android の型を 1 つも含みません。だから単体テストで「雷雨が 20 分後に来て、近くにスポットもあり、前の発言から 1 分」という **場面を値で書いて**、`TalkDecider.decide` が何を返すかを確かめられます（`TalkDeciderTest`、19 件）。
+コメントのとおり、Android の型を 1 つも含みません。だから単体テストで「雷雨が 20 分後に来て、近くにスポットもあり、前の発言から 1 分」という **場面を値で書いて**、`TalkDecider.decide` が何を返すかを確かめられます（`TalkDeciderTest`、21 件）。
 
 ## 7 つの判断
 
@@ -184,7 +184,7 @@ is TalkDecision.WeatherTurn -> talk {
     val line = app.narration.line(TalkEvent.WeatherTurn(change), s, weather)
     // Without earphones the spoken warning goes unheard; lightning is worth a sound.
     if (change.kind == WeatherChangeKind.THUNDER) {
-        getSystemService(NotificationManager::class.java).notify(ALERT_NOTIFICATION_ID, alertNotification(line))
+        getSystemService(NotificationManager::class.java).notify(ALERT_NOTIFICATION_ID, alertNotification(CueShow.textOf(line).orEmpty()))
     }
     speakLine(line)
 }
@@ -216,10 +216,14 @@ Rule("spot", setOf(WalkGate.SPOT_GAP, WalkGate.MOVING, WalkGate.SETTLED)) { s ->
     nearby.firstOrNull { it.cue != null }?.let { TalkDecision.SpotCue(it.poi, it.distanceM.toInt(), it.cue!!) }
         // One spot per tick, by distance from the user (spots' distances to each other don't matter).
         ?: SpotChooser.pick(
-            nearby.map { SpotCandidate(it.poi, it.distanceM, it.visitedBefore) },
+            nearby.map { SpotCandidate(it.poi, it.distanceM, it.visitedBefore, planned = it.planned) },
             s.preferredCategories, s.skippedCategories,
             newSpots = TalkEventKind.SPOT in s.events, revisits = TalkEventKind.REVISIT in s.events,
-        )?.let { TalkDecision.Spot(it.poi, it.distanceM.toInt()) }
+        )?.let { chosen ->
+            // A plan can't jump ahead of an active point cue; ordinary spot ordering stays unchanged.
+            s.pointCue?.takeIf { chosen.planned }?.let(TalkDecision::PointCue)
+                ?: TalkDecision.Spot(chosen.poi, chosen.distanceM.toInt())
+        }
 },
 ```
 
@@ -228,14 +232,15 @@ Rule("spot", setOf(WalkGate.SPOT_GAP, WalkGate.MOVING, WalkGate.SETTLED)) { s ->
 1. この散歩でまだ話していないスポット（`alreadyThisWalk`）
 2. 60m 以内のもの。近い順に並べる
 3. **チャンネルがきっかけを置いたスポットがあれば、それを先に**（`cue`）。第三者のチャンネルは「このスポットに来たら、この素材を出す」と決められます（[0-1](../00-overview/01-what-we-build.md)）。チャンネルがわざわざ置いたものなので、ふだんは飛ばす種類のスポットでも出します。ただし、スポットの案内どうしの間隔は守ります
-4. きっかけがなければ、どれを話すかは `SpotChooser` に任せる。過去の散歩で訪れたか（再訪か、`visitedBefore`）も渡す
+4. きっかけがなければ、どれを話すかは `SpotChooser` に任せる。過去の散歩で訪れたか（再訪か、`visitedBefore`）と、散歩の前に散策者が「寄りたい」と計画に入れたか（`planned`）も渡す
+5. 計画に入れたスポットは `SpotChooser` で先に選ばれる。ただし、チャンネルがきっかけを置いた地点（③b）に来ているときは、そちらを先に話す
 
 ゲートの意味も大事です。
 
 - **立ち止まっている間は、次々に案内しない**（`MOVING`）: 寺の境内で 2 分立ち止まったら、周りのスポットを片っ端から案内するのではなく、休憩の一言の出番かもしれない
 - **スポットの案内どうしの間隔**（`SPOT_GAP`）: スポットが密集した通りで、講義のようにならないように
 
-`SpotChooser.pick` は、チャンネルの好み（歴史探訪なら寺社を先に、など）と、そのスポットの「話題になりそうか」（Wikipedia の記事があるか、など）で点数をつけ、点数が同じなら近い順に 1 つ選びます。選ばれなかった候補は、間隔がたったあとの判断で、まだ近くにいれば選ばれます。
+`SpotChooser.pick` は、計画に入れたスポットを先にし、そのうえでチャンネルの好み（歴史探訪なら寺社を先に、など）と、そのスポットの「話題になりそうか」（Wikipedia の記事があるか、など）で点数をつけ、点数が同じなら近い順に 1 つ選びます。選ばれなかった候補は、間隔がたったあとの判断で、まだ近くにいれば選ばれます。
 
 きっかけを探すのは `CueFinder`（`situation` を集めるときに呼ぶ）、見つかったきっかけの素材を用意するのは `CuePresenter`、通知やカードで見せるのは `CueShow` です（どれも `SanpoApp` が作ります。[2-3](../02-compose/03-manual-di.md)）。「同じきっかけを 1 回の散歩で何度も出さない」などの記録（`s.shownCues`）も、ここで使います。
 
@@ -318,18 +323,18 @@ enum class TalkLevel(
 
 | 部品 | 判断すること | テスト |
 |---|---|---|
-| `TalkDecider.decide` | 今の場面で、何を話すか（ルールの順番とゲート） | `TalkDeciderTest`（19 件、場面ごと） |
+| `TalkDecider.decide` | 今の場面で、何を話すか（ルールの順番とゲート） | `TalkDeciderTest`（21 件、場面ごと） |
 | `TalkEngine`（`kit-companion`） | ルールを上から聞き、最初の答えを返す仕組み | `TalkEngineTest`（5 件） |
-| `WeatherChangeDetector.detect` | 近いうちに天気が崩れるか、何分後か | `WeatherChangeDetectorTest`（8 件） |
-| `SpotChooser.pick` | 候補のうち、どのスポットを話すか | `SpotChooserTest`（4 件） |
-| `FacilityAdvisor.pick` | どの施設を、どの理由で案内するか | `FacilityAdvisorTest`（9 件） |
+| `WeatherChangeDetector.detect`（`kit-geo`） | 近いうちに天気が崩れるか、何分後か | `WeatherChangeDetectorTest`（8 件） |
+| `SpotChooser.pick` | 候補のうち、どのスポットを話すか | `SpotChooserTest`（6 件） |
+| `FacilityAdvisor.pick` | どの施設を、どの理由で案内するか | `FacilityAdvisorTest`（8 件） |
 | `WalkSession` | 距離、休憩の時間、チャンネルの切り替え | `WalkSessionStationTest`（6 件） |
 
 `maybeTalk` は Service の中にあり、位置・天気・AI・音声・通知に囲まれているので、テストが難しい場所です。だから判断のほうを外に出し、`maybeTalk` には「様子を集めて、決めてもらい、実行する」ことだけを残しています。判断の順番が `TalkDecider` にあるので、「雷雨と日の入りが重なったら雷雨が先」のような **順番の決まり** まで、テストで守れます。
 
 ### WeatherChangeDetector を読む
 
-[WeatherChange.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/WeatherChange.kt):
+天気の判定は、CycleGuide（自転車）でも使うので、platform の `kit-geo` にあります（[WeatherChange.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/weather/WeatherChange.kt)）。
 
 ```kotlin
 /** A turn for the worse, most serious first. Each kind also covers the ones after it. */
@@ -342,8 +347,12 @@ enum class WeatherChangeKind {
 }
 
 object WeatherChangeDetector {
-    fun detect(weather: Weather, now: Long, limits: Thresholds = Thresholds()): WeatherChange? {
-        val lookaheadMs = limits.ms(Threshold.WEATHER_LOOKAHEAD_MIN)
+    fun detect(
+        weather: Weather,
+        now: Long,
+        lookaheadMs: Long = LOOKAHEAD_MS,
+        heavyMmPerHour: Int = HEAVY_RAIN_MM_PER_H,
+    ): WeatherChange? {
         // …
         // Slots not over yet whose weather starts within the lookahead.
         val coming = weather.forecast.filter { it.at > now && it.at - SLOT_MS <= now + lookaheadMs }
@@ -356,6 +365,14 @@ object WeatherChangeDetector {
         return null
     }
 }
+```
+
+どこまで先を見るか（`lookaheadMs`）と、どれだけ降れば強い雨か（`heavyMmPerHour`）は、使う側が渡します。散策ガイドは、設定のしきい値から渡す小さな関数を自分の側に持っています（[WeatherChange.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/WeatherChange.kt)）。`TalkDecider` が呼んでいる `WeatherChangeDetector.detect(it, s.now, s.limits)` は、この拡張関数です。
+
+```kotlin
+/** A change for the worse coming soon, as the settings set the lookahead and heavy rain (platform kit-geo). */
+fun WeatherChangeDetector.detect(weather: Weather, now: Long, limits: Thresholds): WeatherChange? =
+    detect(weather, now, limits.ms(Threshold.WEATHER_LOOKAHEAD_MIN), limits[Threshold.HEAVY_RAIN_MM_PER_H])
 ```
 
 - 予報（15 分ごと）のうち、まだ終わっていなくて、設定の時間（既定 60 分）以内に始まるものを集める
@@ -379,14 +396,16 @@ enum の値は、書いた順に大小を比べられます（`THUNDER < HEAVY_R
 
 ## ハンズオン: 優先順位を壊す
 
+天気の判定は platform、話す判断は SanpoGuide にあります。platform を壊し、SanpoGuide を **手元の platform のソースで** ビルドして、両方のテストで気づけるかを見ます。
+
 ### 1. 天気の判定のテストを流す
 
 ```sh
-cd /c/Dev/apps/yorisoi-sanpoguide
-./gradlew :app:testDebugUnitTest --tests '*WeatherChangeDetectorTest*' --tests '*TalkDeciderTest*'
+cd ../yorisoi-platform
+./gradlew :kit-geo:testDebugUnitTest --tests '*WeatherChangeDetectorTest*'
 ```
 
-27 件（天気の判定 8 件と、話す判断の場面 19 件）のテストが通ります。テストの名前を [WeatherChangeDetectorTest.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/companion/WeatherChangeDetectorTest.kt) で見てみてください。
+8 件のテストが通ります。テストの名前を [WeatherChangeDetectorTest.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/test/java/io/github/duwenji/yorisoi/kit/geo/weather/WeatherChangeDetectorTest.kt) で見てみてください。
 
 - steady weather is no news（天気が変わらなければ、知らせない）
 - rain starting within the hour（1 時間以内に雨が降り出す）
@@ -395,7 +414,7 @@ cd /c/Dev/apps/yorisoi-sanpoguide
 
 ### 2. enum の並びを入れ替える
 
-[WeatherChange.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/WeatherChange.kt) の `WeatherChangeKind` を、深刻でない順に並べ替えます。
+platform の [WeatherChange.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/weather/WeatherChange.kt) の `WeatherChangeKind` を、深刻でない順に並べ替えます。
 
 ```kotlin
 enum class WeatherChangeKind {
@@ -410,29 +429,44 @@ enum class WeatherChangeKind {
 もう一度テストを流します。
 
 ```
-27 tests completed, 3 failed
+WeatherChangeDetectorTest > thunder beats rain, and is news even when it is already raining FAILED
+8 tests completed, 1 failed
+```
+
+### 3. 散歩の場面のテストでも確かめる
+
+SanpoGuide のテストを、壊した platform のソースで流します。`-Pyorisoi.platformDir` を付けると、Gradle が公開済みの platform の代わりに手元のソースを使います（composite build。[1-2](../01-kotlin-android/02-gradle.md)）。
+
+```sh
+cd ../yorisoi-sanpoguide
+./gradlew -Pyorisoi.platformDir=../yorisoi-platform :app:testDebugUnitTest --tests '*TalkDeciderTest*'
+```
+
+```
+21 tests completed, 3 failed
 ```
 
 落ちるのは次の 3 件です。
 
 | テスト | 出るエラー |
 |---|---|
-| `WeatherChangeDetectorTest` の thunder beats rain, and is news even when it is already raining | `expected:<THUNDER> but was:<RAIN>` |
-| `TalkDeciderTest` の a coming thunderstorm comes first, whatever else is due | `expected:<THUNDER> but was:<RAIN>` |
-| `TalkDeciderTest` の the same warning waits out its repeat gap | 何も話さないはずが、雨の警告を返す |
+| a coming thunderstorm comes first, whatever else is due | `expected:<THUNDER> but was:<RAIN>` |
+| planned spots do not outrank weather or channel cues and remain subject to skips | `expected:<THUNDER> but was:<RAIN>` |
+| the same warning waits out its repeat gap | 何も話さないはずが、雨の警告を返す |
 
-雨と雷雨の両方が予報されているとき、雨を先に見つけて返してしまうからです。「雷が来ます、建物に入ってください」と言うべきところで「雨が降りそうです」と言ってしまう、安全に関わる不具合です。判断を `TalkDecider` に移して場面のテストを書いたので、1 つの部品のテストだけでなく、「散歩の場面として何を話すか」のテストでも気づけるようになっています。
+雨と雷雨の両方が予報されているとき、雨を先に見つけて返してしまうからです。「雷が来ます、建物に入ってください」と言うべきところで「雨が降りそうです」と言ってしまう、安全に関わる不具合です。判断を `TalkDecider` に移して場面のテストを書いたので、1 つの部品のテストだけでなく、「散歩の場面として何を話すか」のテストでも気づけるようになっています。部品を別のリポジトリに移しても、使う側の場面のテストが、移した先の変更を見張っています。
 
 ただし、`maybeTalk` が警告を実行するときの `it >= change.kind` の意味も逆になります（雨の予告が、雷雨の予告を兼ねてしまう）。こちらは `maybeTalk` の中なので、テストでは見つかりません。enum の並びに意味を持たせるなら、その約束をコメントに書き、テストで守る必要があります。
 
-### 3. 元に戻す
+### 4. 元に戻す
 
 ```sh
-git checkout -- app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/companion/WeatherChange.kt
+cd ../yorisoi-platform
+git checkout -- kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/weather/WeatherChange.kt
 git status
 ```
 
-### 4. 考えてみる
+### 5. 考えてみる
 
 `TalkDecider.rules` で、④日の入りのルールを①天気の急変より上に移したら、どんな場面で困るでしょうか。
 

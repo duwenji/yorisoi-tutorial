@@ -66,7 +66,7 @@ const signing = fromSeed(2);
 
 もちろん、この鍵は公開されているので、本物のリストの発行元に使ってはいけません（"never use them for a real provider"）。
 
-出力先は SanpoGuide のテスト用のファイルです。
+出力先は、yorisoi-platform のコア（`core-format`）のテスト用のファイルです。
 
 ```sh
 npm run vectors -w conformance -- ../yorisoi-platform/core-format/src/test/resources/provider-vectors.json
@@ -74,7 +74,7 @@ npm run vectors -w conformance -- ../yorisoi-platform/core-format/src/test/resou
 
 ### 確かめる側
 
-SanpoGuide の [ProviderDocumentsTest.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/test/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocumentsTest.kt) が、そのファイルを読みます。
+コアの [ProviderDocumentsTest.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/test/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocumentsTest.kt) が、そのファイルを読みます。
 
 ```kotlin
 /**
@@ -123,13 +123,14 @@ URL を渡すと、アプリと同じように検出の文書・リスト・パ�
 
 食い違いを防ぐいちばん確かな方法は、**同じコードを使う** ことです。
 
-チャンネルのパッケージの確認（API-003）では、実際にそうしています。アプリのコア（`core-format`）とプロンプト・パックを GitHub Packages にライブラリとして公開し、管理システムの機械審査（`validator`、Kotlin の Lambda）がそれを使います。
+チャンネルのパッケージの確認（API-003）では、実際にそうしています。アプリのコア（`core-format`）とプロンプト・パック（散策ガイドと CycleGuide のもの）を GitHub Packages にライブラリとして公開し、管理システムの機械審査（`validator`、Kotlin の Lambda）がそれを使います。
 
 ```kotlin
 // yorisoi-console/validator/build.gradle.kts
 dependencies {
-    implementation("io.github.duwenji.yorisoi:core-format:1.0.0")
-    implementation("io.github.duwenji.yorisoi.sanpoguide:prompts:1.0.0")
+    implementation("io.github.duwenji.yorisoi:core-format:2.15.0")
+    implementation("io.github.duwenji.yorisoi.sanpoguide:prompts:4.2.0")
+    implementation("io.github.duwenji.yorisoi.cycleguide:prompts:0.1.0")
     // core-format leaves org.json to its users (Android ships one).
     implementation("org.json:json:20240303")
     // …
@@ -144,7 +145,7 @@ dependencies {
 
 ## つまずきやすいところ
 
-- **テストベクタは手で直さない**: ファイルの先頭に "Do not edit by hand" と書かれています。形式を変えたら、管理システム側で作り直して SanpoGuide にコピーします。手で直すと、「管理システムのコードが作ったもの」という意味がなくなります
+- **テストベクタは手で直さない**: ファイルの先頭に "Do not edit by hand" と書かれています。形式を変えたら、管理システム側で作り直して yorisoi-platform にコピーします。手で直すと、「管理システムのコードが作ったもの」という意味がなくなります
 - **片方だけ直さない**: 規則を変えるときは、契約書 → TypeScript → テストベクタの作り直し → Kotlin の順に、全部をそろえます
 
 ## 確認問題

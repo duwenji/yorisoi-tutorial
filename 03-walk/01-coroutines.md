@@ -35,7 +35,7 @@ Android の画面は **メインスレッド** という 1 本の流れで描か
 散策ガイドの AI の呼び出し（[GuideRepository.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/guide/GuideRepository.kt)）は、こう宣言されています。
 
 ```kotlin
-suspend fun guideFor(poi: Poi, distanceM: Int?, channel: Station, grounds: List<Ground> = emptyList()): String
+suspend fun guideFor(poi: Poi, distanceM: Int?, channel: Station, grounds: List<Ground> = emptyList(), mood: Mood? = null): String
 ```
 
 `suspend` は「この関数は途中で **一時停止（中断）** することがある」という印です。
@@ -59,7 +59,7 @@ viewModelScope.launch {
 
 10 秒かかる AI の呼び出しが、ただの 1 行です。コールバックはどこにもありません。
 
-失敗は、普通の `try`/`catch` で受け止められます。この例では、素材の出どころを順に試す `Producers.first`（[Producer.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Producer.kt)）が受け止めて、`MaterialResult.Unavailable` という値に直して返しています。
+失敗は、普通の `try`/`catch` で受け止められます。この例では、素材の出どころを順に試す `Producers.first`（[Producer.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/material/Producer.kt)）が受け止めて、`MaterialResult.Unavailable` という値に直して返しています。
 
 ```kotlin
 val result = try {
@@ -168,24 +168,29 @@ suspend fun current(lat: Double, lon: Double): Weather = withContext(Dispatchers
 
 ```kotlin
 private val fetchLock = Mutex()
-private var lastFetchAt: Location? = null
+/** The centre of the answer shown, while it is good: from Overpass, or kept and fresh. */
+private var shownAt: LatLon? = null
 
-/** Updates the location, re-querying spots only after moving [REFETCH_DISTANCE_M]. */
 suspend fun onLocation(location: Location, forceRefresh: Boolean = false) {
     _location.value = location
-    fetchLock.withLock {
-        val last = lastFetchAt
-        if (forceRefresh || last == null || last.distanceTo(location) > REFETCH_DISTANCE_M) {
-            val found = overpass.search(location.latitude, location.longitude)
-            _spots.value = found.spots
-            _facilities.value = found.facilities
-            lastFetchAt = location
-        }
-    }
+    val center = searchCenter(location)
+    search(center.lat, center.lon, forceRefresh)
+}
+
+internal suspend fun search(lat: Double, lon: Double, forceRefresh: Boolean = false) = fetchLock.withLock {
+    val here = LatLon(lat, lon)
+    val shops = shops()
+    val shown = shownAt
+    if (!forceRefresh && shown != null && shops == lastShops && RouteGeometry.distanceM(shown, here) <= REFETCH_DISTANCE_M) return@withLock
+    // … 端末に残した答え（SpotCache）で足りれば、それを見せて終わる …
+    val body = overpass.fetch(lat, lon, shops = shops, /* … */)
+    show(overpass.parse(body), SpotSource.NETWORK)
+    shownAt = here
+    // …
 }
 ```
 
-位置は 10 秒ごとに届きます。検索に数秒かかると、前の検索が終わる前に次の位置が届くことがあります。`withLock` は、ほかのコルーチンが中にいる間、**終わるまで待ってから** 入ります。だから検索が重なりません。2 つ目が入ったときには `lastFetchAt` が更新されているので、300m 動いていなければ検索し直しません。
+位置は 10 秒ごとに届きます。検索に数秒かかると、前の検索が終わる前に次の位置が届くことがあります。`withLock` は、ほかのコルーチンが中にいる間、**終わるまで待ってから** 入ります。だから検索が重なりません。2 つ目が入ったときには `shownAt`（今見せている答えの中心）が更新されているので、300m 動いていなければ検索し直しません。
 
 `Mutex` は Java の `synchronized` に似ていますが、待つ間スレッドを止めず、一時停止するだけです。
 

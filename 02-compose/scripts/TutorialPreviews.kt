@@ -4,11 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.duwenji.yorisoi.sanpoguide.companion.LiveWalk
 import io.github.duwenji.yorisoi.sanpoguide.companion.Utterance
-import io.github.duwenji.yorisoi.sanpoguide.mood.Mood
-import io.github.duwenji.yorisoi.sanpoguide.mood.Place
-import io.github.duwenji.yorisoi.sanpoguide.mood.Season
-import io.github.duwenji.yorisoi.sanpoguide.mood.Sky
-import io.github.duwenji.yorisoi.sanpoguide.mood.TimeOfDay
+import io.github.duwenji.yorisoi.kit.mood.Mood
+import io.github.duwenji.yorisoi.kit.mood.MoodTheme
+import io.github.duwenji.yorisoi.kit.mood.Place
+import io.github.duwenji.yorisoi.kit.mood.Season
+import io.github.duwenji.yorisoi.kit.mood.Sky
+import io.github.duwenji.yorisoi.kit.mood.TimeOfDay
 
 // チュートリアル 2-1・2-4 のハンズオン用。終わったら消す。
 private val sampleLines = listOf(

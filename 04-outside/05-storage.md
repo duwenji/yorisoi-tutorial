@@ -19,7 +19,7 @@
 | 設定（AI のサービス、チャンネル、雰囲気、しきい値…） | SharedPreferences `guide_settings` | 「キー=値」 | [SettingsRepository.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/settings/SettingsRepository.kt) |
 | API キー（AI、Google Maps） | 同じ SharedPreferences | **暗号化した文字列** | [KeyCipher.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-llm/src/main/java/io/github/duwenji/yorisoi/kit/llm/KeyCipher.kt) |
 | 散歩の記録（最大 500 回） | `files/walk_history.json` | JSON のファイル | [HistoryStore.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/history/HistoryStore.kt) |
-| 第三者のチャンネルの状態 | `files/channels/state.json` | JSON のファイル | [ChannelStore.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelStore.kt) |
+| 第三者のチャンネルの状態 | `files/channels/state.json` | JSON のファイル | [ChannelStore.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/remote/ChannelStore.kt) |
 | 第三者のチャンネルのパッケージ | `files/channels/pkg/{SHA-256}.zip` | ZIP のファイル | 同上 |
 
 どれも **アプリ専用の領域**（ほかのアプリからは読めない）に置いています。さらにマニフェストで `android:allowBackup="false"` とし、端末のバックアップにも含めません（[1-3](../01-kotlin-android/03-android-components.md)）。README のとおり、散歩の記録は「端末内に保存」し、外には出しません。
@@ -146,7 +146,7 @@ private fun write(walks: List<WalkRecord>) {
 
 入れ替えは一瞬で終わる（途中の状態がない）ので、いつ落ちても、ファイルは「前の版」か「新しい版」のどちらかで、壊れた状態にはなりません。
 
-[ChannelStore.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelStore.kt) も、同じことを手で書いています。
+[ChannelStore.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/remote/ChannelStore.kt) も、同じことを手で書いています。
 
 ```kotlin
 fun save(state: ChannelState) {
@@ -307,7 +307,12 @@ cd /c/Dev/apps/yorisoi-sanpoguide
 ./gradlew :app:testDebugUnitTest --tests '*WalkJsonTest*'
 ```
 
-「保存して読み直すと同じものになる」テストが通ります。
+2 件のテストが通ります。
+
+- a walk survives a round trip, channels included（保存して読み直すと、チャンネルの記録も含めて同じものになる）
+- a legacy walk without plan loads with an empty plan（散歩の計画（`plan`）を足す前に保存した記録も、計画が空の記録として読める）
+
+2 つ目は、記録の形に項目を **足した** ときのテストです。前の版のアプリで保存した記録には `plan` がありません。それでも読めることを、古い形の JSON をそのまま書いたテストで守っています。
 
 ### 2. 読む側の名前だけ変えてみる
 
@@ -326,10 +331,14 @@ val stations = o.getJSONArray("segments")
 に変えて、テストを流します。
 
 ```
-1 test completed, 1 failed
+WalkJsonTest > a legacy walk without plan loads with an empty plan FAILED
+    org.json.JSONException at WalkJsonTest.kt:36
+WalkJsonTest > a walk survives a round trip, channels included FAILED
+    org.json.JSONException at WalkJsonTest.kt:27
+2 tests completed, 2 failed
 ```
 
-`JSONObject["segments"] not found.` で落ちます。書く側（`toJson`）は今までどおり `stations` と書くので、すでに保存された記録はどれも読めなくなります。もしこの変更がそのまま出荷されたら、更新した散策者は `read()` の `catch` で「読めないので空から始める」ことになり、**それまでの散歩の記録がすべて画面から消えて** しまいます。小さな変更が大きな事故につながる例です。
+どちらも `JSONObject["segments"] not found.` で落ちます。書く側（`toJson`）は今までどおり `stations` と書くので、すでに保存された記録はどれも読めなくなります。もしこの変更がそのまま出荷されたら、更新した散策者は `read()` の `catch` で「読めないので空から始める」ことになり、**それまでの散歩の記録がすべて画面から消えて** しまいます。小さな変更が大きな事故につながる例です。
 
 ### 3. 元に戻す
 

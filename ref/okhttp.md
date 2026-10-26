@@ -113,7 +113,7 @@ Android では、マニフェストに `<uses-permission android:name="android.p
 | [RouteClient.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/RouteClient.kt) | User-Agent、経度が先の URL | [4-1](../04-outside/01-http-json.md) |
 | [OpenAiCompatibleClient.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-llm/src/main/java/io/github/duwenji/yorisoi/kit/llm/OpenAiCompatibleClient.kt) | JSON の POST、`Authorization` ヘッダー、90 秒のタイムアウト | [4-3](../04-outside/03-ai.md) |
 | [GoogleMapTiles.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/map/GoogleMapTiles.kt) | `toHttpUrl().newBuilder()` で URL を組み立てる | [4-2](../04-outside/02-map.md) |
-| [ChannelSync.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelSync.kt) の `ProviderHttp` | 通信を `fun interface` の後ろに隠し、テストで代役に替える | [2-3](../02-compose/03-manual-di.md) |
+| [ChannelSync.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/remote/ChannelSync.kt) の `ProviderHttp` | 通信を `fun interface` の後ろに隠し、テストで代役に替える | [2-3](../02-compose/03-manual-di.md) |
 
 ## よくある間違い
 

@@ -16,11 +16,11 @@
 |---|---|---|
 | [ProviderDocuments.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/ProviderDocuments.kt) | 検出の文書・鍵セット・リスト・試用チケットを確かめる | コア（`core-format`） |
 | [PublisherSignature.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/PublisherSignature.kt) | Ed25519 の差し替え口、ID の計算 | コア（`core-format`） |
-| [TinkEd25519.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/TinkEd25519.kt) | Tink による Ed25519 の実装 | `:app` |
-| [ChannelSync.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelSync.kt) | 取得・確認・保存の流れ | `:app` |
-| [ThirdPartyChannels.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ThirdPartyChannels.kt) | `ChannelSync` を Android の上で動かす（スレッド、画面への通知） | `:app` |
+| [TinkEd25519.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/remote/TinkEd25519.kt) | Tink による Ed25519 の実装 | キット（`kit-channel`） |
+| [ChannelSync.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/remote/ChannelSync.kt) | 取得・確認・保存の流れ | キット（`kit-channel`） |
+| [ThirdPartyChannels.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/remote/ThirdPartyChannels.kt) | `ChannelSync` をアプリの中で動かす（1 つずつ順に、画面に見せる流れ） | キット（`kit-channel`） |
 
-**確かめる規則そのもの** はコア（`core-format`）にあり、**Android に依存する部分**（Tink、通信、ファイル、スレッド）はアプリにあります。この分け方には理由があり、[6-6](06-same-rules.md) で見ます。
+**確かめる規則そのもの** はコア（`core-format`）にあり、**アプリの中で動かす部分**（Tink、通信、ファイル、スレッド）はキット（`kit-channel`）にあります。`kit-channel` も Android に依存しない JVM のライブラリで、Tink と OkHttp は `compileOnly`（使うアプリが入れる）です。散策ガイドと CycleGuide は、同じ `kit-channel` で第三者のチャンネルを取り込みます。この分け方には理由があり、[6-6](06-same-rules.md) で見ます。
 
 ## 差し替え口: Ed25519Verifier
 

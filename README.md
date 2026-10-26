@@ -159,5 +159,5 @@ flowchart LR
 
 | 項目 | 値 |
 |---|---|
-| 最後に照合した日 | 2026-10-16 |
-| 照合したコミット | yorisoi-platform `ed83915`・yorisoi-sanpoguide `9d92e60`・yorisoi-console `5b1c05f` |
+| 最後に照合した日 | 2026-10-26 |
+| 照合したコミット | yorisoi-platform `21028df`・yorisoi-sanpoguide `b8931f9`・yorisoi-console `6e0d89c` |

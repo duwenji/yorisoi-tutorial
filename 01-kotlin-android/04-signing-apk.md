@@ -22,7 +22,7 @@ Android は、**署名されていない APK をインストールしません**
 
 更新には **同じ鍵** が要ります。リリース用の鍵（とそのパスワード）をなくすと、同じアプリとして更新を出せなくなります。散策者には、いったん消して新しいアプリを入れ直してもらうしかありません。第 6 部の「ルート鍵をなくすと別のリストになる」とまったく同じ構図です。
 
-> Google Play で配るアプリは「Play App Signing」で、配布用の鍵を Google に預けるのが一般的です。散策ガイドはまだストアで配っておらず、APK を直接配っています（`releases/` フォルダ）。
+> 散策ガイドは Google Play で配っていて、「Play App Signing」を使っています。手元の `release.jks` は、Play に上げるファイル（AAB）に署名する **アップロード鍵** です。散策者の端末に届くアプリは、Google が預かっている **アプリ署名鍵** で署名し直されます。だからアップロード鍵をなくしても、Play Console から新しいアップロード鍵に替えてもらえます（アプリ署名鍵は Google の手元にあるので、なくなりません）。それでも手間と時間がかかるので、アップロード鍵も別の場所に写しを置きます。Play に上げる流れは、SanpoGuide の [docs/release.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/release.md) にあります。
 
 ## デバッグ用とリリース用
 
@@ -31,7 +31,7 @@ Android は、**署名されていない APK をインストールしません**
 | 作り方 | `./gradlew assembleDebug` | `./gradlew assembleRelease` |
 | 署名の鍵 | Android の開発ツールが自動で作る `~/.android/debug.keystore` | 自分で作った `release.jks` |
 | 鍵のパスワード | 決まっている（`android`） | 自分で決める |
-| 用途 | 開発中の確認 | 散策者に配る |
+| 用途 | 開発中の確認 | Google Play に上げる（`./gradlew bundleRelease` で AAB を作る）。APK はテストの端末に直接入れるとき |
 | `BuildConfig.DEBUG` | `true` | `false` |
 
 デバッグ用の鍵は、パソコンごとに別の鍵が自動で作られます。**別のパソコンでビルドしたデバッグ版で、端末のデバッグ版を上書きできない** のはこのためです（鍵が違う）。
@@ -99,7 +99,7 @@ keyPassword=
 
 ### リリース版の作り方
 
-[SanpoGuide の README](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/README.md) の「リリース版のビルド」に手順があります。
+[SanpoGuide の README](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/README.md) の「リリース版のビルド」に手順があります。Google Play に上げるのは APK ではなく AAB（`./gradlew bundleRelease`）で、署名の設定は同じものを使います。
 
 ```sh
 keytool -genkeypair -v -keystore release.jks -alias sanpoguide -keyalg RSA -keysize 2048 -validity 10000

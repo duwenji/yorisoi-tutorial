@@ -228,7 +228,7 @@ val LIST_LIFETIME: Duration = Duration.ofDays(14)
 ```
 
 ```
-8 tests completed, 3 failed
+9 tests completed, 4 failed
 ```
 
 落ちたテストは、Gradle が表示するレポート（`core-format/build/reports/tests/test/index.html`）をブラウザで開くと見られます。
@@ -237,11 +237,12 @@ val LIST_LIFETIME: Duration = Duration.ofDays(14)
 |---|---|
 | the list checks out and reads every field | `expired: expiresAt is more than 14 days after issuedAt` |
 | a list with collections reads them, their revocations and the channels' media | 同じ（素材集を載せたリストも、同じ期限で拒まれる） |
+| a list copies whether a collection grounds the AI (API-004 I-13) | 同じ |
 | a list is refused when it is expired, rolled back, altered or … | `expected:<ROLLBACK> but was:<EXPIRED>` |
 
 管理システムが作ったリスト（期限 14 日）を、アプリが「期限が長すぎる」と拒むようになりました。**管理システムは正しいと思って公開しているのに、アプリが受け入れない** という、[6-6](06-same-rules.md) の「食い違い」を、テストが見つけています。
 
-2 つ目の失敗も見てください。巻き戻しを確かめるテストが、期限の確認で先に止まってしまい、期待した `ROLLBACK` ではなく `EXPIRED` になっています。確認の **順番** にも意味がある、ということが分かります。
+最後の失敗も見てください。巻き戻しを確かめるテストが、期限の確認で先に止まってしまい、期待した `ROLLBACK` ではなく `EXPIRED` になっています。確認の **順番** にも意味がある、ということが分かります。
 
 > エラーメッセージが「13 days」ではなく「14 days」のままなのに気づいたでしょうか。メッセージの文字列は定数とは別に書かれているからです。定数を変えるときは、メッセージやコメントもそろえる必要があります。
 

@@ -52,11 +52,12 @@ fun WalkStatus(minutes: Int?) {
 flowchart TB
     MA["MainActivity.setContent"] --> MT["MoodTheme（色と文字の決まり）"]
     MT --> MS["MainScreen"]
-    MS --> SC["Scaffold（上のバー・ボタンの枠）"]
-    SC --> CC["CompanionCard（話しかけのカード）"]
-    SC --> SP["StationPicker（チャンネルの選択）"]
-    SC --> MAP["SpotMap（地図）"]
-    SC --> LIST["スポットの一覧"]
+    MS --> SC["BottomSheetScaffold（上のバーと、下から引き上げるシートの枠）"]
+    SC --> TOP["MainTopBar（上のバー）"]
+    TOP --> SP["StationPicker（チャンネルの選択）"]
+    SC --> MAP["SpotMap（地図。画面いっぱい）"]
+    SC --> CC["CompanionCard（地図の上に浮かぶ話しかけのカード）"]
+    SC --> SHEET["SpotSheet（近くのスポットと、散策のボタン）"]
     CC --> SH["SceneHeader（雰囲気の絵）"]
 ```
 
@@ -71,11 +72,19 @@ Compose は、Composable が読んでいるデータが変わると、その Com
 
 ## CompanionCard を読む
 
-散策中、画面の上に出る「話しかけのカード」が [CompanionCard.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/CompanionCard.kt) です。140 行ほどの中に、この章の要素が全部入っています。
+散策中、地図の上に浮かぶ「話しかけのカード」が [CompanionCard.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/ui/CompanionCard.kt) です。150 行ほどの中に、この章の要素が全部入っています。
 
 ```kotlin
 @Composable
-fun CompanionCard(live: LiveWalk?, lines: List<Utterance>, scene: Mood? = null, onOpen: (CueDetail) -> Unit = {}) {
+fun CompanionCard(
+    live: LiveWalk?,
+    lines: List<Utterance>,
+    scene: Mood? = null,
+    onOpen: (CueDetail) -> Unit = {},
+    onReplay: (Utterance) -> Unit = {},
+    onDismiss: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
+) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val now by produceState(System.currentTimeMillis(), live) {
         while (live != null) {
@@ -93,16 +102,18 @@ fun CompanionCard(live: LiveWalk?, lines: List<Utterance>, scene: Mood? = null, 
     }
 
     Surface(
-        color = MaterialTheme.colorScheme.primaryContainer,
-        modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded }.animateContentSize(),
+        shape = RoundedCornerShape(20.dp),
+        shadowElevation = 4.dp,
+        modifier = modifier.fillMaxWidth().animateContentSize(),
     ) {
         Column {
             if (scene != null) SceneHeader(scene, status)
-            Column(Modifier.padding(16.dp, if (scene != null) 2.dp else 10.dp, 16.dp, 10.dp)) {
-                // … 状態の文字（scene がないとき）…
+            // Opened, the earlier lines scroll inside the card so the map stays in view.
+            Column(Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState()) /* …余白… */) {
+                // … 状態の文字と、振り返りを閉じるボタン（scene がないとき）…
                 val shown = if (expanded) lines.take(6) else lines.take(1)
                 if (shown.isEmpty()) {
-                    Text("歩きはじめたら話しかけますね", style = MaterialTheme.typography.bodyMedium, /* … */)
+                    Text("歩きはじめたら話しかけますね", style = MaterialTheme.typography.bodyMedium)
                 }
                 shown.forEach { line ->
                     Spacer(Modifier.height(6.dp))
@@ -111,7 +122,7 @@ fun CompanionCard(live: LiveWalk?, lines: List<Utterance>, scene: Mood? = null, 
                         Text(
                             line.text,
                             style = MaterialTheme.typography.bodyMedium,
-                            maxLines = if (expanded) Int.MAX_VALUE else 3,
+                            maxLines = if (expanded) Int.MAX_VALUE else 2,
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
@@ -123,6 +134,7 @@ fun CompanionCard(live: LiveWalk?, lines: List<Utterance>, scene: Mood? = null, 
                     line.detail?.let { detail -> TextButton(onClick = { onOpen(detail) }) { Text("詳しく見る") } }
                 }
             }
+            // …「もう一度聞く」（onReplay）と「これまでの話」（expanded を切り替える）のボタン …
         }
     }
 }
@@ -132,7 +144,9 @@ fun CompanionCard(live: LiveWalk?, lines: List<Utterance>, scene: Mood? = null, 
 
 `CompanionCard` は、散歩の数字（`live`）、話した内容（`lines`）、雰囲気（`scene`）を **引数で受け取るだけ** です。どこからデータを取ってくるかは知りません。取ってくるのは呼ぶ側（`MainScreen`、その元は ViewModel）の仕事です（[2-2](02-state-viewmodel.md)）。
 
-最後の `onOpen` は、データではなく **操作** を受け取る引数です。チャンネルが出した素材（画像つきの発言など、[0-1](../00-overview/01-what-we-build.md)）に「詳しく見る」があるとき、押されたら `onOpen(detail)` を呼ぶだけで、解説の画面をどう開くかは知りません。`MainScreen` が `onOpen = viewModel::openCue` を渡しています。「データは引数で下へ、操作はラムダで上へ」という形は、2-2 でもう一度見ます。既定値 `{}` があるので、プレビューやハンズオンでは省けます。
+`onOpen`・`onReplay`・`onDismiss` は、データではなく **操作** を受け取る引数です。チャンネルが出した素材（画像つきの発言など、[0-1](../00-overview/01-what-we-build.md)）に「詳しく見る」があるとき、押されたら `onOpen(detail)` を呼ぶだけで、解説の画面をどう開くかは知りません。`MainScreen` が `onOpen = viewModel::openCue` を渡しています。「もう一度聞く」（`onReplay`）、散歩のあとの振り返りを閉じる（`onDismiss`）も同じです。`onDismiss` は null を許す型で、散策中は `null` を渡して閉じるボタンを出しません。「データは引数で下へ、操作はラムダで上へ」という形は、2-2 でもう一度見ます。既定値があるので、プレビューやハンズオンでは省けます。
+
+最後の `modifier: Modifier = Modifier` は、Compose の部品の決まった形です。**どこに、どんな余白で置くかは呼ぶ側が決める** ので、部品は受け取った `modifier` を自分のいちばん外側に付けます。`MainScreen` は `modifier = Modifier.padding(horizontal = 12.dp)` を渡して、地図の上に左右の余白を空けて浮かべています。
 
 だから、引数を変えれば、どんな場面のカードでも描けます。ハンズオンでは、これを使って 4 つの場面のカードを並べて表示します。
 
@@ -142,7 +156,7 @@ fun CompanionCard(live: LiveWalk?, lines: List<Utterance>, scene: Mood? = null, 
 var expanded by rememberSaveable { mutableStateOf(false) }
 ```
 
-カードは、タップすると過去の発言を広げて見せます。「広げているかどうか」は、このカードの中だけの小さな状態です。
+カードは、「これまでの話」を押すと過去の発言を広げて見せます。「広げているかどうか」は、このカードの中だけの小さな状態です。
 
 - `mutableStateOf(false)`: 変わると Compose に知らせる入れ物を作る。`expanded` を書き換えると、それを読んでいる部分が再コンポーズされる
 - `remember { … }`: 再コンポーズのたびに作り直さず、前の値を **覚えておく**。これがないと、呼び直されるたびに `false` に戻ってしまう
@@ -179,7 +193,9 @@ Composable の本体で直接 `while` や `delay` を書いてはいけない（
 ### Modifier: 見た目と配置
 
 ```kotlin
-modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded }.animateContentSize()
+modifier = modifier.fillMaxWidth().animateContentSize()
+// …
+Column(Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState()) /* … */)
 ```
 
 `Modifier` は、部品の大きさ・余白・タップの反応・アニメーションなどを **つなげて** 指定するものです。
@@ -187,8 +203,10 @@ modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded }.animateCon
 | Modifier | 意味 |
 |---|---|
 | `fillMaxWidth()` | 横幅いっぱいに広げる |
-| `clickable { … }` | タップされたら、ブロックを実行する |
 | `animateContentSize()` | 中身の大きさが変わるとき、なめらかに伸び縮みさせる |
+| `heightIn(max = 360.dp)` | 高さの上限を決める。広げても地図を隠しきらない |
+| `verticalScroll(…)` | 上限を超えた分は、カードの中でスクロールする |
+| `clickable { … }` | タップされたら、ブロックを実行する（スポットの一覧の行など） |
 | `padding(16.dp, …)` | 内側の余白（左・上・右・下） |
 | `height(6.dp)` | 高さを決める |
 
@@ -201,13 +219,13 @@ modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded }.animateCon
 | 部品 | 並べ方 | CompanionCard では |
 |---|---|---|
 | `Column` | 縦に並べる | 絵・状態・発言を縦に |
-| `Row` | 横に並べる | — |
+| `Row` | 横に並べる | 「もう一度聞く」と「これまでの話」のボタン |
 | `Box` | 重ねる | `SceneHeader` で、雰囲気の絵の上に文字を重ねる |
 
 ```kotlin
 @Composable
 private fun SceneHeader(scene: Mood, status: String) {
-    Box(Modifier.fillMaxWidth().height(72.dp)) {
+    Box(Modifier.fillMaxWidth().height(64.dp)) {
         MoodScene(scene, Modifier.matchParentSize())
         // …
         Text(scene.summary, /* … */ modifier = Modifier.align(Alignment.TopEnd).padding(8.dp, 6.dp))
@@ -275,7 +293,7 @@ private fun CompanionCardAutumnEvening() {
 2. 右上の「Split」または「Design」を押す
 3. ビルドが終わると、4 枚のカードが並ぶ: 雰囲気なし（緑）、秋の夕方・寺社（橙・明朝体）、夏の昼・雨（青）、冬の夜（暗い色、散歩前の「歩きはじめたら話しかけますね」）
 
-プレビューの中でも、カードをクリックする操作は「Interactive mode」（プレビューの上のボタン）で試せます。広げると過去の発言が出るはずです。
+プレビューの中でも、ボタンを押す操作は「Interactive mode」（プレビューの上のボタン）で試せます。「これまでの話」を押すと過去の発言が出るはずです。
 
 > コマンドだけで確かめたいときは、`./gradlew :app:compileDebugKotlin` でコンパイルが通ることを確かめられます（絵は出ません）。
 

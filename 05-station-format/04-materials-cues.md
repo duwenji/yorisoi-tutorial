@@ -48,7 +48,7 @@ AI の語りも、この分け方に入っています（[platform ADR-AI-ROLES�
 | 第三者の素材集 | 観光協会の解説と写真 | 審査で固定。前もって取得する |
 | チャンネルに同梱の素材 | `channel.json` の `resources` | 審査で固定。パッケージに入っている |
 
-ばらばらに見えますが、アプリはすべてを **同じ形** で扱います（API-004 I-1）。アプリの側の形は [Producer.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Producer.kt) の `Producer` です。
+ばらばらに見えますが、アプリはすべてを **同じ形** で扱います（API-004 I-1）。アプリの側の形は、platform の `kit-channel`（散策ガイドと CycleGuide が共有）にある [Producer.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/material/Producer.kt) の `Producer` です。
 
 ```kotlin
 interface Producer {
@@ -148,8 +148,8 @@ val AI_GUIDE = ProducerDescriptor(
 
 | 場所 | 何の候補か |
 |---|---|
-| `Producers.first`（[Producer.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Producer.kt)） | きっかけのないふだんの解説と話しかけ（`Narration` の `Shorthand`、[4-3](../04-outside/03-ai.md)） |
-| `CuePresenter`（[Cues.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/material/Cues.kt)） | きっかけの見せ方ごとの候補 |
+| `Producers.first`（[Producer.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/material/Producer.kt)） | きっかけのないふだんの解説と話しかけ（`Narration` の `Shorthand`、[4-3](../04-outside/03-ai.md)） |
+| `CuePresenter`（[Cues.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/material/Cues.kt)） | きっかけの見せ方ごとの候補 |
 
 ふだんの解説も「`builtin:ai-guide` → `builtin:fallback-text`」という候補の並びとして書かれています（API-004「省略形の展開」）。きっかけを持たない組み込みのチャンネルも、同じ仕組みの上で動いているわけです。
 
@@ -179,20 +179,19 @@ sealed interface Trigger {
 | `Point` | 緯度・経度と半径（20〜300m）の中に入った | ③b |
 | `Event` | チャンネルを選んだ・散歩を始めた・終えた | あいさつ・振り返りのあと |
 
-当たったきっかけを探すのは、アプリの `CueFinder` です。スポットでは、**名指しのきっかけを先に**、なければ種類のきっかけを探します。
+当たったきっかけを探すのは、`kit-channel` の `CueFinder` です。スポットでは、**名指しのきっかけを先に**、なければ種類のきっかけを探します。
 
 ```kotlin
-fun spot(stationId: String, media: StationMedia, poi: Poi, distanceM: Int?, shownThisWalk: Set<String>, now: Long): CueFire? {
-    val subject = Subject.Spot(poi, distanceM)
+fun spot(stationId: String, media: StationMedia, spot: Subject.Spot, shownThisWalk: Set<String>, now: Long): CueFire? {
     val named = media.cues.filter { cue ->
         val t = cue.trigger as? Trigger.Spot ?: return@filter false
-        t.osm == poi.id || (t.name != null && t.name == poi.name)
+        t.osm == spot.id || (t.name != null && t.name == spot.name)
     }
-    if (named.isNotEmpty()) return named.firstNotNullOfOrNull { fire(stationId, it, subject, shownThisWalk, now) }
+    if (named.isNotEmpty()) return named.firstNotNullOfOrNull { fire(stationId, it, spot, shownThisWalk, now) }
     return media.cues.firstNotNullOfOrNull { cue ->
         val t = cue.trigger as? Trigger.AnySpot ?: return@firstNotNullOfOrNull null
-        if (t.categories.none { it.category == poi.category }) return@firstNotNullOfOrNull null
-        fire(stationId, cue, subject, shownThisWalk, now, perSubject = poi.id)
+        if (t.categories.none { it.category == spot.category }) return@firstNotNullOfOrNull null
+        fire(stationId, cue, spot, shownThisWalk, now, perSubject = spot.id)
     }
 }
 ```
@@ -318,12 +317,14 @@ sealed interface CollectionStatus {
 
 アプリは素材の種類を段階的に増やしています（API-003 M-1）。
 
-| 段 | 出せるもの | アプリ |
-|---|---|---|
-| 0 | 素材なし | `versionCode` 1 |
-| 1 | 文字・画像 | `versionCode` 1（今） |
-| 2 | 音声（`play`・`ambient`） | まだない |
-| 3 | 映像 | まだない |
+| 段 | 出せるもの | 散策ガイド | CycleGuide |
+|---|---|---|---|
+| 0 | 素材なし | `versionCode` 1 から | `versionCode` 1 から |
+| 1 | 文字・画像 | `versionCode` 1 から（今） | `versionCode` 7 から（今。きっかけの文を読み上げ、画像は飛ばす） |
+| 2 | 音声（`play`・`ambient`） | まだない | まだない |
+| 3 | 映像 | まだない | まだない |
+
+どの版からどの段を出せるかは、アプリごとに違います。CycleGuide はチャンネルの素材をあとから足したので、第 1 段を出せるのは後の版からです。管理システムの設定（[config.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/config.ts) の `appStageVersions`）では、本番の CycleGuide の第 1 段は、その版が Google Play に出てから書き換えます。先に書き換えると、「アプリの更新が必要です」と出るのに、更新しようにもその版がまだストアにない、ということになるからです。
 
 チャンネルが必要とする段は `MediaStage.required` が数えます。見せ方と素材の種類の両方を見るので、「解説の画面（`sheet`）に映像を並べた」チャンネルは第 3 段になります。
 

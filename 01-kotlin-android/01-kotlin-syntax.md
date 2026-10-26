@@ -85,7 +85,7 @@ data class Poi(
     val id: String,
     val name: String,
     // …
-    /** Outline for spots mapped as areas or lines; null for points. */
+    /** Outline for spots mapped as areas or lines; null for points. [lat]/[lon] is then its center. */
     val shape: Shape? = null,
 )
 ```
@@ -155,29 +155,32 @@ fun with(t: Threshold, value: Int) = copy(values = values + (t to value))
 
 ### 列挙型（enum）
 
-決まった選択肢は `enum class` にします。Kotlin の enum は、それぞれの値に項目を持たせられます。[Facility.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-geo/src/main/java/io/github/duwenji/yorisoi/kit/geo/Facility.kt):
+決まった選択肢は `enum class` にします。Kotlin の enum は、それぞれの値に項目を持たせられます。雰囲気の季節（[Mood.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-mood/src/main/java/io/github/duwenji/yorisoi/kit/mood/Mood.kt)）:
 
 ```kotlin
-enum class FacilityKind(val label: String, val amenity: String) {
-    TOILETS("トイレ", "toilets"),
-    DRINKING_WATER("水飲み場", "drinking_water"),
-    VENDING_MACHINE("自動販売機", "vending_machine"),
-    SHELTER("休憩所", "shelter"),
-    BENCH("ベンチ", "bench");
+enum class Season(val label: String) {
+    SPRING("春"), SUMMER("夏"), AUTUMN("秋"), WINTER("冬");
 
     companion object {
-        fun of(amenity: String?): FacilityKind? = entries.firstOrNull { it.amenity == amenity }
+        /** [month] is 1..12. */
+        fun of(month: Int) = when (month) {
+            in 3..5 -> SPRING
+            in 6..8 -> SUMMER
+            in 9..11 -> AUTUMN
+            else -> WINTER
+        }
+        // …
     }
 }
 ```
 
-画面に出す日本語（`label`）と、OpenStreetMap のタグの値（`amenity`）を一緒に持っています。`entries` は全部の値の一覧です。
+値ごとに、画面やプロンプトに出す日本語（`label`）を持っています。`entries` と書くと全部の値の一覧が取れます。
 
 設定のしきい値（[Threshold.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/settings/Threshold.kt)）も enum で、項目ごとに見出し・単位・既定値・範囲を持っています。設定画面は、この一覧から自動で作られます。
 
 ### `companion object` と `object`
 
-- `companion object { … }` の中に書いたものは、インスタンスを作らずに `FacilityKind.of(…)` のように呼べます。Java の `static` に近いものです
+- `companion object { … }` の中に書いたものは、インスタンスを作らずに `Season.of(…)` のように呼べます。Java の `static` に近いものです
 - `object 名前 { … }` は、インスタンスが 1 つだけのクラスを定義します。状態を持たない処理をまとめるのに使います（例: `object FacilityAdvisor`）
 
 ### sealed: 種類が決まっている型
@@ -258,13 +261,13 @@ getSystemService(NotificationManager::class.java).apply {
 
 ## 拡張関数
 
-既存のクラスに、外から関数を足したように見せる書き方です。[ChannelStore.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/main/java/io/github/duwenji/yorisoi/sanpoguide/station/remote/ChannelStore.kt) から:
+既存のクラスに、外から関数を足したように見せる書き方です。[ChannelStore.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/remote/ChannelStore.kt) から:
 
 ```kotlin
 private fun JSONObject.str(key: String): String? = if (has(key) && !isNull(key)) getString(key) else null
 ```
 
-`JSONObject` は Android のクラスで、書き換えられません。それでも、こう書くと `json.str("name")` のように、まるで `JSONObject` の関数のように呼べます。中では `this` が `JSONObject` です。`private` なので、このファイルの中だけで使えます。
+`JSONObject` は org.json のクラス（Android には標準で入っている）で、書き換えられません。それでも、こう書くと `json.str("name")` のように、まるで `JSONObject` の関数のように呼べます。中では `this` が `JSONObject` です。`private` なので、このファイルの中だけで使えます。
 
 ## Java・TypeScript との対応表
 
@@ -289,7 +292,7 @@ cd /c/Dev/apps/yorisoi-sanpoguide
 ./gradlew :app:testDebugUnitTest --tests '*FacilityAdvisorTest*'
 ```
 
-`BUILD SUCCESSFUL` になれば、9 件のテストが通っています。
+`BUILD SUCCESSFUL` になれば、8 件のテストが通っています。
 
 ### 2. テストを読む
 
@@ -320,7 +323,7 @@ TOILET_RADIUS_M("トイレの案内", "案内する距離", "m", 100, 20, 500),
 `100` を `80` に変えて保存し、もう一度テストを流します。
 
 ```
-9 tests completed, 1 failed
+8 tests completed, 1 failed
 ```
 
 レポート（`app/build/reports/tests/testDebugUnitTest/index.html`）を開くと、`a close toilet comes up after walking a while` が **NullPointerException** で落ちています。
