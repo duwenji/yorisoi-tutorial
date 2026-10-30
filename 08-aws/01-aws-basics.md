@@ -62,9 +62,12 @@
 | 見た目 | 意味 |
 |---|---|
 | アイコン | AWS の部品（リソース）1 つ。上の英語は CDK で `new …(this, '名前')` と書いた名前、下の日本語はその役割 |
-| 線 | CloudFormation の上で、片方がもう片方を参照している（権限を与える・設定に名前を渡す・イベントで呼ぶ）。**データが流れる向きは表さない** |
+| 矢印 | 矢元が矢先を **使う**（呼ぶ・読み書きする・見張る）。CloudFormation の上の参照から描く |
+| 破線の枠と矢印 | このスタックの外（アプリ・ブラウザ・運営のメール・Bedrock など）とのやりとり |
 | 外の枠 | スタック。中の枠は CDK のコンストラクト |
-| 並び | 左が入口（ログイン・画面・スケジュール）、右がアプリの読むもの（公開の CloudFront）になりやすい |
+| 並び | 左端が入ってくる人、右へ進むほど使われる側（データ・鍵・設定）、右端が外へ出ていく先 |
+
+矢印は「使う」向きで、**データが流れる順番とは限りません**。たとえば受付用のバケットにパッケージが届くと機械審査の Lambda が動きますが、矢印は「機械審査がバケットを使う」向きです。流れの順番は、下の手で描いた構成図で読みます。
 
 読みやすくするため、ロググループ・IAM のロール・CloudWatch の警報・CDK が自分で足す部品は省いています。省いたものも含めた全部の図は、各図の下のリンクから見られます。
 
@@ -74,8 +77,9 @@
 
 全部の図: [console-all.png](images/console-all.png)
 
-- 枠の中が「管理の面」（ログインが要る）。左の ConsoleDistribution・UserPool・HttpApi から入り、中ほどの ConsoleApi が DynamoDB の Table と各バケットを読み書きする
-- 枠の外の右が「公開の面」。PublishFunction が SigningKey（KMS）で署名し、PublicBucket に置き、アプリは PublicDistribution から読む
+- 内側の枠が「管理の面」（ログインが要る）。運営・提供者のブラウザは ConsoleDistribution から入り、HttpApi（UserPool で JWT を確かめる）を通って ConsoleApi を呼ぶ。申請のパッケージだけは IntakeBucket に直接上げる
+- 内側の枠の外が「公開の面」。DailyPublish と ConsoleApi が PublishFunction を呼び、PublishFunction は Table を読み、SigningKey（KMS）で署名し、PublicBucket に置く。アプリは PublicDistribution から読む
+- Table と RecordsBucket には、多くの Lambda から矢印が集まる。どの Lambda がどのデータを使うかが、一目でわかる
 
 **AI の中継（YorisoiAiRelay）**
 
@@ -83,7 +87,7 @@
 
 全部の図: [relay-all.png](images/relay-all.png)
 
-- アプリは左の Api を呼び、Relay が Bedrock に渡す。右の 3 つは運営が配備し直さずに変えられる設定（Parameter Store）
+- アプリが Api を呼び、Relay が Table・3 つの設定（Parameter Store。運営が配備し直さずに変えられる）を使い、外の Bedrock と Play Integrity を呼ぶ
 
 **スポットのタイル（YorisoiSpotTiles）**
 
@@ -91,9 +95,10 @@
 
 全部の図: [tiles-all.png](images/tiles-all.png)
 
-- 左下の Weekly が Batch（Fargate）を動かし、Batch が Tiles に置き、アプリは Cdn から読む。左上の BatchFailed は、バッチの失敗を拾って Alarms に渡す
+- Weekly が Batch（Fargate）を Cluster の上・Vpc の中で動かす。Batch は外の Geofabrik から抽出を取り、Tiles に置き、Cdn のキャッシュを消す。アプリは Cdn から読む
+- BatchFailed は Cluster を見張り、バッチの失敗を Alarms に渡し、運営にメールが届く
 
-手で描いた [構成図（architecture.md）](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) と比べてみてください。手で描いた図は **だれが何をして、どの順に動くか**（流れ）を、生成した図は **その流れを支える部品が、実際にどう組まれているか** を見せます。たとえば手で描いた図の「公開の Lambda」が、生成した図では PublishFunction として、署名鍵・テーブル・公開用のバケットと線でつながっています。
+手で描いた [構成図（architecture.md）](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) と比べてみてください。手で描いた図は **だれが何をして、どの順に動くか**（流れ）を、生成した図は **その流れを支える部品が、実際にどう組まれているか** を見せます。たとえば手で描いた図の「公開の Lambda」が、生成した図では PublishFunction として、署名鍵・テーブル・公開用のバケットへの矢印を持っています。
 
 ### サービスの一覧
 
@@ -324,7 +329,7 @@ npm run diagrams -w infra
 - **関数にアクセスキーを持たせない**: ロールを使う
 - **使った分だけの料金は、急に高くなることもある**: タグと予算で見張る
 - **鍵（KMS）など、月額のかかる部品もある**: すべてが使った分だけではない
-- **生成した図の線は、流れの向きではない**: 「参照している」だけ。データがどちらへ流れるかは、役割と手で描いた構成図で読む
+- **生成した図の矢印は「使う」向きで、流れの順番ではない**: イベントで呼ばれる関係も、使う側から描かれる。順番は手で描いた構成図で読む
 
 ## 確認問題
 
@@ -352,7 +357,7 @@ npm run diagrams -w infra
 <details>
 <summary>問 4. CDK から生成した図と、手で描いた構成図は、それぞれ何を確かめるのに向いていますか。</summary>
 
-生成した図は、CDK のコードから機械的に描くので、いま配備される部品とそのつながりを確かめるのに向いています（部品を足し忘れた・つなぎ忘れた、がそのまま出ます）。ただし線は参照を表すだけで、流れの向きはわかりません。手で描いた構成図は、だれが何をして、どの順に動くかという流れを読むのに向いています。
+生成した図は、CDK のコードから機械的に描くので、いま配備される部品とそのつながりを確かめるのに向いています（部品を足し忘れた・つなぎ忘れた、がそのまま出ます）。ただし矢印は「使う」向きで、どの順に動くかはわかりません。手で描いた構成図は、だれが何をして、どの順に動くかという流れを読むのに向いています。
 
 </details>
 
