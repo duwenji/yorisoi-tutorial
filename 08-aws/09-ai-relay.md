@@ -362,4 +362,4 @@ AWS Budgets は請求の反映が数時間〜1 日遅れるので、止める判
 
 ---
 
-前: [8-8 Kotlin の Lambda](08-kotlin-lambda.md) ／ 次: [9-1 React と Vite](../09-console/01-react-vite.md)
+前: [8-8 Kotlin の Lambda](08-kotlin-lambda.md) ／ 次: [8-10 スポットのタイル配信](10-spot-tiles.md)

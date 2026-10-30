@@ -22,7 +22,7 @@ flowchart LR
     P0 --> P11["第 11 部<br/>GitHub で開発を回す"]
 ```
 
-第 0 部は必ず最初に読んでください。そのあとは、アプリから入っても管理システムから入ってもかまいません。第 6 部は両方にまたがる話なので、どちらか一方を読んだあとが読みやすいですが、第 0 部だけ読んでから挑戦することもできます（必要な文法はその場で補います）。第 10 部は、できたアプリを Google Play で配る話です。第 1〜5 部（とくに 1-4 の署名）のあとに読んでください。10-5 は 8-9（運営の AI の中継）とつながっています。第 11 部は、5 つのリポジトリで共通の GitHub の使い方（ブランチとプルリクエスト・Actions・トークン・Packages・Pages）をまとめて読む部です。第 0 部のあと、いつ読んでもかまいません。5-3（公開）と 9-4（CI）を読んだあとだと、具体的な例がつかみやすくなります。
+第 0 部は必ず最初に読んでください。そのあとは、アプリから入っても管理システムから入ってもかまいません。第 6 部は両方にまたがる話なので、どちらか一方を読んだあとが読みやすいですが、第 0 部だけ読んでから挑戦することもできます（必要な文法はその場で補います）。第 10 部は、できたアプリを Google Play で配る話です。第 1〜5 部（とくに 1-4 の署名）のあとに読んでください。10-5 は 8-9（運営の AI の中継）とつながっています。8-10（スポットのタイル配信）は、4-1・4-5 で読むスポット検索のサーバーの側です。第 11 部は、5 つのリポジトリで共通の GitHub の使い方（ブランチとプルリクエスト・Actions・トークン・Packages・Pages）をまとめて読む部です。第 0 部のあと、いつ読んでもかまいません。5-3（公開）と 9-4（CI）を読んだあとだと、具体的な例がつかみやすくなります。
 
 ## 目次
 
@@ -109,7 +109,7 @@ flowchart LR
 
 | 章 | 内容 |
 |---|---|
-| [8-1 AWS の基本](08-aws/01-aws-basics.md) | アカウント・リージョン、サーバーレス、IAM と最小の権限、タグと料金の考え方。合成したテンプレートで許可を読む |
+| [8-1 AWS の基本](08-aws/01-aws-basics.md) | アカウント・リージョン、サーバーレス、運営の AWS にある 3 つのスタックとサービスの一覧、CDK から生成した図の読み方、IAM と最小の権限、タグと料金の考え方。合成したテンプレートで許可を読む |
 | [8-2 CDK でインフラを書く](08-aws/02-cdk.md) | CloudFormation と CDK、スタックとコンストラクト、`cdk synth` と `deploy` の違い、`RETAIN`、テストで設定を守る |
 | [8-3 Lambda と API Gateway](08-aws/03-lambda-apigw.md) | ハンドラ、コールドスタート、1 つの Lambda で 66 の操作、HTTP API と JWT の確認、非同期の呼び出しと Scheduler。偽のイベントで手元で呼ぶ |
 | [8-4 Cognito でログイン](08-aws/04-cognito.md) | ユーザープール、グループ、全員に MFA、登録の後処理、認可コード ＋ PKCE、JWT の中身 |
@@ -118,6 +118,8 @@ flowchart LR
 | [8-7 SQS・SES・KMS](08-aws/07-sqs-ses-kms.md) | 待ち行列とデッドレターキュー、少なくとも 1 回と冪等、メールを送る前の準備、KMS の鍵ポリシー |
 | [8-8 Kotlin の Lambda](08-aws/08-kotlin-lambda.md) | `validator`、`RequestHandler`、zip の形、JVM の起動を速くする工夫、S3 のイベントが 2 回来るとき |
 | [8-9 運営の AI の中継](08-aws/09-ai-relay.md) | 別のスタック、REST API と WAF、使い捨ての値と Play Integrity とトークン、回数と予算を条件つきの更新で守る、Parameter Store、Bedrock の Converse、残さないものをテストで守る |
+| [8-10 スポットのタイル配信](08-aws/10-spot-tiles.md) | 3 つ目のスタック、Lambda ではなく Fargate、公開サブネットだけで NAT なしの VPC、Scheduler で毎週動かす、変わったタイルだけ上げる、減ったら差し替えない、失敗を EventBridge のルールで拾う。NAT の守りをテストで壊す |
+| [8-11 見張りと費用](08-aws/11-watch-and-cost.md) | 3 つのスタックの知らせ方、警報の数字の 3 つの出どころ（AWS の数字・EMF・出来事）、成功が来ないことを見張る、SNS の購読、ログの期間と書かないもの、タグで分ける費用と予算が数えるもの。3 つのテンプレートから見張りを一覧する |
 
 ### 第 9 部 管理画面と開発の進め方 ✅
 
@@ -163,7 +165,7 @@ flowchart LR
 | 第 5 部: [GitHub Actions](ref/github-actions.md)・[ジオハッシュ](ref/geohash.md) | ✅ |
 | 第 7 部: [npm workspaces](ref/npm-workspaces.md)・[OpenAPI](ref/openapi.md)・[Vitest](ref/vitest.md)・[Docker](ref/docker.md) | ✅ |
 | 第 6 部の 5 枚: [SHA-256](ref/sha-256.md)・[Ed25519](ref/ed25519.md)・[base64url と base32](ref/base64url-base32.md)・[AWS KMS](ref/aws-kms.md)・[Tink](ref/tink.md) | ✅ |
-| 第 8 部: [IAM](ref/iam.md)・[AWS CDK](ref/aws-cdk.md)・[Lambda](ref/lambda.md)・[API Gateway](ref/api-gateway.md)・[Cognito](ref/cognito.md)・[DynamoDB](ref/dynamodb.md)・[S3](ref/s3.md)・[CloudFront](ref/cloudfront.md)・[SQS](ref/sqs.md)・[SES](ref/ses.md)・[Amazon Bedrock](ref/bedrock.md)・[Parameter Store](ref/parameter-store.md) | ✅ |
+| 第 8 部: [IAM](ref/iam.md)・[AWS CDK](ref/aws-cdk.md)・[Lambda](ref/lambda.md)・[API Gateway](ref/api-gateway.md)・[Cognito](ref/cognito.md)・[DynamoDB](ref/dynamodb.md)・[S3](ref/s3.md)・[CloudFront](ref/cloudfront.md)・[SQS](ref/sqs.md)・[SES](ref/ses.md)・[Amazon Bedrock](ref/bedrock.md)・[Parameter Store](ref/parameter-store.md)・[ECS と Fargate](ref/ecs-fargate.md)・[VPC](ref/vpc.md)・[EventBridge](ref/eventbridge.md)・[CloudWatch と SNS](ref/cloudwatch-sns.md) | ✅ |
 | 第 9 部: [React](ref/react.md)・[Vite](ref/vite.md)・[OIDC](ref/oidc.md)・[WebCrypto](ref/webcrypto.md) | ✅ |
 | 第 10 部: [Android App Bundle](ref/android-app-bundle.md)・[Google Play Developer API](ref/play-developer-api.md)・[サービス アカウントと OAuth 2.0](ref/service-account-oauth.md)・[Play Integrity API](ref/play-integrity.md) | ✅ |
 | 第 11 部: [Git](ref/git.md)・[プルリクエスト](ref/pull-request.md)・[gh CLI](ref/gh-cli.md)・[GITHUB_TOKEN と個人用のトークン](ref/github-token.md)・[GitHub Packages](ref/github-packages.md)・[GitHub Pages](ref/github-pages.md) | ✅ |

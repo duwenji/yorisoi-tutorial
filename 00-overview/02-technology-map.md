@@ -29,7 +29,7 @@ flowchart TB
         WEB["画面<br/>React・Vite"]
         API["API<br/>Lambda（TypeScript）"]
         VAL["機械審査<br/>Lambda（Kotlin）"]
-        AWS["AWS の部品<br/>API Gateway・Cognito・DynamoDB<br/>S3・CloudFront・SQS・SES・KMS"]
+        AWS["AWS の部品（3 つのスタック）<br/>管理システム・AI の中継・スポットのタイル<br/>Lambda・Fargate・DynamoDB・S3・CloudFront など"]
         CDK["インフラの定義<br/>AWS CDK"]
         WEB --> API --> AWS
         VAL --> AWS
@@ -71,7 +71,7 @@ flowchart TB
 | 契約 | OpenAPI、openapi-typescript、openapi-fetch | 管理 API の型を契約書から生成する | 7 |
 | テスト | Vitest、aws-sdk-client-mock、DynamoDB Local | 単体テスト、AWS の代役 | 7 |
 | インフラ | AWS CDK | AWS の部品をコードで定義する | 8 |
-| 計算 | AWS Lambda | API、公開の処理、メール、機械審査 | 8 |
+| 計算 | AWS Lambda、ECS（Fargate） | API、公開の処理、メール、機械審査、中継。週 1 回のタイルのバッチ（Fargate） | 8 |
 | 入口 | API Gateway（HTTP API）、CloudFront | API の受付、画面と公開ファイルの配信 | 8 |
 | ログイン | Amazon Cognito | 運営・チャンネル提供者のログインと MFA | 8 |
 | データ | Amazon DynamoDB | 申請・チャンネル・チャンネル提供者などすべての記録（1 テーブル） | 8 |
@@ -81,6 +81,8 @@ flowchart TB
 | 鍵 | AWS KMS | 承認済みチャンネル・リストへの署名 | 6・8 |
 | 機械審査 | Kotlin の Lambda、コア・プロンプト・パック | 申請されたパッケージと素材集をアプリと同じ規則で確かめる | 8 |
 | 運営の AI | API Gateway（REST API）・AWS WAF・Amazon Bedrock・Parameter Store | アプリからの AI の呼び出しを、運営の負担で中継する（管理システムとは別のスタック） | 8 |
+| スポットのタイル | ECS（Fargate）・VPC・EventBridge・S3・CloudFront | OSM から日本全体のスポットを週 1 回タイルにして配る（3 つ目のスタック） | 8 |
+| 見張りと費用 | CloudWatch・SNS・AWS Budgets | 止まったら運営にメールする、費用をタグで分けて見る | 8 |
 | 画面 | React 19、Vite、react-router | 運営・チャンネル提供者・素材提供者の画面 | 9 |
 | ログイン（画面） | oidc-client-ts | ブラウザから Cognito にログインする | 9 |
 | 暗号（画面） | WebCrypto | チャンネル提供者の秘密鍵をブラウザの中で作る | 9 |

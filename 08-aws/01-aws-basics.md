@@ -8,7 +8,7 @@
 
 - AWS の基本の言葉（アカウント、リージョン、サービス、ARN）
 - 「サーバーレス」とは何か。管理システムがそれを選んだ理由
-- 管理システムが使っている AWS のサービスの全体像
+- 運営の AWS にある 3 つのスタックと、そこで使っている AWS のサービスの全体像。CDK から生成した図の読み方
 - **IAM**: AWS の中で「だれが何をしてよいか」を決める仕組み。最小の権限
 - 料金の考え方と、費用を見張る仕組み（タグ・予算）
 
@@ -43,27 +43,89 @@
 
 管理システムは、使う人が運営とチャンネル提供者だけで、1 日に数回しか使われないこともあります。アプリが取りに来るのは、CDN に置いた静的なファイルだけです（[0-1](../00-overview/01-what-we-build.md)）。こうした使われ方には、使った分だけ払うサーバーレスがよく合います。開発用の環境の費用は、月に約 1.5 USD です（[docs/operations/cost.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/cost.md)）。
 
-## 管理システムが使う AWS のサービス
+## 運営の AWS にある 3 つのスタック
 
-[構成図（architecture.md）](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) の図 1 を思い出しながら見てください。
+第 8 部はおもに管理システムを読みますが、運営の AWS アカウントには、yorisoi-console の [infra/](https://github.com/duwenji/yorisoi-console/tree/main/infra) から配備する **3 つのスタック**（まとめて作り・まとめて消す部品の一式。[8-2](02-cdk.md)）があります。
 
-| サービス | 何をするものか | 管理システムでの役割 | 章 |
+| スタック | CDK のアプリ | 何をするか | 読む章 |
 |---|---|---|---|
-| **CloudFormation**・**CDK** | 部品の一式をまとめて作る・コードで定義する | すべての部品の定義 | [8-2](02-cdk.md) |
-| **Lambda** | 要求が来たときだけ関数を動かす | 管理 API・公開の処理・メール・機械審査・登録の後処理 | [8-3](03-lambda-apigw.md) |
-| **API Gateway**（HTTP API） | HTTP の入口 | 管理 API の受付、ログインの確認、流量の制限 | [8-3](03-lambda-apigw.md) |
-| **Cognito** | ログインの仕組み | 運営・チャンネル提供者のログイン、MFA、グループ | [8-4](04-cognito.md) |
-| **DynamoDB** | キーと値のデータベース | すべての記録（1 テーブル） | [8-5](05-dynamodb.md) |
-| **S3** | ファイルの置き場 | パッケージの受付、公開ファイル、記録、画面 | [8-6](06-s3-cloudfront.md) |
-| **CloudFront** | CDN（世界中から速く配る） | 公開ファイルの配信、画面と API の入口 | [8-6](06-s3-cloudfront.md) |
-| **SQS** | 待ち行列 | チャンネル提供者へのメールの待ち行列 | [8-7](07-sqs-ses-kms.md) |
-| **SES** | メールの送信 | チャンネル提供者への知らせ | [8-7](07-sqs-ses-kms.md) |
-| **KMS** | 鍵の管理 | 承認済みチャンネル・リストへの署名 | [8-7](07-sqs-ses-kms.md)、[6-4](../06-trust/04-two-tier-keys.md) |
-| **EventBridge Scheduler** | 決まった時刻に何かを動かす | 毎日 03:00 のリストの作り直し | [8-3](03-lambda-apigw.md) |
-| **CloudWatch**・**SNS** | 記録・警報・知らせ | 公開が止まったら運営に知らせる | [8-3](03-lambda-apigw.md) |
-| **IAM** | 権限 | 部品ごとに、してよいことを決める | この章 |
-| **WAF** | 攻撃の遮断 | 本番だけ、ログインの回数の制限 | [8-4](04-cognito.md) |
-| **Budgets** | 費用の見張り | 開発用で月 5 USD を超えそうなら知らせる | この章 |
+| `YorisoiConsole-<env>` | [bin/app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/app.ts) | チャンネル管理システム。申請を審査し、承認済みチャンネル・リストを署名して公開する | 8-2〜8-8 |
+| `YorisoiAiRelay-<env>` | [bin/relay.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/relay.ts) | 運営の AI の中継。アプリからの AI の呼び出しを運営の負担で中継する | [8-9](09-ai-relay.md) |
+| `YorisoiSpotTiles-<env>` | [bin/tiles.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/tiles.ts) | スポットのタイル。OpenStreetMap から毎週タイルを作って配る | [8-10](10-spot-tiles.md) |
+
+`<env>` は `dev`（開発用）か `prod`（本番）です。3 つは同じアカウントに置きますが、CDK のアプリごと分けています。1 つの配備の失敗や障害が、ほかの 2 つを巻き込まないようにするためです。3 つに共通する「止まったら運営に知らせる」仕組みと費用の見方は [8-11](11-watch-and-cost.md) でまとめて読みます。
+
+### CDK から生成した図
+
+次の 3 枚の図は、CDK のコードから [cdk-dia](https://github.com/pistazie/cdk-dia) というツールで描いたものです。手で描いた図ではないので、**いま配備される部品とそのつながりが、そのまま出ます**。描き方と作り直し方は yorisoi-console の [docs/aws-diagrams.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/aws-diagrams.md) にあります。この章の図は、yorisoi-console の `docs/diagrams/` からコピーしたものです（[images/](images/)）。
+
+| 見た目 | 意味 |
+|---|---|
+| アイコン | AWS の部品（リソース）1 つ。上の英語は CDK で `new …(this, '名前')` と書いた名前、下の日本語はその役割 |
+| 矢印 | 矢元が矢先を **使う**（呼ぶ・読み書きする・見張る）。CloudFormation の上の参照から描く |
+| 破線の枠と矢印 | このスタックの外（アプリ・ブラウザ・運営のメール・Bedrock など）とのやりとり |
+| 外の枠 | スタック。中の枠は CDK のコンストラクト |
+| 並び | 左端が入ってくる人、右へ進むほど使われる側（データ・鍵・設定）、右端が外へ出ていく先 |
+
+矢印は「使う」向きで、**データが流れる順番とは限りません**。たとえば受付用のバケットにパッケージが届くと機械審査の Lambda が動きますが、矢印は「機械審査がバケットを使う」向きです。流れの順番は、下の手で描いた構成図で読みます。
+
+読みやすくするため、ロググループ・IAM のロール・CloudWatch の警報・CDK が自分で足す部品は省いています。省いたものも含めた全部の図は、各図の下のリンクから見られます。
+
+**管理システム（YorisoiConsole）**
+
+![管理システムの AWS の部品](images/console.png)
+
+全部の図: [console-all.png](images/console-all.png)
+
+- 内側の枠が「管理の面」（ログインが要る）。運営・提供者のブラウザは ConsoleDistribution から入り、HttpApi（UserPool で JWT を確かめる）を通って ConsoleApi を呼ぶ。申請のパッケージだけは IntakeBucket に直接上げる
+- 内側の枠の外が「公開の面」。DailyPublish と ConsoleApi が PublishFunction を呼び、PublishFunction は Table を読み、SigningKey（KMS）で署名し、PublicBucket に置く。アプリは PublicDistribution から読む
+- Table と RecordsBucket には、多くの Lambda から矢印が集まる。どの Lambda がどのデータを使うかが、一目でわかる
+
+**AI の中継（YorisoiAiRelay）**
+
+![AI の中継の AWS の部品](images/relay.png)
+
+全部の図: [relay-all.png](images/relay-all.png)
+
+- アプリが Api を呼び、Relay が Table・3 つの設定（Parameter Store。運営が配備し直さずに変えられる）を使い、外の Bedrock と Play Integrity を呼ぶ
+
+**スポットのタイル（YorisoiSpotTiles）**
+
+![スポットのタイルの AWS の部品](images/tiles.png)
+
+全部の図: [tiles-all.png](images/tiles-all.png)
+
+- Weekly が Batch（Fargate）を Cluster の上・Vpc の中で動かす。Batch は外の Geofabrik から抽出を取り、Tiles に置き、Cdn のキャッシュを消す。アプリは Cdn から読む
+- BatchFailed は Cluster を見張り、バッチの失敗を Alarms に渡し、運営にメールが届く
+
+手で描いた [構成図（architecture.md）](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) と比べてみてください。手で描いた図は **だれが何をして、どの順に動くか**（流れ）を、生成した図は **その流れを支える部品が、実際にどう組まれているか** を見せます。たとえば手で描いた図の「公開の Lambda」が、生成した図では PublishFunction として、署名鍵・テーブル・公開用のバケットへの矢印を持っています。
+
+### サービスの一覧
+
+3 つのスタックで使っている AWS のサービスと、それを読む章です。各サービスの仕組みは [技術カード](../ref/README.md#aws-をサービスの種類から引く) にあります。
+
+| サービス | 何をするものか | 管理システム | AI の中継 | スポットのタイル | 章 |
+|---|---|---|---|---|---|
+| **CloudFormation**・**CDK** | 部品の一式をまとめて作る・コードで定義する | ✓ | ✓ | ✓ | [8-2](02-cdk.md) |
+| **IAM** | 権限 | ✓ | ✓ | ✓ | この章 |
+| **Lambda** | 要求が来たときだけ関数を動かす | 管理 API・公開・メール・機械審査・登録の後処理 | 中継 | — | [8-3](03-lambda-apigw.md)・[8-8](08-kotlin-lambda.md)・[8-9](09-ai-relay.md) |
+| **ECS**（Fargate） | コンテナを、終わるまで動かす | — | — | 毎週のバッチ | [8-10](10-spot-tiles.md) |
+| **VPC** | 部品をつなぐ自分専用の網 | — | — | バッチの網 | [8-10](10-spot-tiles.md) |
+| **API Gateway** | HTTP の入口 | HTTP API（ログインの確認） | REST API | — | [8-3](03-lambda-apigw.md)・[8-9](09-ai-relay.md) |
+| **Cognito** | ログインの仕組み | 運営・提供者のログイン、MFA | — | — | [8-4](04-cognito.md) |
+| **DynamoDB** | キーと値のデータベース | すべての記録（1 テーブル） | 回数・使い捨ての値・トークン | — | [8-5](05-dynamodb.md)・[8-9](09-ai-relay.md) |
+| **S3** | ファイルの置き場 | 受付・公開・記録・画面 | — | タイル | [8-6](06-s3-cloudfront.md)・[8-10](10-spot-tiles.md) |
+| **CloudFront** | CDN（世界中から速く配る） | 公開ファイル、画面と API の入口 | — | タイルの配信 | [8-6](06-s3-cloudfront.md)・[8-10](10-spot-tiles.md) |
+| **SQS** | 待ち行列 | 提供者への知らせ | — | — | [8-7](07-sqs-ses-kms.md) |
+| **SES** | メールの送信 | 提供者への知らせ | — | — | [8-7](07-sqs-ses-kms.md) |
+| **KMS** | 鍵の管理 | 承認済みチャンネル・リストへの署名 | — | — | [8-7](07-sqs-ses-kms.md)・[6-4](../06-trust/04-two-tier-keys.md) |
+| **Bedrock** | 生成 AI のモデルを呼ぶ | — | 語りを作る | — | [8-9](09-ai-relay.md) |
+| **Parameter Store** | 設定の置き場 | — | 1 日の上限・月の予算・モデル | — | [8-9](09-ai-relay.md) |
+| **Secrets Manager** | 秘密の置き場 | 本番だけ、一覧のカーソルの鍵 | 本番だけ、端末の ID のハッシュの鍵と Play Integrity の鍵 | — | [8-3](03-lambda-apigw.md)・[8-9](09-ai-relay.md) |
+| **EventBridge** | 決まった時刻・出来事で何かを動かす | 毎日 03:00 の公開 | — | 毎週のバッチ、失敗を拾う | [8-3](03-lambda-apigw.md)・[8-10](10-spot-tiles.md) |
+| **CloudWatch**・**SNS** | ログ・警報・知らせ | ✓ | ✓ | ✓ | [8-11](11-watch-and-cost.md) |
+| **WAF** | 攻撃の遮断 | 本番だけ、ログインの回数の制限 | 本番だけ、送信元ごとの制限 | — | [8-4](04-cognito.md)・[8-9](09-ai-relay.md) |
+| **Budgets** | 費用の見張り | 開発用で月 5 USD | — | — | この章・[8-11](11-watch-and-cost.md) |
 
 ## IAM: だれが何をしてよいか
 
@@ -250,6 +312,16 @@ EOF
 
 テンプレートの JSON を VS Code で開き、`"Resource"` の中の `"/intake/*"` などを検索すると、場所（接頭辞）に絞られた許可も確かめられます。
 
+### 4. 図を自分で描く（Graphviz があれば）
+
+この章の 3 枚の図は、手元でも描けます。[Graphviz](https://graphviz.org/download/) を入れて `dot` を PATH に通してから、次を実行します（AWS にはつながりません）。
+
+```sh
+npm run diagrams -w infra
+```
+
+3 つのアプリを合成し、`docs/diagrams/` の 6 枚（主要な図と全部の図）を描き直します。`console.png` と `console-all.png` を見比べてください。全部の図では、2 で数えた 80 個の部品のうち、ロググループ・ロール・警報まで並び、線が絡み合います。主要な図が省いているものは、[infra/tools/diagrams.mjs](https://github.com/duwenji/yorisoi-console/blob/main/infra/tools/diagrams.mjs) の `hiddenIcons` と `hiddenPaths` に書いてあります。
+
 ## つまずきやすいところ
 
 - **IAM は既定で拒否**: 許可を書かなければ、何もできない。動かないときは、まず権限を疑う
@@ -257,6 +329,7 @@ EOF
 - **関数にアクセスキーを持たせない**: ロールを使う
 - **使った分だけの料金は、急に高くなることもある**: タグと予算で見張る
 - **鍵（KMS）など、月額のかかる部品もある**: すべてが使った分だけではない
+- **生成した図の矢印は「使う」向きで、流れの順番ではない**: イベントで呼ばれる関係も、使う側から描かれる。順番は手で描いた構成図で読む
 
 ## 確認問題
 
@@ -278,6 +351,13 @@ EOF
 <summary>問 3. 全リソースに <code>project</code> のタグを付けているのはなぜですか。</summary>
 
 同じ AWS アカウントのほかのプロジェクトと分けて、このプロジェクトの費用だけを見たり、予算で見張ったりするためです。
+
+</details>
+
+<details>
+<summary>問 4. CDK から生成した図と、手で描いた構成図は、それぞれ何を確かめるのに向いていますか。</summary>
+
+生成した図は、CDK のコードから機械的に描くので、いま配備される部品とそのつながりを確かめるのに向いています（部品を足し忘れた・つなぎ忘れた、がそのまま出ます）。ただし矢印は「使う」向きで、どの順に動くかはわかりません。手で描いた構成図は、だれが何をして、どの順に動くかという流れを読むのに向いています。
 
 </details>
 

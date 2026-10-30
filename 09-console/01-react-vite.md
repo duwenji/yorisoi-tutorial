@@ -456,4 +456,4 @@ SPA だからです。届けるのは `index.html` と、まとめた JavaScript
 
 ---
 
-前: [8-9 運営の AI の中継](../08-aws/09-ai-relay.md) ／ 次: [9-2 ブラウザでログインする](02-browser-login.md)
+前: [8-11 見張りと費用](../08-aws/11-watch-and-cost.md) ／ 次: [9-2 ブラウザでログインする](02-browser-login.md)
