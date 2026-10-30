@@ -9,7 +9,7 @@
 
 ## カードの一覧
 
-✅ は執筆済みです（46 枚）。章を書くときに、その章で出てくる技術のカードを一緒に作りました。
+✅ は執筆済みです（50 枚）。章を書くときに、その章で出てくる技術のカードを一緒に作りました。
 
 ### 暗号
 
@@ -63,6 +63,27 @@
 | [SES](ses.md) | ✅ | 第 8 部 |
 | [Amazon Bedrock](bedrock.md) | ✅ | 8-9 |
 | [Parameter Store](parameter-store.md) | ✅ | 8-9 |
+| [ECS と Fargate](ecs-fargate.md) | ✅ | 8-10 |
+| [VPC](vpc.md) | ✅ | 8-10 |
+| [EventBridge](eventbridge.md) | ✅ | 8-3、8-10、8-11 |
+| [CloudWatch と SNS](cloudwatch-sns.md) | ✅ | 8-3、8-9、8-11 |
+
+### AWS をサービスの種類から引く
+
+上の AWS のカードを、役割ごとに並べ直したものです。どのスタックでどう使っているかは [8-1 のサービスの一覧](../08-aws/01-aws-basics.md#サービスの一覧) にあります。
+
+| 種類 | カード | カードのないもの（章で読む） |
+|---|---|---|
+| 定義と権限 | [AWS CDK](aws-cdk.md)・[IAM](iam.md) | CloudFormation（[8-2](../08-aws/02-cdk.md)） |
+| 計算 | [Lambda](lambda.md)・[ECS と Fargate](ecs-fargate.md) | |
+| 網 | [VPC](vpc.md) | |
+| 入口とログイン | [API Gateway](api-gateway.md)・[Cognito](cognito.md) | WAF（[8-4](../08-aws/04-cognito.md)・[8-9](../08-aws/09-ai-relay.md)） |
+| 保存 | [DynamoDB](dynamodb.md)・[S3](s3.md) | |
+| 配信 | [CloudFront](cloudfront.md) | |
+| つなぐ・動かす | [SQS](sqs.md)・[SES](ses.md)・[EventBridge](eventbridge.md) | |
+| 鍵・設定・秘密 | [AWS KMS](aws-kms.md)・[Parameter Store](parameter-store.md) | Secrets Manager（[8-3](../08-aws/03-lambda-apigw.md)・[8-9](../08-aws/09-ai-relay.md)） |
+| 生成 AI | [Amazon Bedrock](bedrock.md) | |
+| 見張りと費用 | [CloudWatch と SNS](cloudwatch-sns.md) | AWS Budgets・タグ（[8-1](../08-aws/01-aws-basics.md)・[8-11](../08-aws/11-watch-and-cost.md)） |
 
 ### Google Play
 

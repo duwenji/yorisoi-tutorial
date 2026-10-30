@@ -8,6 +8,7 @@
 - 次のような大きな変更が `main` に入ったとき
   - platform の契約書（API-SECRET-MESSAGES・API-CHANNEL-LIST・API-CHANNEL-PACKAGE・API-MATERIAL-PRODUCER・API-AI-RELAY）や、console の管理 API（console API-001）・データモデル（console DM-001）の版が上がった
   - パッケージ・モジュール・Lambda を足した、消した、名前を変えた
+  - console の `infra/` でスタックや部品を足した、消した（8-1 のサービスの一覧と、生成した図 `docs/diagrams/` の説明を見直す）
   - 依存ライブラリの大きな更新（Kotlin・AGP・Compose BOM・TypeScript・CDK・React など）
 
 ## 手順
