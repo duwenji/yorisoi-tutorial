@@ -63,7 +63,7 @@ spots = SpotRepository(
 | 読み上げ | `kit-voice` | 同じもの | 同じもの |
 | 判断のルール・走り方・前方・話さない場面 | 各アプリ | `TalkDecider` | `RideDecider`・`Motion`・`Ahead`・`QuietZones`・`SpeechBudget` |
 | プロンプトの文面・組み込みのチャンネル | 各アプリの `:prompts` | 散歩の語り | 走行の語り |
-| 色と文字（テーマ） | `kit-mood` | 雰囲気で色を変える（`MoodTheme`） | 雰囲気なしの緑（`MoodTheme(null, …)`）。アイコンの枠も同じ緑で、見分けは絵 |
+| 色・画面の上部のバー・アイコンの背景 | `kit-ui`・`kit-mood` | 雰囲気で色を変える（`MoodTheme`）。雰囲気がないときは `kit-ui` の緑 | `kit-ui` の緑（`YorisoiTheme`）。アイコンの枠も同じ緑で、見分けは絵 |
 | 画面 | 各アプリ | 地図が主役 | 止まっているときは地図が主役、走行中は暗い画面 |
 
 **仕組みは共有し、値と判断はアプリが持つ**。これが分け方の決まりです（platform の [ADR-ECOSYSTEM-PLATFORM](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-ECOSYSTEM-PLATFORM.md) E-4・E-7）。
