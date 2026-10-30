@@ -57,7 +57,7 @@
 
 ### CDK から生成した図
 
-次の 3 枚の図は、CDK のコードから [cdk-dia](https://github.com/pistazie/cdk-dia) というツールで描いたものです。手で描いた図ではないので、**いま配備される部品とそのつながりが、そのまま出ます**。描き方と作り直し方は yorisoi-console の [docs/aws-diagrams.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/aws-diagrams.md) にあります。
+次の 3 枚の図は、CDK のコードから [cdk-dia](https://github.com/pistazie/cdk-dia) というツールで描いたものです。手で描いた図ではないので、**いま配備される部品とそのつながりが、そのまま出ます**。描き方と作り直し方は yorisoi-console の [docs/aws-diagrams.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/aws-diagrams.md) にあります。この章の図は、yorisoi-console の `docs/diagrams/` からコピーしたものです（[images/](images/)）。
 
 | 見た目 | 意味 |
 |---|---|
@@ -70,26 +70,26 @@
 
 **管理システム（YorisoiConsole）**
 
-![管理システムの AWS の部品](https://raw.githubusercontent.com/duwenji/yorisoi-console/main/docs/diagrams/console.png)
+![管理システムの AWS の部品](images/console.png)
 
-全部の図: [console-all.png](https://github.com/duwenji/yorisoi-console/blob/main/docs/diagrams/console-all.png)
+全部の図: [console-all.png](images/console-all.png)
 
 - 枠の中が「管理の面」（ログインが要る）。左の ConsoleDistribution・UserPool・HttpApi から入り、中ほどの ConsoleApi が DynamoDB の Table と各バケットを読み書きする
 - 枠の外の右が「公開の面」。PublishFunction が SigningKey（KMS）で署名し、PublicBucket に置き、アプリは PublicDistribution から読む
 
 **AI の中継（YorisoiAiRelay）**
 
-![AI の中継の AWS の部品](https://raw.githubusercontent.com/duwenji/yorisoi-console/main/docs/diagrams/relay.png)
+![AI の中継の AWS の部品](images/relay.png)
 
-全部の図: [relay-all.png](https://github.com/duwenji/yorisoi-console/blob/main/docs/diagrams/relay-all.png)
+全部の図: [relay-all.png](images/relay-all.png)
 
 - アプリは左の Api を呼び、Relay が Bedrock に渡す。右の 3 つは運営が配備し直さずに変えられる設定（Parameter Store）
 
 **スポットのタイル（YorisoiSpotTiles）**
 
-![スポットのタイルの AWS の部品](https://raw.githubusercontent.com/duwenji/yorisoi-console/main/docs/diagrams/tiles.png)
+![スポットのタイルの AWS の部品](images/tiles.png)
 
-全部の図: [tiles-all.png](https://github.com/duwenji/yorisoi-console/blob/main/docs/diagrams/tiles-all.png)
+全部の図: [tiles-all.png](images/tiles-all.png)
 
 - 左下の Weekly が Batch（Fargate）を動かし、Batch が Tiles に置き、アプリは Cdn から読む。左上の BatchFailed は、バッチの失敗を拾って Alarms に渡す
 

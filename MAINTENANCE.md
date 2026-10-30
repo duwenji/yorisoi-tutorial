@@ -8,7 +8,7 @@
 - 次のような大きな変更が `main` に入ったとき
   - platform の契約書（API-SECRET-MESSAGES・API-CHANNEL-LIST・API-CHANNEL-PACKAGE・API-MATERIAL-PRODUCER・API-AI-RELAY）や、console の管理 API（console API-001）・データモデル（console DM-001）の版が上がった
   - パッケージ・モジュール・Lambda を足した、消した、名前を変えた
-  - console の `infra/` でスタックや部品を足した、消した（8-1 のサービスの一覧と、生成した図 `docs/diagrams/` の説明を見直す）
+  - console の `infra/` でスタックや部品を足した、消した（8-1 のサービスの一覧と図を見直す。下の手順 8）
   - 依存ライブラリの大きな更新（Kotlin・AGP・Compose BOM・TypeScript・CDK・React など）
 
 ## 手順
@@ -97,7 +97,18 @@ gh api repos/duwenji/yorisoi-sanpoguide/releases --jq length
 
 公開のまま・既定の権限が `read`・シークレットが 0・ルールセットが 0・リリースが 0 でなくなっていたら、11-2・11-4・11-6 の該当する節を直します。
 
-### 8. 記録を更新する
+### 8. 生成した AWS の図をコピーし直す
+
+8-1 の図（`08-aws/images/`）は、yorisoi-console の `docs/diagrams/` のコピーです。console の図が描き直されていたら、コピーし直します。
+
+```sh
+cd ../yorisoi-console && git diff --stat 6e0d89c..main -- docs/diagrams/
+cp ../yorisoi-console/docs/diagrams/*.png ../yorisoi-tutorial/08-aws/images/
+```
+
+部品が増えたり減ったりしていたら、8-1 の図の下の説明とサービスの一覧も直します。
+
+### 9. 記録を更新する
 
 [README.md](README.md) の「最後に照合した日」と「照合したコミット」を更新します。
 
