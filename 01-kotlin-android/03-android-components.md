@@ -52,7 +52,7 @@ OS は、アプリにどんな部品があり、何をしたいのかを **マ�
     <application
         android:name=".SanpoApp"
         android:allowBackup="false"
-        android:icon="@drawable/ic_walk"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.SanpoGuide">
 
@@ -83,7 +83,7 @@ OS は、アプリにどんな部品があり、何をしたいのかを **マ�
 | `android:exported` | ほかのアプリから呼べるか。入口の Activity は `true`、Service は `false`（自分だけが使う） |
 | `foregroundServiceType="location"` | この Service は、位置情報のためのフォアグラウンドサービスだと宣言する |
 
-`@drawable/ic_walk`・`@string/app_name` は **リソース**（`app/src/main/res/` の下の画像や文字列）を指す書き方です。
+`@mipmap/ic_launcher`・`@string/app_name` は **リソース**（`app/src/main/res/` の下の画像や文字列）を指す書き方です。`ic_launcher` は **アダプティブアイコン**（`mipmap-anydpi/ic_launcher.xml`）で、背景（緑）と前景（丸と歩く人）の 2 枚を重ねます。丸や角丸などの切り抜きの形は、ホーム画面のアプリが決めます。ストアのアイコン（`store/src/icon.svg`）と同じ絵にしてあります。
 
 ### ライブラリもマニフェストを持ち込む
 
