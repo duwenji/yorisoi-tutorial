@@ -74,7 +74,7 @@ Surface(color = MaterialTheme.colorScheme.primaryContainer, /* … */) {
 ```kotlin
 @Composable
 fun MoodTheme(mood: Mood?, systemDark: Boolean, content: @Composable () -> Unit) {
-    val target = paletteFor(mood, systemDark).toScheme()
+    val target = mood?.let { paletteFor(it, systemDark).toScheme() } ?: yorisoiColorScheme(systemDark)
     MaterialTheme(colorScheme = target.animated(), typography = typographyFor(mood), content = content)
 }
 ```
@@ -85,7 +85,7 @@ fun MoodTheme(mood: Mood?, systemDark: Boolean, content: @Composable () -> Unit)
 MoodTheme(mood.takeIf { settings.moodEnabled }, systemDark = isSystemInDarkTheme()) { /* 4 つの画面 */ }
 ```
 
-- 設定で雰囲気をオフにしていれば `mood` は null（`takeIf` は条件が成り立たなければ null を返す）
+- 設定で雰囲気をオフにしていれば `mood` は null（`takeIf` は条件が成り立たなければ null を返す）。そのときは、よりそいのどのアプリにも共通の緑（`kit-ui` の `yorisoiColorScheme`）を使う。CycleGuide は雰囲気を使わず、同じ緑を `YorisoiTheme` で使う
 - `isSystemInDarkTheme()` は、端末がダークモードかどうか
 
 `content: @Composable () -> Unit` は「Composable を受け取る引数」です。`MoodTheme { … }` の `{ … }` がこれにあたり、1-1 で見た「最後の引数がラムダなら外に出せる」書き方です。
@@ -93,8 +93,7 @@ MoodTheme(mood.takeIf { settings.moodEnabled }, systemDark = isSystemInDarkTheme
 ### 雰囲気から色を選ぶ
 
 ```kotlin
-private fun paletteFor(mood: Mood?, systemDark: Boolean): Palette = when {
-    mood == null -> if (systemDark) ForestDark else Forest
+private fun paletteFor(mood: Mood, systemDark: Boolean): Palette = when {
     mood.time.isDark -> Night
     mood.sky?.isWet == true || mood.sky == Sky.FOG -> if (systemDark) RainDark else Rain
     mood.time == TimeOfDay.EVENING -> if (systemDark) EveningDark else Evening
@@ -105,11 +104,10 @@ private fun paletteFor(mood: Mood?, systemDark: Boolean): Palette = when {
 
 上から順に当てはまるものを選ぶ `when` です（1-1）。**順番が優先順位** になっています。
 
-1. 雰囲気がオフ → いつもの緑
-2. 夜 → 夜の色（端末のダークモードに関係なく暗い色）
-3. 雨・雪・雷・霧 → 雨の色
-4. 夕方 → 夕方の色、朝 → 朝の色
-5. それ以外（晴れた昼） → 季節の色（春は桜色、夏は青、秋は橙、冬は青灰色）
+1. 夜 → 夜の色（端末のダークモードに関係なく暗い色）
+2. 雨・雪・雷・霧 → 雨の色
+3. 夕方 → 夕方の色、朝 → 朝の色
+4. それ以外（晴れた昼） → 季節の色（春は桜色、夏は青、秋は橙、冬は青灰色）
 
 それぞれの色の組（`Palette`）は、明るい版と暗い版（`…Dark`）を持っています。
 
@@ -312,7 +310,7 @@ yorisoi.platformDir=../yorisoi-platform
 <details>
 <summary>答え</summary>
 
-雨の色になります。`paletteFor` の `when` では、雨の判定（3 番目）が夕方の判定（4 番目）より先にあるからです。カードの絵（`MoodScene`）も、`skyColors` で雨の判定が時間帯より先にあるので、夕焼けではなく灰色の雨空になり、雨粒が重なります。
+雨の色になります。`paletteFor` の `when` では、雨の判定（2 番目）が夕方の判定（3 番目）より先にあるからです。カードの絵（`MoodScene`）も、`skyColors` で雨の判定が時間帯より先にあるので、夕焼けではなく灰色の雨空になり、雨粒が重なります。
 
 </details>
 
