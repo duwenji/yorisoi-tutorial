@@ -22,7 +22,7 @@ flowchart LR
     P0 --> P11["第 11 部<br/>GitHub で開発を回す"]
 ```
 
-第 0 部は必ず最初に読んでください。そのあとは、アプリから入っても管理システムから入ってもかまいません。第 6 部は両方にまたがる話なので、どちらか一方を読んだあとが読みやすいですが、第 0 部だけ読んでから挑戦することもできます（必要な文法はその場で補います）。第 10 部は、できたアプリを Google Play で配る話です。第 1〜5 部（とくに 1-4 の署名）のあとに読んでください。10-5 は 8-9（運営の AI の中継）とつながっています。8-10（スポットのタイル配信）は、4-1・4-5 で読むスポット検索のサーバーの側です。第 11 部は、5 つのリポジトリで共通の GitHub の使い方（ブランチとプルリクエスト・Actions・トークン・Packages・Pages）をまとめて読む部です。第 0 部のあと、いつ読んでもかまいません。5-3（公開）と 9-4（CI）を読んだあとだと、具体的な例がつかみやすくなります。
+第 0 部は必ず最初に読んでください。そのあとは、アプリから入っても管理システムから入ってもかまいません。第 6 部は両方にまたがる話なので、どちらか一方を読んだあとが読みやすいですが、第 0 部だけ読んでから挑戦することもできます（必要な文法はその場で補います）。第 10 部は、できたアプリを Google Play で配る話です。第 1〜5 部（とくに 1-4 の署名）のあとに読んでください。10-5 は 8-9（運営の AI の中継）とつながっています。8-10（スポットのタイル配信）は、4-1・4-5 で読むスポット検索のサーバーの側です。8-12（スタジオ）は、8-9 の中継のトークンを使う 4 つ目のスタックです。第 11 部は、5 つのリポジトリで共通の GitHub の使い方（ブランチとプルリクエスト・Actions・トークン・Packages・Pages）をまとめて読む部です。第 0 部のあと、いつ読んでもかまいません。5-3（公開）と 9-4（CI）を読んだあとだと、具体的な例がつかみやすくなります。
 
 ## 目次
 
@@ -120,6 +120,7 @@ flowchart LR
 | [8-9 運営の AI の中継](08-aws/09-ai-relay.md) | 別のスタック、REST API と WAF、使い捨ての値と Play Integrity とトークン、回数と予算を条件つきの更新で守る、Parameter Store、Bedrock の Converse、残さないものをテストで守る |
 | [8-10 スポットのタイル配信](08-aws/10-spot-tiles.md) | 3 つ目のスタック、Lambda ではなく Fargate、公開サブネットだけで NAT なしの VPC、Scheduler で毎週動かす、変わったタイルだけ上げる、減ったら差し替えない、失敗を EventBridge のルールで拾う。NAT の守りをテストで壊す |
 | [8-11 見張りと費用](08-aws/11-watch-and-cost.md) | 3 つのスタックの知らせ方、警報の数字の 3 つの出どころ（AWS の数字・EMF・出来事）、成功が来ないことを見張る、SNS の購読、ログの期間と書かないもの、タグで分ける費用と予算が数えるもの。3 つのテンプレートから見張りを一覧する |
+| [8-12 スタジオ](08-aws/12-studio.md) | 4 つ目のスタック、Parameter Store の名前でスタックをつなぐ、別のスタックの表をキーで絞って読む、区画ごとのパーティション、署名付き POST で音声を上げる、Transcribe を待たずに出来事で続ける、安い確認を先に、名前を出さない数 |
 
 ### 第 9 部 管理画面と開発の進め方 ✅
 
@@ -165,7 +166,7 @@ flowchart LR
 | 第 5 部: [GitHub Actions](ref/github-actions.md)・[ジオハッシュ](ref/geohash.md) | ✅ |
 | 第 7 部: [npm workspaces](ref/npm-workspaces.md)・[OpenAPI](ref/openapi.md)・[Vitest](ref/vitest.md)・[Docker](ref/docker.md) | ✅ |
 | 第 6 部の 5 枚: [SHA-256](ref/sha-256.md)・[Ed25519](ref/ed25519.md)・[base64url と base32](ref/base64url-base32.md)・[AWS KMS](ref/aws-kms.md)・[Tink](ref/tink.md) | ✅ |
-| 第 8 部: [IAM](ref/iam.md)・[AWS CDK](ref/aws-cdk.md)・[Lambda](ref/lambda.md)・[API Gateway](ref/api-gateway.md)・[Cognito](ref/cognito.md)・[DynamoDB](ref/dynamodb.md)・[S3](ref/s3.md)・[CloudFront](ref/cloudfront.md)・[SQS](ref/sqs.md)・[SES](ref/ses.md)・[Amazon Bedrock](ref/bedrock.md)・[Parameter Store](ref/parameter-store.md)・[ECS と Fargate](ref/ecs-fargate.md)・[VPC](ref/vpc.md)・[EventBridge](ref/eventbridge.md)・[CloudWatch と SNS](ref/cloudwatch-sns.md) | ✅ |
+| 第 8 部: [IAM](ref/iam.md)・[AWS CDK](ref/aws-cdk.md)・[Lambda](ref/lambda.md)・[API Gateway](ref/api-gateway.md)・[Cognito](ref/cognito.md)・[DynamoDB](ref/dynamodb.md)・[S3](ref/s3.md)・[CloudFront](ref/cloudfront.md)・[SQS](ref/sqs.md)・[SES](ref/ses.md)・[Amazon Bedrock](ref/bedrock.md)・[Parameter Store](ref/parameter-store.md)・[ECS と Fargate](ref/ecs-fargate.md)・[VPC](ref/vpc.md)・[EventBridge](ref/eventbridge.md)・[CloudWatch と SNS](ref/cloudwatch-sns.md)・[Amazon Transcribe](ref/transcribe.md) | ✅ |
 | 第 9 部: [React](ref/react.md)・[Vite](ref/vite.md)・[OIDC](ref/oidc.md)・[WebCrypto](ref/webcrypto.md) | ✅ |
 | 第 10 部: [Android App Bundle](ref/android-app-bundle.md)・[Google Play Developer API](ref/play-developer-api.md)・[サービス アカウントと OAuth 2.0](ref/service-account-oauth.md)・[Play Integrity API](ref/play-integrity.md) | ✅ |
 | 第 11 部: [Git](ref/git.md)・[プルリクエスト](ref/pull-request.md)・[gh CLI](ref/gh-cli.md)・[GITHUB_TOKEN と個人用のトークン](ref/github-token.md)・[GitHub Packages](ref/github-packages.md)・[GitHub Pages](ref/github-pages.md) | ✅ |
