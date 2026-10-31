@@ -8,7 +8,7 @@
 
 - AWS の基本の言葉（アカウント、リージョン、サービス、ARN）
 - 「サーバーレス」とは何か。管理システムがそれを選んだ理由
-- 運営の AWS にある 3 つのスタックと、そこで使っている AWS のサービスの全体像。CDK から生成した図の読み方
+- 運営の AWS にある 4 つのスタックと、そこで使っている AWS のサービスの全体像。CDK から生成した図の読み方
 - **IAM**: AWS の中で「だれが何をしてよいか」を決める仕組み。最小の権限
 - 料金の考え方と、費用を見張る仕組み（タグ・予算）
 
@@ -43,21 +43,22 @@
 
 管理システムは、使う人が運営とチャンネル提供者だけで、1 日に数回しか使われないこともあります。アプリが取りに来るのは、CDN に置いた静的なファイルだけです（[0-1](../00-overview/01-what-we-build.md)）。こうした使われ方には、使った分だけ払うサーバーレスがよく合います。開発用の環境の費用は、月に約 1.5 USD です（[docs/operations/cost.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/cost.md)）。
 
-## 運営の AWS にある 3 つのスタック
+## 運営の AWS にある 4 つのスタック
 
-第 8 部はおもに管理システムを読みますが、運営の AWS アカウントには、yorisoi-console の [infra/](https://github.com/duwenji/yorisoi-console/tree/main/infra) から配備する **3 つのスタック**（まとめて作り・まとめて消す部品の一式。[8-2](02-cdk.md)）があります。
+第 8 部はおもに管理システムを読みますが、運営の AWS アカウントには、yorisoi-console の [infra/](https://github.com/duwenji/yorisoi-console/tree/main/infra) から配備する **4 つのスタック**（まとめて作り・まとめて消す部品の一式。[8-2](02-cdk.md)）があります。
 
 | スタック | CDK のアプリ | 何をするか | 読む章 |
 |---|---|---|---|
 | `YorisoiConsole-<env>` | [bin/app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/app.ts) | チャンネル管理システム。申請を審査し、承認済みチャンネル・リストを署名して公開する | 8-2〜8-8 |
 | `YorisoiAiRelay-<env>` | [bin/relay.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/relay.ts) | 運営の AI の中継。アプリからの AI の呼び出しを運営の負担で中継する | [8-9](09-ai-relay.md) |
 | `YorisoiSpotTiles-<env>` | [bin/tiles.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/tiles.ts) | スポットのタイル。OpenStreetMap から毎週タイルを作って配る | [8-10](10-spot-tiles.md) |
+| `YorisoiStudio-<env>` | [bin/studio.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/studio.ts) | スタジオ。場所に残る一言と、提供者の掲載（お知らせ）を置いて配る | [8-12](12-studio.md) |
 
-`<env>` は `dev`（開発用）か `prod`（本番）です。3 つは同じアカウントに置きますが、CDK のアプリごと分けています。1 つの配備の失敗や障害が、ほかの 2 つを巻き込まないようにするためです。3 つに共通する「止まったら運営に知らせる」仕組みと費用の見方は [8-11](11-watch-and-cost.md) でまとめて読みます。
+`<env>` は `dev`（開発用）か `prod`（本番）です。4 つは同じアカウントに置きますが、CDK のアプリごと分けています。1 つの配備の失敗や障害が、ほかを巻き込まないようにするためです。スタジオだけは、中継の表と、管理システムの配備と、Parameter Store の名前でつながっています（[8-12](12-studio.md)）。スタジオを除く 3 つに共通する「止まったら運営に知らせる」仕組みと費用の見方は [8-11](11-watch-and-cost.md) でまとめて読みます。
 
 ### CDK から生成した図
 
-次の 3 枚の図は、CDK のコードから [cdk-dia](https://github.com/pistazie/cdk-dia) というツールで描いたものです。手で描いた図ではないので、**いま配備される部品とそのつながりが、そのまま出ます**。描き方と作り直し方は yorisoi-console の [docs/aws-diagrams.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/aws-diagrams.md) にあります。この章の図は、yorisoi-console の `docs/diagrams/` からコピーしたものです（[images/](images/)）。
+次の 4 枚の図は、CDK のコードから [cdk-dia](https://github.com/pistazie/cdk-dia) というツールで描いたものです。手で描いた図ではないので、**いま配備される部品とそのつながりが、そのまま出ます**。描き方と作り直し方は yorisoi-console の [docs/aws-diagrams.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/aws-diagrams.md) にあります。この章の図は、yorisoi-console の `docs/diagrams/` からコピーしたものです（[images/](images/)）。
 
 | 見た目 | 意味 |
 |---|---|
@@ -98,34 +99,45 @@
 - Weekly が Batch（Fargate）を Cluster の上・Vpc の中で動かす。Batch は外の Geofabrik から抽出を取り、Tiles に置き、Cdn のキャッシュを消す。アプリは Cdn から読む
 - BatchFailed は Cluster を見張り、バッチの失敗を Alarms に渡し、運営にメールが届く
 
+**スタジオ（YorisoiStudio）**
+
+![スタジオの AWS の部品](images/studio.png)
+
+全部の図: [studio-all.png](images/studio-all.png)
+
+- アプリが Api を呼び、Studio が Table を読み書きし、外の中継（トークン・予算）と Bedrock を使う。音声は AudioCdn から読む
+- 提供者は Intake に音声を上げ、PlacementCheck が Transcribe に文字起こしを頼む。終わりは TranscribeDone が拾って PlacementCheck に戻す。通った音声は Audio に写す
+- TableNameParameter など 4 つの名前は、管理システムが配備のときに読む
+
 手で描いた [構成図（architecture.md）](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) と比べてみてください。手で描いた図は **だれが何をして、どの順に動くか**（流れ）を、生成した図は **その流れを支える部品が、実際にどう組まれているか** を見せます。たとえば手で描いた図の「公開の Lambda」が、生成した図では PublishFunction として、署名鍵・テーブル・公開用のバケットへの矢印を持っています。
 
 ### サービスの一覧
 
-3 つのスタックで使っている AWS のサービスと、それを読む章です。各サービスの仕組みは [技術カード](../ref/README.md#aws-をサービスの種類から引く) にあります。
+4 つのスタックで使っている AWS のサービスと、それを読む章です。各サービスの仕組みは [技術カード](../ref/README.md#aws-をサービスの種類から引く) にあります。
 
-| サービス | 何をするものか | 管理システム | AI の中継 | スポットのタイル | 章 |
-|---|---|---|---|---|---|
-| **CloudFormation**・**CDK** | 部品の一式をまとめて作る・コードで定義する | ✓ | ✓ | ✓ | [8-2](02-cdk.md) |
-| **IAM** | 権限 | ✓ | ✓ | ✓ | この章 |
-| **Lambda** | 要求が来たときだけ関数を動かす | 管理 API・公開・メール・機械審査・登録の後処理 | 中継 | — | [8-3](03-lambda-apigw.md)・[8-8](08-kotlin-lambda.md)・[8-9](09-ai-relay.md) |
-| **ECS**（Fargate） | コンテナを、終わるまで動かす | — | — | 毎週のバッチ | [8-10](10-spot-tiles.md) |
-| **VPC** | 部品をつなぐ自分専用の網 | — | — | バッチの網 | [8-10](10-spot-tiles.md) |
-| **API Gateway** | HTTP の入口 | HTTP API（ログインの確認） | REST API | — | [8-3](03-lambda-apigw.md)・[8-9](09-ai-relay.md) |
-| **Cognito** | ログインの仕組み | 運営・提供者のログイン、MFA | — | — | [8-4](04-cognito.md) |
-| **DynamoDB** | キーと値のデータベース | すべての記録（1 テーブル） | 回数・使い捨ての値・トークン | — | [8-5](05-dynamodb.md)・[8-9](09-ai-relay.md) |
-| **S3** | ファイルの置き場 | 受付・公開・記録・画面 | — | タイル | [8-6](06-s3-cloudfront.md)・[8-10](10-spot-tiles.md) |
-| **CloudFront** | CDN（世界中から速く配る） | 公開ファイル、画面と API の入口 | — | タイルの配信 | [8-6](06-s3-cloudfront.md)・[8-10](10-spot-tiles.md) |
-| **SQS** | 待ち行列 | 提供者への知らせ | — | — | [8-7](07-sqs-ses-kms.md) |
-| **SES** | メールの送信 | 提供者への知らせ | — | — | [8-7](07-sqs-ses-kms.md) |
-| **KMS** | 鍵の管理 | 承認済みチャンネル・リストへの署名 | — | — | [8-7](07-sqs-ses-kms.md)・[6-4](../06-trust/04-two-tier-keys.md) |
-| **Bedrock** | 生成 AI のモデルを呼ぶ | — | 語りを作る | — | [8-9](09-ai-relay.md) |
-| **Parameter Store** | 設定の置き場 | — | 1 日の上限・月の予算・モデル | — | [8-9](09-ai-relay.md) |
-| **Secrets Manager** | 秘密の置き場 | 本番だけ、一覧のカーソルの鍵 | 本番だけ、端末の ID のハッシュの鍵と Play Integrity の鍵 | — | [8-3](03-lambda-apigw.md)・[8-9](09-ai-relay.md) |
-| **EventBridge** | 決まった時刻・出来事で何かを動かす | 毎日 03:00 の公開 | — | 毎週のバッチ、失敗を拾う | [8-3](03-lambda-apigw.md)・[8-10](10-spot-tiles.md) |
-| **CloudWatch**・**SNS** | ログ・警報・知らせ | ✓ | ✓ | ✓ | [8-11](11-watch-and-cost.md) |
-| **WAF** | 攻撃の遮断 | 本番だけ、ログインの回数の制限 | 本番だけ、送信元ごとの制限 | — | [8-4](04-cognito.md)・[8-9](09-ai-relay.md) |
-| **Budgets** | 費用の見張り | 開発用で月 5 USD | — | — | この章・[8-11](11-watch-and-cost.md) |
+| サービス | 何をするものか | 管理システム | AI の中継 | スポットのタイル | スタジオ | 章 |
+|---|---|---|---|---|---|---|
+| **CloudFormation**・**CDK** | 部品の一式をまとめて作る・コードで定義する | ✓ | ✓ | ✓ | ✓ | [8-2](02-cdk.md) |
+| **IAM** | 権限 | ✓ | ✓ | ✓ | ✓（中継の表はキーで絞る） | この章・[8-12](12-studio.md) |
+| **Lambda** | 要求が来たときだけ関数を動かす | 管理 API・公開・メール・機械審査・登録の後処理 | 中継 | — | API・掲載の確認 | [8-3](03-lambda-apigw.md)・[8-8](08-kotlin-lambda.md)・[8-9](09-ai-relay.md)・[8-12](12-studio.md) |
+| **ECS**（Fargate） | コンテナを、終わるまで動かす | — | — | 毎週のバッチ | — | [8-10](10-spot-tiles.md) |
+| **VPC** | 部品をつなぐ自分専用の網 | — | — | バッチの網 | — | [8-10](10-spot-tiles.md) |
+| **API Gateway** | HTTP の入口 | HTTP API（ログインの確認） | REST API | — | REST API | [8-3](03-lambda-apigw.md)・[8-9](09-ai-relay.md)・[8-12](12-studio.md) |
+| **Cognito** | ログインの仕組み | 運営・提供者のログイン、MFA | — | — | — | [8-4](04-cognito.md) |
+| **DynamoDB** | キーと値のデータベース | すべての記録（1 テーブル） | 回数・使い捨ての値・トークン | — | 一言・掲載・数・ブロック | [8-5](05-dynamodb.md)・[8-9](09-ai-relay.md)・[8-12](12-studio.md) |
+| **S3** | ファイルの置き場 | 受付・公開・記録・画面 | — | タイル | 音声の受け取り・配信 | [8-6](06-s3-cloudfront.md)・[8-10](10-spot-tiles.md)・[8-12](12-studio.md) |
+| **CloudFront** | CDN（世界中から速く配る） | 公開ファイル、画面と API の入口 | — | タイルの配信 | 音声の配信 | [8-6](06-s3-cloudfront.md)・[8-10](10-spot-tiles.md)・[8-12](12-studio.md) |
+| **SQS** | 待ち行列 | 提供者への知らせ | — | — | — | [8-7](07-sqs-ses-kms.md) |
+| **SES** | メールの送信 | 提供者への知らせ | — | — | — | [8-7](07-sqs-ses-kms.md) |
+| **KMS** | 鍵の管理 | 承認済みチャンネル・リストへの署名 | — | — | — | [8-7](07-sqs-ses-kms.md)・[6-4](../06-trust/04-two-tier-keys.md) |
+| **Transcribe** | 音声を文字に起こす | — | — | — | 掲載の音声 | [8-12](12-studio.md) |
+| **Bedrock** | 生成 AI のモデルを呼ぶ | — | 語りを作る | — | 一言と掲載の確認 | [8-9](09-ai-relay.md)・[8-12](12-studio.md) |
+| **Parameter Store** | 設定の置き場 | — | 1 日の上限・月の予算・モデル | — | 利用規約の版・止める、表の名前 | [8-9](09-ai-relay.md)・[8-12](12-studio.md) |
+| **Secrets Manager** | 秘密の置き場 | 本番だけ、一覧のカーソルの鍵 | 本番だけ、端末の ID のハッシュの鍵と Play Integrity の鍵 | — | — | [8-3](03-lambda-apigw.md)・[8-9](09-ai-relay.md) |
+| **EventBridge** | 決まった時刻・出来事で何かを動かす | 毎日 03:00 の公開 | — | 毎週のバッチ、失敗を拾う | 文字起こしの終わりを拾う | [8-3](03-lambda-apigw.md)・[8-10](10-spot-tiles.md)・[8-12](12-studio.md) |
+| **CloudWatch**・**SNS** | ログ・警報・知らせ | ✓ | ✓ | ✓ | ✓ | [8-11](11-watch-and-cost.md) |
+| **WAF** | 攻撃の遮断 | 本番だけ、ログインの回数の制限 | 本番だけ、送信元ごとの制限 | — | 本番だけ、送信元ごとの制限 | [8-4](04-cognito.md)・[8-9](09-ai-relay.md)・[8-12](12-studio.md) |
+| **Budgets** | 費用の見張り | 開発用で月 5 USD | — | — | — | この章・[8-11](11-watch-and-cost.md) |
 
 ## IAM: だれが何をしてよいか
 

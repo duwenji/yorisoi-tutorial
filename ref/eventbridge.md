@@ -65,6 +65,7 @@ new events.Rule(stack, 'BatchFailed', {
 | [infra/lib/console-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-stack.ts) の `DailyPublish` | 毎日 03:00（UTC の 18 時で書く）に公開の Lambda を `{"trigger":"daily"}` で呼ぶ | [8-3](../08-aws/03-lambda-apigw.md) |
 | [infra/lib/tiles-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/tiles-stack.ts) の `Weekly` | 毎週水曜 3:00（`Asia/Tokyo`）に Fargate のタスクを動かす | [8-10](../08-aws/10-spot-tiles.md) |
 | 同じく `BatchFailed` | 終了コードが 0 以外で止まったタスクだけを、運営へのメールにする | [8-10](../08-aws/10-spot-tiles.md)・[8-11](../08-aws/11-watch-and-cost.md) |
+| [infra/lib/studio-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/studio-stack.ts) の `TranscribeDone` | このスタックが頼んだ文字起こし（ジョブの名前の接頭辞で絞る）の終わりを、掲載の確認の Lambda に戻す | [8-12](../08-aws/12-studio.md) |
 
 ## よくある間違い
 

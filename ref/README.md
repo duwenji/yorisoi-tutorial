@@ -65,7 +65,8 @@
 | [Parameter Store](parameter-store.md) | ✅ | 8-9 |
 | [ECS と Fargate](ecs-fargate.md) | ✅ | 8-10 |
 | [VPC](vpc.md) | ✅ | 8-10 |
-| [EventBridge](eventbridge.md) | ✅ | 8-3、8-10、8-11 |
+| [EventBridge](eventbridge.md) | ✅ | 8-3、8-10、8-11、8-12 |
+| [Amazon Transcribe](transcribe.md) | ✅ | 8-12 |
 | [CloudWatch と SNS](cloudwatch-sns.md) | ✅ | 8-3、8-9、8-11 |
 
 ### AWS をサービスの種類から引く
@@ -82,7 +83,7 @@
 | 配信 | [CloudFront](cloudfront.md) | |
 | つなぐ・動かす | [SQS](sqs.md)・[SES](ses.md)・[EventBridge](eventbridge.md) | |
 | 鍵・設定・秘密 | [AWS KMS](aws-kms.md)・[Parameter Store](parameter-store.md) | Secrets Manager（[8-3](../08-aws/03-lambda-apigw.md)・[8-9](../08-aws/09-ai-relay.md)） |
-| 生成 AI | [Amazon Bedrock](bedrock.md) | |
+| 生成 AI・音声 | [Amazon Bedrock](bedrock.md)・[Amazon Transcribe](transcribe.md) | |
 | 見張りと費用 | [CloudWatch と SNS](cloudwatch-sns.md) | AWS Budgets・タグ（[8-1](../08-aws/01-aws-basics.md)・[8-11](../08-aws/11-watch-and-cost.md)） |
 
 ### Google Play
