@@ -38,14 +38,14 @@ export const ifMatch = (rev: number) => ({ 'If-Match': `"${rev}"` });
 | 構成図 | [architecture.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) | 全体がどうつながっているか |
 | TODO | [console TODO](https://github.com/duwenji/yorisoi-console/blob/main/docs/TODO.md) | 残っている作業 |
 
-SanpoGuide 固有の説明は [yorisoi-sanpoguide の文書](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/README.md) にあります。アプリと管理システムの共有契約（[platform API-CHANNEL-LIST（旧 API-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md)・[API-CHANNEL-PACKAGE（旧 API-003）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-PACKAGE.md)・[API-MATERIAL-PRODUCER（旧 API-004）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-MATERIAL-PRODUCER.md)）と、素材提供者の役割を定める [platform ADR-MATERIAL-PRODUCERS（旧 ADR-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIAL-PRODUCERS.md) は platform にあります。関係者の呼び方も [platform の共通用語](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/roles-and-vocabulary.md) が正本です。
+SanpoGuide 固有の説明は [yorisoi-sanpoguide の文書](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/README.md) にあります。アプリと管理システムの共有契約（[platform API-CHANNEL-LIST（旧 API-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md)・[API-CHANNEL-PACKAGE（旧 API-003）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-PACKAGE.md)・[API-MATERIALS（旧 API-004）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-MATERIALS.md)）と、素材提供者の役割を定める [platform ADR-MATERIALS（旧 ADR-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIALS.md) は platform にあります。関係者の呼び方も [platform の共通用語](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/roles-and-vocabulary.md) が正本です。
 
 ```mermaid
 flowchart TB
     subgraph PL["yorisoi-platform"]
-        SADR["ADR-CHANNEL-CURATION<br/>第三者チャンネルを審査"] --> API2["API-CHANNEL-LIST<br/>承認済みチャンネル・リスト"]
+        SADR["ADR-CHANNELS<br/>第三者チャンネルを審査"] --> API2["API-CHANNEL-LIST<br/>承認済みチャンネル・リスト"]
         SADR --> API3["API-CHANNEL-PACKAGE<br/>チャンネルのパッケージ"]
-        SADR2["ADR-MATERIAL-PRODUCERS<br/>素材提供者を切り出す"] --> API4["API-MATERIAL-PRODUCER<br/>素材集と素材提供者の共通の形"]
+        SADR2["ADR-MATERIALS<br/>素材提供者を切り出す"] --> API4["API-MATERIALS<br/>素材集と素材提供者の共通の形"]
         SADR2 --> API2
         SADR2 --> API3
     end
@@ -175,7 +175,7 @@ grep -rhoE "\b(ADR-001|API-00[0-9]|DM-001|DES-0[0-9][0-9])" api/src web/src infr
 
 （main で数えたもの。コードが変われば数も変わります）
 
-データモデル・API 契約書・ADR がよく指されています。platform の共有契約（API-CHANNEL-LIST・API-CHANNEL-PACKAGE・API-MATERIAL-PRODUCER、旧 API-002〜004）も、管理システムのコードから指されています。アプリとの境界を守るコードだからです。コードのコメントでは「platform API-002」のように旧番号に platform を添えて書いている箇所があります。共通契約の正本は canonical ID で確認します（[0-4](../00-overview/04-reading-the-repos.md)）。エコシステムへの対応（DES-011）、素材集を足した段（DES-007〜010）の設計書が多く指されているのは、新しく書いたコードほど、どの決定に従ったかをコメントに残しているからです。
+データモデル・API 契約書・ADR がよく指されています。platform の共有契約（API-CHANNEL-LIST・API-CHANNEL-PACKAGE・API-MATERIALS、旧 API-002〜004）も、管理システムのコードから指されています。アプリとの境界を守るコードだからです。コードのコメントでは「platform API-002」のように旧番号に platform を添えて書いている箇所があります。共通契約の正本は canonical ID で確認します（[0-4](../00-overview/04-reading-the-repos.md)）。エコシステムへの対応（DES-011）、素材集を足した段（DES-007〜010）の設計書が多く指されているのは、新しく書いたコードほど、どの決定に従ったかをコメントに残しているからです。
 
 ### 2. 1 つの決定をたどる
 

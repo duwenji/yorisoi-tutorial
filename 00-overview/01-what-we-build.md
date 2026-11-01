@@ -35,7 +35,7 @@
 
 第三者のチャンネルは、語り手を変えるだけでなく、**素材**（文字・画像。将来は音声・映像も）を見せることもできます。「この寺に近づいたら、観光協会の解説と写真を出す」のように、**きっかけ**（スポット・地点・散歩の開始などの出来事）と **見せ方**（読み上げ・カード・通知など）を決めて出します。
 
-素材は、チャンネルとは別の **素材集** として作り、チャンネルとは別に審査します（[platform ADR-MATERIAL-PRODUCERS（旧 ADR-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIAL-PRODUCERS.md)）。観光協会や写真家が、チャンネルを作らなくても素材を届けられるようにするためです。素材集を作る人が、どのチャンネル提供者に使わせるかを決めて署名します。
+素材は、チャンネルとは別の **素材集** として作り、チャンネルとは別に審査します（[platform ADR-MATERIALS（旧 ADR-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIALS.md)）。観光協会や写真家が、チャンネルを作らなくても素材を届けられるようにするためです。素材集を作る人が、どのチャンネル提供者に使わせるかを決めて署名します。
 
 AI の解説や Wikimedia の写真、背景音のように、アプリが自分で用意する素材もあります。アプリは、どの出どころの素材も同じ形（`Producer`）で扱います。今のアプリが出せるのは文字と画像までです（第 1 段）。くわしくは [5-4](../05-station-format/04-materials-cues.md) で扱います。
 
@@ -87,7 +87,7 @@ flowchart LR
 
 - [platform API-CHANNEL-LIST（旧 API-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md)
 
-リストに載るチャンネルや素材集の形式は、platform の [API-CHANNEL-PACKAGE（旧 API-003）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-PACKAGE.md) と [API-MATERIAL-PRODUCER（旧 API-004）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-MATERIAL-PRODUCER.md) が定めます。これらの共通契約に、アプリと管理システムの両方が従います。
+リストに載るチャンネルや素材集の形式は、platform の [API-CHANNEL-PACKAGE（旧 API-003）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-PACKAGE.md) と [API-MATERIALS（旧 API-004）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-MATERIALS.md) が定めます。これらの共通契約に、アプリと管理システムの両方が従います。
 
 この契約書には、公開するファイルの形、署名の付け方、アプリが確かめる順番、エラーの種類が決めてあります。契約書を守っていれば、管理システムをどう作るか（AWS でも別のクラウドでも）は自由です。実際、契約書には「本書に準拠していれば、管理システムの実装方法と置き場所は問わない」と書かれています。
 

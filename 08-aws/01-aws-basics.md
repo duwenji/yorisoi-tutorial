@@ -52,7 +52,7 @@
 | `YorisoiConsole-<env>` | [bin/app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/app.ts) | チャンネル管理システム。申請を審査し、承認済みチャンネル・リストを署名して公開する | 8-2〜8-8 |
 | `YorisoiAiRelay-<env>` | [bin/relay.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/relay.ts) | 運営の AI の中継。アプリからの AI の呼び出しを運営の負担で中継する | [8-9](09-ai-relay.md) |
 | `YorisoiSpotTiles-<env>` | [bin/tiles.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/tiles.ts) | スポットのタイル。OpenStreetMap から毎週タイルを作って配る | [8-10](10-spot-tiles.md) |
-| `YorisoiStudio-<env>` | [bin/studio.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/studio.ts) | スタジオ。場所に残る一言と、提供者の掲載（お知らせ）を置いて配る | [8-12](12-studio.md) |
+| `YorisoiStudio-<env>` | [bin/studio.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/studio.ts) | スタジオと一言。素材提供者が出すスタジオ（お知らせ）と、場所に置く一言を置いて配る | [8-12](12-studio.md) |
 
 `<env>` は `dev`（開発用）か `prod`（本番）です。4 つは同じアカウントに置きますが、CDK のアプリごと分けています。1 つの配備の失敗や障害が、ほかを巻き込まないようにするためです。スタジオだけは、中継の表と、管理システムの配備と、Parameter Store の名前でつながっています（[8-12](12-studio.md)）。スタジオを除く 3 つに共通する「止まったら運営に知らせる」仕組みと費用の見方は [8-11](11-watch-and-cost.md) でまとめて読みます。
 
@@ -119,19 +119,19 @@
 |---|---|---|---|---|---|---|
 | **CloudFormation**・**CDK** | 部品の一式をまとめて作る・コードで定義する | ✓ | ✓ | ✓ | ✓ | [8-2](02-cdk.md) |
 | **IAM** | 権限 | ✓ | ✓ | ✓ | ✓（中継の表はキーで絞る） | この章・[8-12](12-studio.md) |
-| **Lambda** | 要求が来たときだけ関数を動かす | 管理 API・公開・メール・機械審査・登録の後処理 | 中継 | — | API・掲載の確認 | [8-3](03-lambda-apigw.md)・[8-8](08-kotlin-lambda.md)・[8-9](09-ai-relay.md)・[8-12](12-studio.md) |
+| **Lambda** | 要求が来たときだけ関数を動かす | 管理 API・公開・メール・機械審査・登録の後処理 | 中継 | — | API・スタジオの確認 | [8-3](03-lambda-apigw.md)・[8-8](08-kotlin-lambda.md)・[8-9](09-ai-relay.md)・[8-12](12-studio.md) |
 | **ECS**（Fargate） | コンテナを、終わるまで動かす | — | — | 毎週のバッチ | — | [8-10](10-spot-tiles.md) |
 | **VPC** | 部品をつなぐ自分専用の網 | — | — | バッチの網 | — | [8-10](10-spot-tiles.md) |
 | **API Gateway** | HTTP の入口 | HTTP API（ログインの確認） | REST API | — | REST API | [8-3](03-lambda-apigw.md)・[8-9](09-ai-relay.md)・[8-12](12-studio.md) |
 | **Cognito** | ログインの仕組み | 運営・提供者のログイン、MFA | — | — | — | [8-4](04-cognito.md) |
-| **DynamoDB** | キーと値のデータベース | すべての記録（1 テーブル） | 回数・使い捨ての値・トークン | — | 一言・掲載・数・ブロック | [8-5](05-dynamodb.md)・[8-9](09-ai-relay.md)・[8-12](12-studio.md) |
+| **DynamoDB** | キーと値のデータベース | すべての記録（1 テーブル） | 回数・使い捨ての値・トークン | — | 一言・スタジオ・数・ブロック | [8-5](05-dynamodb.md)・[8-9](09-ai-relay.md)・[8-12](12-studio.md) |
 | **S3** | ファイルの置き場 | 受付・公開・記録・画面 | — | タイル | 音声の受け取り・配信 | [8-6](06-s3-cloudfront.md)・[8-10](10-spot-tiles.md)・[8-12](12-studio.md) |
 | **CloudFront** | CDN（世界中から速く配る） | 公開ファイル、画面と API の入口 | — | タイルの配信 | 音声の配信 | [8-6](06-s3-cloudfront.md)・[8-10](10-spot-tiles.md)・[8-12](12-studio.md) |
 | **SQS** | 待ち行列 | 提供者への知らせ | — | — | — | [8-7](07-sqs-ses-kms.md) |
 | **SES** | メールの送信 | 提供者への知らせ | — | — | — | [8-7](07-sqs-ses-kms.md) |
 | **KMS** | 鍵の管理 | 承認済みチャンネル・リストへの署名 | — | — | — | [8-7](07-sqs-ses-kms.md)・[6-4](../06-trust/04-two-tier-keys.md) |
-| **Transcribe** | 音声を文字に起こす | — | — | — | 掲載の音声 | [8-12](12-studio.md) |
-| **Bedrock** | 生成 AI のモデルを呼ぶ | — | 語りを作る | — | 一言と掲載の確認 | [8-9](09-ai-relay.md)・[8-12](12-studio.md) |
+| **Transcribe** | 音声を文字に起こす | — | — | — | スタジオの音声 | [8-12](12-studio.md) |
+| **Bedrock** | 生成 AI のモデルを呼ぶ | — | 語りを作る | — | スタジオと一言の確認 | [8-9](09-ai-relay.md)・[8-12](12-studio.md) |
 | **Parameter Store** | 設定の置き場 | — | 1 日の上限・月の予算・モデル | — | 利用規約の版・止める、表の名前 | [8-9](09-ai-relay.md)・[8-12](12-studio.md) |
 | **Secrets Manager** | 秘密の置き場 | 本番だけ、一覧のカーソルの鍵 | 本番だけ、端末の ID のハッシュの鍵と Play Integrity の鍵 | — | — | [8-3](03-lambda-apigw.md)・[8-9](09-ai-relay.md) |
 | **EventBridge** | 決まった時刻・出来事で何かを動かす | 毎日 03:00 の公開 | — | 毎週のバッチ、失敗を拾う | 文字起こしの終わりを拾う | [8-3](03-lambda-apigw.md)・[8-10](10-spot-tiles.md)・[8-12](12-studio.md) |
