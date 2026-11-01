@@ -15,7 +15,7 @@
 
 ## なぜ素材を切り出したのか
 
-素材をチャンネルのパッケージの一部（`channel.json` の `resources`）だけにすると、困ることが 4 つあります（[platform ADR-MATERIAL-PRODUCERS（旧 ADR-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIAL-PRODUCERS.md)「目的・背景」）。
+素材をチャンネルのパッケージの一部（`channel.json` の `resources`）だけにすると、困ることが 4 つあります（[platform ADR-MATERIALS（旧 ADR-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIALS.md)「目的・背景」）。
 
 | 困ること | 例 |
 |---|---|
@@ -24,7 +24,7 @@
 | 更新の波及 | 写真を 1 枚直すと、使っているチャンネルがすべて申請し直し |
 | 利用許諾を確かめられない | 「この写真を使ってよい」は、チャンネル提供者の自己申告でしか示せない |
 
-そこで、素材を **素材集** として別に作り、別に審査することにしました。役割はこう分かれます（platform ADR-MATERIAL-PRODUCERS D-1）。
+そこで、素材を **素材集** として別に作り、別に審査することにしました。役割はこう分かれます（platform ADR-MATERIALS D-1）。
 
 ```mermaid
 flowchart LR

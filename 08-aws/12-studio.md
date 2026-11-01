@@ -15,7 +15,7 @@
 
 ## 何を作ったのか
 
-スタジオは、散策者・走る人がその場所に残した 60 文字までの **一言** と、運営が承認した提供者の **掲載**（店や地域のお知らせ。文と 30 秒までの音声）を、近くを通る人のアプリで読み上げる仕組みです。決めたことは platform の [REQ-STUDIO](https://github.com/duwenji/yorisoi-platform/blob/main/docs/requirements/REQ-STUDIO.md)・[ADR-STUDIO](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-STUDIO.md)、アプリとの約束は [API-STUDIO](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-STUDIO.md)、サーバーの設計は yorisoi-console の [DES-013](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/DES-013-studio.md) にあります。コードは [infra/lib/studio-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/studio-stack.ts) と [api/src/studio/](https://github.com/duwenji/yorisoi-console/tree/main/api/src/studio)、運用の手順は [docs/operations/studio.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/studio.md) です。
+このスタックは、**その場の素材**（運営が置き場を持ち、アプリが区画ごとに取る素材）を置いて配り、近くを通る人のアプリが読み上げます。今は **スタジオ**（運営が承認した素材提供者が出す、店や地域のお知らせ。文と 30 秒までの音声）と **一言**（散策者・走る人がその場所に置く 60 文字までの投稿）の 2 種類で、種類どうしに直接の関係はありません。決めたことは platform の [REQ-STUDIO](https://github.com/duwenji/yorisoi-platform/blob/main/docs/requirements/REQ-STUDIO.md)・[REQ-NOTES](https://github.com/duwenji/yorisoi-platform/blob/main/docs/requirements/REQ-NOTES.md)・[ADR-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIALS.md)、アプリとの約束は [API-LOCAL-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-LOCAL-MATERIALS.md)、サーバーの設計は yorisoi-console の [DES-013](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/DES-013-studio.md) にあります。コードは [infra/lib/studio-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/studio-stack.ts) と [api/src/studio/](https://github.com/duwenji/yorisoi-console/tree/main/api/src/studio)、運用の手順は [docs/operations/studio.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/studio.md) です。
 
 ```mermaid
 flowchart LR
@@ -23,8 +23,8 @@ flowchart LR
     FN --> T[("スタジオの DynamoDB")]
     FN -. "トークンを読む・費用を足す" .-> RT[("中継の DynamoDB")]
     FN -->|"一言の確認"| BR["Bedrock"]
-    PUB["提供者のブラウザ<br/>（管理システムの画面）"] -->|"署名付き POST"| IN[("受け取り用 S3")]
-    CON["管理 API の Lambda"] -->|"載せる"| CHK["掲載の確認の Lambda"]
+    PUB["素材提供者のブラウザ<br/>（管理システムの画面）"] -->|"署名付き POST"| IN[("受け取り用 S3")]
+    CON["管理 API の Lambda"] -->|"載せる"| CHK["スタジオの確認の Lambda"]
     CHK -->|"文字起こしを頼む"| TR["Transcribe"]
     TR -. "終わった（出来事）" .-> EB["EventBridge のルール"] --> CHK
     CHK --> BR
@@ -42,7 +42,7 @@ flowchart LR
 |---|---|---|
 | 中継の表のトークンを読む | スタジオ → 中継 | アプリは中継のセッション（[8-9](09-ai-relay.md)）を開いている。もう 1 つ認証を作らずに、同じトークンで呼べるようにする |
 | 中継の月の費用に足す | スタジオ → 中継 | 一言の確認も運営の AI を使う。予算を 1 つにまとめる |
-| スタジオの表・バケットを読み書きする | 管理システム → スタジオ | 提供者が掲載を作り、運営が通報に対応する画面は管理システムにある |
+| スタジオの表・バケットを読み書きする | 管理システム → スタジオ | 素材提供者がスタジオを作り、運営が通報に対応する画面は管理システムにある |
 
 CDK には、スタックの値を別のスタックに渡す **出力（Export）** があります。ところが Export は、使っている側があるかぎり、出している側で消したり名前を変えたりできません。そこでこのリポジトリでは、名前を **Parameter Store** に書いておき、使う側が配備のときに読む形にしました（DES-013 K-2）。
 
@@ -85,13 +85,13 @@ return String(item.install);
 
 ## 区画ごとのパーティション
 
-アプリは「今いる辺りの一言と掲載」を取ります。DynamoDB は位置で探すのが得意ではありません（[8-5](05-dynamodb.md)）。そこで、一言と載っている掲載を、**ジオハッシュ 6 文字の区画**（約 1.2 km × 0.6 km）ごとのパーティション `CELL#{geohash6}` にも写して書いておきます（DES-013 K-7）。
+アプリは「今いる辺りのその場の素材（スタジオ・一言）」を取ります。DynamoDB は位置で探すのが得意ではありません（[8-5](05-dynamodb.md)）。そこで、一言と載っているスタジオを、**ジオハッシュ 6 文字の区画**（約 1.2 km × 0.6 km）ごとのパーティション `CELL#{geohash6}` にも写して書いておきます（DES-013 K-7）。
 
 | 項目 | PK | SK |
 |---|---|---|
 | 一言そのもの | `NOTE#{id}` | `NOTE` |
 | 区画の一言（写し） | `CELL#xn77k2` | `N#{id}` |
-| 区画の掲載（写し。載っている間だけ） | `CELL#xn77k2` | `P#{id}` |
+| 区画のスタジオ（写し。載っている間だけ） | `CELL#xn77k2` | `P#{id}` |
 
 アプリは今の区画と周りの 8 つ、合わせて 9 つの区画の名前を送ります。Lambda は区画ごとに 1 回の Query をして、期限・状態・ブロックで外します。読む量は区画の数で決まり、全体の件数が増えても変わりません。一言を消すときは、もとの項目と写しを `TransactWrite` で一緒に書き換えます。
 
@@ -113,11 +113,11 @@ const PHONE = /(?:[0-9０-９][\s\-－ー‐()（）.]*){10,}/;
 
 AI の呼び出しが失敗したら、一言は **置きません**（`502 upstream_error`）。確かめられなかったものを通すと、確認がないのと同じになるからです。
 
-## 掲載の音声: 直接上げて、出来事で続ける
+## スタジオの音声: 直接上げて、出来事で続ける
 
 ### ブラウザから S3 へ
 
-提供者は、管理システムの画面から音声を選びます。音声は Lambda を通さず、**署名付き POST**（[8-6](06-s3-cloudfront.md) のパッケージの受付と同じ仕組み）で、受け取り用のバケットの `uploads/` に直接上げます。大きさの上限（512 KB）は、署名した条件に入れて S3 が守ります。
+素材提供者は、管理システムの画面から音声を選びます。音声は Lambda を通さず、**署名付き POST**（[8-6](06-s3-cloudfront.md) のパッケージの受付と同じ仕組み）で、受け取り用のバケットの `uploads/` に直接上げます。大きさの上限（512 KB）は、署名した条件に入れて S3 が守ります。
 
 ```ts
 const intake = new s3.Bucket(this, 'Intake', {
@@ -135,7 +135,7 @@ const intake = new s3.Bucket(this, 'Intake', {
 
 ### 文字起こしは待たない
 
-掲載を「載せる」と、管理 API が確認の Lambda を **待たずに** 呼びます。確認の Lambda（[api/src/studio/placement.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/studio/placement.ts)）は、まず安いものから確かめます。
+スタジオを「載せる」と、管理 API が確認の Lambda を **待たずに** 呼びます。確認の Lambda（[api/src/studio/placement.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/studio/placement.ts)）は、まず安いものから確かめます。
 
 1. 音声が届いているか、512 KB 以内か
 2. M4A のファイルの頭（`mvhd`）から長さを読み、30 秒以内か
@@ -164,15 +164,15 @@ export async function handler(event: PlacementEvent): Promise<void> {
 }
 ```
 
-続きでは、起こした文と掲載の文を運営の AI で掲載の決まりに照らし、通れば配信用のバケットの `placements/{id}/audio.m4a` に写して、区画の写し（`CELL#…`）を書きます。アプリはこの音声を CloudFront から取り、SHA-256 を確かめてから流します。当たれば、当たった項目を付けて提供者に返します。
+続きでは、起こした文とスタジオの文を運営の AI でスタジオの決まりに照らし、通れば配信用のバケットの `placements/{id}/audio.m4a` に写して、区画の写し（`CELL#…`）を書きます。アプリはこの音声を CloudFront から取り、SHA-256 を確かめてから流します。当たれば、当たった項目を付けて素材提供者に返します。
 
-状態を書き換えるときは、どれも `ConditionExpression: '#s = :checking'` を付けています。同じ出来事が 2 度届いたり、その間に提供者が掲載を止めたりしても、確認中のものだけを動かすためです。
+状態を書き換えるときは、どれも `ConditionExpression: '#s = :checking'` を付けています。同じ出来事が 2 度届いたり、その間に素材提供者がスタジオを止めたりしても、確認中のものだけを動かすためです。
 
 ## 名前を出さない数
 
-掲載者には聞いた数を見せますが、**だれが聞いたか** は残しません（API-STUDIO ST-5）。アプリは散歩の終わりに、聞いた一言・掲載の ID だけをまとめて送り、Lambda は掲載ごと・日ごとの合計（`STATS#{id}` / `DAY#…`）に足すだけです。見せるときも、3 未満は出さず、3・10・30・100・300・1,000 の区切りの下限だけを返します。少ない数は、聞いた人の居場所の手がかりになるからです。
+素材提供者には聞いた数を見せますが、**だれが聞いたか** は残しません（API-LOCAL-MATERIALS ST-5）。アプリは散歩の終わりに、聞いた一言・スタジオの ID だけをまとめて送り、Lambda はスタジオごと・日ごとの合計（`STATS#{id}` / `DAY#…`）に足すだけです。見せるときも、3 未満は出さず、3・10・30・100・300・1,000 の区切りの下限だけを返します。少ない数は、聞いた人の居場所の手がかりになるからです。
 
-ログにも、一言・掲載の本文、区画、`install` は書きません。書くのは、操作の種類・件数・時間とエラーの `code` だけです（DES-013 K-6）。
+ログにも、一言・スタジオの本文、区画、`install` は書きません。書くのは、操作の種類・件数・時間とエラーの `code` だけです（DES-013 K-6）。
 
 ## やってみよう: 中継のトークンでスタジオを呼ぶ
 
@@ -225,7 +225,7 @@ IAM のポリシーの条件 `dynamodb:LeadingKeys` で、触れるパーティ�
 </details>
 
 <details>
-<summary>問 3. 掲載の確認の Lambda が、Transcribe の文字起こしが終わるのを待たないのはなぜですか。終わったことはどう知りますか。</summary>
+<summary>問 3. スタジオの確認の Lambda が、Transcribe の文字起こしが終わるのを待たないのはなぜですか。終わったことはどう知りますか。</summary>
 
 文字起こしは 1 分ほどかかり、Lambda が待つとその時間にも料金がかかるからです。頼んだところで終わり、Transcribe の「Transcribe Job State Change」の出来事を EventBridge のルールが拾って、同じ Lambda を呼び直します。
 

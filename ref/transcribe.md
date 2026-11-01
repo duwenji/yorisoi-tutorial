@@ -60,7 +60,7 @@ new events.Rule(stack, 'TranscribeDone', {
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| yorisoi-console [api/src/studio/placement.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/studio/placement.ts) の `startCheck`・`finishTranscription` | 掲載の音声の長さと形式を先に確かめてから頼む。終わったら、起こした文を運営の AI で掲載の決まりに照らす | [8-12](../08-aws/12-studio.md) |
+| yorisoi-console [api/src/studio/placement.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/studio/placement.ts) の `startCheck`・`finishTranscription` | スタジオの音声の長さと形式を先に確かめてから頼む。終わったら、起こした文を運営の AI でスタジオの決まりに照らす | [8-12](../08-aws/12-studio.md) |
 | [infra/lib/studio-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/studio-stack.ts) の `TranscribeDone` | 終わりの出来事を、確認の Lambda に戻す | [8-12](../08-aws/12-studio.md) |
 
 ## よくある間違い
