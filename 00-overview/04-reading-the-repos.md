@@ -100,22 +100,22 @@ yorisoi-console/
 コードのコメントには、よく文書の番号が出てきます。
 
 ```ts
-/** Builds the channel list and signs its digest (API-002 P-8). */
+/** Builds the channel list and signs its digest (API-CHANNEL-LIST P-8). */
 ```
 
-このコードコメントは旧番号 API-002 で記録されています。これは「この関数は platform の API-CHANNEL-LIST、決定事項 P-8 に従っている」という意味です。**コードだけでは分からない「なぜ」は、canonical ID と旧番号の対応を確認してから正本をたどります。** 第 6 部では、このつながりを何度もたどります。
+これは「この関数は platform の API-CHANNEL-LIST、決定事項 P-8 に従っている」という意味です。**コードだけでは分からない「なぜ」は、この番号から正本をたどります。** 第 6 部では、このつながりを何度もたどります。
 
 主な文書の場所:
 
 | 番号 | 文書 | 場所 |
 |---|---|---|
-| platform API-SECRET-MESSAGES（旧 API-001） | 秘密メッセージ サーバー API 契約書（OpenAPI は `docs/api/`） | [API-SECRET-MESSAGES](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-SECRET-MESSAGES.md) |
-| platform API-CHANNEL-LIST（旧 API-002） | 承認済みチャンネル・リスト契約 | [API-CHANNEL-LIST](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md) |
-| platform API-CHANNEL-PACKAGE（旧 API-003） | チャンネル・パッケージ形式 | [API-CHANNEL-PACKAGE](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-PACKAGE.md) |
-| platform API-MATERIALS（旧 API-004） | 素材提供者インタフェース（素材集の形式を含む） | [API-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-MATERIALS.md) |
-| platform ADR-CHANNELS（旧 ADR-001） | 第三者のチャンネルは審査と署名を経たものだけ取り込む | [ADR-CHANNELS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-CHANNELS.md) |
-| platform ADR-MATERIALS（旧 ADR-002） | 素材提供者と素材集の共通方針 | [ADR-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIALS.md) |
-| platform ADR-ECOSYSTEM-PLATFORM（旧 ADR-003） | エコシステムの共通基盤 | [ADR-ECOSYSTEM-PLATFORM](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-ECOSYSTEM-PLATFORM.md) |
+| platform API-SECRET-MESSAGES | 秘密メッセージ サーバー API 契約書（OpenAPI は `docs/api/`） | [API-SECRET-MESSAGES](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-SECRET-MESSAGES.md) |
+| platform API-CHANNEL-LIST | 承認済みチャンネル・リスト契約 | [API-CHANNEL-LIST](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md) |
+| platform API-CHANNEL-PACKAGE | チャンネル・パッケージ形式 | [API-CHANNEL-PACKAGE](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-PACKAGE.md) |
+| platform API-MATERIALS | 素材提供者インタフェース（素材集の形式を含む） | [API-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-MATERIALS.md) |
+| platform ADR-CHANNELS | 第三者のチャンネルは審査と署名を経たものだけ取り込む | [ADR-CHANNELS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-CHANNELS.md) |
+| platform ADR-MATERIALS | 素材提供者と素材集の共通方針 | [ADR-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIALS.md) |
+| platform ADR-ECOSYSTEM-PLATFORM | エコシステムの共通基盤 | [ADR-ECOSYSTEM-PLATFORM](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-ECOSYSTEM-PLATFORM.md) |
 | platform 関係者と共通用語 | 散策者・チャンネル提供者・素材提供者・運営、リスト | [関係者と共通用語](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/roles-and-vocabulary.md) |
 | platform の審査方針 | チャンネルの確認・承認・取り下げ | [チャンネル審査方針](https://github.com/duwenji/yorisoi-platform/blob/main/docs/policies/channel-review.md) |
 | console ADR-001 | AWS の構成 | [console ADR-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/adr/ADR-001-aws-architecture.md) |
@@ -123,7 +123,7 @@ yorisoi-console/
 | console DM-001 | データモデル | [console DM-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/data-model.md) |
 | console 文書一覧 | console の設計・ガイド・運用文書 | [console docs/README.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/README.md) |
 
-**同じ旧番号でもリポジトリが違えば別の文書** なので注意してください。たとえば `console ADR-001` と `platform ADR-CHANNELS` は別の判断です。また、platform の旧 `API-001` は `API-SECRET-MESSAGES`、console の `API-001` は管理 API です。platform 文書は canonical ID、console 文書は `console` を添えて呼びます。一覧は [platform ADR 一覧](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/README.md)、[platform API 契約一覧](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/README.md)、[console 文書一覧](https://github.com/duwenji/yorisoi-console/blob/main/docs/README.md)を参照してください。
+**番号はリポジトリごとに付けている** ので注意してください。たとえば console の `API-001` は管理 API で、platform の契約は `API-SECRET-MESSAGES` のように主題の名前で呼びます。platform 文書は canonical ID、console 文書は `console` を添えて呼びます。一覧は [platform ADR 一覧](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/README.md)、[platform API 契約一覧](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/README.md)、[console 文書一覧](https://github.com/duwenji/yorisoi-console/blob/main/docs/README.md)を参照してください。
 
 ## コードの中で迷ったら
 
@@ -135,9 +135,9 @@ yorisoi-console/
 ## 確認問題
 
 <details>
-<summary>問 1. コードのコメントに「(API-002 P-6)」とあったら、何を見ればよいですか。</summary>
+<summary>問 1. コードのコメントに「(API-CHANNEL-LIST P-6)」とあったら、何を見ればよいですか。</summary>
 
-[platform API-CHANNEL-LIST（旧 API-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md) の決定事項 P-6 です。そのコードがなぜそうなっているかの理由が書いてあります。
+[platform API-CHANNEL-LIST](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md) の決定事項 P-6 です。そのコードがなぜそうなっているかの理由が書いてあります。
 
 </details>
 

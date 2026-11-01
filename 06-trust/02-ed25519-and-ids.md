@@ -105,7 +105,7 @@ internal fun decodeBase64Url(text: String): ByteArray? =
 | リストID | `sc1fudx6pajz2ozvj4h7ylpvb3imjx6fteb` | 承認済みチャンネル・リスト（の発行元） | ルート鍵の公開鍵（[6-4](04-two-tier-keys.md)） |
 | アカウントID | `sg1fudx6pajz2ozvj4h7ylpvb3imjx6fteb` | チャンネルを作るチャンネル提供者 | チャンネル提供者の公開鍵 |
 
-作り方はどちらも同じです（API-002 P-2）。
+作り方はどちらも同じです（API-CHANNEL-LIST P-2）。
 
 ```
 ID = 接頭辞 + base32( SHA-256(公開鍵 32 バイト) ) の先頭 32 文字
@@ -141,7 +141,7 @@ export const accountId = (publicKey: Uint8Array): string => fingerprintId('sg1',
 
 サーバーが乗っ取られて偽の公開鍵を返しても、ID と一致する公開鍵を作ることは事実上できません（ハッシュの性質）。だから **ID さえ正しく伝われば、鍵も正しく伝わります**。
 
-API-002 は、ID を **URL から自動で取ってはいけない** と決めています（「設定画面のリスト」）。サーバーが返す ID をそのまま信じたら、照合の意味がなくなるからです。
+API-CHANNEL-LIST は、ID を **URL から自動で取ってはいけない** と決めています（「設定画面のリスト」）。サーバーが返す ID をそのまま信じたら、照合の意味がなくなるからです。
 
 ### なぜ base32 で、なぜ 32 文字か
 
@@ -160,7 +160,7 @@ base32 の変換は [encoding.ts](https://github.com/duwenji/yorisoi-console/blo
 const SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
 ```
 
-API-002 では、公開鍵を **生の 32 バイト** で扱います。ところが Node.js の `crypto` や Java の `KeyFactory` は、公開鍵を **DER（SubjectPublicKeyInfo）** という、鍵の種類などの情報を前に付けた形で受け取ります。Ed25519 の場合、その「前に付ける情報」はいつも同じ 12 バイトなので、生の鍵の前にくっつければ DER になります。
+API-CHANNEL-LIST では、公開鍵を **生の 32 バイト** で扱います。ところが Node.js の `crypto` や Java の `KeyFactory` は、公開鍵を **DER（SubjectPublicKeyInfo）** という、鍵の種類などの情報を前に付けた形で受け取ります。Ed25519 の場合、その「前に付ける情報」はいつも同じ 12 バイトなので、生の鍵の前にくっつければ DER になります。
 
 - TypeScript: [ed25519.ts](https://github.com/duwenji/yorisoi-console/blob/main/packages/protocol/src/ed25519.ts) の `publicKeyFromRaw` と `rawPublicKey`
 - Kotlin: [PublisherSignature.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/PublisherSignature.kt) の `JcaEd25519`

@@ -12,11 +12,11 @@
 
 ## 形式は約束
 
-チャンネルのパッケージの形式は、platform の契約書 **API-CHANNEL-PACKAGE（旧 API-003）** で決まっています。第 6 部で扱う [API-CHANNEL-LIST（旧 API-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md) が「承認済みチャンネル・リスト」の約束なのに対し、API-CHANNEL-PACKAGE は **そのリストが指すパッケージの中身** の約束です（[契約本文](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-PACKAGE.md)）。
+チャンネルのパッケージの形式は、platform の契約書 **API-CHANNEL-PACKAGE** で決まっています。第 6 部で扱う [API-CHANNEL-LIST](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md) が「承認済みチャンネル・リスト」の約束なのに対し、API-CHANNEL-PACKAGE は **そのリストが指すパッケージの中身** の約束です（[契約本文](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-PACKAGE.md)）。
 
 ```mermaid
 flowchart LR
-    L["承認済みチャンネル・リスト<br/>（API-002・第 6 部）<br/>package.url・sha256・size"] -->|"SHA-256 で固定"| P["パッケージ（ZIP）<br/>（API-003・この章）"]
+    L["承認済みチャンネル・リスト<br/>（API-CHANNEL-LIST・第 6 部）<br/>package.url・sha256・size"] -->|"SHA-256 で固定"| P["パッケージ（ZIP）<br/>（API-CHANNEL-PACKAGE・この章）"]
     P --> CJ["channel.json<br/>設定"]
     P --> SL["prompts/…<br/>スロットの文章"]
     P --> SG["signature.json<br/>チャンネル提供者の署名"]
@@ -49,7 +49,7 @@ resources/                   パッケージに入れる素材（任意。第三
 
 - `prompts/` の下のファイルは **すべて任意**。ないスロットには、組み込みの「標準」チャンネルの文章が入る
 - `resources/` には、`channel.json` の `resources` が指しているファイルだけを置ける（下の「素材・きっかけ・見せ方」）
-- **これ以外のファイルを入れると拒む**（API-003 F-5）
+- **これ以外のファイルを入れると拒む**（API-CHANNEL-PACKAGE F-5）
 - テキストは UTF-8（BOM なし）、改行は LF
 
 組み込みの 6 つのチャンネル（プロンプト・パックの [sanpoguide/channels/](https://github.com/duwenji/yorisoi-sanpoguide/tree/main/prompts/src/main/resources/sanpoguide/channels)）も、`signature.json` がないだけで同じ形です。「しずかに」チャンネル（`quiet/`）は `channel.json` だけで、スロットは全部「標準」のものを使っています。
@@ -82,7 +82,7 @@ resources/                   パッケージに入れる素材（任意。第三
 [StationManifest.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/StationManifest.kt) が、これを Kotlin のデータクラスで表しています。
 
 ```kotlin
-/** `channel.json` of a channel package (API-003). Only the values the format allows can be held. */
+/** `channel.json` of a channel package (API-CHANNEL-PACKAGE). Only the values the format allows can be held. */
 data class StationManifest(
     val format: Int,
     val id: String,
@@ -114,13 +114,13 @@ data class StationManifest(
 | `mood.sound` | `auto`・`rain`・`waves`… の 7 つだけ |
 | `spots.prefer`・`skip` | 決まった 22 種類のスポットの名前だけ |
 
-API-003 の決定事項 F-3:
+API-CHANNEL-PACKAGE の決定事項 F-3:
 
 > 話す量・話す場面・話題の優先・雰囲気・解説の長さを、アプリが決めた選択肢の中から選ぶ。数値を自由に書くことはできない。**選択肢の範囲そのものが上限になる**（話しかけの頻度は最大で「おしゃべり」、解説は最長 450 字）。
 
 もし「話しかけの間隔（秒）」を自由に書けたら、チャンネル提供者が「5 秒」と書いて、散策者の AI の料金をつり上げられます。選択肢しか書けなければ、どう選んでも「おしゃべり」（2 分に 1 回）が上限です。**危ない値を書けない形にする** ことで、確かめる手間そのものを減らしています。
 
-スポットの種類のうち 7 つ（飲食店・カフェ・菓子・パン・食品店・市場・工芸・土産・専門店）は、`prefer` に入れたチャンネルでだけ探します（API-003「スポットの種類」）。ふつうの散歩で店ばかり案内しないためです。チェーン店は探しません。組み込みの「グルメの旅」（`gourmet/`）と「ショッピング」（`shopping/`）が、これを使っています。
+スポットの種類のうち 7 つ（飲食店・カフェ・菓子・パン・食品店・市場・工芸・土産・専門店）は、`prefer` に入れたチャンネルでだけ探します（API-CHANNEL-PACKAGE「スポットの種類」）。ふつうの散歩で店ばかり案内しないためです。チェーン店は探しません。組み込みの「グルメの旅」（`gourmet/`）と「ショッピング」（`shopping/`）が、これを使っています。
 
 ```kotlin
 enum class SpotKind(override val json: String, val category: String, val onlyWhenPreferred: Boolean = false) : JsonValue {
@@ -143,7 +143,7 @@ enum class TalkLevel(override val json: String) : JsonValue { QUIET("quiet"), NO
 
 ## どのアプリで使えるチャンネルか
 
-チャンネルは 3 つの項目で、自分の前提を宣言します（API-003 の G-1）。チャンネルは特定のアプリに結びつかず、「どんな過ごし方に合い、何が要るか」だけを書きます。
+チャンネルは 3 つの項目で、自分の前提を宣言します（API-CHANNEL-PACKAGE の G-1）。チャンネルは特定のアプリに結びつかず、「どんな過ごし方に合い、何が要るか」だけを書きます。
 
 | 項目 | 書けるもの | 意味 |
 |---|---|---|
@@ -177,7 +177,7 @@ fun reasons(manifest: StationManifest, app: AppProfile): List<String> = buildLis
 }
 ```
 
-SanpoGuide のプロファイル（`SanpoProfile`）は「散歩（`walk`）と、録音した音を流す見せ方（`present:play`・`present:ambient`）を除くすべての機能」です。だから `cycle` だけのチャンネルは、リストに載っていても SanpoGuide の一覧には出ません。同じ判定をリストの値（パッケージを取る前）にも行います（[6-5](../06-trust/05-verify-in-app.md)、API-002 P-19）。
+SanpoGuide のプロファイル（`SanpoProfile`）は「散歩（`walk`）と、録音した音を流す見せ方（`present:play`・`present:ambient`）を除くすべての機能」です。だから `cycle` だけのチャンネルは、リストに載っていても SanpoGuide の一覧には出ません。同じ判定をリストの値（パッケージを取る前）にも行います（[6-5](../06-trust/05-verify-in-app.md)、API-CHANNEL-LIST P-19）。
 
 組み込みの 6 つのチャンネルも、`activities: ["walk"]` と、それぞれのジャンルを書いています。
 
@@ -187,7 +187,7 @@ SanpoGuide のプロファイル（`SanpoProfile`）は「散歩（`walk`）と�
 
 ```kotlin
 /**
- * The places in the app's prompts where a channel may put its own text (API-003). Everything
+ * The places in the app's prompts where a channel may put its own text (API-CHANNEL-PACKAGE). Everything
  * else in the prompts — the shared rules, safety and privacy — is the app's and can't be changed.
  */
 enum class Slot(val path: String, val maxChars: Int) {
@@ -231,7 +231,7 @@ if (HEADING_PATTERN.containsMatchIn(text)) reject(RejectCode.FORBIDDEN_TEXT, "${
 
 ## 素材・きっかけ・見せ方（第三者のチャンネル）
 
-ここまでの `channel.json` とスロットは、「AI にどう話させるか」を決めるものでした。第三者のチャンネルは、それに加えて **素材**（文字・画像・音声・映像）を、決まった **きっかけ** に、決まった **見せ方** で出せます（API-003「素材・きっかけ・見せ方」、[0-1](../00-overview/01-what-we-build.md)）。`channel.json` の例（一部）:
+ここまでの `channel.json` とスロットは、「AI にどう話させるか」を決めるものでした。第三者のチャンネルは、それに加えて **素材**（文字・画像・音声・映像）を、決まった **きっかけ** に、決まった **見せ方** で出せます（API-CHANNEL-PACKAGE「素材・きっかけ・見せ方」、[0-1](../00-overview/01-what-we-build.md)）。`channel.json` の例（一部）:
 
 ```json
 "resources": [
@@ -254,13 +254,13 @@ if (HEADING_PATTERN.containsMatchIn(text)) reject(RejectCode.FORBIDDEN_TEXT, "${
 | `selectors` | 素材集を名指しせず、「寺社の写真」のような基準（種類・タグ）で素材を集める |
 | `cues` | **いつ**（`trigger`: スポット・地点・出来事）、**どの見せ方で**（`as`: 読み上げ・カード・通知・解説の画面…）、**どの素材を**（`source`: 候補を前から順に）出すか |
 
-ここでも「選択肢から選ぶ」考え方が生きています。チャンネルが選べるのは、きっかけの種類・見せ方の種類・候補の並びだけです。「歩いている間（0.5m/s 以上）は全画面を開かない」「解説の画面は、散策者がタップしたときだけ開く」といった **見せ方の安全の決まりは、アプリが強制します**（API-003 F-8）。チャンネルには書く場所がありません。
+ここでも「選択肢から選ぶ」考え方が生きています。チャンネルが選べるのは、きっかけの種類・見せ方の種類・候補の並びだけです。「歩いている間（0.5m/s 以上）は全画面を開かない」「解説の画面は、散策者がタップしたときだけ開く」といった **見せ方の安全の決まりは、アプリが強制します**（API-CHANNEL-PACKAGE F-8）。チャンネルには書く場所がありません。
 
 `source` の候補には、`builtin:ai-guide`（AI の解説）のような **組み込みの素材の出どころ** も並べられます。「観光協会の解説があればそれを、なければ AI の解説、それもだめなら定型文」と書けるわけです。アプリはどの出どころも同じ形（`Producer`）で扱い、前から順に試します（[4-3](../04-outside/03-ai.md)）。
 
 ### アプリの段階に合わせて確かめる
 
-アプリは、素材の種類を段階的に増やしています（API-003 M-1）。今のアプリ（`versionCode` 1）は第 1 段で、文字と画像だけを出せます。音声は第 2 段、映像は第 3 段です。`StationValidator.check` は、呼ぶ側が出せる段（`mediaStage`）を受け取ります。
+アプリは、素材の種類を段階的に増やしています（API-CHANNEL-PACKAGE M-1）。今のアプリ（`versionCode` 1）は第 1 段で、文字と画像だけを出せます。音声は第 2 段、映像は第 3 段です。`StationValidator.check` は、呼ぶ側が出せる段（`mediaStage`）を受け取ります。
 
 ```kotlin
 /** The material (手順 8・9・10). Without any stage, a channel that has some can't be shown and isn't read. */
@@ -273,7 +273,7 @@ private fun readMedia(json: JSONObject, files: StationFiles, paths: List<String>
     val resources = ResourceReader.read(json, files, inCollection = false)
     // …
     val media = CueReader.read(json, resources, lenient)
-    // Collections are known only from the list, so what they bring is counted when they are (API-004 手順 3・4).
+    // Collections are known only from the list, so what they bring is counted when they are (API-MATERIALS 手順 3・4).
     val needed = MediaStage.required(media)
     if (needed > mediaStage) reject(RejectCode.UNSUPPORTED_RESOURCE, "needs app stage $needed (this one shows up to $mediaStage)")
     return media
@@ -285,7 +285,7 @@ private fun readMedia(json: JSONObject, files: StationFiles, paths: List<String>
 - 管理システムの機械審査は `StationValidator.ALL_STAGES`（3）を渡し、すべてを確かめる（[8-8](../08-aws/08-kotlin-lambda.md)）。どの版のアプリから使えるかは、リストの `minAppVersions`（アプリごと）で伝える
 - 素材集の中身は、パッケージだけでは分からない（リストに載った素材集を取ってきて初めて分かる）。そのため、素材集が持ち込む素材の段は、取り込むときに別に数える（`CollectionReferences`）
 
-素材集そのものの形式（API-004）と確認は、コアの `material` パッケージ（`Collections.kt`）の `CollectionValidator` にあります。素材集も ZIP で、素材提供者の署名（次の `signature.json` と同じ形）が付きます。 素材の出どころの共通の形、きっかけと見せ方の安全、素材集の借り方は [5-4](04-materials-cues.md) でくわしく見ます。
+素材集そのものの形式（API-MATERIALS）と確認は、コアの `material` パッケージ（`Collections.kt`）の `CollectionValidator` にあります。素材集も ZIP で、素材提供者の署名（次の `signature.json` と同じ形）が付きます。 素材の出どころの共通の形、きっかけと見せ方の安全、素材集の借り方は [5-4](04-materials-cues.md) でくわしく見ます。
 
 ## signature.json: だれが作ったか
 
@@ -318,7 +318,7 @@ private fun readMedia(json: JSONObject, files: StationFiles, paths: List<String>
 
 ## 確かめる順番
 
-API-003 は、確かめる順番も決めています。アプリと管理システムは、同じ順で確かめます。
+API-CHANNEL-PACKAGE は、確かめる順番も決めています。アプリと管理システムは、同じ順で確かめます。
 
 | 順 | 確かめること | 失敗したら | 場所 |
 |---|---|---|---|
@@ -336,7 +336,7 @@ API-003 は、確かめる順番も決めています。アプリと管理シス
 
 どこかで失敗したら、パッケージ全体を拒みます。手順 9a だけは、リストを持っている呼ぶ側（アプリの `ChannelSync`、管理システムの機械審査）が行います。
 
-> 手順 7 は契約書に書かれていますが、今の `StationValidator` には入っていません。`RejectCode.RENDER_FAILED` は用意されているものの、まだどこからも使われていません。スロットには `{{` を書けない（手順 6）ので、チャンネルの側から未定義の変数が持ち込まれることは今のところありません。アプリ自身のプロンプトのファイルの変数は、[4-3](../04-outside/03-ai.md) の `PromptFilesTest` がビルドのたびに確かめています。エラーコードは API-003 のエラー表のとおりで、Kotlin では `RejectCode` という enum になっています。
+> 手順 7 は契約書に書かれていますが、今の `StationValidator` には入っていません。`RejectCode.RENDER_FAILED` は用意されているものの、まだどこからも使われていません。スロットには `{{` を書けない（手順 6）ので、チャンネルの側から未定義の変数が持ち込まれることは今のところありません。アプリ自身のプロンプトのファイルの変数は、[4-3](../04-outside/03-ai.md) の `PromptFilesTest` がビルドのたびに確かめています。エラーコードは API-CHANNEL-PACKAGE のエラー表のとおりで、Kotlin では `RejectCode` という enum になっています。
 
 ### 結果を sealed で返す
 
@@ -398,7 +398,7 @@ ZIP は圧縮されているので、数 KB の ZIP が、展開すると何 GB 
 
 ```kotlin
 /**
- * Unpacks a third-party channel package (API-003 確認の手順 2): a ZIP, stored or deflated, whose
+ * Unpacks a third-party channel package (API-CHANNEL-PACKAGE 確認の手順 2): a ZIP, stored or deflated, whose
  * entries are plain relative paths. Sizes are counted while reading, so an archive that inflates
  * beyond the limit is cut off rather than unpacked.
  */
@@ -543,7 +543,7 @@ git status
 <details>
 <summary>問 1. 第三者のチャンネルで「天気の急変の警告を止める」ことはできますか。</summary>
 
-できません。`channel.json` の `talk.events` には天気の急変・日の入り・施設の案内の項目そのものがなく、止める書き方がないからです（API-003 F-4）。
+できません。`channel.json` の `talk.events` には天気の急変・日の入り・施設の案内の項目そのものがなく、止める書き方がないからです（API-CHANNEL-PACKAGE F-4）。
 
 </details>
 

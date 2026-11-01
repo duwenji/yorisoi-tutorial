@@ -52,7 +52,7 @@ const lengthLabel2 = (meters: number): string => `${meters}m`;   // アロー関
 [packages/protocol/src/types.ts](https://github.com/duwenji/yorisoi-console/blob/main/packages/protocol/src/types.ts) から:
 
 ```ts
-/** API-002: the signed document form (P-3). */
+/** API-CHANNEL-LIST: the signed document form (P-3). */
 export interface SignedDocument {
   payload: string;
   keyId: string;

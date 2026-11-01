@@ -30,7 +30,7 @@
 
 ```mermaid
 flowchart TB
-    C["① 契約書 API-002<br/>規則を文章で決める<br/>（確認観点 V-01〜V-18）"]
+    C["① 契約書 API-CHANNEL-LIST<br/>規則を文章で決める<br/>（確認観点 V-01〜V-18）"]
     C --> TS["TypeScript<br/>packages/protocol"]
     C --> KT["Kotlin<br/>core-format"]
     TS -->|"② テストベクタ<br/>固定の鍵で署名した文書"| KT
@@ -40,7 +40,7 @@ flowchart TB
 
 ## ① 契約書: 規則を文章で決める
 
-まず、規則を **コードではなく文章で** 決めます。それが API-002 です。確かめる順番、エラーコード、上限の値、そして「何を確かめれば準拠しているといえるか」（確認観点 V-01〜V-18）まで書いてあります。
+まず、規則を **コードではなく文章で** 決めます。それが API-CHANNEL-LIST です。確かめる順番、エラーコード、上限の値、そして「何を確かめれば準拠しているといえるか」（確認観点 V-01〜V-18）まで書いてあります。
 
 両方のコードは、この文書を手本にして書かれています。コメントに `(V-03, V-04, P-8)` のような番号があるのはそのためです。食い違いに気づいたら、「どちらのコードが正しいか」ではなく「契約書は何と言っているか」で決めます。
 
@@ -78,7 +78,7 @@ npm run vectors -w conformance -- ../yorisoi-platform/core-format/src/test/resou
 
 ```kotlin
 /**
- * API-002 as the app checks it, against documents the channel management system's own code signed
+ * API-CHANNEL-LIST as the app checks it, against documents the channel management system's own code signed
  * (`provider-vectors.json`, from yorisoi-console `conformance/src/app-vectors.ts`). The
  * rejections re-sign altered documents with the same fixed, public seeds (1 = root, 2 = signing).
  */
@@ -111,11 +111,11 @@ class ProviderDocumentsTest {
 npm run check -w conformance -- https://channels.example.com --provider sc1…
 ```
 
-URL を渡すと、アプリと同じように検出の文書・リスト・パッケージ・アイコンを取ってきて、API-002 の確認観点のうちリストの発行元が守るべきもの（V-01〜V-09、V-15、V-16、素材集の V-19〜V-21・V-25）を 1 つずつ確かめ、結果を表示します。
+URL を渡すと、アプリと同じように検出の文書・リスト・パッケージ・アイコンを取ってきて、API-CHANNEL-LIST の確認観点のうちリストの発行元が守るべきもの（V-01〜V-09、V-15、V-16、素材集の V-19〜V-21・V-25）を 1 つずつ確かめ、結果を表示します。
 
 準拠テストの特徴:
 
-- **任意のリストの発行元に流せる**: この管理システムだけでなく、だれかが別の方法で作ったリストの発行元にも流せます。API-002 が「実装方法と置き場所は問わない」としている以上、準拠しているかを外から確かめる手段が要ります
+- **任意のリストの発行元に流せる**: この管理システムだけでなく、だれかが別の方法で作ったリストの発行元にも流せます。API-CHANNEL-LIST が「実装方法と置き場所は問わない」としている以上、準拠しているかを外から確かめる手段が要ります
 - **リストID は URL から取らない**: `--provider` で、別の経路で得た ID を渡します。アプリと同じ考え方です
 - **確かめる規則は `packages/protocol` と同じ**: 中で `verifyDiscovery`・`verifyChannelList` を使っています。公開の処理が外に出す前に使うのと同じ関数です
 
@@ -123,7 +123,7 @@ URL を渡すと、アプリと同じように検出の文書・リスト・パ�
 
 食い違いを防ぐいちばん確かな方法は、**同じコードを使う** ことです。
 
-チャンネルのパッケージの確認（API-003）では、実際にそうしています。アプリのコア（`core-format`）とプロンプト・パック（散策ガイドと CycleGuide のもの）を GitHub Packages にライブラリとして公開し、管理システムの機械審査（`validator`、Kotlin の Lambda）がそれを使います。
+チャンネルのパッケージの確認（API-CHANNEL-PACKAGE）では、実際にそうしています。アプリのコア（`core-format`）とプロンプト・パック（散策ガイドと CycleGuide のもの）を GitHub Packages にライブラリとして公開し、管理システムの機械審査（`validator`、Kotlin の Lambda）がそれを使います。
 
 ```kotlin
 // yorisoi-console/validator/build.gradle.kts

@@ -105,7 +105,7 @@ private fun onLocation(location: Location) {
             refreshWeather(location)
             talk {
                 if (app.stations.current.value.talksOn(TalkEventKind.START)) speakLine(app.narration.line(TalkEvent.Start, s, weather))
-                // The channel's own cues for the start come after the greeting (API-003 `event: start`).
+                // The channel's own cues for the start come after the greeting (API-CHANNEL-PACKAGE `event: start`).
                 eventCues(s, CueEvent.START, Subject.Event(TalkEvent.Start))
             }
         }
