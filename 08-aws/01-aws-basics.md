@@ -52,7 +52,7 @@
 | `YorisoiConsole-<env>` | [bin/app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/app.ts) | チャンネル管理システム。申請を審査し、承認済みチャンネル・リストを署名して公開する | 8-2〜8-8 |
 | `YorisoiAiRelay-<env>` | [bin/relay.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/relay.ts) | 運営の AI の中継。アプリからの AI の呼び出しを運営の負担で中継する | [8-9](09-ai-relay.md) |
 | `YorisoiSpotTiles-<env>` | [bin/tiles.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/tiles.ts) | スポットのタイル。OpenStreetMap から毎週タイルを作って配る | [8-10](10-spot-tiles.md) |
-| `YorisoiStudio-<env>` | [bin/studio.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/studio.ts) | その場の素材（区画ごとに運営から取る素材）。素材提供者が出すスタジオ（お知らせ）と、場所に置く一言を、それぞれ置いて配る | [8-12](12-studio.md) |
+| `YorisoiLocalMaterials-<env>` | [bin/local-materials.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/local-materials.ts) | その場の素材（区画ごとに運営から取る素材）。素材提供者が出すスタジオ（お知らせ）と、場所に置く一言を、それぞれ置いて配る | [8-12](12-studio.md) |
 
 `<env>` は `dev`（開発用）か `prod`（本番）です。4 つは同じアカウントに置きますが、CDK のアプリごと分けています。1 つの配備の失敗や障害が、ほかを巻き込まないようにするためです。スタジオだけは、中継の表と、管理システムの配備と、Parameter Store の名前でつながっています（[8-12](12-studio.md)）。スタジオを除く 3 つに共通する「止まったら運営に知らせる」仕組みと費用の見方は [8-11](11-watch-and-cost.md) でまとめて読みます。
 
@@ -99,14 +99,14 @@
 - Weekly が Batch（Fargate）を Cluster の上・Vpc の中で動かす。Batch は外の Geofabrik から抽出を取り、Tiles に置き、Cdn のキャッシュを消す。アプリは Cdn から読む
 - BatchFailed は Cluster を見張り、バッチの失敗を Alarms に渡し、運営にメールが届く
 
-**スタジオ（YorisoiStudio）**
+**その場の素材（YorisoiLocalMaterials）**
 
-![スタジオの AWS の部品](images/studio.png)
+![その場の素材の AWS の部品](images/studio.png)
 
 全部の図: [studio-all.png](images/studio-all.png)
 
-- アプリが Api を呼び、Studio が Table を読み書きし、外の中継（トークン・予算）と Bedrock を使う。音声は AudioCdn から読む
-- 提供者は Intake に音声を上げ、PlacementCheck が Transcribe に文字起こしを頼む。終わりは TranscribeDone が拾って PlacementCheck に戻す。通った音声は Audio に写す
+- アプリが Api を呼び、LocalMaterials が Table を読み書きし、外の中継（トークン・予算）と Bedrock を使う。音声は AudioCdn から読む
+- 提供者は Intake に音声を上げ、StudioCheck が Transcribe に文字起こしを頼む。終わりは TranscribeDone が拾って StudioCheck に戻す。通った音声は Audio に写す
 - TableNameParameter など 4 つの名前は、管理システムが配備のときに読む
 
 手で描いた [構成図（architecture.md）](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/architecture.md) と比べてみてください。手で描いた図は **だれが何をして、どの順に動くか**（流れ）を、生成した図は **その流れを支える部品が、実際にどう組まれているか** を見せます。たとえば手で描いた図の「公開の Lambda」が、生成した図では PublishFunction として、署名鍵・テーブル・公開用のバケットへの矢印を持っています。

@@ -1,4 +1,4 @@
-# 8-12 スタジオ
+# 8-12 その場の素材（スタジオ・一言）
 
 [目次](../README.md) ＞ 第 8 部 ＞ 8-12
 
@@ -15,12 +15,12 @@
 
 ## 何を作ったのか
 
-このスタックは、**その場の素材**（運営が置き場を持ち、アプリが区画ごとに取る素材）を置いて配り、近くを通る人のアプリが読み上げます。今は **スタジオ**（運営が承認した素材提供者が出す、店や地域のお知らせ。文と 30 秒までの音声）と **一言**（散策者・走る人がその場所に置く 60 文字までの投稿）の 2 種類で、種類どうしに直接の関係はありません。決めたことは platform の [REQ-STUDIO](https://github.com/duwenji/yorisoi-platform/blob/main/docs/requirements/REQ-STUDIO.md)・[REQ-NOTES](https://github.com/duwenji/yorisoi-platform/blob/main/docs/requirements/REQ-NOTES.md)・[MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/materials.md)、アプリとの約束は [API-LOCAL-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-LOCAL-MATERIALS.md)、サーバーの設計は yorisoi-console の [DES-013](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/DES-013-studio.md) にあります。コードは [infra/lib/studio-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/studio-stack.ts) と [api/src/studio/](https://github.com/duwenji/yorisoi-console/tree/main/api/src/studio)、運用の手順は [docs/operations/studio.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/studio.md) です。
+このスタックは、**その場の素材**（運営が置き場を持ち、アプリが区画ごとに取る素材）を置いて配り、近くを通る人のアプリが読み上げます。今は **スタジオ**（運営が承認した素材提供者が出す、店や地域のお知らせ。文と 30 秒までの音声）と **一言**（散策者・走る人がその場所に置く 60 文字までの投稿）の 2 種類で、種類どうしに直接の関係はありません。決めたことは platform の [REQ-STUDIO](https://github.com/duwenji/yorisoi-platform/blob/main/docs/requirements/REQ-STUDIO.md)・[REQ-NOTES](https://github.com/duwenji/yorisoi-platform/blob/main/docs/requirements/REQ-NOTES.md)・[MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/materials.md)、アプリとの約束は [API-LOCAL-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-LOCAL-MATERIALS.md)、サーバーの設計は yorisoi-console の [DES-013](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/DES-013-studio.md) にあります。コードは [infra/lib/local-materials-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/local-materials-stack.ts) と [api/src/local/](https://github.com/duwenji/yorisoi-console/tree/main/api/src/local)、運用の手順は [docs/operations/studio.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/studio.md) です。
 
 ```mermaid
 flowchart LR
-    APP["アプリ<br/>kit-studio"] -->|"中継のトークン"| API["API Gateway（REST）"] --> FN["スタジオの Lambda<br/>一言を置く・区画の一覧<br/>反応・通報・ブロック"]
-    FN --> T[("スタジオの DynamoDB")]
+    APP["アプリ<br/>kit-local-materials"] -->|"中継のトークン"| API["API Gateway（REST）"] --> FN["その場の素材の Lambda<br/>一言を置く・区画の一覧<br/>反応・通報・ブロック"]
+    FN --> T[("その場の素材の DynamoDB")]
     FN -. "トークンを読む・費用を足す" .-> RT[("中継の DynamoDB")]
     FN -->|"一言の確認"| BR["Bedrock"]
     PUB["素材提供者のブラウザ<br/>（管理システムの画面）"] -->|"署名付き POST"| IN[("受け取り用 S3")]
@@ -32,17 +32,17 @@ flowchart LR
     APP -->|"音声"| CF
 ```
 
-アプリの側（platform の [kit-studio](https://github.com/duwenji/yorisoi-platform/blob/main/kit-studio/README.md)）は、散歩・走行の間に区画ごとの一覧を取り、話すことがないときに 1 つずつ読み上げます。この章は、サーバーの側を読みます。
+アプリの側（platform の [kit-local-materials](https://github.com/duwenji/yorisoi-platform/blob/main/kit-local-materials/README.md)）は、散歩・走行の間に区画ごとの一覧を取っておき（`LocalFeed`）、組み込みの素材提供者 `builtin:studio`・`builtin:note` として、チャンネルのきっかけ（話すことがないときの `idle` など）が来たら 1 つずつ渡します（[5-4](../05-station-format/04-materials-cues.md)）。この章は、サーバーの側を読みます。
 
 ## 4 つ目のスタックと、スタック同士のつなぎ方
 
-スタジオも、中継（[8-9](09-ai-relay.md)）・タイル（[8-10](10-spot-tiles.md)）と同じく、別の CDK のアプリ（[infra/bin/studio.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/studio.ts)）から配備する別のスタック `YorisoiStudio-<env>` です。ただし、ほかの 2 つと違って、スタジオは **ほかのスタックとつながっています**。
+その場の素材も、中継（[8-9](09-ai-relay.md)）・タイル（[8-10](10-spot-tiles.md)）と同じく、別の CDK のアプリ（[infra/bin/local-materials.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/local-materials.ts)）から配備する別のスタック `YorisoiLocalMaterials-<env>` です。ただし、ほかの 2 つと違って、このスタックは **ほかのスタックとつながっています**。
 
 | つながり | 向き | なぜ |
 |---|---|---|
-| 中継の表のトークンを読む | スタジオ → 中継 | アプリは中継のセッション（[8-9](09-ai-relay.md)）を開いている。もう 1 つ認証を作らずに、同じトークンで呼べるようにする |
-| 中継の月の費用に足す | スタジオ → 中継 | 一言の確認も運営の AI を使う。予算を 1 つにまとめる |
-| スタジオの表・バケットを読み書きする | 管理システム → スタジオ | 素材提供者がスタジオを作り、運営が通報に対応する画面は管理システムにある |
+| 中継の表のトークンを読む | その場の素材 → 中継 | アプリは中継のセッション（[8-9](09-ai-relay.md)）を開いている。もう 1 つ認証を作らずに、同じトークンで呼べるようにする |
+| 中継の月の費用に足す | その場の素材 → 中継 | 一言の確認も運営の AI を使う。予算を 1 つにまとめる |
+| その場の素材の表・バケットを読み書きする | 管理システム → その場の素材 | 素材提供者がスタジオを作り、運営が通報に対応する画面は管理システムにある |
 
 CDK には、スタックの値を別のスタックに渡す **出力（Export）** があります。ところが Export は、使っている側があるかぎり、出している側で消したり名前を変えたりできません。そこでこのリポジトリでは、名前を **Parameter Store** に書いておき、使う側が配備のときに読む形にしました（DES-013 K-2）。
 
@@ -54,15 +54,15 @@ new ssm.StringParameter(this, 'TableNameParameter', {
   // …
 });
 
-// スタジオの側（studio-stack.ts）: 配備のときに読む
+// その場の素材の側（local-materials-stack.ts）: 配備のときに読む
 const relayTableName = ssm.StringParameter.valueForStringParameter(this, relayParam('table-name'));
 ```
 
-`valueForStringParameter` は、CloudFormation の **パラメータ** として値を読みます。合成（`cdk synth`）では値が要らず、配備のときに CloudFormation が今の値を入れます。かわりに、**配備の順番** を守る必要があります。中継 → スタジオ → 管理システムの順です（[運用の手順](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/studio.md#配備)）。
+`valueForStringParameter` は、CloudFormation の **パラメータ** として値を読みます。合成（`cdk synth`）では値が要らず、配備のときに CloudFormation が今の値を入れます。かわりに、**配備の順番** を守る必要があります。中継 → その場の素材 → 管理システムの順です（[運用の手順](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/studio.md#配備)）。
 
 ### 別のスタックの表を、キーで絞って読む
 
-スタジオの Lambda に、中継の表を丸ごと読み書きさせる必要はありません。トークンを読むことと、月の費用に足すことだけです。IAM の **条件** で、触れるパーティションのキーを絞ります（[8-5](05-dynamodb.md) のキーの設計がここで効きます）。
+その場の素材の Lambda に、中継の表を丸ごと読み書きさせる必要はありません。トークンを読むことと、月の費用に足すことだけです。IAM の **条件** で、触れるパーティションのキーを絞ります（[8-5](05-dynamodb.md) のキーの設計がここで効きます）。
 
 ```ts
 // K-3: in the relay's table, only tokens are read and only the month's spend is added to.
@@ -73,15 +73,15 @@ new iam.PolicyStatement({
 }),
 ```
 
-`dynamodb:LeadingKeys` は、操作するパーティションのキーです。`TOKEN#…` と `SPEND` のほか（たとえば端末ごとの回数）には、スタジオの Lambda は触れません。トークンの確かめ方は、中継と同じくハッシュで引くだけです（[api/src/studio/studio.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/studio/studio.ts)）。
+`dynamodb:LeadingKeys` は、操作するパーティションのキーです。`TOKEN#…` と `SPEND` のほか（たとえば端末ごとの回数）には、その場の素材の Lambda は触れません。トークンの確かめ方は、中継と同じくハッシュで引くだけです（[api/src/local/local.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/local/local.ts)）。
 
 ```ts
 const item = (await ports.db.send(new GetCommand({ TableName: ports.relayTable, Key: { PK: `TOKEN#${sha256(token)}`, SK: 'TOKEN' } }))).Item;
-if (!item || String(item.expiresAt) <= ports.now().toISOString()) throw new StudioError('token_invalid', 'The token is unknown or expired');
+if (!item || String(item.expiresAt) <= ports.now().toISOString()) throw new LocalError('token_invalid', 'The token is unknown or expired');
 return String(item.install);
 ```
 
-返す `install` は、中継が端末の ID から作った HMAC です。スタジオは、置いた人・ブロック・締め出しをこの値だけで扱い、端末の ID そのものは知りません。
+返す `install` は、中継が端末の ID から作った HMAC です。このスタックは、置いた人・ブロック・締め出しをこの値だけで扱い、端末の ID そのものは知りません。
 
 ## 区画ごとのパーティション
 
@@ -99,7 +99,7 @@ return String(item.install);
 
 ## 一言の確認: 安いものから
 
-一言には事前の審査がありません。かわりに、置くときに自動で確かめます（[api/src/studio/check.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/studio/check.ts)）。
+一言には事前の審査がありません。かわりに、置くときに自動で確かめます（[api/src/local/check.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/local/check.ts)）。
 
 1. **決まった形**: URL・メールアドレス・電話番号・SNS のアカウントを正規表現で止める。費用はかからない
 2. **運営の AI**: 通ったものだけを Bedrock に渡し、利用規約の項目に当たるかを JSON で答えさせる
@@ -135,7 +135,7 @@ const intake = new s3.Bucket(this, 'Intake', {
 
 ### 文字起こしは待たない
 
-スタジオを「載せる」と、管理 API が確認の Lambda を **待たずに** 呼びます。確認の Lambda（[api/src/studio/placement.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/studio/placement.ts)）は、まず安いものから確かめます。
+スタジオを「載せる」と、管理 API が確認の Lambda を **待たずに** 呼びます。確認の Lambda（[api/src/local/studio.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/local/studio.ts)。入口は [studio-handler.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/local/studio-handler.ts)）は、まず安いものから確かめます。
 
 1. 音声が届いているか、512 KB 以内か
 2. M4A のファイルの頭（`mvhd`）から長さを読み、30 秒以内か
@@ -157,45 +157,45 @@ new events.Rule(this, 'TranscribeDone', {
 同じアカウントのほかの文字起こしを拾わないよう、ジョブの名前の **接頭辞** で絞っています。1 つの Lambda が 3 種類の呼ばれ方を受けます。
 
 ```ts
-export async function handler(event: PlacementEvent): Promise<void> {
+export async function handler(event: StudioEvent): Promise<void> {
   if ('check' in event) return startCheck(cached, event.check);          // 管理 API から: 確認を始める
   if ('publish' in event) return goLive(cached, event.publish, 'appealed'); // 運営が申し出を受けて載せる
   if (event.source === 'aws.transcribe') return finishTranscription(/* … */); // EventBridge から: 続き
 }
 ```
 
-続きでは、起こした文とスタジオの文を運営の AI でスタジオの決まりに照らし、通れば配信用のバケットの `placements/{id}/audio.m4a` に写して、区画の写し（`CELL#…`）を書きます。アプリはこの音声を CloudFront から取り、SHA-256 を確かめてから流します。当たれば、当たった項目を付けて素材提供者に返します。
+続きでは、起こした文とスタジオの文を運営の AI でスタジオの決まりに照らし、通れば配信用のバケットの `studios/{id}/audio.m4a` に写して、区画の写し（`CELL#…`）を書きます。アプリはこの音声を CloudFront から取り、SHA-256 を確かめてから流します。当たれば、当たった項目を付けて素材提供者に返します。
 
 状態を書き換えるときは、どれも `ConditionExpression: '#s = :checking'` を付けています。同じ出来事が 2 度届いたり、その間に素材提供者がスタジオを止めたりしても、確認中のものだけを動かすためです。
 
 ## 名前を出さない数
 
-素材提供者には聞いた数を見せますが、**だれが聞いたか** は残しません（API-LOCAL-MATERIALS ST-5）。アプリは散歩の終わりに、聞いた一言・スタジオの ID だけをまとめて送り、Lambda はスタジオごと・日ごとの合計（`STATS#{id}` / `DAY#…`）に足すだけです。見せるときも、3 未満は出さず、3・10・30・100・300・1,000 の区切りの下限だけを返します。少ない数は、聞いた人の居場所の手がかりになるからです。
+素材提供者には聞いた数を見せますが、**だれが聞いたか** は残しません（API-LOCAL-MATERIALS「サーバーが残すもの」「概数」）。アプリは散歩の終わりに、聞いた一言・スタジオの ID だけをまとめて送り、Lambda はスタジオごと・日ごとの合計（`STATS#{id}` / `DAY#…`）に足すだけです。見せるときも、3 未満は出さず、3・10・30・100・300・1,000 の区切りの下限だけを返します。少ない数は、聞いた人の居場所の手がかりになるからです。
 
 ログにも、一言・スタジオの本文、区画、`install` は書きません。書くのは、操作の種類・件数・時間とエラーの `code` だけです（DES-013 K-6）。
 
-## やってみよう: 中継のトークンでスタジオを呼ぶ
+## やってみよう: 中継のトークンでその場の素材を呼ぶ
 
-開発用のスタジオは、中継のセッションのトークンで呼べます（開発用の中継は Play Integrity を確かめません）。
+開発用のその場の素材の API は、中継のセッションのトークンで呼べます（開発用の中継は Play Integrity を確かめません）。
 
 ```sh
 R=https://teevxbmiaj.execute-api.ap-northeast-1.amazonaws.com/api
-S=https://x568icz881.execute-api.ap-northeast-1.amazonaws.com/api
+S=https://nngy8570o8.execute-api.ap-northeast-1.amazonaws.com/api
 
-curl -s $S/v1/studio/terms     # トークンなしで読める
+curl -s $S/v1/local/terms      # トークンなしで読める
 
 NONCE=$(curl -s -X POST $R/v1/session/challenge | sed -E 's/.*"nonce":"([^"]+)".*/\1/')
 TOKEN=$(curl -s -X POST $R/v1/session -H 'content-type: application/json' \
   -d "{\"installId\":\"$(node -e "console.log(crypto.randomUUID())")\",\"nonce\":\"$NONCE\",\"app\":{\"package\":\"io.github.duwenji.yorisoi.sanpoguide\",\"versionCode\":1}}" \
   | sed -E 's/.*"token":"([^"]+)".*/\1/')
 
-curl -s "$S/v1/studio/cells?cells=xn77k2&kinds=note,placement" -H "authorization: Bearer $TOKEN"
+curl -s "$S/v1/local/cells?cells=xn77k2&kinds=note,studio" -H "authorization: Bearer $TOKEN"
 ```
 
 連絡先の入った一言は、AI に渡る前に止まります。
 
 ```sh
-curl -s -X POST $S/v1/studio/notes -H "authorization: Bearer $TOKEN" -H 'content-type: application/json' \
+curl -s -X POST $S/v1/local/notes -H "authorization: Bearer $TOKEN" -H 'content-type: application/json' \
   -d '{"text":"詳しくは 090-1234-5678 へ","cell":"xn77k2n","ttl":"1h","termsVersion":1}'
 # 422 と code "note_rejected"（アプリは「置けませんでした」と出す）
 ```
@@ -211,14 +211,14 @@ curl -s -X POST $S/v1/studio/notes -H "authorization: Bearer $TOKEN" -H 'content
 ## 確認問題
 
 <details>
-<summary>問 1. スタジオのスタックが中継の表の名前を CloudFormation の出力（Export）ではなく Parameter Store から読むのはなぜですか。かわりに何に気をつける必要がありますか。</summary>
+<summary>問 1. その場の素材のスタックが中継の表の名前を CloudFormation の出力（Export）ではなく Parameter Store から読むのはなぜですか。かわりに何に気をつける必要がありますか。</summary>
 
-Export は、使っている側のスタックがあるかぎり、出している側で消したり変えたりできないからです。Parameter Store の名前で渡せば縛られません。かわりに、名前を書く側を先に配備する順番（中継 → スタジオ → 管理システム）を守る必要があります。
+Export は、使っている側のスタックがあるかぎり、出している側で消したり変えたりできないからです。Parameter Store の名前で渡せば縛られません。かわりに、名前を書く側を先に配備する順番（中継 → その場の素材 → 管理システム）を守る必要があります。
 
 </details>
 
 <details>
-<summary>問 2. スタジオの Lambda が中継の表の端末ごとの回数を書き換えられないのは、どの仕組みによりますか。</summary>
+<summary>問 2. その場の素材の Lambda が中継の表の端末ごとの回数を書き換えられないのは、どの仕組みによりますか。</summary>
 
 IAM のポリシーの条件 `dynamodb:LeadingKeys` で、触れるパーティションのキーを `TOKEN#*` と `SPEND` に絞っているからです。
 
