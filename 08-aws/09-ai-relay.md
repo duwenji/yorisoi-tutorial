@@ -18,7 +18,7 @@
 
 [4-3](../04-outside/03-ai.md) で見たように、散策ガイドには AI を呼ぶ経路が 2 つあります。散策者のキーで AI サービスを直接呼ぶ「自分のキー」と、運営のサーバーを通す「運営の AI」です。この章は、後者のサーバーの側、**中継**（relay）を読みます。
 
-決めたことは platform の [ADR-AI-RELAY](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-AI-RELAY.md)、やりとりの形は [API-AI-RELAY](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-AI-RELAY.md) にあります。コードは yorisoi-console の [api/src/relay/](https://github.com/duwenji/yorisoi-console/tree/main/api/src/relay) と [infra/lib/relay-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/relay-stack.ts) です。
+決めたことは platform の [API-AI-RELAY](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-AI-RELAY.md)、やりとりの形は [API-AI-RELAY](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-AI-RELAY.md) にあります。コードは yorisoi-console の [api/src/relay/](https://github.com/duwenji/yorisoi-console/tree/main/api/src/relay) と [infra/lib/relay-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/relay-stack.ts) です。
 
 ```mermaid
 flowchart LR
@@ -242,7 +242,7 @@ const out = await bedrock.send(
 - ログに書くのは、種類・モデル・トークンの数・かかった時間・エラーの種類だけ
 
 ```ts
-// Counts and sizes only: never the prompt, the reply or the install (ADR-AI-RELAY R-13).
+// Counts and sizes only: never the prompt, the reply or the install (API-AI-RELAY R-13).
 console.log(JSON.stringify({ event: 'generate', kind, model: model.id, stop: reply.stop, inputTokens: reply.inputTokens, outputTokens: reply.outputTokens, ms: Date.now() - started }));
 ```
 

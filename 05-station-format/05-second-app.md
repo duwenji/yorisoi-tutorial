@@ -66,7 +66,7 @@ spots = SpotRepository(
 | 色・画面の上部のバー・アイコンの背景 | `kit-ui`・`kit-mood` | 雰囲気で色を変える（`MoodTheme`）。雰囲気がないときは `kit-ui` の緑 | `kit-ui` の緑（`YorisoiTheme`）。アイコンの枠も同じ緑で、見分けは絵 |
 | 画面 | 各アプリ | 地図が主役 | 止まっているときは地図が主役、走行中は暗い画面 |
 
-**仕組みは共有し、値と判断はアプリが持つ**。これが分け方の決まりです（platform の [ADR-ECOSYSTEM-PLATFORM](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-ECOSYSTEM-PLATFORM.md) E-4・E-7）。
+**仕組みは共有し、値と判断はアプリが持つ**。これが分け方の決まりです（platform の [ECOSYSTEM](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/yorisoi-ecosystem.md) E-4・E-7）。
 
 ## 移すのは、2 本目が使う直前に
 

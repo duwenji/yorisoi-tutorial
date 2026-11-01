@@ -29,7 +29,7 @@
 利用者の名簿を **ユーザープール** と呼びます。[console-app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-app.ts):
 
 ```ts
-// ---- Cognito (ADR-001 A-4: one pool, TOTP MFA for everyone) ----
+// ---- Cognito (ARCH-001 A-4: one pool, TOTP MFA for everyone) ----
 const userPool = new cognito.UserPool(this, 'UserPool', {
   userPoolName: `yorisoi-console-${config.name}`,
   // Publishers register themselves (D-7); operators are created by an administrator.
@@ -56,7 +56,7 @@ const userPool = new cognito.UserPool(this, 'UserPool', {
 | `passwordPolicy` | 12 文字以上、大文字・小文字・数字・記号を含む |
 | `accountRecovery: EMAIL_ONLY` | パスワードを忘れたら、メールで |
 
-ADR-001 の A-4 は「MFA（TOTP）は全員に必須」としています。Cognito の MFA はユーザープールの単位で決まるので、運営だけに求めることはできません。運営が署名を出す操作（承認・取り下げ・鍵セットの登録）を担う以上、運営の MFA は外せない。だから全員に求める、という判断です。
+ARCH-001 の A-4 は「MFA（TOTP）は全員に必須」としています。Cognito の MFA はユーザープールの単位で決まるので、運営だけに求めることはできません。運営が署名を出す操作（承認・取り下げ・鍵セットの登録）を担う以上、運営の MFA は外せない。だから全員に求める、という判断です。
 
 ## グループで分ける: 運営とチャンネル提供者
 
@@ -191,7 +191,7 @@ authorizer: new authorizers.HttpJwtAuthorizer('Jwt', issuer, { jwtAudience: [cli
 
 ## 登録を開くことへの備え
 
-チャンネル提供者は自分で登録できます（ADR-001 D-7）。だれでも登録できるということは、悪意のある大量の登録や、パスワードの総当たりも来うる、ということです。ADR-001 の A-18 は、そのための備えを決めています。
+チャンネル提供者は自分で登録できます（ARCH-001 D-7）。だれでも登録できるということは、悪意のある大量の登録や、パスワードの総当たりも来うる、ということです。ARCH-001 の A-18 は、そのための備えを決めています。
 
 | 備え | 場所 |
 |---|---|

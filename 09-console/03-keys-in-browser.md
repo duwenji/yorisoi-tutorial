@@ -184,7 +184,7 @@ if (!(await subtle.verify(ED25519, publicCrypto, signature, buf(probe)))) throw 
 
 鍵を作ったら、チャンネル提供者のアカウントに **紐づけ** ます。でも、公開鍵を送るだけでは足りません。他人の公開鍵（アプリやパッケージから誰でも手に入る）を送って、「これは自分の鍵だ」と言い張れてしまうからです。
 
-そこで、**サーバーが出した一度きりの文字列（チャレンジ）に署名させます**（ADR-001 A-5）。
+そこで、**サーバーが出した一度きりの文字列（チャレンジ）に署名させます**（ARCH-001 A-5）。
 
 ```mermaid
 sequenceDiagram
@@ -200,7 +200,7 @@ sequenceDiagram
 
 秘密鍵を持っている人にしか、その場で出された文字列に署名できません。サーバーは秘密鍵を見ないまま、持っていることだけを確かめられます。チャレンジは DynamoDB に TTL つきで置かれ（[8-5](../08-aws/05-dynamodb.md)）、使ったら消えるので、同じ署名を使い回せません。
 
-鍵をなくしたり漏れたりしたときの **移し替え**（[pages/publisher/keys.tsx](https://github.com/duwenji/yorisoi-console/blob/main/web/src/pages/publisher/keys.tsx)、ADR-001 A-15）も、同じように新しい鍵でチャレンジに署名して申し出ます。ただし、鍵をなくした人は古い鍵で証明できないので、運営が **鍵とは別の経路**（登録した連絡先など）で本人を確かめてから承認します。
+鍵をなくしたり漏れたりしたときの **移し替え**（[pages/publisher/keys.tsx](https://github.com/duwenji/yorisoi-console/blob/main/web/src/pages/publisher/keys.tsx)、ARCH-001 A-15）も、同じように新しい鍵でチャレンジに署名して申し出ます。ただし、鍵をなくした人は古い鍵で証明できないので、運営が **鍵とは別の経路**（登録した連絡先など）で本人を確かめてから承認します。
 
 ## パッケージに署名して送る
 
@@ -248,7 +248,7 @@ export async function signPackage(zip: Uint8Array, key: PublisherKey, expect: { 
 
 ## もう 1 つの「サーバーに送らない秘密」: AI の API キー
 
-運営の審査の画面は、申請されたプロンプトで AI に話させた見本を作ります（DES-005、[ai.ts](https://github.com/duwenji/yorisoi-console/blob/main/web/src/ai.ts)）。そのための OpenAI・DeepSeek の API キーは **運営のもの** で、管理システムには預けません（ADR-001 D-4・A-14）。
+運営の審査の画面は、申請されたプロンプトで AI に話させた見本を作ります（DES-005、[ai.ts](https://github.com/duwenji/yorisoi-console/blob/main/web/src/ai.ts)）。そのための OpenAI・DeepSeek の API キーは **運営のもの** で、管理システムには預けません（ARCH-001 D-4・A-14）。
 
 ```ts
 const [keys, setKeys] = useState<Record<string, string>>({});

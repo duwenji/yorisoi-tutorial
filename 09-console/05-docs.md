@@ -5,14 +5,14 @@
 ## この章で学ぶこと
 
 - 3 つのリポジトリの `docs/` にある文書の種類と、それぞれの役目
-- ADR: 何を、なぜ決めたか。捨てた案も残す
+- 決まり: 何を決めたか。比べた案は検討中の ADR と git に残す
 - 契約書・データモデル・設計書と、文書の ID でコードまでたどる仕組み（トレーサビリティ）
 - 決めたことが実装の途中で変わるときの進め方
 - 文書の ID を手がかりに、決定からコードとテストまでたどる
 
 ## なぜ書いて残すのか
 
-ここまでの章で、何度も「console ADR-001 A-14」「console API-001 C-8」「console DM-001」といった記号が出てきました。コードのコメントにも出てきます。
+ここまでの章で、何度も「console ARCH-001 A-14」「console API-001 C-8」「console DM-001」といった記号が出てきました。コードのコメントにも出てきます。
 
 ```ts
 /** The `If-Match` value for a resource read earlier (API-001 C-8). */
@@ -29,7 +29,7 @@ export const ifMatch = (rev: number) => ({ 'If-Match': `"${rev}"` });
 
 | 種類 | 文書 | 答える問い |
 |---|---|---|
-| ADR（設計の決定の記録） | [console ADR-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/adr/ADR-001-aws-architecture.md) | 何を、なぜ選んだか。ほかの案はなぜ捨てたか |
+| 構成の決まり | [console ARCH-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) の「決まり」 | 何を決めたか。どうなったら見直すか |
 | API 契約書 | [console API-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/console-api.md) ＋ [OpenAPI](https://github.com/duwenji/yorisoi-console/blob/main/docs/api/console.openapi.yaml) | 画面と API の間で、何をどんな形でやりとりするか（[7-3](../07-typescript/03-openapi.md)） |
 | データモデル | [console DM-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/data-model.md) | 何をどんなキーで保存し、どう取り出すか（[8-5](../08-aws/05-dynamodb.md)） |
 | 機能設計書 | [DES-001〜010](https://github.com/duwenji/yorisoi-console/tree/main/docs/design) | 実装の 1 段ごとに、どう作り、どう確かめたか（DES-007〜010 は素材集） |
@@ -38,14 +38,14 @@ export const ifMatch = (rev: number) => ({ 'If-Match': `"${rev}"` });
 | 構成図 | [architecture.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) | 全体がどうつながっているか |
 | TODO | [console TODO](https://github.com/duwenji/yorisoi-console/blob/main/docs/TODO.md) | 残っている作業 |
 
-SanpoGuide 固有の説明は [yorisoi-sanpoguide の文書](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/README.md) にあります。アプリと管理システムの共有契約（[platform API-CHANNEL-LIST](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md)・[API-CHANNEL-PACKAGE](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-PACKAGE.md)・[API-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-MATERIALS.md)）と、素材提供者の役割を定める [platform ADR-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIALS.md) は platform にあります。関係者の呼び方も [platform の共通用語](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/roles-and-vocabulary.md) が正本です。
+SanpoGuide 固有の説明は [yorisoi-sanpoguide の文書](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/README.md) にあります。アプリと管理システムの共有契約（[platform API-CHANNEL-LIST](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md)・[API-CHANNEL-PACKAGE](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-PACKAGE.md)・[API-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-MATERIALS.md)）と、素材提供者の役割を定める [platform MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/materials.md) は platform にあります。関係者の呼び方も [platform の共通用語](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/roles-and-vocabulary.md) が正本です。
 
 ```mermaid
 flowchart TB
     subgraph PL["yorisoi-platform"]
-        SADR["ADR-CHANNELS<br/>第三者チャンネルを審査"] --> API2["API-CHANNEL-LIST<br/>承認済みチャンネル・リスト"]
+        SADR["CHANNELS<br/>第三者チャンネルを審査"] --> API2["API-CHANNEL-LIST<br/>承認済みチャンネル・リスト"]
         SADR --> API3["API-CHANNEL-PACKAGE<br/>チャンネルのパッケージ"]
-        SADR2["ADR-MATERIALS<br/>素材提供者を切り出す"] --> API4["API-MATERIALS<br/>素材集と素材提供者の共通の形"]
+        SADR2["MATERIALS<br/>素材提供者を切り出す"] --> API4["API-MATERIALS<br/>素材集と素材提供者の共通の形"]
         SADR2 --> API2
         SADR2 --> API3
     end
@@ -53,7 +53,7 @@ flowchart TB
         SGDOC["アプリ固有の説明"]
     end
     subgraph CC["yorisoi-console"]
-        ADR["console ADR-001<br/>AWS の構成"] --> API1["console API-001 ＋ OpenAPI<br/>管理 API"]
+        ADR["console ARCH-001<br/>AWS の構成"] --> API1["console API-001 ＋ OpenAPI<br/>管理 API"]
         ADR --> DM["console DM-001<br/>データモデル"]
         API1 --> DM
         API1 --> DES["DES-001〜010<br/>実装の段ごとの設計"]
@@ -69,43 +69,41 @@ flowchart TB
 
 上の文書が「何を守るか」を決め、下の文書がそれを満たす作り方を決め、コードが実際に作ります。
 
-## ADR: 何を、なぜ決めたか
+## 決まり: 何を決めたか
 
-**ADR**（Architecture Decision Record、設計の決定の記録）は、大事な設計の決定を 1 つずつ残す文書です。[console ADR-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/adr/ADR-001-aws-architecture.md) の章立ては次のとおりです。
+決めたことは、正本の文書の **「決まり」** の節に、1 行ずつ ID を付けて書きます。管理システムの構成の決まりは [console ARCH-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md)（構成図と同じ文書）の後半にあります。
 
-| 章 | 中身 |
+| 節 | 中身 |
 |---|---|
-| 文書情報 | ID・種類・作成者・**承認者**・**ステータス**（草案・承認済）・**版** |
-| 目的・背景 | なぜ決める必要があるか。開発者が示した条件 |
-| スコープ・非スコープ | この文書が決めること・決めないこと |
-| 対応元ID | どの上位の文書の、どの決まりに応えるか |
-| 方針・決定事項 | 決めたことを、1 行ずつ ID 付きで（D-1…・A-1…） |
-| 判断テーマ | 何について悩んだか |
-| 検討した代替案と比較軸 | 案ごとの評価。**捨てた案と、捨てた理由** |
-| 採用案と採否理由 | 選んだ組み合わせと、その理由 |
-| 影響範囲・追従タスク | この決定で、ほかに何をしなければならないか（T-1…） |
+| 決まり | 決めたことを、1 行ずつ ID 付きで（前提 D-1…・構成 A-1…） |
+| 制約 | 外から決まっていて変えられないこと（KMS の署名の大きさなど） |
+| 見直しの条件 | どうなったら決まりを考え直すか |
 | 未決事項・リスク | まだ決めていないこと、いつ決めるか |
 
-いちばん価値があるのは **「検討した代替案」** です。console ADR-001 の表から抜き出します。
+エコシステム共通の決まりは platform の方針の文書（[ECOSYSTEM](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/yorisoi-ecosystem.md)・[CHANNELS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/channels.md)・[MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/materials.md)・[AI-ROLES](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/ai-roles.md)）に、同じ形で書いてあります。
 
-| 案 | 評価 |
-|---|---|
-| 公開 1. API Gateway と Lambda でリストを返す | 管理システムが止まるとアプリが取得できない（P-7 に反する）。呼ばれるたびに費用がかかる → **不採用** |
-| 公開 2. S3 と CloudFront で静的ファイルとして出す | P-7 のとおり。費用はほぼ配信量だけ → **採用（A-7）** |
-| 署名 C. 秘密鍵を KMS で暗号化して保管し、Lambda で署名 | 契約は変わらない。秘密鍵が Lambda のメモリに出る → **不採用** |
-| ログイン 1. チャンネル提供者の鍵だけで入る（署名でログイン） | パスワードが要らない。鍵をなくすとログインもできず、移し替えの本人確認ができない → **不採用** |
+### 比べた案はどこに残るか
 
-「Lambda で返したほうが簡単では？」「鍵でログインさせればパスワードは要らないのでは？」と思った人は、ここを読めば、同じことを考えて捨てた理由が分かります。
+大事な判断は、決める前に **ADR**（Architecture Decision Record）に書いて検討します。ADR には、目的・案ごとの評価・選んだ理由を書き、開発者が承認します。承認したら、決まりを正本の文書に移し、ADR は消します。文書には **今の決まりだけ** を残すためです。
 
-### 決定に ID を付ける
+比べた案と捨てた理由は、ADR を足して消したコミットとプルリクエストに残ります。消した ADR は git で読めます。
 
-決定事項は、1 行ずつ ID を持ちます。
+```sh
+cd /c/Dev/apps/yorisoi-console
+git log --diff-filter=D --oneline -- docs/adr/      # ADR を消したコミット
+git show <そのコミット>^:docs/adr/ADR-001-aws-architecture.md   # 消す前の中身
+```
 
-- `D-1`〜: 開発者が決めたこと（「審査の見本は、運営の API キーでブラウザから AI を呼ぶ」= D-4）
-- `A-1`〜: 構成の決定（Claude が提案し、開発者が承認したもの。「審査の見本の作り方」= A-14）
-- `T-1`〜: 追従タスク（「ルート鍵の手順書」= T-1）
+「Lambda でリストを返したほうが簡単では？」と思ったら、決まりの A-7（S3 と CloudFront で静的なファイルとして出す）を読み、理由まで知りたければ、この方法で消す前の ADR の「検討した代替案」を開きます。
 
-ID があるので、ほかの文書やコードのコメントから **1 行単位で指せます**。
+### 決まりに ID を付ける
+
+決まりは、1 行ずつ ID を持ちます。
+
+- `D-1`〜: 開発者が決めた前提（「審査の見本は、運営の API キーでブラウザから AI を呼ぶ」= D-4）
+- `A-1`〜: 構成の決まり（Claude が提案し、開発者が承認したもの。「審査の見本の作り方」= A-14）
+
+ID があるので、ほかの文書やコードのコメントから **1 行単位で指せます**。番号は詰めないので、行を消しても、ほかの番号の指す先は変わりません。
 
 ## ID でたどる: 決定からコードとテストまで
 
@@ -113,32 +111,32 @@ ID があるので、ほかの文書やコードのコメントから **1 行単
 
 ```mermaid
 flowchart LR
-    D4["console ADR-001 D-4<br/>運営の API キーで<br/>ブラウザから AI を呼ぶ"] --> A14["console ADR-001 A-14<br/>キーはブラウザのメモリだけ<br/>CSP で通信先を限る"]
+    D4["console ARCH-001 D-4<br/>運営の API キーで<br/>ブラウザから AI を呼ぶ"] --> A14["console ARCH-001 A-14<br/>キーはブラウザのメモリだけ<br/>CSP で通信先を限る"]
     A14 --> DES5["DES-005<br/>対応元ID に D-4"]
-    DES5 --> AI["web/src/ai.ts<br/>(console ADR-001 D-4, DES-005)"]
+    DES5 --> AI["web/src/ai.ts<br/>(console ARCH-001 D-4, DES-005)"]
     DES5 --> CSP["infra/lib/console-app.ts<br/>connect-src に AI の API"]
     AI --> T["web/test/ai.test.ts<br/>決めた窓口とキーで呼ぶか"]
 ```
 
-- [console ADR-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/adr/ADR-001-aws-architecture.md) の D-4 と A-14 が決める
-- [DES-005](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/DES-005-review.md) の「対応元ID（トレーサビリティ）」の表が、`ADR-001 … D-4（AI の見本は運営のキーでブラウザから） | 実装` と、応えたことを記録する
-- [web/src/ai.ts](https://github.com/duwenji/yorisoi-console/blob/main/web/src/ai.ts) の先頭のコメント `The review samples' AI (ADR-001 D-4, DES-005)` が、どの決定を実装したかを示す
+- [console ARCH-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) の D-4 と A-14 が決める
+- [DES-005](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/DES-005-review.md) の「対応元ID（トレーサビリティ）」の表が、`ARCH-001 … D-4（AI の見本は運営のキーでブラウザから） | 実装` と、応えたことを記録する
+- [web/src/ai.ts](https://github.com/duwenji/yorisoi-console/blob/main/web/src/ai.ts) の先頭のコメント `The review samples' AI (ARCH-001 D-4, DES-005)` が、どの決定を実装したかを示す
 - [infra/lib/console-app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-app.ts) の CSP にも同じ ID のコメント
 - [web/test/ai.test.ts](https://github.com/duwenji/yorisoi-console/blob/main/web/test/ai.test.ts) が、決めた窓口とキーで呼ぶことを確かめる
 
-逆向きにもたどれます。コードを読んでいて「なぜブラウザから直接 AI を呼ぶのだろう、サーバーを通したほうが安全では？」と思ったら、コメントの `console ADR-001 D-4` から決定に、そこから比較と理由にたどり着けます。
+逆向きにもたどれます。コードを読んでいて「なぜブラウザから直接 AI を呼ぶのだろう、サーバーを通したほうが安全では？」と思ったら、コメントの `console ARCH-001 D-4` から決まりの行にたどり着けます。比べた案まで知りたければ、消す前の ADR を git で開きます。
 
 ## 決めたことが変わるとき
 
 決めたことが、実装してみて合わないと分かることもあります。そのときは、**文書を黙って無視せず、文書を直してから（または同時に）コードを変えます**。
 
-たとえば console ADR-001 の A-4 は「MFA（TOTP）は全員に必須」です。Cognito の MFA は **ユーザープール単位** でしか決められないので（[8-4](../08-aws/04-cognito.md)）、「運営だけに必須」にはできません。もし文書が「運営だけ」と書いていて、実装の途中でこの制約に気づいたら、次のように進めます。
+たとえば console ARCH-001 の A-4 は「MFA（TOTP）は全員に必須」です。Cognito の MFA は **ユーザープール単位** でしか決められないので（[8-4](../08-aws/04-cognito.md)）、「運営だけに必須」にはできません。もし文書が「運営だけ」と書いていて、実装の途中でこの制約に気づいたら、次のように進めます。
 
 1. 開発者に判断を仰ぐ（「全員に MFA を求める」か、プールを分けるか）
-2. 決まったら、ADR の A-4 を新しい決定に書き換える
-3. 同じコミットで、コードとコメント（`(ADR-001 A-4: one pool, TOTP MFA for everyone)`）を変える
+2. 決まったら、ARCH-001 の A-4 を新しい決まりに書き換える
+3. 同じコミットで、コードとコメント（`(ARCH-001 A-4: one pool, TOTP MFA for everyone)`）を変える
 
-文書には **今の決定だけ** を書きます。前の決定と、変えた理由は、コミットのメッセージと差分（git の履歴）に残ります。こうしておけば、「ADR には運営だけと書いてあるのに、コードは全員に MFA を求めている。どちらが正しい？」という混乱が起きず、経緯も git でたどれます。
+文書には **今の決定だけ** を書きます。前の決定と、変えた理由は、コミットのメッセージと差分（git の履歴）に残ります。こうしておけば、「文書には運営だけと書いてあるのに、コードは全員に MFA を求めている。どちらが正しい？」という混乱が起きず、経緯も git でたどれます。
 
 ### 承認とステータス
 
@@ -152,7 +150,7 @@ flowchart LR
 
 ```sh
 cd /c/Dev/apps/yorisoi-console
-grep -rhoE "\b(ADR-001|API-001|API-CHANNEL-[A-Z]+|API-MATERIALS|DM-001|DES-0[0-9][0-9])" api/src web/src infra/lib infra/bin validator/src packages \
+grep -rhoE "\b(ARCH-001|API-001|API-CHANNEL-[A-Z]+|API-MATERIALS|DM-001|DES-0[0-9][0-9])" api/src web/src infra/lib infra/bin validator/src packages \
   --include=*.ts --include=*.tsx --include=*.kt | sort | uniq -c | sort -rn
 ```
 
@@ -160,7 +158,7 @@ grep -rhoE "\b(ADR-001|API-001|API-CHANNEL-[A-Z]+|API-MATERIALS|DM-001|DES-0[0-9
      64 DM-001
      49 API-001
      38 DES-013
-     38 ADR-001
+     38 ARCH-001
      34 API-CHANNEL-LIST
      29 DES-011
      20 DES-007
@@ -176,26 +174,26 @@ grep -rhoE "\b(ADR-001|API-001|API-CHANNEL-[A-Z]+|API-MATERIALS|DM-001|DES-0[0-9
 
 （main で数えたもの。コードが変われば数も変わります）
 
-データモデル・API 契約書・ADR がよく指されています。platform の共有契約（API-CHANNEL-LIST・API-CHANNEL-PACKAGE・API-MATERIALS）も、管理システムのコードから指されています。アプリとの境界を守るコードだからです（番号の読み方は [0-4](../00-overview/04-reading-the-repos.md)）。エコシステムへの対応（DES-011）、素材集を足した段（DES-007〜010）の設計書が多く指されているのは、新しく書いたコードほど、どの決定に従ったかをコメントに残しているからです。
+データモデル・API 契約書・構成の決まりがよく指されています。platform の共有契約（API-CHANNEL-LIST・API-CHANNEL-PACKAGE・API-MATERIALS）も、管理システムのコードから指されています。アプリとの境界を守るコードだからです（番号の読み方は [0-4](../00-overview/04-reading-the-repos.md)）。エコシステムへの対応（DES-011）、素材集を足した段（DES-007〜010）の設計書が多く指されているのは、新しく書いたコードほど、どの決定に従ったかをコメントに残しているからです。
 
 ### 2. 1 つの決定をたどる
 
 ```sh
-grep -n "^| D-4 \|^| A-14 " docs/adr/ADR-001-aws-architecture.md
+grep -n "^| D-4 \|^| A-14 " docs/architecture.md
 grep -n "D-4" docs/design/DES-005-review.md
 grep -rn "D-4" web/src infra/lib
 ```
 
-ADR の決定 → 設計書の対応元ID → 画面のコードと CDK のコメント、とつながっているのが見えます。
+構成の決まり → 設計書の対応元ID → 画面のコードと CDK のコメント、とつながっているのが見えます。
 
 ### 3. 決定が変わった記録をたどる
 
 ```sh
-git log --oneline -- docs/adr/ADR-001-aws-architecture.md
-git log -p -S "A-4" -- docs/adr/ADR-001-aws-architecture.md
+git log --oneline -- docs/architecture.md
+git log -p -S "A-4" -- docs/architecture.md
 ```
 
-1 つ目は、ADR-001 を変えたコミットの一覧です。2 つ目は、`A-4` を含む行が増えたり減ったりしたコミットを、差分つきで出します。文書には今の決定だけが書かれているので、「前はどうだったか」「なぜ変えたか」は、こうして git の履歴から読みます。決定の変更と、それに合わせた実装が、同じコミットに入っていることも確かめられます。
+1 つ目は、ARCH-001 を変えたコミットの一覧です。2 つ目は、`A-4` を含む行が増えたり減ったりしたコミットを、差分つきで出します。文書には今の決定だけが書かれているので、「前はどうだったか」「なぜ変えたか」は、こうして git の履歴から読みます。決定の変更と、それに合わせた実装が、同じコミットに入っていることも確かめられます。
 
 ## チュートリアルのおわりに
 
@@ -232,21 +230,21 @@ git log -p -S "A-4" -- docs/adr/ADR-001-aws-architecture.md
 <details>
 <summary>問 1. 「承認済みチャンネル・リストを Lambda で返せば、もっと簡単なのに」と思いました。どこを読めば、なぜそうしなかったかが分かりますか。</summary>
 
-console ADR-001 の「検討した代替案と比較軸」です。「公開 1. API Gateway と Lambda でリストを返す」は、管理システムが止まるとアプリがリストを取れない（platform API-CHANNEL-LIST P-7 に反する）、呼ばれるたびに費用がかかる、という理由で捨てられ、S3 と CloudFront の静的ファイル（A-7）が選ばれています。
+console ARCH-001 の「検討した代替案と比較軸」です。「公開 1. API Gateway と Lambda でリストを返す」は、管理システムが止まるとアプリがリストを取れない（platform API-CHANNEL-LIST P-7 に反する）、呼ばれるたびに費用がかかる、という理由で捨てられ、S3 と CloudFront の静的ファイル（A-7）が選ばれています。
 
 </details>
 
 <details>
-<summary>問 2. コードに <code>(ADR-001 A-4: one pool, TOTP MFA for everyone)</code> と、決定の中身まで書いてあるのはなぜですか。</summary>
+<summary>問 2. コードに <code>(ARCH-001 A-4: one pool, TOTP MFA for everyone)</code> と、決定の中身まで書いてあるのはなぜですか。</summary>
 
 ID だけでなく中身を一言添えると、コードを読む人が、文書を開かなくても何に従っているかが分かるからです。決定が変わったときも、コメントと文書を見比べれば、コードが今の決定に追従しているかをすぐに確かめられます。
 
 </details>
 
 <details>
-<summary>問 3. 実装の途中で、ADR の決定どおりには作れないと分かりました。どう進めますか。</summary>
+<summary>問 3. 実装の途中で、決まりのとおりには作れないと分かりました。どう進めますか。</summary>
 
-気づいたことを記録し、決める人（開発者）に判断を仰ぎます。決まったら、ADR の該当する行を今の決定に書き換え、同じコミットでコードを変えます。前の決定と理由は git の履歴に残ります。
+気づいたことを記録し、決める人（開発者）に判断を仰ぎます。決まったら、正本の文書の該当する行を今の決まりに書き換え、同じコミットでコードを変えます。前の決定と理由は git の履歴に残ります。
 
 </details>
 

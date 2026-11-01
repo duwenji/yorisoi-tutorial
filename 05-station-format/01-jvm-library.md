@@ -30,7 +30,7 @@
 理由は 2 つあります。
 
 1. **管理システムでも同じコードを使うため**
-2. **2 本目の付き添いアプリ（自転車の CycleGuide）でもチャンネルを使うため**（ADR-003）
+2. **2 本目の付き添いアプリ（自転車の CycleGuide）でもチャンネルを使うため**（ECOSYSTEM）
 
 ```mermaid
 flowchart LR
@@ -53,7 +53,7 @@ flowchart LR
 
 [6-6](../06-trust/06-same-rules.md) で見たとおり、食い違いを防ぐいちばん確かな方法は **同じコードを使う** ことです。そのためには、そのコードが Android の上でも、AWS の Lambda（普通の JVM）の上でも動く必要があります。だからコアとプロンプト・パックは、Android に依存しない素の Kotlin（JVM）のライブラリになっています。
 
-2 つ目の理由で、コアとプロンプト・パックを分けています。チャンネルの形式はどのアプリでも同じなのでコアに、散歩の場面の見本や SanpoGuide のプロンプトの文面はそのアプリのものなのでプロンプト・パックに置きます。CycleGuide は、同じコアに自分のプロンプト・パック（yorisoi-cycleguide の `prompts`）を足しています。管理システムは、チャンネルの過ごし方（`activities`）を見て、散歩なら SanpoGuide の、自転車なら CycleGuide のプロンプト・パックで見本を作ります（両方なら両方）。パッケージ名も、コアとキットは `io.github.duwenji.yorisoi.core.*`・`io.github.duwenji.yorisoi.kit.*`、プロンプト・パックとアプリは `io.github.duwenji.yorisoi.sanpoguide.*` と分けています（ADR-003 E-22）。
+2 つ目の理由で、コアとプロンプト・パックを分けています。チャンネルの形式はどのアプリでも同じなのでコアに、散歩の場面の見本や SanpoGuide のプロンプトの文面はそのアプリのものなのでプロンプト・パックに置きます。CycleGuide は、同じコアに自分のプロンプト・パック（yorisoi-cycleguide の `prompts`）を足しています。管理システムは、チャンネルの過ごし方（`activities`）を見て、散歩なら SanpoGuide の、自転車なら CycleGuide のプロンプト・パックで見本を作ります（両方なら両方）。パッケージ名も、コアとキットは `io.github.duwenji.yorisoi.core.*`・`io.github.duwenji.yorisoi.kit.*`、プロンプト・パックとアプリは `io.github.duwenji.yorisoi.sanpoguide.*` と分けています（ECOSYSTEM E-22）。
 
 Android の部品（音声・地図・AI の呼び出しなど）は、同じく yorisoi-platform の **キット**（`kit-voice`・`kit-llm`・`kit-geo`・`kit-mood`）にあります。話す判断のルールとゲート・散歩の記録（`kit-companion`）と、アプリの中のチャンネル（取り込み・素材・きっかけ、`kit-channel`）もキットです。この 2 つは素の JVM です。キットもコアと一緒に GitHub Packages に公開していて、散策ガイドと CycleGuide が同じキットを使います。
 
@@ -334,7 +334,7 @@ unzip -l "$J" | grep -c "org/json"
 <details>
 <summary>問 3. コア（<code>core-format</code>・<code>core-prompt</code>）とプロンプト・パックを分けているのはなぜですか。</summary>
 
-チャンネルの形式は、SanpoGuide のほかの付き添いアプリ（自転車の CycleGuide）でも同じものを使うので、アプリをまたぐコアに置きます。一方、散歩のプロンプトの文面や場面の見本は SanpoGuide だけのものなので、プロンプト・パックに置きます。こうすると、2 本目のアプリは自分のプロンプト・パックを作るだけで、同じコアとチャンネルを使えます（ADR-003）。実際に CycleGuide は、yorisoi-cycleguide に自分のプロンプト・パックを持っています。
+チャンネルの形式は、SanpoGuide のほかの付き添いアプリ（自転車の CycleGuide）でも同じものを使うので、アプリをまたぐコアに置きます。一方、散歩のプロンプトの文面や場面の見本は SanpoGuide だけのものなので、プロンプト・パックに置きます。こうすると、2 本目のアプリは自分のプロンプト・パックを作るだけで、同じコアとチャンネルを使えます（ECOSYSTEM）。実際に CycleGuide は、yorisoi-cycleguide に自分のプロンプト・パックを持っています。
 
 </details>
 

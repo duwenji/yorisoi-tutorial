@@ -106,7 +106,7 @@ flowchart TB
 
 | 用語 | 意味 |
 |---|---|
-| ADR | Architecture Decision Record。設計上の大事な判断と、その理由を残す文書 |
+| ADR | Architecture Decision Record。大事な判断を決める前に、案と理由を比べて書く文書。決まったら決まりを正本の文書に移して消す |
 | API 契約書 | 2 つのシステムの間でやりとりするデータの形と約束を決めた文書。API-001〜API-MATERIALS |
 | DM | データモデル。どんなデータをどう持つかを決めた文書（DM-001） |
 | DES | 設計書。実装の細部を決めた文書（DES-001〜010） |

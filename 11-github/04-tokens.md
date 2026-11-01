@@ -134,7 +134,7 @@ gh api users/duwenji/packages?package_type=maven
 
 自動にしたくなったら、次の順に考えます。
 
-1. **長く使える鍵をシークレットに預けない方法がないか**: AWS は、GitHub の OIDC のトークンを IAM ロールと引き換える（console ADR-001 A-17、[9-4](../09-console/04-ci.md)）。鍵そのものを渡さずに済む
+1. **長く使える鍵をシークレットに預けない方法がないか**: AWS は、GitHub の OIDC のトークンを IAM ロールと引き換える（console ARCH-001 A-17、[9-4](../09-console/04-ci.md)）。鍵そのものを渡さずに済む
 2. **シークレットを預けるなら、Environment に分ける**: リポジトリの Settings → Environments で `production` などを作り、そこにだけシークレットを置き、承認する人を決める。ほかのワークフローからは読めない
 
 ## ハンズオン: 権限を外すと何が拒まれるか

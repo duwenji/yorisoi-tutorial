@@ -38,7 +38,7 @@ const cognito = new CognitoIdentityProviderClient({});
 
 /**
  * Cognito post-confirmation trigger: whoever signs up and confirms their address becomes a
- * publisher (ADR-001 D-7). …
+ * publisher (ARCH-001 D-7). …
  */
 export async function handler(event: PostConfirmationTriggerEvent) {
   if (event.triggerSource === 'PostConfirmation_ConfirmSignUp') {
@@ -125,7 +125,7 @@ API Gateway も、要求に 30 秒ほどの上限があります。管理 API �
 
 ## API Gateway: HTTP の入口
 
-**API Gateway** は、HTTP の要求を受けて、Lambda などに渡す入口です。管理システムは、安くて単純な **HTTP API** を使っています（ADR-001 A-3）。
+**API Gateway** は、HTTP の要求を受けて、Lambda などに渡す入口です。管理システムは、安くて単純な **HTTP API** を使っています（ARCH-001 A-3）。
 
 [console-app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-app.ts):
 
@@ -156,7 +156,7 @@ flowchart LR
 
 - **`/api/{proxy+}` を `ANY` で 1 つの Lambda に**: 66 の操作を、全部 1 つの Lambda に渡す。振り分けは Lambda の中のルーター（[7-3](../07-typescript/03-openapi.md) の `router.ts`）が行う
 - **JWT の確認**（`HttpJwtAuthorizer`）: 画面が付けてくるログインのトークン（JWT、[8-4](04-cognito.md)）を、API Gateway が確かめる。発行元（`issuer`、この Cognito のユーザープール）と、宛先（`jwtAudience`、この画面のクライアント）と、期限。合わなければ、Lambda を呼ばずに `401` を返す
-- **流量の制限**（throttling）: 1 秒に 20 回（一瞬なら 40 回）まで。超えたら `429`。ログインを開いたときの備え（ADR-001 A-18）
+- **流量の制限**（throttling）: 1 秒に 20 回（一瞬なら 40 回）まで。超えたら `429`。ログインを開いたときの備え（ARCH-001 A-18）
 - 画面と同じ CloudFront の `/api/*` から入る（[8-6](06-s3-cloudfront.md)）。画面と API が同じ場所（オリジン）にあるので、ブラウザの面倒な決まり（CORS）が要らない
 
 ### 1 つの Lambda に全部の道
@@ -176,7 +176,7 @@ flowchart LR
 ```ts
 const MAX_BODY = 1024 * 1024;
 
-/** The console API behind API Gateway's JWT authorizer (ADR-001 A-3, API-001). */
+/** The console API behind API Gateway's JWT authorizer (ARCH-001 A-3, API-001). */
 export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<APIGatewayProxyResultV2> {
   const requestId = event.requestContext.requestId;
   try {
@@ -213,7 +213,7 @@ export async function handler(event: APIGatewayProxyEventV2WithJWTAuthorizer): P
 4. ルーターに渡す
 5. 思わぬ例外は、ログに残して、利用者には `500`（`internal`）とだけ返す。中の事情を外に漏らさない
 
-「API Gateway がログインを確かめた」あとでも、Lambda の中で **役割を確かめ直します**（`requireOperator`、ADR-001 A-3）。API Gateway が確かめるのは「ログインしているか」までで、「運営か」はアプリの決まりだからです。
+「API Gateway がログインを確かめた」あとでも、Lambda の中で **役割を確かめ直します**（`requireOperator`、ARCH-001 A-3）。API Gateway が確かめるのは「ログインしているか」までで、「運営か」はアプリの決まりだからです。
 
 `callerFrom` が、グループを `[operator publisher]` という文字列でも配列でも読めるようにしているのは、コメントのとおり、HTTP API がグループを文字列で渡してくることがあるからです。
 
@@ -233,7 +233,7 @@ requestPublish: async (trigger) => {
 
 ```ts
 /**
- * The publishing Lambda (ADR-001 A-10). Invoked asynchronously by the API after an approval,
+ * The publishing Lambda (ARCH-001 A-10). Invoked asynchronously by the API after an approval,
  * revocation, key transfer or keyset registration, and daily by EventBridge Scheduler.
  * Reserved concurrency 1 keeps runs apart; the conditional write on `seq` guards the rest.
  */
@@ -274,7 +274,7 @@ new scheduler.Schedule(this, 'DailyPublish', {
 
 ### 止まったら知らせる: CloudWatch の警報
 
-公開が止まると、14 日後にアプリの第三者のチャンネルが使えなくなります。だから、止まったことにすぐ気づく必要があります（ADR-001 A-16）。
+公開が止まると、14 日後にアプリの第三者のチャンネルが使えなくなります。だから、止まったことにすぐ気づく必要があります（ARCH-001 A-16）。
 
 ```ts
 const failures = new cloudwatch.Alarm(this, 'PublishFailures', {

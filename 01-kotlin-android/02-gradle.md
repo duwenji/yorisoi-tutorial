@@ -35,7 +35,7 @@ yorisoi-platform/
 
 ファイル名が `.kts` で終わるのは、設定を **Kotlin で書いている**（Kotlin DSL）からです。1-1 の文法がそのまま使えます。
 
-> 共通の部品（コアとキット）は、付き添いアプリのエコシステム（[platform ADR-ECOSYSTEM-PLATFORM](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-ECOSYSTEM-PLATFORM.md)）のために、別のリポジトリ yorisoi-platform にあります（[5-1](../05-station-format/01-jvm-library.md)）。
+> 共通の部品（コアとキット）は、付き添いアプリのエコシステム（[platform ECOSYSTEM](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/yorisoi-ecosystem.md)）のために、別のリポジトリ yorisoi-platform にあります（[5-1](../05-station-format/01-jvm-library.md)）。
 
 ## settings.gradle.kts: 全体の地図
 
@@ -155,7 +155,7 @@ android {
 | `versionName` | `1.5.2` | 人に見せる版。ストアのリリース名にもなる |
 | `buildConfig = true` | — | `BuildConfig.VERSION_CODE`・`BuildConfig.DEBUG` などをコードから使えるようにする |
 
-`applicationId` は、逆さにしたドメイン名で、世界で重ならない名前にします。Android Studio の雛形が入れる `com.example.…` は仮の名前で、Google Play には上げられません。散策ガイドは、自分の GitHub のアドレス（`duwenji.github.io`）を逆さにした `io.github.duwenji` の下に、エコシステムの名前 `yorisoi` とアプリの名前を続けた `io.github.duwenji.yorisoi.sanpoguide` にしています。`namespace`・Kotlin のパッケージ・プロンプト・パックの公開の名前（[5-3](../05-station-format/03-publish.md)）も同じ名前に揃えています（ADR-003 E-22）。`io.github.yorisoi` にしないのは、github.com/Yorisoi が別の人のアカウントで、その名前空間は自分のものではないからです。`applicationId` は公開後に変えられません。パッケージ名は後からでも変えられますが、使う人が増えるほど手間が増えるので、最初に揃えておきます。
+`applicationId` は、逆さにしたドメイン名で、世界で重ならない名前にします。Android Studio の雛形が入れる `com.example.…` は仮の名前で、Google Play には上げられません。散策ガイドは、自分の GitHub のアドレス（`duwenji.github.io`）を逆さにした `io.github.duwenji` の下に、エコシステムの名前 `yorisoi` とアプリの名前を続けた `io.github.duwenji.yorisoi.sanpoguide` にしています。`namespace`・Kotlin のパッケージ・プロンプト・パックの公開の名前（[5-3](../05-station-format/03-publish.md)）も同じ名前に揃えています（ECOSYSTEM E-22）。`io.github.yorisoi` にしないのは、github.com/Yorisoi が別の人のアカウントで、その名前空間は自分のものではないからです。`applicationId` は公開後に変えられません。パッケージ名は後からでも変えられますが、使う人が増えるほど手間が増えるので、最初に揃えておきます。
 
 `minSdk = 26` は、第 6 部で何度も出てきた「Android 8 から動かしたい」の正体です。Ed25519 のために Tink を入れた（[技術カード: Tink](../ref/tink.md)）のも、base64url に `java.util.Base64` を使える（API 26 から）のも、この値が決めています。
 
