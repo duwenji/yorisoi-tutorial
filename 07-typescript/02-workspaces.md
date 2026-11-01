@@ -18,7 +18,7 @@
 
 ```mermaid
 flowchart TB
-    PROTO["packages/protocol<br/>@yorisoi-console/protocol<br/>API-002 の文書の作成と検証"]
+    PROTO["packages/protocol<br/>@yorisoi-console/protocol<br/>API-CHANNEL-LIST の文書の作成と検証"]
     TYPES["packages/api-types<br/>@yorisoi-console/api-types<br/>管理 API の型（OpenAPI から生成）"]
     API["api<br/>@yorisoi-console/api<br/>Lambda"]
     WEB["web<br/>@yorisoi-console/web<br/>画面"]

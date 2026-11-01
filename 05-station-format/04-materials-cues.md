@@ -15,7 +15,7 @@
 
 ## なぜ素材を切り出したのか
 
-素材をチャンネルのパッケージの一部（`channel.json` の `resources`）だけにすると、困ることが 4 つあります（[platform ADR-MATERIALS（旧 ADR-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIALS.md)「目的・背景」）。
+素材をチャンネルのパッケージの一部（`channel.json` の `resources`）だけにすると、困ることが 4 つあります（[platform ADR-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIALS.md)「目的・背景」）。
 
 | 困ること | 例 |
 |---|---|
@@ -36,7 +36,7 @@ flowchart LR
 
 素材提供者は「何を」、チャンネルは「いつ・どう」、アプリは「安全に」を受け持ちます。1 つの決まりを 1 か所が持つように分けたわけです。
 
-AI の語りも、この分け方に入っています（[platform ADR-AI-ROLES（旧 ADR-004）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-AI-ROLES.md) H-1）。素材は AI の **根拠** にもなり、チャンネルは **演出**、AI はその場で話す **実演**、アプリは **枠**、運営は **考査**（事前に枠と演出の意図を確かめ、事後に通報を受けて止める）を受け持ちます。AI の発言は前もって審査できないので、根拠と枠と事後の対応で守る、という考え方です（[4-3](../04-outside/03-ai.md)「資料を根拠に話す」）。
+AI の語りも、この分け方に入っています（[platform ADR-AI-ROLES](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-AI-ROLES.md) H-1）。素材は AI の **根拠** にもなり、チャンネルは **演出**、AI はその場で話す **実演**、アプリは **枠**、運営は **考査**（事前に枠と演出の意図を確かめ、事後に通報を受けて止める）を受け持ちます。AI の発言は前もって審査できないので、根拠と枠と事後の対応で守る、という考え方です（[4-3](../04-outside/03-ai.md)「資料を根拠に話す」）。
 
 ## すべての出どころを 1 つの形で: Producer
 
@@ -48,13 +48,13 @@ AI の語りも、この分け方に入っています（[platform ADR-AI-ROLES�
 | 第三者の素材集 | 観光協会の解説と写真 | 審査で固定。前もって取得する |
 | チャンネルに同梱の素材 | `channel.json` の `resources` | 審査で固定。パッケージに入っている |
 
-ばらばらに見えますが、アプリはすべてを **同じ形** で扱います（API-004 I-1）。アプリの側の形は、platform の `kit-channel`（散策ガイドと CycleGuide が共有）にある [Producer.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/material/Producer.kt) の `Producer` です。
+ばらばらに見えますが、アプリはすべてを **同じ形** で扱います（API-MATERIALS I-1）。アプリの側の形は、platform の `kit-channel`（散策ガイドと CycleGuide が共有）にある [Producer.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/material/Producer.kt) の `Producer` です。
 
 ```kotlin
 interface Producer {
     val descriptor: ProducerDescriptor
 
-    /** Called when a channel is chosen, to fetch everything ahead (API-004 I-6). Built-in producers need nothing. */
+    /** Called when a channel is chosen, to fetch everything ahead (API-MATERIALS I-6). Built-in producers need nothing. */
     suspend fun prepare() {}
 
     /**
@@ -71,7 +71,7 @@ interface Producer {
 - `produce`: 見せる直前に呼ぶ。**例外を投げず、結果を値で返す**（`MaterialResult`）
 - `peek`: 待たずに分かる結果（「この回線では出さない」など）を先に返す。画面がすぐに「Wi-Fi を待っています」と出せる
 
-結果は 3 つに分かれます（API-004 I-5）。
+結果は 3 つに分かれます（API-MATERIALS I-5）。
 
 ```kotlin
 sealed interface MaterialResult {
@@ -92,7 +92,7 @@ sealed interface MaterialResult {
 
 組み込みの AI と第三者の素材集では、許してよいことがまるで違います。AI は散策者の位置（スポット名）を外の AI サービスに送りますが、第三者の素材集にそれを許すと、散策者の居場所が第三者に伝わります。
 
-この違いを、散策ガイドは **クラスの種類ではなく、記述の属性** で表します（API-004 I-2）。[Producers.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/material/Producers.kt) の `ProducerDescriptor`:
+この違いを、散策ガイドは **クラスの種類ではなく、記述の属性** で表します（API-MATERIALS I-2）。[Producers.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/material/Producers.kt) の `ProducerDescriptor`:
 
 | 属性 | 値 | 意味 |
 |---|---|---|
@@ -104,7 +104,7 @@ sealed interface MaterialResult {
 何を許すかは、属性を見て **アプリの方針** が決めます。
 
 ```kotlin
-/** The app's rules for producers by their description (API-004 方針 P-1・P-2). Channels and producers can't change them. */
+/** The app's rules for producers by their description (API-MATERIALS 方針 P-1・P-2). Channels and producers can't change them. */
 object ProducerPolicy {
     /** The rule [descriptor] breaks, or null when it may be used. */
     fun violation(descriptor: ProducerDescriptor): String? = with(descriptor) {
@@ -136,7 +136,7 @@ val AI_GUIDE = ProducerDescriptor(
 
 ## 候補を前から順に試す
 
-チャンネルは、1 つの見せ方に候補を 1〜3 個並べます（API-004 I-7）。
+チャンネルは、1 つの見せ方に候補を 1〜3 個並べます（API-MATERIALS I-7）。
 
 ```json
 { "as": "speak", "source": ["kamakura#daibutsu-intro", "builtin:ai-guide", "builtin:fallback-text"] }
@@ -151,7 +151,7 @@ val AI_GUIDE = ProducerDescriptor(
 | `Producers.first`（[Producer.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/material/Producer.kt)） | きっかけのないふだんの解説と話しかけ（`Narration` の `Shorthand`、[4-3](../04-outside/03-ai.md)） |
 | `CuePresenter`（[Cues.kt](https://github.com/duwenji/yorisoi-platform/blob/main/kit-channel/src/main/kotlin/io/github/duwenji/yorisoi/kit/channel/material/Cues.kt)） | きっかけの見せ方ごとの候補 |
 
-ふだんの解説も「`builtin:ai-guide` → `builtin:fallback-text`」という候補の並びとして書かれています（API-004「省略形の展開」）。きっかけを持たない組み込みのチャンネルも、同じ仕組みの上で動いているわけです。
+ふだんの解説も「`builtin:ai-guide` → `builtin:fallback-text`」という候補の並びとして書かれています（API-MATERIALS「省略形の展開」）。きっかけを持たない組み込みのチャンネルも、同じ仕組みの上で動いているわけです。
 
 `CuePresenter` には、見せ方ならではの確かめが 2 つ加わります。
 
@@ -165,7 +165,7 @@ val AI_GUIDE = ProducerDescriptor(
 ```kotlin
 sealed interface Trigger {
     data class Spot(val osm: String, val name: String?) : Trigger
-    /** Any spot of these kinds (API-003, `"any": true`). */
+    /** Any spot of these kinds (API-CHANNEL-PACKAGE, `"any": true`). */
     data class AnySpot(val categories: List<SpotKind>) : Trigger
     data class Point(val lat: Double, val lon: Double, val radiusM: Int) : Trigger
     data class Event(val event: CueEvent) : Trigger
@@ -221,21 +221,21 @@ enum class PresentAs(override val json: String, val types: Set<MaterialType>) : 
 
 「カードで音声を出す」のような組み合わせは、取り込むときに `bad_cue` で拒みます。enum に「出せる種類」を持たせておくと、確認のコードは `resource.type !in p.presentAs.types` と書くだけで済みます。
 
-チャンネルが選べるのは見せ方の **種類** までです。どう見せるかの安全の決まりは、アプリが必ず守らせます（API-003 F-8）。
+チャンネルが選べるのは見せ方の **種類** までです。どう見せるかの安全の決まりは、アプリが必ず守らせます（API-CHANNEL-PACKAGE F-8）。
 
 | 決まり | どこで守るか |
 |---|---|
 | 解説の画面（`sheet`）と全画面（`fullscreen`）は、カードか通知を散策者がタップしたときだけ開く。自動では開かない | `CueLayout` が、この 2 つを `CueDetail` にまとめて「タップで開くもの」として持つ（[2-1](../02-compose/01-compose-basics.md) の「詳しく見る」） |
 | 歩いている間（0.5m/s 以上）は全画面を開かない | `Pace.walking`（`CueLayout.kt`） |
-| 読み上げは、話しかけと同じ順番待ちに並ぶ。割り込まない | `CueShow`（API-003 F-13） |
+| 読み上げは、話しかけと同じ順番待ちに並ぶ。割り込まない | `CueShow`（API-CHANNEL-PACKAGE F-13） |
 | 画像には作者・ライセンス・素材提供者を添える | `MaterialCredit`（`CueViews.kt`） |
-| AI が書いたものは、作者を「AI（モデル名）」とする | `aiCredit`（`BuiltIns.kt`、API-004 P-3） |
+| AI が書いたものは、作者を「AI（モデル名）」とする | `aiCredit`（`BuiltIns.kt`、API-MATERIALS P-3） |
 
 [5-2](02-package-format.md) で見た「選択肢しか書かせない」考え方が、見せ方でも生きています。
 
 ## 素材集: 別に審査し、名前で借りる
 
-素材集は、素材提供者が自分の鍵で署名した ZIP です（API-004「素材集の形式」）。中の `collection.json` はこんな形です。
+素材集は、素材提供者が自分の鍵で署名した ZIP です（API-MATERIALS「素材集の形式」）。中の `collection.json` はこんな形です。
 
 ```json
 {
@@ -255,7 +255,7 @@ enum class PresentAs(override val json: String, val types: Set<MaterialType>) : 
 ```
 
 - `grants`: どのチャンネル提供者に使わせるか。`"*"`（誰でも）か、アカウントIDの一覧（ADR-002 D-9）。素材提供者が署名するので、自己申告ではなくなる
-- `grants.grounding`: AI の根拠に使ってよいか（API-004 I-13。書かなければ使わない）。AI が言い換えて話すことを、素材提供者が前もって選べるようにしてある。リストにも同じ値が写り、アプリはパッケージと一致するかを確かめる
+- `grants.grounding`: AI の根拠に使ってよいか（API-MATERIALS I-13。書かなければ使わない）。AI が言い換えて話すことを、素材提供者が前もって選べるようにしてある。リストにも同じ値が写り、アプリはパッケージと一致するかを確かめる
 - `about`: 何についての素材か。チャンネルは素材の ID で選ぶほかに、「きっかけのスポットについての素材があれば」と題材で選べる
 - `tags`: 何の話か（`history`・`faith`・`nature` など決まった一覧）。基準で選ぶとき（下で見ます）に使う
 
@@ -269,7 +269,7 @@ enum class PresentAs(override val json: String, val types: Set<MaterialType>) : 
 
 ### 使えるかどうかは、リストで決まる
 
-宣言した素材集が使えるかは、`CollectionReferences.resolve`（[CollectionReferences.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/CollectionReferences.kt)）がリストと照らして決めます（API-004 確かめる手順 3・4）。
+宣言した素材集が使えるかは、`CollectionReferences.resolve`（[CollectionReferences.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/CollectionReferences.kt)）がリストと照らして決めます（API-MATERIALS 確かめる手順 3・4）。
 
 ```kotlin
 sealed interface CollectionStatus {
@@ -292,7 +292,7 @@ sealed interface CollectionStatus {
 
 ## 基準で選ぶ: 地域だけを伝える
 
-チャンネルは、素材集を名指しする代わりに **基準**（`selectors`）を書くこともできます（API-004「基準で選ぶ素材提供者」）。
+チャンネルは、素材集を名指しする代わりに **基準**（`selectors`）を書くこともできます（API-MATERIALS「基準で選ぶ素材提供者」）。
 
 ```json
 "selectors": [
@@ -303,7 +303,7 @@ sealed interface CollectionStatus {
 
 「歴史か信仰の話の、3 分以内の音声」に合う素材を、リストに載っていて使ってよいすべての素材集から集めます。組み合わせる相手は、題材を問わないきっかけ（「寺社に近づいたら」）です。
 
-ここで問題になるのが取得の時期です。日本中の素材集を前もって全部取るわけにはいきません。かといって、スポットに近づいてから取りに行けば、散策者の居場所が伝わります。そこで、**今いる大まかな地域とその周り** の素材集だけを、Wi-Fi のときに取ります（API-004 P-6）。
+ここで問題になるのが取得の時期です。日本中の素材集を前もって全部取るわけにはいきません。かといって、スポットに近づいてから取りに行けば、散策者の居場所が伝わります。そこで、**今いる大まかな地域とその周り** の素材集だけを、Wi-Fi のときに取ります（API-MATERIALS P-6）。
 
 地域は **ジオハッシュ** の 3 文字で表します（[技術カード: ジオハッシュ](../ref/geohash.md)）。3 文字で約 150km 四方です。[Regions.kt](https://github.com/duwenji/yorisoi-platform/blob/main/core-format/src/main/kotlin/io/github/duwenji/yorisoi/core/format/material/Regions.kt) の `around` は、今いるマスと周りの 8 マスを返します。
 
@@ -315,7 +315,7 @@ sealed interface CollectionStatus {
 
 ## 段階: アプリが出せるものだけ
 
-アプリは素材の種類を段階的に増やしています（API-003 M-1）。
+アプリは素材の種類を段階的に増やしています（API-CHANNEL-PACKAGE M-1）。
 
 | 段 | 出せるもの | 散策ガイド | CycleGuide |
 |---|---|---|---|
@@ -428,7 +428,7 @@ git status
 <details>
 <summary>問 1. 素材提供者が、自分の素材集を「見せるときにサーバーから取る」形（<code>fetch=onDemand</code>）にしたいと言ってきました。認められますか。理由も答えてください。</summary>
 
-認められません（API-004 方針 P-1、ADR-002 D-5）。見せるときに取りに行くと、そのとき散策者がどこにいるか（どのスポットの近くか）が素材提供者のサーバーに伝わります。また、中身が審査したときと変わってしまうかもしれません。第三者の素材は、チャンネルを選んだときに前もって全部取り、SHA-256 で審査どおりかを確かめてから使います。
+認められません（API-MATERIALS 方針 P-1、ADR-002 D-5）。見せるときに取りに行くと、そのとき散策者がどこにいるか（どのスポットの近くか）が素材提供者のサーバーに伝わります。また、中身が審査したときと変わってしまうかもしれません。第三者の素材は、チャンネルを選んだときに前もって全部取り、SHA-256 で審査どおりかを確かめてから使います。
 
 </details>
 

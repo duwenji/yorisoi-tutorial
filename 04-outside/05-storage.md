@@ -214,7 +214,7 @@ internal object WalkJson {
 - 必ずある項目は `get…` で読む。なければ壊れたデータなので例外になり、[前の節](#読めなかったら空から始める)のとおり空から始める
 - 値がないこともある項目（`remark`。AI が何も言わなかったとき）は、null を書き、`isNull` で確かめる（[4-1](01-http-json.md) の `get…` と `opt…` の使い分け）
 
-公開したあとで項目を **足す** ときは、前の版が保存した記録にはその項目がありません。そのときは、足した項目を `opt…` や `has` で読み、なければ空や null として扱います。第 6 部の API-002 の「知らない項目は無視する。項目の追加は互換性のある変更」と同じ考え方を、端末の中のデータにも当てはめます。
+公開したあとで項目を **足す** ときは、前の版が保存した記録にはその項目がありません。そのときは、足した項目を `opt…` や `has` で読み、なければ空や null として扱います。第 6 部の API-CHANNEL-LIST の「知らない項目は無視する。項目の追加は互換性のある変更」と同じ考え方を、端末の中のデータにも当てはめます。
 
 テスト（[WalkJsonTest.kt](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/src/test/java/io/github/duwenji/yorisoi/sanpoguide/history/WalkJsonTest.kt)）は、書いて読み直すと同じものに戻ることを確かめています。
 

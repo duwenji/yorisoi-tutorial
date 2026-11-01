@@ -68,7 +68,7 @@ Tink の `verify` は、合わないときに例外を投げます。それを `
 
 ## 確かめる順番
 
-アプリは、[platform API-CHANNEL-LIST（旧 API-002）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md) の「呼び出しシーケンス」のとおりに確かめます。
+アプリは、[platform API-CHANNEL-LIST](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md) の「呼び出しシーケンス」のとおりに確かめます。
 
 ```mermaid
 flowchart TB
@@ -91,7 +91,7 @@ flowchart TB
     L --> P["3. パッケージ（選ばれたときだけ）<br/>大きさと SHA-256 → 中身とチャンネル提供者の署名"]
 ```
 
-どこかで合わなければ、その段階のエラーコードで止まります。エラーコードは API-002 の「エラー表」のとおりで、Kotlin では `ProviderError` という `enum` になっています。
+どこかで合わなければ、その段階のエラーコードで止まります。エラーコードは API-CHANNEL-LIST の「エラー表」のとおりで、Kotlin では `ProviderError` という `enum` になっています。
 
 ### 検出の文書
 
@@ -135,7 +135,7 @@ for (field in listOf("provider", "seq", "issuedAt", "expiresAt")) {
 }
 ```
 
-本体のハッシュが要約と合うことを確かめたあと、さらに `provider`・`seq`・`issuedAt`・`expiresAt` が **要約と本体で一致する** ことを確かめています。ハッシュが合っていれば本体は要約を作ったときのままなので、理屈の上では二重の確認です。それでも確かめるのは、要約を作る側の誤り（本体と違う値を要約に書いた）も見逃さないためです（API-002 V-17）。
+本体のハッシュが要約と合うことを確かめたあと、さらに `provider`・`seq`・`issuedAt`・`expiresAt` が **要約と本体で一致する** ことを確かめています。ハッシュが合っていれば本体は要約を作ったときのままなので、理屈の上では二重の確認です。それでも確かめるのは、要約を作る側の誤り（本体と違う値を要約に書いた）も見逃さないためです（API-CHANNEL-LIST V-17）。
 
 ## 巻き戻しと期限
 
@@ -195,7 +195,7 @@ fun refresh(providerId: String, unmetered: Boolean) {
 - 確かめに **成功したときだけ**、新しい文書を保存し、`seq` とハッシュを更新する
 - 失敗したら、エラーの理由だけを記録する（設定画面のリストの欄に出る）。**保存してある前回の文書には手を付けない**
 
-だから、通信に失敗しても、偽のリストを配られても、アプリは前回の正しいリストで動き続けます（API-002「確認に失敗したとき」）。前回のリストも期限が切れたら、そのリストのチャンネルは次の散歩から使いません。
+だから、通信に失敗しても、偽のリストを配られても、アプリは前回の正しいリストで動き続けます（API-CHANNEL-LIST「確認に失敗したとき」）。前回のリストも期限が切れたら、そのリストのチャンネルは次の散歩から使いません。
 
 取得するのは、アプリの起動時と散歩の開始時に、前回から 24 時間以上たっているときだけです（`refreshDue`）。散歩の途中では取得しません。
 
@@ -238,14 +238,14 @@ fetchMaterials(providerId, list, check.station, entry.publisher, unmetered)
 
 1. **大きさの上限つきで取得する**: リストに書かれた大きさ（と 2MB）を超えたら途中で打ち切る。巨大なファイルで端末を埋められないように
 2. **大きさと SHA-256 をリストと比べる**: [6-1](01-why-signatures.md) の「署名つきのリストのハッシュがパッケージを守る」がここです
-3. **中身を確かめる**（`StationValidator.checkArchive`）: パッケージの形式（API-003）と、**チャンネル提供者の署名**。`mediaStage` はこのアプリが出せる素材の段、`Strictness.APP` はアプリとしての読み方（[5-2](../05-station-format/02-package-format.md)）。`ListedAs` にはリストに載った `activities`・`genres`・`requires` も入っていて、パッケージの値と一致するかも確かめる（API-002 P-19）
+3. **中身を確かめる**（`StationValidator.checkArchive`）: パッケージの形式（API-CHANNEL-PACKAGE）と、**チャンネル提供者の署名**。`mediaStage` はこのアプリが出せる素材の段、`Strictness.APP` はアプリとしての読み方（[5-2](../05-station-format/02-package-format.md)）。`ListedAs` にはリストに載った `activities`・`genres`・`requires` も入っていて、パッケージの値と一致するかも確かめる（API-CHANNEL-LIST P-19）
 4. **このアプリで使えるかを、パッケージの値でもう一度判定する**（`Compatibility.reasons`、[5-2](../05-station-format/02-package-format.md)）: リストの値では分からない、知らない制限の項目があるかもしれないため
 5. **確かめてから保存する**（`store.writePackage`）
-6. **素材を前もって取る**（`fetchMaterials`）: チャンネルが使う素材集や外の素材を、選んだときにまとめて取る。散歩の途中でスポットに近づいてから取りに行くと、どこにいるかが相手に伝わってしまうからです（API-003 F-10）。基準（`selectors`）で今いる地域の素材集を集める分だけは、Wi-Fi のとき（`unmetered`）に限って取ります
+6. **素材を前もって取る**（`fetchMaterials`）: チャンネルが使う素材集や外の素材を、選んだときにまとめて取る。散歩の途中でスポットに近づいてから取りに行くと、どこにいるかが相手に伝わってしまうからです（API-CHANNEL-PACKAGE F-10）。基準（`selectors`）で今いる地域の素材集を集める分だけは、Wi-Fi のとき（`unmetered`）に限って取ります
 
 ### チャンネル提供者の署名
 
-パッケージには、それを作った **チャンネル提供者の署名**（`signature.json`）も付いています（API-003 F-6）。チャンネル提供者は自分の秘密鍵で、パッケージの `signature.json` 以外のすべてのファイルの SHA-256 の一覧に署名します（これも [6-3](03-signed-documents.md) と同じ `payload`・`sig` の形で、`type` は `channel-package`）。`StationValidator` は、
+パッケージには、それを作った **チャンネル提供者の署名**（`signature.json`）も付いています（API-CHANNEL-PACKAGE F-6）。チャンネル提供者は自分の秘密鍵で、パッケージの `signature.json` 以外のすべてのファイルの SHA-256 の一覧に署名します（これも [6-3](03-signed-documents.md) と同じ `payload`・`sig` の形で、`type` は `channel-package`）。`StationValidator` は、
 
 - 署名を、パッケージに入っているチャンネル提供者の公開鍵で確かめる
 - 一覧に載ったファイルと実際のファイルが過不足なく一致し、それぞれの SHA-256 が合う
@@ -253,11 +253,11 @@ fetchMaterials(providerId, list, check.station, entry.publisher, unmetered)
 
 ことを確かめます。運営の署名が「審査に通った」ことを、チャンネル提供者の署名が「だれが作ったか」を示す、という役割分担です。チャンネル提供者の鍵の作り方（ブラウザの中で作る）は [9-3](../09-console/03-keys-in-browser.md) で扱います。
 
-`download` の冒頭には、チャンネル提供者が変わったときの確認もあります。端末にある版と新しい版でチャンネル提供者が違うとき、リストに運営が付けた `publisherChange`（鍵の移し替えの記録）がなければ、新しい版を使いません（`publisher_changed`、API-002 P-9）。
+`download` の冒頭には、チャンネル提供者が変わったときの確認もあります。端末にある版と新しい版でチャンネル提供者が違うとき、リストに運営が付けた `publisherChange`（鍵の移し替えの記録）がなければ、新しい版を使いません（`publisher_changed`、API-CHANNEL-LIST P-9）。
 
 ### 素材集も同じ形で確かめる
 
-リストには、チャンネルのほかに **素材集**（`collections`、API-002）も載っています。`ProviderDocuments` は、それを `ListedCollection` として読みます（素材集の ID・版・素材提供者・使ってよいチャンネル提供者 `grants`・パッケージの URL と SHA-256 など）。素材集のパッケージを取るときも、チャンネルとまったく同じ順で確かめます（`ChannelSync.fetchCollection`）。
+リストには、チャンネルのほかに **素材集**（`collections`、API-CHANNEL-LIST）も載っています。`ProviderDocuments` は、それを `ListedCollection` として読みます（素材集の ID・版・素材提供者・使ってよいチャンネル提供者 `grants`・パッケージの URL と SHA-256 など）。素材集のパッケージを取るときも、チャンネルとまったく同じ順で確かめます（`ChannelSync.fetchCollection`）。
 
 ```kotlin
 val bytes = http.get(checkedUrl(listed.pkg.url), minOf(listed.pkg.size, ProviderDocuments.MAX_PACKAGE_BYTES))

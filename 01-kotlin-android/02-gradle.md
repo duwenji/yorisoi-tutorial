@@ -35,7 +35,7 @@ yorisoi-platform/
 
 ファイル名が `.kts` で終わるのは、設定を **Kotlin で書いている**（Kotlin DSL）からです。1-1 の文法がそのまま使えます。
 
-> 共通の部品（コアとキット）は、付き添いアプリのエコシステム（[platform ADR-ECOSYSTEM-PLATFORM（旧 ADR-003）](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-ECOSYSTEM-PLATFORM.md)）のために、別のリポジトリ yorisoi-platform にあります（[5-1](../05-station-format/01-jvm-library.md)）。
+> 共通の部品（コアとキット）は、付き添いアプリのエコシステム（[platform ADR-ECOSYSTEM-PLATFORM](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-ECOSYSTEM-PLATFORM.md)）のために、別のリポジトリ yorisoi-platform にあります（[5-1](../05-station-format/01-jvm-library.md)）。
 
 ## settings.gradle.kts: 全体の地図
 

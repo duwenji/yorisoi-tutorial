@@ -52,7 +52,7 @@ override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
             this, NOTIFICATION_ID, walkingNotification("いってらっしゃい。近くに来たらお知らせします"),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION,
         )
-        // Lists are fetched when a walk starts if a day has passed, never during it (API-002 取得の時期).
+        // Lists are fetched when a walk starts if a day has passed, never during it (API-CHANNEL-LIST 取得の時期).
         app.channels.refreshIfDue()
         val s = WalkSession()
         s.startStation(app.stations.current.value.key)
@@ -74,7 +74,7 @@ override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 始めるときに起きること:
 
 1. **すぐに `startForeground`**: 決められた時間内に通知を出さないと、OS にアプリを止められます（[1-3](../01-kotlin-android/03-android-components.md)）
-2. **第三者のチャンネルのリストを取りに行く**（前回から 24 時間たっていれば）: API-002 で「散歩の開始時に取る、散歩中は取らない」と決めたとおりです（[6-5](../06-trust/05-verify-in-app.md)）
+2. **第三者のチャンネルのリストを取りに行く**（前回から 24 時間たっていれば）: API-CHANNEL-LIST で「散歩の開始時に取る、散歩中は取らない」と決めたとおりです（[6-5](../06-trust/05-verify-in-app.md)）
 3. **散歩の状態（`WalkSession`）を作る**: 距離・訪れたスポット・話した内容など、この散歩のあいだの状態を持ちます（3-3）
 4. **4 つの仕事を始める**: どれも `lifecycleScope` のコルーチンなので（[3-1](01-coroutines.md)）、散策を終えると一緒に止まります
 

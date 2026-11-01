@@ -79,7 +79,7 @@ lifecycleRules: [
 
 | 場所 | 消すまで | 理由 |
 |---|---|---|
-| 公開用の `trial/` | 7 日 | 試用チケットの期限が 7 日（API-002） |
+| 公開用の `trial/` | 7 日 | 試用チケットの期限が 7 日（API-CHANNEL-LIST） |
 | 受付用の `archive/` | 90 日 | 承認されなかったパッケージは、結果が出てから 90 日残す（DM-001 M-4） |
 | 受付用の `intake/` | 30 日 | 上げたまま結果が出なかったもの |
 | 受付用の `archive-col/`・`intake-col/` | 90 日・30 日 | 素材集の申請。チャンネルと同じ決まりで、場所だけ分ける（素材集の ID はチャンネルの ID と同じでもよいので、混ざらないように） |
@@ -158,7 +158,7 @@ const distribution = new cloudfront.Distribution(this, 'PublicDistribution', {
 ```
 
 - **OAC**（Origin Access Control）: このバケットを読めるのは **この CloudFront だけ**、とバケットの許可（バケットポリシー）に書く。バケット自体は公開しないまま、CloudFront を通してだけ配れる
-- `HTTPS_ONLY`: 暗号化されていない HTTP では受け付けない（API-002 は HTTPS を求める）
+- `HTTPS_ONLY`: 暗号化されていない HTTP では受け付けない（API-CHANNEL-LIST は HTTPS を求める）
 - `ALLOW_GET_HEAD`: 読むことだけ。書き込みの要求は受け付けない
 
 第 6 部で見たとおり、アプリは CloudFront も S3 も信用しません。署名とハッシュで確かめます。それでも、置き場所を固く守るのは、**守りを重ねる** ためです。

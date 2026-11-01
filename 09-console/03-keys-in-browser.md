@@ -234,7 +234,7 @@ await upload(data.uploads.package, new Blob([new Uint8Array(signed.zip)], { type
 素材提供者が素材集に署名するときも、同じ鍵とほぼ同じ処理です（`signCollectionPackage`）。違いは「何の」「だれの」を表す項目の名前だけなので、[publisher-crypto.ts](https://github.com/duwenji/yorisoi-console/blob/main/web/src/publisher-crypto.ts) は違いを 1 つの値にまとめて、共通の関数（`signAs`）に渡しています。
 
 ```ts
-/** A channel package (API-003 F-6). */
+/** A channel package (API-CHANNEL-PACKAGE F-6). */
 export async function signPackage(zip: Uint8Array, key: PublisherKey, expect: { channel: string }): Promise<SignedPackage> {
   const signed = await signAs(
     { manifest: 'channel.json', type: 'channel-package', subjectKey: 'channel', ownerKey: 'publisher', what: 'チャンネル' },

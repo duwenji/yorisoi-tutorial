@@ -92,7 +92,7 @@ object TinkEd25519 : Ed25519Verifier {
 
 ### なぜ高水準の API ではなく subtle を使うのか
 
-Tink は高水準の API（キーセットとプリミティブ）を勧めています。それでも散策ガイドが subtle の `Ed25519Verify` を使うのは、**公開鍵が Tink のキーセットではなく、API-002 の文書に入った生の 32 バイトで届く** からです。運営の公開鍵は、Node.js や AWS KMS が作ったもので、Tink の形式ではありません。生の鍵をそのまま受け取れる subtle が、いちばん素直に合います。
+Tink は高水準の API（キーセットとプリミティブ）を勧めています。それでも散策ガイドが subtle の `Ed25519Verify` を使うのは、**公開鍵が Tink のキーセットではなく、API-CHANNEL-LIST の文書に入った生の 32 バイトで届く** からです。運営の公開鍵は、Node.js や AWS KMS が作ったもので、Tink の形式ではありません。生の鍵をそのまま受け取れる subtle が、いちばん素直に合います。
 
 ## よくある間違い
 
@@ -101,7 +101,7 @@ Tink は高水準の API（キーセットとプリミティブ）を勧めて�
 | `verify` が `false` を返すと思い、戻り値を見る | 戻り値がない（`Unit`/`void`）ので、合わないことに気づけないコードを書いてしまう | 例外を受け止める。合わないときは `GeneralSecurityException` |
 | `GeneralSecurityException` だけを受け止める | 長さのおかしい公開鍵で `IllegalArgumentException` が漏れ、アプリが落ちる | `IllegalArgumentException` も受け止める |
 | `verify(message, signature)` と引数を逆に渡す | 署名がいつまでも合わない | `verify(signature, message)` の順。Node.js（`verify(null, message, key, signature)`）や Java 標準とは並びが違う |
-| Tink の「キーセット（Keyset）」と、API-002 の「鍵セット（keyset）」を同じものだと思う | 名前が似ているだけで、まったく別物 | Tink のキーセットは Tink が鍵を管理する形式。API-002 の鍵セットは、ルート鍵が署名した署名鍵の一覧（[6-4](../06-trust/04-two-tier-keys.md)） |
+| Tink の「キーセット（Keyset）」と、API-CHANNEL-LIST の「鍵セット（keyset）」を同じものだと思う | 名前が似ているだけで、まったく別物 | Tink のキーセットは Tink が鍵を管理する形式。API-CHANNEL-LIST の鍵セットは、ルート鍵が署名した署名鍵の一覧（[6-4](../06-trust/04-two-tier-keys.md)） |
 | 普通の JVM のプロジェクトに `tink-android` を入れる（逆も） | 余計な依存が入る、または Android で動かない | Android は `tink-android`、それ以外は `tink` |
 
 ## 版と公式ドキュメント

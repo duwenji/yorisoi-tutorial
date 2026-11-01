@@ -300,7 +300,7 @@ cd ../yorisoi-platform
 - a new publisher is taken only with publisherChange from the one on the device（チャンネル提供者の変更は、裏付けがあるときだけ受け入れる）
 - …
 
-第 6 部の API-002 で決めた振る舞いが、そのまま並んでいます。どれも、通信と時計を代役にしたから試せるものです。
+第 6 部の API-CHANNEL-LIST で決めた振る舞いが、そのまま並んでいます。どれも、通信と時計を代役にしたから試せるものです。
 
 ### 3. 時計の進め方を変えてみる
 
