@@ -26,7 +26,7 @@
 
 ## 全体の流れ
 
-[yorisoi-sanpoguide/docs/architecture.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/architecture.md) の図 2 にも同じ流れが描かれています。
+[yorisoi-sanpoguide/docs/design/architecture.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/design/architecture.md) の図 2 にも同じ流れが描かれています。
 
 ```mermaid
 flowchart TB

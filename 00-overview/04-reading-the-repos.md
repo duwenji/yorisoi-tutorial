@@ -51,7 +51,7 @@ yorisoi-platform/                エコシステム共通の方針・契約と�
 
 パッケージ（フォルダ）は **機能ごと** に分かれています。「画面・ロジック・データ」のような層ごとではありません。たとえば話しかけに関わるものは `companion/` に集まっています。何かを探すときは、まず機能の名前でフォルダを探してください。
 
-全体の図は [yorisoi-sanpoguide/docs/architecture.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/architecture.md) にあります。
+全体の図は [yorisoi-sanpoguide/docs/design/architecture.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/design/architecture.md) にあります。
 
 ## yorisoi-console のフォルダ
 
@@ -78,7 +78,7 @@ yorisoi-console/
 
 こちらは **パッケージ（npm workspace）ごと** に分かれています。`packages/protocol` はほかの多くのパッケージから使われる共通部品です。
 
-全体の図は [yorisoi-console/docs/architecture.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) にあります。
+全体の図は [yorisoi-console/docs/design/architecture.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/architecture.md) にあります。
 
 ## 文書の読み方
 
@@ -118,9 +118,9 @@ yorisoi-console/
 | platform ECOSYSTEM | エコシステムの共通基盤の決まり | [ECOSYSTEM](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/yorisoi-ecosystem.md) |
 | platform 関係者と共通用語 | 散策者・チャンネル提供者・素材提供者・運営、リスト | [関係者と共通用語](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/roles-and-vocabulary.md) |
 | platform の審査方針 | チャンネルの確認・承認・取り下げ | [チャンネル審査方針](https://github.com/duwenji/yorisoi-platform/blob/main/docs/policies/channel-review.md) |
-| console ARCH-001 | AWS の構成と、その決まり | [console ARCH-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) |
-| console API-001 | 管理 API | [yorisoi-console/docs/console-api.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/console-api.md) |
-| console DM-001 | データモデル | [console DM-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/data-model.md) |
+| console ARCH-001 | AWS の構成と、その決まり | [console ARCH-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/architecture.md) |
+| console API-001 | 管理 API | [yorisoi-console/docs/contracts/console-api.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/contracts/console-api.md) |
+| console DM-001 | データモデル | [console DM-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/data-model.md) |
 | console 文書一覧 | console の設計・ガイド・運用文書 | [console docs/README.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/README.md) |
 
 **番号はリポジトリごとに付けている** ので注意してください。たとえば console の `API-001` は管理 API で、platform の契約は `API-SECRET-MESSAGES` のように主題の名前で呼びます。platform 文書は canonical ID、console 文書は `console` を添えて呼びます。一覧は [platform ADR 一覧](https://github.com/duwenji/yorisoi-platform/blob/main/docs/README.md)、[platform API 契約一覧](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/README.md)、[console 文書一覧](https://github.com/duwenji/yorisoi-console/blob/main/docs/README.md)を参照してください。

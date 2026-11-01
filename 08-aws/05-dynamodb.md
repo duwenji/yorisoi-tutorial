@@ -35,7 +35,7 @@ SQL のように、あとから「この条件で探して」とは言えませ�
 
 ## 読み方を先に決める: アクセスパターン
 
-管理システムのデータの設計は、[DM-001（data-model.md）](https://github.com/duwenji/yorisoi-console/blob/main/docs/data-model.md) に書かれています。その中心が **アクセスパターン**（だれが、何を、どう読むか）の一覧です。
+管理システムのデータの設計は、[DM-001（data-model.md）](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/data-model.md) に書かれています。その中心が **アクセスパターン**（だれが、何を、どう読むか）の一覧です。
 
 | No. | だれが | 何をする | 使うキー |
 |---|---|---|---|

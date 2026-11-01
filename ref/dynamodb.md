@@ -71,7 +71,7 @@ await db.send(new UpdateCommand({
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [docs/data-model.md（DM-001）](https://github.com/duwenji/yorisoi-console/blob/main/docs/data-model.md) | 22 のアクセスパターンから決めた、1 テーブルのキーの付け方 | [8-5](../08-aws/05-dynamodb.md) |
+| [docs/data-model.md（DM-001）](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/data-model.md) | 22 のアクセスパターンから決めた、1 テーブルのキーの付け方 | [8-5](../08-aws/05-dynamodb.md) |
 | [api/src/console/operator.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/console/operator.ts) | `rev` の条件つき書き込みと、操作の記録を含むトランザクション | [8-5](../08-aws/05-dynamodb.md) |
 | [api/src/console/publisher.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/console/publisher.ts) | 1 日の上限を条件つきの `ADD` で数え、TTL で消す | [8-5](../08-aws/05-dynamodb.md) |
 | [api/src/console/util.ts](https://github.com/duwenji/yorisoi-console/blob/main/api/src/console/util.ts) | ULID（作った順に並ぶ ID）、暗号化したカーソル | [8-5](../08-aws/05-dynamodb.md) |

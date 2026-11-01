@@ -24,7 +24,7 @@
 | データ セーフティの答えを CSV で置き換える | 価格・公開する国・テスターのリスト |
 | 審査に出す、配布を止める | 段階的な公開の割合 |
 
-いちばんの利点は、**文書が正本になる** ことです。説明文は [play-console.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/play-console.md) のコードブロックから、スクリーンショットは `store/screenshots/` から読んで送ります。画面に直接書き込まないので、「文書とストアの説明が違う」が起きません（[10-3](03-console.md)）。
+いちばんの利点は、**文書が正本になる** ことです。説明文は [play-console.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/play-console.md) のコードブロックから、スクリーンショットは `store/screenshots/` から読んで送ります。画面に直接書き込まないので、「文書とストアの説明が違う」が起きません（[10-3](03-console.md)）。
 
 CycleGuide も、アプリの名前だけを変えた同じ `play.mjs` を使っています。
 
@@ -34,7 +34,7 @@ API を呼ぶには、だれが呼んでいるかを Google に名乗る必要�
 
 ### 認証と認可を、別の場所で
 
-[play-api.md の「しくみ」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/play-api.md#しくみ)に、分担がまとめてあります。
+[play-api.md の「しくみ」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/play-api.md#しくみ)に、分担がまとめてあります。
 
 | 受け持つこと | 場所 | 中身 |
 |---|---|---|
@@ -146,7 +146,7 @@ node tools/play.mjs data-safety docs/play-data-safety.csv
 - `--halt` は、配布中のリリースを止める。Play は一つ前のリリースを配り直す
 - トラックは既定で内部テスト。API で出したリリースは段階的な公開にならず、トラックの全員に出る
 
-うまくいかないときの表は、[play-api.md の「うまくいかないとき」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/play-api.md#うまくいかないとき)にあります。招待の直後は、権限が届くまで数時間かかることがある、PC の時刻がずれていると名乗りに失敗する（JWT の `iat`・`exp` が合わない）、などです。
+うまくいかないときの表は、[play-api.md の「うまくいかないとき」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/play-api.md#うまくいかないとき)にあります。招待の直後は、権限が届くまで数時間かかることがある、PC の時刻がずれていると名乗りに失敗する（JWT の `iat`・`exp` が合わない）、などです。
 
 ## ハンズオン: 名乗り方を手で確かめる
 

@@ -29,13 +29,13 @@ export const ifMatch = (rev: number) => ({ 'If-Match': `"${rev}"` });
 
 | 種類 | 文書 | 答える問い |
 |---|---|---|
-| 構成の決まり | [console ARCH-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) の「決まり」 | 何を決めたか。どうなったら見直すか |
-| API 契約書 | [console API-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/console-api.md) ＋ [OpenAPI](https://github.com/duwenji/yorisoi-console/blob/main/docs/api/console.openapi.yaml) | 画面と API の間で、何をどんな形でやりとりするか（[7-3](../07-typescript/03-openapi.md)） |
-| データモデル | [console DM-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/data-model.md) | 何をどんなキーで保存し、どう取り出すか（[8-5](../08-aws/05-dynamodb.md)） |
+| 構成の決まり | [console ARCH-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/architecture.md) の「決まり」 | 何を決めたか。どうなったら見直すか |
+| API 契約書 | [console API-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/contracts/console-api.md) ＋ [OpenAPI](https://github.com/duwenji/yorisoi-console/blob/main/docs/contracts/api/console.openapi.yaml) | 画面と API の間で、何をどんな形でやりとりするか（[7-3](../07-typescript/03-openapi.md)） |
+| データモデル | [console DM-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/data-model.md) | 何をどんなキーで保存し、どう取り出すか（[8-5](../08-aws/05-dynamodb.md)） |
 | 機能設計書 | [DES-001〜010](https://github.com/duwenji/yorisoi-console/tree/main/docs/design) | 実装の 1 段ごとに、どう作り、どう確かめたか（DES-007〜010 は素材集） |
-| 利用ガイド | [guide/](https://github.com/duwenji/yorisoi-console/blob/main/docs/guide/README.md) | 運営・チャンネル提供者・素材提供者・保守する人は、どう使うか |
+| 利用ガイド | [guide/](https://github.com/duwenji/yorisoi-console/blob/main/docs/manual/README.md) | 運営・チャンネル提供者・素材提供者・保守する人は、どう使うか |
 | 運用の手順 | [operations/](https://github.com/duwenji/yorisoi-console/tree/main/docs/operations) | 配備の手順（[deploy.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/deploy.md)）、費用（[cost.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/cost.md)） |
-| 構成図 | [architecture.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) | 全体がどうつながっているか |
+| 構成図 | [architecture.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/architecture.md) | 全体がどうつながっているか |
 | TODO | [console TODO](https://github.com/duwenji/yorisoi-console/blob/main/docs/TODO.md) | 残っている作業 |
 
 SanpoGuide 固有の説明は [yorisoi-sanpoguide の文書](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/README.md) にあります。アプリと管理システムの共有契約（[platform API-CHANNEL-LIST](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md)・[API-CHANNEL-PACKAGE](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-PACKAGE.md)・[API-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-MATERIALS.md)）と、素材提供者の役割を定める [platform MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/materials.md) は platform にあります。関係者の呼び方も [platform の共通用語](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/roles-and-vocabulary.md) が正本です。
@@ -71,7 +71,7 @@ flowchart TB
 
 ## 決まり: 何を決めたか
 
-決めたことは、正本の文書の **「決まり」** の節に、1 行ずつ ID を付けて書きます。管理システムの構成の決まりは [console ARCH-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md)（構成図と同じ文書）の後半にあります。
+決めたことは、正本の文書の **「決まり」** の節に、1 行ずつ ID を付けて書きます。管理システムの構成の決まりは [console ARCH-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/architecture.md)（構成図と同じ文書）の後半にあります。
 
 | 節 | 中身 |
 |---|---|
@@ -118,7 +118,7 @@ flowchart LR
     AI --> T["web/test/ai.test.ts<br/>決めた窓口とキーで呼ぶか"]
 ```
 
-- [console ARCH-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) の D-4 と A-14 が決める
+- [console ARCH-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/architecture.md) の D-4 と A-14 が決める
 - [DES-005](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/DES-005-review.md) の「対応元ID（トレーサビリティ）」の表が、`ARCH-001 … D-4（AI の見本は運営のキーでブラウザから） | 実装` と、応えたことを記録する
 - [web/src/ai.ts](https://github.com/duwenji/yorisoi-console/blob/main/web/src/ai.ts) の先頭のコメント `The review samples' AI (ARCH-001 D-4, DES-005)` が、どの決定を実装したかを示す
 - [infra/lib/console-app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/console-app.ts) の CSP にも同じ ID のコメント

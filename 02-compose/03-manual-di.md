@@ -240,7 +240,7 @@ flowchart TB
 
 Android では、部品をつなぐ仕事を自動でやってくれる DI のライブラリ（Google の **Hilt**、Kotlin 向けの **Koin** など）がよく使われます。部品に「これが必要」と印を付けておくと、ライブラリが順番を考えて作り、渡してくれます。
 
-散策ガイドはこれを使っていません（[architecture.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/architecture.md) の図 1: 「DI ライブラリは使っていない」）。
+散策ガイドはこれを使っていません（[architecture.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/design/architecture.md) の図 1: 「DI ライブラリは使っていない」）。
 
 ## この構成の良いところと限界
 
