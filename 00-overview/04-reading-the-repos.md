@@ -88,7 +88,7 @@ yorisoi-console/
 |---|---|---|
 | README.md | 何のためのリポジトリか、使い方 | 最初に |
 | architecture.md | 部品の構成を図で | 全体をつかみたいとき |
-| 方針・決まり（platform `docs/overview/`、console `architecture.md` の「決まり」） | 決めたことを 1 行ずつ ID 付きで。比べた案は、検討中の ADR（`docs/decisions/`）と git の履歴に残る | 「なぜこうなっているのか」と思ったとき |
+| 方針・決まり（platform `docs/overview/`、console `docs/design/architecture.md` の「決まり」） | 決めたことを 1 行ずつ ID 付きで。比べた案は、検討中の ADR（`docs/decisions/`）と git の履歴に残る | 「なぜこうなっているのか」と思ったとき |
 | API 契約書 | システムの間でやりとりするデータの形と約束 | 境界のコードを読むとき |
 | データモデル（DM） | 何をどう保存するか | データベースのコードを読むとき |
 | 設計書（DES） | 実装の細部 | 特定の機能を深く読むとき |

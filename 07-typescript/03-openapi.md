@@ -19,7 +19,7 @@
 
 ```mermaid
 flowchart LR
-    DOC["API-001<br/>docs/console-api.md<br/>（人が読む契約書・正本）"] --> OAS["docs/api/console.openapi.yaml<br/>（機械が読める形）"]
+    DOC["API-001<br/>docs/contracts/console-api.md<br/>（人が読む契約書・正本）"] --> OAS["docs/contracts/api/console.openapi.yaml<br/>（機械が読める形）"]
     OAS -->|"openapi-typescript<br/>npm run generate"| TYPES["packages/api-types<br/>src/schema.ts<br/>（TypeScript の型）"]
     TYPES --> API["api（サーバー）<br/>ProblemCode など"]
     TYPES --> WEB["web（画面）<br/>openapi-fetch"]
@@ -98,9 +98,9 @@ RevokeInput:
 ```json
 {
   "name": "@yorisoi-console/api-types",
-  "description": "Types generated from docs/api/console.openapi.yaml (API-001); regenerate with npm run generate",
+  "description": "Types generated from docs/contracts/api/console.openapi.yaml (API-001); regenerate with npm run generate",
   "scripts": {
-    "generate": "openapi-typescript ../../docs/api/console.openapi.yaml -o src/schema.ts"
+    "generate": "openapi-typescript ../../docs/contracts/api/console.openapi.yaml -o src/schema.ts"
   }
 }
 ```
@@ -346,7 +346,7 @@ OpenAPI の `RevokeInput` で `severity` が必須（`required`）だからで�
 
 ### 3. 契約にエラーコードを足す
 
-[docs/api/console.openapi.yaml](https://github.com/duwenji/yorisoi-console/blob/main/docs/contracts/api/console.openapi.yaml) の `Problem` の `code` の `enum` に、`- throttled` の次の行として `- maintenance` を足します（字下げを周りとそろえる）。そして型を作り直し、型を確かめます。
+[docs/contracts/api/console.openapi.yaml](https://github.com/duwenji/yorisoi-console/blob/main/docs/contracts/api/console.openapi.yaml) の `Problem` の `code` の `enum` に、`- throttled` の次の行として `- maintenance` を足します（字下げを周りとそろえる）。そして型を作り直し、型を確かめます。
 
 ```sh
 npm run generate -w packages/api-types
@@ -355,7 +355,7 @@ npx tsc -b
 
 ```
 ✨ openapi-typescript 7.13.0
-🚀 ../../docs/api/console.openapi.yaml → src/schema.ts [76ms]
+🚀 ../../docs/contracts/api/console.openapi.yaml → src/schema.ts [76ms]
 api/src/console/http.ts(26,7): error TS2741: Property 'maintenance' is missing in type '{ invalid_request: number; … }' but required in type 'Record<…, number>'.
 ```
 
@@ -364,7 +364,7 @@ api/src/console/http.ts(26,7): error TS2741: Property 'maintenance' is missing i
 確かめたら、OpenAPI と生成した型の両方を元に戻します。
 
 ```sh
-git checkout -- docs/api/console.openapi.yaml packages/api-types/src/schema.ts
+git checkout -- docs/contracts/api/console.openapi.yaml packages/api-types/src/schema.ts
 npx tsc -b
 git status
 ```

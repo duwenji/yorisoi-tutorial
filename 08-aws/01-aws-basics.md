@@ -332,7 +332,7 @@ EOF
 npm run diagrams -w infra
 ```
 
-3 つのアプリを合成し、`docs/diagrams/` の 6 枚（主要な図と全部の図）を描き直します。`console.png` と `console-all.png` を見比べてください。全部の図では、2 で数えた 80 個の部品のうち、ロググループ・ロール・警報まで並び、線が絡み合います。主要な図が省いているものは、[infra/tools/diagrams.mjs](https://github.com/duwenji/yorisoi-console/blob/main/infra/tools/diagrams.mjs) の `hiddenIcons` と `hiddenPaths` に書いてあります。
+3 つのアプリを合成し、`docs/design/diagrams/` の 6 枚（主要な図と全部の図）を描き直します。`console.png` と `console-all.png` を見比べてください。全部の図では、2 で数えた 80 個の部品のうち、ロググループ・ロール・警報まで並び、線が絡み合います。主要な図が省いているものは、[infra/tools/diagrams.mjs](https://github.com/duwenji/yorisoi-console/blob/main/infra/tools/diagrams.mjs) の `hiddenIcons` と `hiddenPaths` に書いてあります。
 
 ## つまずきやすいところ
 

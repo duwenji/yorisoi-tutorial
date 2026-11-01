@@ -139,7 +139,7 @@ node tools/play.mjs edit --aab release/yorisoi-sanpoguide-<版>.aab --notes "リ
 node tools/play.mjs edit --aab release/yorisoi-sanpoguide-<版>.aab --notes "リリースノート" --listing --commit
 node tools/play.mjs edit --version-code 9 --track alpha                  # 上げ済みの版をほかのトラックに出す
 node tools/play.mjs edit --track alpha --halt                            # 配布中のリリースを停止する
-node tools/play.mjs data-safety docs/play-data-safety.csv
+node tools/play.mjs data-safety docs/operations/play-data-safety.csv
 ```
 
 - `--version-code` は、Play に上げ済みの版を別のトラックに出す。`--notes` がなければ、その版がほかのトラックで持つリリースノートを写す（[10-2](02-tracks.md) の「どのトラックでも同じ文」）
