@@ -15,7 +15,7 @@
 
 ## なぜ素材を切り出したのか
 
-素材をチャンネルのパッケージの一部（`channel.json` の `resources`）だけにすると、困ることが 4 つあります（[platform ADR-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIALS.md)「目的・背景」）。
+素材をチャンネルのパッケージの一部（`channel.json` の `resources`）だけにすると、困ることが 4 つあります（[platform MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/materials.md)「目的・背景」）。
 
 | 困ること | 例 |
 |---|---|
@@ -24,7 +24,7 @@
 | 更新の波及 | 写真を 1 枚直すと、使っているチャンネルがすべて申請し直し |
 | 利用許諾を確かめられない | 「この写真を使ってよい」は、チャンネル提供者の自己申告でしか示せない |
 
-そこで、素材を **素材集** として別に作り、別に審査することにしました。役割はこう分かれます（platform ADR-MATERIALS D-1）。
+そこで、素材を **素材集** として別に作り、別に審査することにしました。役割はこう分かれます（platform MATERIALS D-1）。
 
 ```mermaid
 flowchart LR
@@ -36,11 +36,11 @@ flowchart LR
 
 素材提供者は「何を」、チャンネルは「いつ・どう」、アプリは「安全に」を受け持ちます。1 つの決まりを 1 か所が持つように分けたわけです。
 
-AI の語りも、この分け方に入っています（[platform ADR-AI-ROLES](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-AI-ROLES.md) H-1）。素材は AI の **根拠** にもなり、チャンネルは **演出**、AI はその場で話す **実演**、アプリは **枠**、運営は **考査**（事前に枠と演出の意図を確かめ、事後に通報を受けて止める）を受け持ちます。AI の発言は前もって審査できないので、根拠と枠と事後の対応で守る、という考え方です（[4-3](../04-outside/03-ai.md)「資料を根拠に話す」）。
+AI の語りも、この分け方に入っています（[platform AI-ROLES](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/ai-roles.md) H-1）。素材は AI の **根拠** にもなり、チャンネルは **演出**、AI はその場で話す **実演**、アプリは **枠**、運営は **考査**（事前に枠と演出の意図を確かめ、事後に通報を受けて止める）を受け持ちます。AI の発言は前もって審査できないので、根拠と枠と事後の対応で守る、という考え方です（[4-3](../04-outside/03-ai.md)「資料を根拠に話す」）。
 
 ## すべての出どころを 1 つの形で: Producer
 
-素材の出どころは 3 種類あります（ADR-002 D-2）。
+素材の出どころは 3 種類あります（MATERIALS D-2）。
 
 | 種類 | 例 | 中身はいつ決まるか |
 |---|---|---|
@@ -81,7 +81,7 @@ sealed interface MaterialResult {
     /** The producer can't produce now; [detail] is for the log or an error message. */
     data class Unavailable(val reason: Reason, val detail: String? = null) : MaterialResult
 
-    /** [LIMIT]: today's AI calls reached the user's limit (platform ADR-004 H-9). */
+    /** [LIMIT]: today's AI calls reached the user's limit (platform AI-ROLES H-9). */
     enum class Reason { OFFLINE, METERED, NO_KEY, LIMIT, REVOKED, NOT_PREPARED, FAILED }
 }
 ```
@@ -120,7 +120,7 @@ object ProducerPolicy {
 }
 ```
 
-第三者には「前もって全部取る」「何も外に漏らさない」「中身は審査したときのまま」しか許しません（ADR-002 D-5）。その場で取りに行くと、散策者の居場所が相手に伝わり、しかも中身が毎回変わって審査できないからです。アプリは起動時に、使う出どころをすべてこの方針にかけます（`Producers` の `init`）。
+第三者には「前もって全部取る」「何も外に漏らさない」「中身は審査したときのまま」しか許しません（MATERIALS D-5）。その場で取りに行くと、散策者の居場所が相手に伝わり、しかも中身が毎回変わって審査できないからです。アプリは起動時に、使う出どころをすべてこの方針にかけます（`Producers` の `init`）。
 
 組み込みの 6 つの記述は `BuiltInProducers` にあります。たとえば AI の解説はこうです。
 
@@ -254,7 +254,7 @@ enum class PresentAs(override val json: String, val types: Set<MaterialType>) : 
 }
 ```
 
-- `grants`: どのチャンネル提供者に使わせるか。`"*"`（誰でも）か、アカウントIDの一覧（ADR-002 D-9）。素材提供者が署名するので、自己申告ではなくなる
+- `grants`: どのチャンネル提供者に使わせるか。`"*"`（誰でも）か、アカウントIDの一覧（MATERIALS D-9）。素材提供者が署名するので、自己申告ではなくなる
 - `grants.grounding`: AI の根拠に使ってよいか（API-MATERIALS I-13。書かなければ使わない）。AI が言い換えて話すことを、素材提供者が前もって選べるようにしてある。リストにも同じ値が写り、アプリはパッケージと一致するかを確かめる
 - `about`: 何についての素材か。チャンネルは素材の ID で選ぶほかに、「きっかけのスポットについての素材があれば」と題材で選べる
 - `tags`: 何の話か（`history`・`faith`・`nature` など決まった一覧）。基準で選ぶとき（下で見ます）に使う
@@ -265,7 +265,7 @@ enum class PresentAs(override val json: String, val types: Set<MaterialType>) : 
 "collections": [ { "as": "kamakura", "id": "kamakura-audio-guide", "minVersion": 2 } ],
 ```
 
-素材提供者のアカウントIDは書きません（ADR-002 D-17）。鍵を移し替えるとアカウントIDが変わるので、ID で結ぶと参照が壊れるからです。だれの素材集かは、リストの `collections[].producer` を見れば分かります。
+素材提供者のアカウントIDは書きません（MATERIALS D-17）。鍵を移し替えるとアカウントIDが変わるので、ID で結ぶと参照が壊れるからです。だれの素材集かは、リストの `collections[].producer` を見れば分かります。
 
 ### 使えるかどうかは、リストで決まる
 
@@ -286,7 +286,7 @@ sealed interface CollectionStatus {
 | 使う側 | `Unusable` のとき |
 |---|---|
 | 管理システム（申請の機械審査、[8-8](../08-aws/08-kotlin-lambda.md)） | 申請を拒む。参照がすべて正しくなければ承認しない |
-| アプリ（取り込んだあと） | その素材集を指す **候補だけ** を出せないものとし、次の候補へ。チャンネルは止めない（ADR-002 D-12） |
+| アプリ（取り込んだあと） | その素材集を指す **候補だけ** を出せないものとし、次の候補へ。チャンネルは止めない（MATERIALS D-12） |
 
 素材集が取り下げられても、候補の並びの次（たとえば AI の解説）に進むだけで、チャンネルの語りは続きます。候補を並べる仕組みが、ここで壊れにくさにもつながっています。
 
@@ -428,14 +428,14 @@ git status
 <details>
 <summary>問 1. 素材提供者が、自分の素材集を「見せるときにサーバーから取る」形（<code>fetch=onDemand</code>）にしたいと言ってきました。認められますか。理由も答えてください。</summary>
 
-認められません（API-MATERIALS 方針 P-1、ADR-002 D-5）。見せるときに取りに行くと、そのとき散策者がどこにいるか（どのスポットの近くか）が素材提供者のサーバーに伝わります。また、中身が審査したときと変わってしまうかもしれません。第三者の素材は、チャンネルを選んだときに前もって全部取り、SHA-256 で審査どおりかを確かめてから使います。
+認められません（API-MATERIALS 方針 P-1、MATERIALS D-5）。見せるときに取りに行くと、そのとき散策者がどこにいるか（どのスポットの近くか）が素材提供者のサーバーに伝わります。また、中身が審査したときと変わってしまうかもしれません。第三者の素材は、チャンネルを選んだときに前もって全部取り、SHA-256 で審査どおりかを確かめてから使います。
 
 </details>
 
 <details>
 <summary>問 2. あるきっかけの候補が <code>["kamakura#intro", "builtin:ai-guide"]</code> です。素材集 <code>kamakura</code> が取り下げられたら、アプリはどうしますか。</summary>
 
-素材集を指す 1 つ目の候補を出せないものとして、2 つ目の AI の解説に進みます。チャンネルそのものは止めません（ADR-002 D-12）。一方、管理システムは、取り下げられた素材集を使うチャンネルの新しい申請を受け付けません（`collection_not_listed`）。
+素材集を指す 1 つ目の候補を出せないものとして、2 つ目の AI の解説に進みます。チャンネルそのものは止めません（MATERIALS D-12）。一方、管理システムは、取り下げられた素材集を使うチャンネルの新しい申請を受け付けません（`collection_not_listed`）。
 
 </details>
 

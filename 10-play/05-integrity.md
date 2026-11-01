@@ -16,7 +16,7 @@
 
 [8-9](../08-aws/09-ai-relay.md) で見た運営の AI の中継は、端末に AI のキーを置かずに使える入口です。キーがないので、だれかがアプリの通信をまねて、プログラムから中継を呼び続けたら、運営の費用が使われてしまいます。
 
-1 台ずつの回数の上限はありますが、`installId` はアプリが作るランダムな ID なので、まねる側は ID を作り放題です。そこで、セッションを開くときに「この要求は、**Google Play から入れた本物のアプリ** が、**まともな端末** で送ったものか」を確かめます。それが **Play Integrity API** です（platform の [ADR-AI-RELAY](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-AI-RELAY.md) R-7）。
+1 台ずつの回数の上限はありますが、`installId` はアプリが作るランダムな ID なので、まねる側は ID を作り放題です。そこで、セッションを開くときに「この要求は、**Google Play から入れた本物のアプリ** が、**まともな端末** で送ったものか」を確かめます。それが **Play Integrity API** です（platform の [API-AI-RELAY](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-AI-RELAY.md) R-7）。
 
 ```mermaid
 sequenceDiagram
@@ -117,7 +117,7 @@ export function checkVerdict(payload: IntegrityPayload, expect: { packageName: s
 
 ## 判定に頼りすぎない
 
-Play Integrity は強い守りですが、すり抜けられないとは言えません。ADR-AI-RELAY も「Integrity をすり抜けられた場合、全体の予算まで使われうる（R-10 で止まる）」と、リスクとして書いています。だから中継は、判定 **だけ** に頼らず、1 台ずつの回数・1 台 1 日のセッションの数・1 回の長さの上限・WAF・**月の予算での自動の停止** を重ねています（[8-9](../08-aws/09-ai-relay.md)）。1 つが破られても、次の守りで被害の大きさが決まっている、という作りです。
+Play Integrity は強い守りですが、すり抜けられないとは言えません。API-AI-RELAY も「Integrity をすり抜けられた場合、全体の予算まで使われうる（R-10 で止まる）」と、リスクとして書いています。だから中継は、判定 **だけ** に頼らず、1 台ずつの回数・1 台 1 日のセッションの数・1 回の長さの上限・WAF・**月の予算での自動の停止** を重ねています（[8-9](../08-aws/09-ai-relay.md)）。1 つが破られても、次の守りで被害の大きさが決まっている、という作りです。
 
 ## ハンズオン: 判定の確かめを壊す
 

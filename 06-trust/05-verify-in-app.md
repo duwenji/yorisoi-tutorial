@@ -267,7 +267,7 @@ if (CollectionValidator.checkArchive(bytes, listedAs, verifier, Strictness.APP) 
 store.writeCollection(listed.pkg.sha256, bytes)
 ```
 
-運営の署名（リスト）が「審査に通った」ことを、素材提供者の署名（素材集の `signature.json`）が「だれが作ったか」を示す、という役割分担もチャンネルと同じです。素材集の取り下げはチャンネルとは別の欄（`revokedCollections`）に載り、取り下げられた素材集は「出せない」として次の候補に進みます。チャンネルそのものは止まりません（ADR-002 D-12）。
+運営の署名（リスト）が「審査に通った」ことを、素材提供者の署名（素材集の `signature.json`）が「だれが作ったか」を示す、という役割分担もチャンネルと同じです。素材集の取り下げはチャンネルとは別の欄（`revokedCollections`）に載り、取り下げられた素材集は「出せない」として次の候補に進みます。チャンネルそのものは止まりません（MATERIALS D-12）。
 
 ## つまずきやすいところ
 

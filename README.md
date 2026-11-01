@@ -2,7 +2,7 @@
 
 SanpoGuide（Android アプリ）と yorisoi-console（チャンネル管理システム）の 2 つのシステムを、そこで使われている技術を題材に学ぶチュートリアルです。SanpoGuide のアプリ側は yorisoi-platform と yorisoi-sanpoguide の 2 つのリポジトリに分かれます。同じ部品を使う 2 本目のアプリ CycleGuide（yorisoi-cycleguide）も、部品の使い回しの例として 5-5 で読みます。
 
-> SanpoGuide のアプリ側は、**yorisoi-platform**（エコシステム共通の方針・契約・共有部品）と **yorisoi-sanpoguide**（Android アプリとアプリ固有の文書）の 2 つのリポジトリに分かれています。第三のリポジトリ **yorisoi-console** は、チャンネル管理システムを実装します。このチュートリアルは学習用の説明であり正本ではありません。共通ルールは platform の ADR・契約、console の実装判断は console の文書、アプリ固有の動作は SanpoGuide のコードと文書を参照してください。
+> SanpoGuide のアプリ側は、**yorisoi-platform**（エコシステム共通の方針・契約・共有部品）と **yorisoi-sanpoguide**（Android アプリとアプリ固有の文書）の 2 つのリポジトリに分かれています。第三のリポジトリ **yorisoi-console** は、チャンネル管理システムを実装します。このチュートリアルは学習用の説明であり正本ではありません。共通ルールは platform の方針・契約、console の実装判断は console の文書、アプリ固有の動作は SanpoGuide のコードと文書を参照してください。
 
 ## このチュートリアルの考え方
 
@@ -35,7 +35,7 @@ flowchart LR
 | [0-1 何を作っているのか](00-overview/01-what-we-build.md) | 散策ガイドとチャンネル管理システムが何をするか、2 つの境界 |
 | [0-2 技術の地図](00-overview/02-technology-map.md) | どこでどの技術が使われているか、用語集 |
 | [0-3 開発環境の準備](00-overview/03-setup.md) | JDK・Android Studio・Node.js・Docker、動作確認 |
-| [0-4 リポジトリの歩き方](00-overview/04-reading-the-repos.md) | フォルダの構成、文書（ADR・契約書）の読み方 |
+| [0-4 リポジトリの歩き方](00-overview/04-reading-the-repos.md) | フォルダの構成、文書（方針・契約書）の読み方 |
 
 ### 第 1 部 Kotlin と Android の基礎 ✅
 
@@ -130,7 +130,7 @@ flowchart LR
 | [9-2 ブラウザでログインする](09-console/02-browser-login.md) | OIDC、認可コード ＋ PKCE、oidc-client-ts、ログアウト、トークンの置き場所。PKCE を手で作る |
 | [9-3 ブラウザの中で鍵を作る](09-console/03-keys-in-browser.md) | WebCrypto、取り出せない鍵、PBKDF2 ＋ AES-GCM の鍵のファイル、チャレンジへの署名、AI のキーもサーバーに送らない |
 | [9-4 CI](09-console/04-ci.md) | ci.yml を読む、サービスコンテナ、捨てる鍵での合成、配備はしない理由、注意書きを読む |
-| [9-5 決めたことを残す](09-console/05-docs.md) | ADR・契約書・データモデル・設計書、捨てた案を残す、文書の ID でコードまでたどる、決定が変わるとき |
+| [9-5 決めたことを残す](09-console/05-docs.md) | 決まり・契約書・データモデル・設計書、比べた案の残り方、文書の ID でコードまでたどる、決定が変わるとき |
 
 ### 第 10 部 Google Play で届ける ✅
 

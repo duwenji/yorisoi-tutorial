@@ -167,7 +167,7 @@ narration = Narration(producers, station = { stations.current.value }, mood = { 
 
 `WalkCompanion` は StateFlow も `SettingsRepository` も知りません。「今の雰囲気（使わない設定なら null）」「位置を AI に渡してよいか」を、聞けば答えてくれる関数があることだけを知っています。必要なことだけを知っている部品は、テストしやすく、変更にも強くなります。
 
-> `WalkCompanion` と `GuideRepository` は、チャンネルを関数で受け取りません。素材の出どころを共通の形（`Producer`、ADR-002 D-3）にまとめているので、チャンネルは素材の要求と一緒に渡します。
+> `WalkCompanion` と `GuideRepository` は、チャンネルを関数で受け取りません。素材の出どころを共通の形（`Producer`、MATERIALS D-3）にまとめているので、チャンネルは素材の要求と一緒に渡します。
 
 ## 全体をつなぐ: SanpoApp
 

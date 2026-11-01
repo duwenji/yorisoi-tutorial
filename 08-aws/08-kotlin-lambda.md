@@ -66,7 +66,7 @@ sequenceDiagram
 
 ```kotlin
 /**
- * The machine review (ADR-001 A-11, API-CHANNEL-PACKAGE 確認の手順 2〜10, API-MATERIALS 確かめる手順 1〜4):
+ * The machine review (ARCH-001 A-11, API-CHANNEL-PACKAGE 確認の手順 2〜10, API-MATERIALS 確かめる手順 1〜4):
  * core-format's checks, the same the app runs, plus what only the console knows (which channel or
  * collection, which account, which version came before, which channels use a collection) and the
  * icon. Pure: the Lambda reads and writes, this decides.

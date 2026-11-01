@@ -5,7 +5,7 @@
 ## この章で学ぶこと
 
 - 3 つのリポジトリのフォルダ構成と、どこに何があるか
-- 文書（ADR・契約書・設計書）の役割と読む順番
+- 文書（方針・契約書・設計書）の役割と読む順番
 - コードの中で迷ったときの手がかり
 
 ## SanpoGuide のフォルダ
@@ -46,7 +46,7 @@ yorisoi-platform/                エコシステム共通の方針・契約と�
 ├── kit-mood/                    キット: 雰囲気
 ├── kit-companion/               キット: 話す判断のルールとゲート、散歩の詳しい記録（素の JVM）
 ├── kit-channel/                 キット: アプリの中のチャンネル、第三者のチャンネルの取り込み（remote/）、素材ときっかけ（material/）（素の JVM）
-└── docs/                        共通文書（decisions/・contracts/・overview/・policies/・work/）とアプリの手引き
+└── docs/                        共通文書（overview/・contracts/・policies/・work/）とアプリの手引き
 ```
 
 パッケージ（フォルダ）は **機能ごと** に分かれています。「画面・ロジック・データ」のような層ごとではありません。たとえば話しかけに関わるものは `companion/` に集まっています。何かを探すときは、まず機能の名前でフォルダを探してください。
@@ -88,7 +88,7 @@ yorisoi-console/
 |---|---|---|
 | README.md | 何のためのリポジトリか、使い方 | 最初に |
 | architecture.md | 部品の構成を図で | 全体をつかみたいとき |
-| ADR（console `docs/adr/`、platform `docs/decisions/`） | 大事な判断と、**なぜそう決めたか**、ほかの選択肢 | 「なぜこうなっているのか」と思ったとき |
+| 方針・決まり（platform `docs/overview/`、console `architecture.md` の「決まり」） | 決めたことを 1 行ずつ ID 付きで。比べた案は、検討中の ADR（`docs/decisions/`）と git の履歴に残る | 「なぜこうなっているのか」と思ったとき |
 | API 契約書 | システムの間でやりとりするデータの形と約束 | 境界のコードを読むとき |
 | データモデル（DM） | 何をどう保存するか | データベースのコードを読むとき |
 | 設計書（DES） | 実装の細部 | 特定の機能を深く読むとき |
@@ -113,17 +113,17 @@ yorisoi-console/
 | platform API-CHANNEL-LIST | 承認済みチャンネル・リスト契約 | [API-CHANNEL-LIST](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-LIST.md) |
 | platform API-CHANNEL-PACKAGE | チャンネル・パッケージ形式 | [API-CHANNEL-PACKAGE](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-CHANNEL-PACKAGE.md) |
 | platform API-MATERIALS | 素材提供者インタフェース（素材集の形式を含む） | [API-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-MATERIALS.md) |
-| platform ADR-CHANNELS | 第三者のチャンネルは審査と署名を経たものだけ取り込む | [ADR-CHANNELS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-CHANNELS.md) |
-| platform ADR-MATERIALS | 素材提供者と素材集の共通方針 | [ADR-MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-MATERIALS.md) |
-| platform ADR-ECOSYSTEM-PLATFORM | エコシステムの共通基盤 | [ADR-ECOSYSTEM-PLATFORM](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-ECOSYSTEM-PLATFORM.md) |
+| platform CHANNELS | チャンネルの決まり。第三者のチャンネルは審査と署名を経たものだけ取り込む | [CHANNELS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/channels.md) |
+| platform MATERIALS | 素材の決まり。種類・作る人と責任・出し方の順番 | [MATERIALS](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/materials.md) |
+| platform ECOSYSTEM | エコシステムの共通基盤の決まり | [ECOSYSTEM](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/yorisoi-ecosystem.md) |
 | platform 関係者と共通用語 | 散策者・チャンネル提供者・素材提供者・運営、リスト | [関係者と共通用語](https://github.com/duwenji/yorisoi-platform/blob/main/docs/overview/roles-and-vocabulary.md) |
 | platform の審査方針 | チャンネルの確認・承認・取り下げ | [チャンネル審査方針](https://github.com/duwenji/yorisoi-platform/blob/main/docs/policies/channel-review.md) |
-| console ADR-001 | AWS の構成 | [console ADR-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/adr/ADR-001-aws-architecture.md) |
+| console ARCH-001 | AWS の構成と、その決まり | [console ARCH-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) |
 | console API-001 | 管理 API | [yorisoi-console/docs/console-api.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/console-api.md) |
 | console DM-001 | データモデル | [console DM-001](https://github.com/duwenji/yorisoi-console/blob/main/docs/data-model.md) |
 | console 文書一覧 | console の設計・ガイド・運用文書 | [console docs/README.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/README.md) |
 
-**番号はリポジトリごとに付けている** ので注意してください。たとえば console の `API-001` は管理 API で、platform の契約は `API-SECRET-MESSAGES` のように主題の名前で呼びます。platform 文書は canonical ID、console 文書は `console` を添えて呼びます。一覧は [platform ADR 一覧](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/README.md)、[platform API 契約一覧](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/README.md)、[console 文書一覧](https://github.com/duwenji/yorisoi-console/blob/main/docs/README.md)を参照してください。
+**番号はリポジトリごとに付けている** ので注意してください。たとえば console の `API-001` は管理 API で、platform の契約は `API-SECRET-MESSAGES` のように主題の名前で呼びます。platform 文書は canonical ID、console 文書は `console` を添えて呼びます。一覧は [platform ADR 一覧](https://github.com/duwenji/yorisoi-platform/blob/main/docs/README.md)、[platform API 契約一覧](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/README.md)、[console 文書一覧](https://github.com/duwenji/yorisoi-console/blob/main/docs/README.md)を参照してください。
 
 ## コードの中で迷ったら
 

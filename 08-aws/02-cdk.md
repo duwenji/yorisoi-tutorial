@@ -74,7 +74,7 @@ const base = configs[name];
 if (!base) throw new Error(`unknown env ${name}; use dev or prod`);
 const rootPublicKey = app.node.tryGetContext('rootPublicKey') as string | undefined;
 if (!rootPublicKey) {
-  throw new Error('pass -c rootPublicKey=<base64url>: the root public key of this provider (tools/root-key generate; ADR-001 T-1)');
+  throw new Error('pass -c rootPublicKey=<base64url>: the root public key of this provider (tools/root-key generate; docs/operations/keys.md)');
 }
 const config: EnvConfig = { ...base, rootPublicKey, /* … */ };
 
@@ -101,7 +101,7 @@ export interface EnvConfig {
   region: 'ap-northeast-1';
   providerName: string;
   rootPublicKey: string;
-  /** Signing keys in KMS, one per period (ADR-001 A-8: a new key every six months). */
+  /** Signing keys in KMS, one per period (ARCH-001 A-8: a new key every six months). */
   signingKeyIds: string[];
   notify: { mode: 'log' } | { mode: 'ses'; from: string; configurationSet?: string };
   /**
@@ -303,7 +303,7 @@ it('runs one publisher at a time, daily, with alarms', () => {
 - keeps production data on stack deletion, but not development data
 - requires TOTP MFA from everyone and lets only sign-ups become publishers
 
-ADR-001 で決めた設計（A-4・A-7・A-8・A-10 など）が、テストで守られています。だれかがうっかり設定を変えても、配備の前に気づけます。
+ARCH-001 で決めた設計（A-4・A-7・A-8・A-10 など）が、テストで守られています。だれかがうっかり設定を変えても、配備の前に気づけます。
 
 ## ハンズオン: CDK の定義を壊す
 

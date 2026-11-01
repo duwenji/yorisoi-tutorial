@@ -28,9 +28,9 @@
 
 | スタック | 見張るもの | 拾い方 | 決定 |
 |---|---|---|---|
-| 管理システム | 公開の失敗（`PublishFailures`）・2 日公開がない（`NoRecentPublication`）・知らせが送れない（`NoticesNotSent`） | CloudWatch の警報 | ADR-001 A-16・A-19 |
-| AI の中継 | 予算の 80%（`BudgetNear`）・予算を使い切って止まった（`Paused`）・設定がおかしい（`BadSetting`）・Bedrock の失敗（`UpstreamErrors`） | CloudWatch の警報 | ADR-AI-RELAY R-10・R-14 |
-| スポットのタイル | バッチがエラーで止まった・タイルが減って差し替えなかった（`BatchFailed`） | EventBridge のルール | ADR-SPOT-TILES S-6 |
+| 管理システム | 公開の失敗（`PublishFailures`）・2 日公開がない（`NoRecentPublication`）・知らせが送れない（`NoticesNotSent`） | CloudWatch の警報 | ARCH-001 A-16・A-19 |
+| AI の中継 | 予算の 80%（`BudgetNear`）・予算を使い切って止まった（`Paused`）・設定がおかしい（`BadSetting`）・Bedrock の失敗（`UpstreamErrors`） | CloudWatch の警報 | API-AI-RELAY R-10・R-14 |
+| スポットのタイル | バッチがエラーで止まった・タイルが減って差し替えなかった（`BatchFailed`） | EventBridge のルール | API-SPOT-TILES S-6 |
 
 ## 警報のもとになる数字: 3 つの出どころ
 
@@ -72,8 +72,8 @@ export function emitMetric(name: string, value: number) {
 これは **埋め込みメトリクス形式**（EMF）と呼ばれる書き方です。決まった形の JSON をログに 1 行書くだけで、CloudWatch がそれを読んでメトリクスにします。数字を送る API を呼ぶ必要も、そのための権限も要りません。中継の 4 つの警報は、この `YorisoiAiRelay` の数字に付けています（[infra/lib/relay-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/relay-stack.ts)）。
 
 ```ts
-alarm('BudgetNear', 'SpendRatio', 'Maximum', 0.8, 'The month’s spend on the operator’s AI passed 80% of the budget (ADR-AI-RELAY R-10)');
-alarm('Paused', 'RelayPaused', 'Sum', 1, 'The operator’s AI is paused: the month’s budget is used up (ADR-AI-RELAY R-10)');
+alarm('BudgetNear', 'SpendRatio', 'Maximum', 0.8, 'The month’s spend on the operator’s AI passed 80% of the budget (API-AI-RELAY R-10)');
+alarm('Paused', 'RelayPaused', 'Sum', 1, 'The operator’s AI is paused: the month’s budget is used up (API-AI-RELAY R-10)');
 ```
 
 ### 3. 出来事
@@ -127,7 +127,7 @@ Lambda と Fargate が標準出力に書いたものは、CloudWatch Logs のロ
 | AI の中継 | `RelayLogs` | 開発用は 14 日、本番は 1 か月 |
 | スポットのタイル | `BatchLogs` | 1 か月 |
 
-管理システムは、本番は ADR-001 のとおり守りを優先して消さず、開発用だけ溜まり続けないように 14 日で消します（[docs/operations/cost.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/cost.md)）。
+管理システムは、本番は ARCH-001 のとおり守りを優先して消さず、開発用だけ溜まり続けないように 14 日で消します（[docs/operations/cost.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/cost.md)）。
 
 **書かないもの** も決めています。中継はプロンプトと返事をログに書かず、数だけを書きます（R-13、[8-9](09-ai-relay.md) の「残さないもの」）。管理システムのメールの処理は、操作の記録に宛先のメールアドレスを書かず、テストでそれを守っています（[8-7](07-sqs-ses-kms.md)）。タイルの配信は、CloudFront のアクセスログ自体を取りません（S-12、[8-10](10-spot-tiles.md)）。ログは調べものに便利ですが、残したものは漏れる可能性があります。
 
@@ -197,8 +197,8 @@ EOF
 == YorisoiAiRelay-dev
   ログ   RelayLogs019433A2 14
   宛先   email
-  警報   The month’s spend on the operator’s AI passed 80% of the budget (ADR-A
-  警報   The operator’s AI is paused: the month’s budget is used up (ADR-AI-REL
+  警報   The month’s spend on the operator’s AI passed 80% of the budget (API-A
+  警報   The operator’s AI is paused: the month’s budget is used up (API-AI-REL
   警報   A relay parameter is not valid; the relay uses 30 calls, the default b
   警報   Bedrock failed 10 times in 5 minutes
 == YorisoiSpotTiles-dev
@@ -220,7 +220,7 @@ EOF
 - 管理システムには **宛先（`email`）がない**。8-1 の合成で `-c alarmEmail=…` を渡さなかったからです。この合成のまま配備すると、警報が鳴ってもだれにも届きません。`-c alarmEmail=you@example.com` を足して合成し直し、宛先が増えるのを確かめてください
 - 予算は管理システムにだけある
 - ログの残す期間（`RetentionInDays`）が、上の表と合っている
-- 中継の警報の説明には、決定の番号（R-10 など）が書いてある。鳴ったとき、なぜその警報があるのかを ADR でたどれます
+- 中継の警報の説明には、決定の番号（R-10 など）が書いてある。鳴ったとき、なぜその警報があるのかを API-AI-RELAY でたどれます
 
 ## つまずきやすいところ
 

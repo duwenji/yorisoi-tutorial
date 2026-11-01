@@ -17,7 +17,7 @@
 
 散策ガイドと CycleGuide は、近くのスポット（史跡・公園・お店など）を OpenStreetMap（OSM）から探します。[4-1](../04-outside/01-http-json.md) で見たように、もとは公開の **Overpass** のサーバーに、散歩のたびに問い合わせていました。Overpass はだれでも使える代わりに混みやすく、取れないことがあります。散策者の位置（検索の中心）も、そのたびに第三者のサーバーに届きます。
 
-そこで、運営が **日本全体のスポットを週に 1 回まとめて作り、地域ごとの小さなファイル（タイル）にして配る** ことにしました。決めたことは platform の [ADR-SPOT-TILES](https://github.com/duwenji/yorisoi-platform/blob/main/docs/decisions/ADR-SPOT-TILES.md)、タイルの形は [API-SPOT-TILES](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-SPOT-TILES.md) にあります。コードは yorisoi-console の [infra/lib/tiles-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/tiles-stack.ts) と [tiles/](https://github.com/duwenji/yorisoi-console/tree/main/tiles)、運用の手順は [docs/operations/spot-tiles.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/spot-tiles.md) です。
+そこで、運営が **日本全体のスポットを週に 1 回まとめて作り、地域ごとの小さなファイル（タイル）にして配る** ことにしました。決めたことは platform の [API-SPOT-TILES](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-SPOT-TILES.md)、タイルの形は [API-SPOT-TILES](https://github.com/duwenji/yorisoi-platform/blob/main/docs/contracts/API-SPOT-TILES.md) にあります。コードは yorisoi-console の [infra/lib/tiles-stack.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/lib/tiles-stack.ts) と [tiles/](https://github.com/duwenji/yorisoi-console/tree/main/tiles)、運用の手順は [docs/operations/spot-tiles.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/operations/spot-tiles.md) です。
 
 ```mermaid
 flowchart LR
@@ -138,7 +138,7 @@ const securityGroup = new ec2.SecurityGroup(this, 'BatchSecurityGroup', { vpc, d
 
 ```ts
 new scheduler.Schedule(this, 'Weekly', {
-  description: 'Make the spot tiles from the week’s OpenStreetMap (ADR-SPOT-TILES S-5)',
+  description: 'Make the spot tiles from the week’s OpenStreetMap (API-SPOT-TILES S-5)',
   schedule: scheduler.ScheduleExpression.cron({ minute: '0', hour: config.schedule.hour, weekDay: config.schedule.weekDay, timeZone: TimeZone.ASIA_TOKYO }),
   target: new schedulerTargets.EcsRunFargateTask(cluster, {
     taskDefinition: task,

@@ -94,7 +94,7 @@ Play に出すものは、どのトラックでも Google の **審査** を通�
 AI の中継を入れたときの変更を、開発者向けに書くとこうなります。
 
 ```text
-feat: route AI calls through the operator's relay (ADR-AI-RELAY), with Play Integrity and a
+feat: route AI calls through the operator's relay (API-AI-RELAY), with Play Integrity and a
 daily quota of 30 per install; own keys still work.
 ```
 

@@ -91,7 +91,7 @@ lifecycleRules: [
 
 チャンネル提供者は、チャンネルのパッケージ（最大 2MB）とアイコンを上げます。管理 API の Lambda を通して上げると、Lambda が大きなファイルを受け取って S3 に書き直すことになり、時間もお金もかかります。API Gateway には本文の大きさの上限もあります。
 
-そこで、**ブラウザから S3 に直接** 上げさせます（API-001 C-10、ADR-001 A-11）。ただし、だれでも何でも置けては困るので、管理 API が **署名つき POST**（presigned POST）という「この条件でなら置いてよい」という許可証を作って渡します。
+そこで、**ブラウザから S3 に直接** 上げさせます（API-001 C-10、ARCH-001 A-11）。ただし、だれでも何でも置けては困るので、管理 API が **署名つき POST**（presigned POST）という「この条件でなら置いてよい」という許可証を作って渡します。
 
 ```mermaid
 sequenceDiagram
@@ -184,7 +184,7 @@ await deps.cdn.invalidate([`/${LIST_PATH}`, `/${DISCOVERY_PATH}`]);
 
 ```ts
 publishApproved: async ({ packageKey, packageSha256, iconKey, iconSha256 }) => {
-  // Named by their hashes, so they are immutable and cached for long (ADR-001 A-7).
+  // Named by their hashes, so they are immutable and cached for long (ARCH-001 A-7).
   const copy = (from: string, to: string, contentType: string) =>
     s3.send(new CopyObjectCommand({
       Bucket: env('PUBLIC_BUCKET'), Key: to, CopySource: `${env('INTAKE_BUCKET')}/${from}`,
@@ -280,7 +280,7 @@ const headers = new cloudfront.ResponseHeadersPolicy(this, 'ConsoleHeaders', {
 | `frame-ancestors 'none'` | ほかのサイトの中に埋め込ませない（クリックをだます攻撃への備え） |
 | HSTS（Strict-Transport-Security） | 1 年間、このサイトには HTTPS でしかつながないよう、ブラウザに覚えさせる |
 
-`connect-src` に AI のサービスが入っているのは、運営の画面が、運営の API キーで **ブラウザから直接** AI を呼んで審査の見本を作るからです（ADR-001 A-14、[9-3](../09-console/03-keys-in-browser.md)）。キーはサーバーに送りません。
+`connect-src` に AI のサービスが入っているのは、運営の画面が、運営の API キーで **ブラウザから直接** AI を呼んで審査の見本を作るからです（ARCH-001 A-14、[9-3](../09-console/03-keys-in-browser.md)）。キーはサーバーに送りません。
 
 ### 画面の設定は、配備のときに書く
 
