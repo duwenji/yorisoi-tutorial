@@ -53,7 +53,7 @@ java -jar bundletool.jar install-apks --apks app.apks
 
 | 場所 | 見どころ | 章 |
 |---|---|---|
-| [docs/release.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/release.md) の「版を出すとき」 | `versionCode` を上げ、`bundleRelease` で作り、リリース版を確かめてから上げる | [10-1](../10-play/01-app-bundle.md) |
+| [docs/release.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/release.md) の「版を出すとき」 | `versionCode` を上げ、`bundleRelease` で作り、リリース版を確かめてから上げる | [10-1](../10-play/01-app-bundle.md) |
 | [app/build.gradle.kts](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/app/build.gradle.kts) | `keystore.properties` があるときだけ署名する。なければ署名のない AAB | [1-4](../01-kotlin-android/04-signing-apk.md)、[10-1](../10-play/01-app-bundle.md) |
 
 ## よくある間違い

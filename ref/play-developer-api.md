@@ -58,7 +58,7 @@ AAB は、アップロード用の別の URL（`https://androidpublisher.googlea
 | 場所 | 見どころ | 章 |
 |---|---|---|
 | [tools/play.mjs](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/tools/play.mjs) | Node の標準のライブラリだけ。既定は確かめるだけで、`--commit` で確定。確定しない編集は `finally` で捨てる | [10-4](../10-play/04-api.md) |
-| [docs/play-api.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/play-api.md) | 準備（API を有効にする・鍵・招待と権限）と、うまくいかないときの表 | [10-4](../10-play/04-api.md) |
+| [docs/play-api.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/play-api.md) | 準備（API を有効にする・鍵・招待と権限）と、うまくいかないときの表 | [10-4](../10-play/04-api.md) |
 
 ## よくある間違い
 

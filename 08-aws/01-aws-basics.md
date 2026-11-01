@@ -58,7 +58,7 @@
 
 ### CDK から生成した図
 
-次の 4 枚の図は、CDK のコードから [cdk-dia](https://github.com/pistazie/cdk-dia) というツールで描いたものです。手で描いた図ではないので、**いま配備される部品とそのつながりが、そのまま出ます**。描き方と作り直し方は yorisoi-console の [docs/aws-diagrams.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/aws-diagrams.md) にあります。この章の図は、yorisoi-console の `docs/diagrams/` からコピーしたものです（[images/](images/)）。
+次の 4 枚の図は、CDK のコードから [cdk-dia](https://github.com/pistazie/cdk-dia) というツールで描いたものです。手で描いた図ではないので、**いま配備される部品とそのつながりが、そのまま出ます**。描き方と作り直し方は yorisoi-console の [docs/aws-diagrams.md](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/aws-diagrams.md) にあります。この章の図は、yorisoi-console の `docs/diagrams/` からコピーしたものです（[images/](images/)）。
 
 | 見た目 | 意味 |
 |---|---|
@@ -109,7 +109,7 @@
 - 提供者は Intake に音声を上げ、PlacementCheck が Transcribe に文字起こしを頼む。終わりは TranscribeDone が拾って PlacementCheck に戻す。通った音声は Audio に写す
 - TableNameParameter など 4 つの名前は、管理システムが配備のときに読む
 
-手で描いた [構成図（architecture.md）](https://github.com/duwenji/yorisoi-console/blob/main/docs/architecture.md) と比べてみてください。手で描いた図は **だれが何をして、どの順に動くか**（流れ）を、生成した図は **その流れを支える部品が、実際にどう組まれているか** を見せます。たとえば手で描いた図の「公開の Lambda」が、生成した図では PublishFunction として、署名鍵・テーブル・公開用のバケットへの矢印を持っています。
+手で描いた [構成図（architecture.md）](https://github.com/duwenji/yorisoi-console/blob/main/docs/design/architecture.md) と比べてみてください。手で描いた図は **だれが何をして、どの順に動くか**（流れ）を、生成した図は **その流れを支える部品が、実際にどう組まれているか** を見せます。たとえば手で描いた図の「公開の Lambda」が、生成した図では PublishFunction として、署名鍵・テーブル・公開用のバケットへの矢印を持っています。
 
 ### サービスの一覧
 

@@ -12,7 +12,7 @@
 
 ## 申告は、コードの説明書
 
-Play Console には、アプリについての **申告** を入れます。散策ガイドの答えは、すべて [play-console.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/play-console.md) に書いてあり、Play Console の答えはそこを元にします。
+Play Console には、アプリについての **申告** を入れます。散策ガイドの答えは、すべて [play-console.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/play-console.md) に書いてあり、Play Console の答えはそこを元にします。
 
 | 場所 | 入れるもの |
 |---|---|
@@ -33,7 +33,7 @@ Google の定義では、**端末の外に送るものは、送り先が運営�
 
 ### コードから答えを読む
 
-[play-console.md の「収集するデータ」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/play-console.md#収集するデータ)の表は、コードのどこで何を送っているかから作っています。
+[play-console.md の「収集するデータ」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/play-console.md#収集するデータ)の表は、コードのどこで何を送っているかから作っています。
 
 | データの種類 | 収集 | 共有 | 一時的な処理 | どのコードか |
 |---|---|---|---|---|
@@ -47,7 +47,7 @@ Google の定義では、**端末の外に送るものは、送り先が運営�
 
 [8-9](../08-aws/09-ai-relay.md) で「中継はプロンプトを保存しない」とテストで守っていたのは、この申告を本当にしておくためでもあります。
 
-答えは、Play Console の画面の「CSV にエクスポート」と同じ形の CSV（[play-data-safety.csv](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/play-data-safety.csv)）にもしてあり、[10-4](04-api.md) の道具で API から入れられます。
+答えは、Play Console の画面の「CSV にエクスポート」と同じ形の CSV（[play-data-safety.csv](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/play-data-safety.csv)）にもしてあり、[10-4](04-api.md) の道具で API から入れられます。
 
 ## フォアグラウンドサービスの申告
 
@@ -73,17 +73,17 @@ Google の定義では、**端末の外に送るものは、送り先が運営�
 
 `ACCESS_BACKGROUND_LOCATION` を求めないのは、設計の選択です。「散策者が自分で始めた散策の間だけ、通知を出して追う」なら、フォアグラウンドサービスの位置で足ります。常に位置を取れるバックグラウンドの権限は、審査も散策者の目も厳しくなります。
 
-申告の動画は、リポジトリの `store/videos/` に置き、CDN（jsDelivr）の **コミットを固定した URL** を Play Console に入れています。`@main` のように枝の名前で指すと、CDN に古い版が残ることがあるからです（[play-console.md の「フォアグラウンドサービスの申告」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/play-console.md#フォアグラウンドサービスの申告)）。
+申告の動画は、リポジトリの `store/videos/` に置き、CDN（jsDelivr）の **コミットを固定した URL** を Play Console に入れています。`@main` のように枝の名前で指すと、CDN に古い版が残ることがあるからです（[play-console.md の「フォアグラウンドサービスの申告」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/play-console.md#フォアグラウンドサービスの申告)）。
 
 ## プライバシーポリシー
 
-位置の権限を使うアプリには、プライバシーポリシーの URL が要ります。散策ガイドは、[privacy-policy.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/privacy-policy.md) を GitHub Pages（リポジトリの `docs/` を Web に出す GitHub の機能）で公開しています。出すページの選び方と、URL を変えてはいけない理由は [11-6](../11-github/06-pages-releases.md) で見ます。
+位置の権限を使うアプリには、プライバシーポリシーの URL が要ります。散策ガイドは、[privacy-policy.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/policies/privacy-policy.md) を GitHub Pages（リポジトリの `docs/` を Web に出す GitHub の機能）で公開しています。出すページの選び方と、URL を変えてはいけない理由は [11-6](../11-github/06-pages-releases.md) で見ます。
 
 ポリシーもコードと同じリポジトリにあるので、送る情報を変える PR で、ポリシーも一緒に直せます。
 
 ## ストアの掲載情報
 
-アプリ名（30 文字）・簡単な説明（80 文字）・詳しい説明（4,000 文字）・アイコン・フィーチャー グラフィック・スクリーンショットを入れます。散策ガイドは、説明文も [play-console.md の「ストアの掲載情報」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/play-console.md#ストアの掲載情報)のコードブロックに置き、[10-4](04-api.md) の道具がそこから読んで送ります。
+アプリ名（30 文字）・簡単な説明（80 文字）・詳しい説明（4,000 文字）・アイコン・フィーチャー グラフィック・スクリーンショットを入れます。散策ガイドは、説明文も [play-console.md の「ストアの掲載情報」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/play-console.md#ストアの掲載情報)のコードブロックに置き、[10-4](04-api.md) の道具がそこから読んで送ります。
 
 決まりの例:
 
@@ -97,7 +97,7 @@ Google の定義では、**端末の外に送るものは、送り先が運営�
 
 ## 送る情報を変えたときの順番
 
-アプリが送る情報を変えるとき（たとえば運営の AI の中継を足したとき）は、次の順に進めます（[play-console.md の「送る情報を変えたとき」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/play-console.md#送る情報を変えたとき)）。
+アプリが送る情報を変えるとき（たとえば運営の AI の中継を足したとき）は、次の順に進めます（[play-console.md の「送る情報を変えたとき」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/play-console.md#送る情報を変えたとき)）。
 
 1. プライバシーポリシーを直して公開する。**アプリの更新より先に**
 2. データ セーフティ（とストアの説明文）を直す

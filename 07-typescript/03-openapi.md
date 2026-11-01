@@ -27,8 +27,8 @@ flowchart LR
 
 | 文書 | 役割 |
 |---|---|
-| [API-001（console-api.md）](https://github.com/duwenji/yorisoi-console/blob/main/docs/console-api.md) | 人が読む契約書。決定事項（C-1・C-2…）、状態の移り変わり、権限、エラーの意味。**正本** |
-| [console.openapi.yaml](https://github.com/duwenji/yorisoi-console/blob/main/docs/api/console.openapi.yaml) | 同じ内容を、機械が読める形にしたもの。操作 66 個、データの形、エラーコード |
+| [API-001（console-api.md）](https://github.com/duwenji/yorisoi-console/blob/main/docs/contracts/console-api.md) | 人が読む契約書。決定事項（C-1・C-2…）、状態の移り変わり、権限、エラーの意味。**正本** |
+| [console.openapi.yaml](https://github.com/duwenji/yorisoi-console/blob/main/docs/contracts/api/console.openapi.yaml) | 同じ内容を、機械が読める形にしたもの。操作 66 個、データの形、エラーコード |
 | [packages/api-types/src/schema.ts](https://github.com/duwenji/yorisoi-console/blob/main/packages/api-types/src/schema.ts) | OpenAPI から **生成した** TypeScript の型。手で書かない |
 
 OpenAPI の冒頭には、正本がどちらかが書いてあります。
@@ -43,7 +43,7 @@ description: |
 
 **OpenAPI** は、HTTP の API の「どの道（パス）に、どんな要求を送ると、どんな応答が返るか」を書くための、広く使われている形式です。YAML（または JSON）で書きます。
 
-取り下げの操作（[console.openapi.yaml](https://github.com/duwenji/yorisoi-console/blob/main/docs/api/console.openapi.yaml)）:
+取り下げの操作（[console.openapi.yaml](https://github.com/duwenji/yorisoi-console/blob/main/docs/contracts/api/console.openapi.yaml)）:
 
 ```yaml
 paths:
@@ -346,7 +346,7 @@ OpenAPI の `RevokeInput` で `severity` が必須（`required`）だからで�
 
 ### 3. 契約にエラーコードを足す
 
-[docs/api/console.openapi.yaml](https://github.com/duwenji/yorisoi-console/blob/main/docs/api/console.openapi.yaml) の `Problem` の `code` の `enum` に、`- throttled` の次の行として `- maintenance` を足します（字下げを周りとそろえる）。そして型を作り直し、型を確かめます。
+[docs/api/console.openapi.yaml](https://github.com/duwenji/yorisoi-console/blob/main/docs/contracts/api/console.openapi.yaml) の `Problem` の `code` の `enum` に、`- throttled` の次の行として `- maintenance` を足します（字下げを周りとそろえる）。そして型を作り直し、型を確かめます。
 
 ```sh
 npm run generate -w packages/api-types

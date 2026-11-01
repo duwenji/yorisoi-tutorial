@@ -23,7 +23,7 @@
 | 話さない場面 | 立ち止まっている間はスポットを次々に案内しない | 信号の近くや速いときは、安全の知らせ以外を話さない |
 | 話の長さ | チャンネルの解説の長さ | 止まっているか動いているかで、字数の上限を変える |
 
-それでも、チャンネルを読む・AI を呼ぶ・地図や天気を取る・声で話す、という部品は同じです。CycleGuide の設計（[docs/architecture.md](https://github.com/duwenji/yorisoi-cycleguide/blob/main/docs/architecture.md)）の最初の一文は「SanpoGuide と同じ作りを基本にします」です。
+それでも、チャンネルを読む・AI を呼ぶ・地図や天気を取る・声で話す、という部品は同じです。CycleGuide の設計（[docs/architecture.md](https://github.com/duwenji/yorisoi-cycleguide/blob/main/docs/design/architecture.md)）の最初の一文は「SanpoGuide と同じ作りを基本にします」です。
 
 ## 共有するもの、アプリが持つもの
 
@@ -76,7 +76,7 @@ spots = SpotRepository(
 
 > アプリにあったコードは、2 本目のアプリ（CycleGuide）が使う段階の前に、使うものから移す。移すときに散歩だけの前提（間隔の値・散歩の記録・散歩の状態）を外し、値はアプリが持つ。
 
-1 本目しかないうちに「共通になりそうだから」と先に部品にすると、散歩だけの前提を部品に閉じ込めたまま固めてしまいがちです。2 本目が本当に使う段になって初めて、何が共通で何が散歩だけのものかが見えます。そこで CycleGuide の設計では、移すものを段階ごとに表にしています（[architecture.md の「platform に移すもの」](https://github.com/duwenji/yorisoi-cycleguide/blob/main/docs/architecture.md)）。その中で、移すたびに **散歩だけの前提を引数に変えて** います。
+1 本目しかないうちに「共通になりそうだから」と先に部品にすると、散歩だけの前提を部品に閉じ込めたまま固めてしまいがちです。2 本目が本当に使う段になって初めて、何が共通で何が散歩だけのものかが見えます。そこで CycleGuide の設計では、移すものを段階ごとに表にしています（[architecture.md の「platform に移すもの」](https://github.com/duwenji/yorisoi-cycleguide/blob/main/docs/design/architecture.md)）。その中で、移すたびに **散歩だけの前提を引数に変えて** います。
 
 | 移したもの | 散歩だけの前提 | 引数にしたもの |
 |---|---|---|

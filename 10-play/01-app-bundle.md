@@ -23,7 +23,7 @@
 | [10-4](04-api.md) | Google Play Developer API で出す（`tools/play.mjs`） |
 | [10-5](05-integrity.md) | Play Integrity: Play から入れた本物のアプリかを確かめる |
 
-正本は SanpoGuide の [docs/release.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/release.md)・[play-console.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/play-console.md)・[play-api.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/play-api.md) です。このチュートリアルは「なぜそうするのか」を説明し、手順の細部はそちらに任せます。Play Console の画面やポリシーはよく変わるので、実際に操作するときは正本と Google の公式の案内を見てください。
+正本は SanpoGuide の [docs/release.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/release.md)・[play-console.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/play-console.md)・[play-api.md](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/play-api.md) です。このチュートリアルは「なぜそうするのか」を説明し、手順の細部はそちらに任せます。Play Console の画面やポリシーはよく変わるので、実際に操作するときは正本と Google の公式の案内を見てください。
 
 ## APK と AAB
 
@@ -65,7 +65,7 @@ AAB は「APK の材料」です。端末ごとに要るもの（CPU の種類�
 - アップロード鍵は「この AAB は本当にこの開発者が上げたものか」を Play が確かめるための鍵です。漏れたら替えられます
 - その代わり、端末に届くアプリには **Google の鍵で署名し直したもの** が入ります。開発者は、端末に届く APK を自分の鍵で作ることはできません
 
-散策ガイドの `release.jks` は、このアップロード鍵です（[play-console.md の「アプリの基本」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/play-console.md#アプリの基本)）。
+散策ガイドの `release.jks` は、このアップロード鍵です（[play-console.md の「アプリの基本」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/play-console.md#アプリの基本)）。
 
 ### 手で入れた APK とは混ざらない
 
@@ -85,7 +85,7 @@ defaultConfig {
 
 - 端末は `versionCode` が **大きい方** を新しい版と判断する。だから版を出すたびに 1 つ以上増やす
 - Play は、**一度上げた `versionCode` の AAB を二度と受け付けない**。中身を直して同じ番号で上げ直すことはできない
-- 不具合の版を出してしまったら、前の版のコードで `versionCode` だけを増やした版を作って出し直す（[release.md の「不具合の版を出してしまったとき」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/release.md#不具合の版を出してしまったとき)）
+- 不具合の版を出してしまったら、前の版のコードで `versionCode` だけを増やした版を作って出し直す（[release.md の「不具合の版を出してしまったとき」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/release.md#不具合の版を出してしまったとき)）
 
 `versionName`（`1.5.2`）は人に見せるための文字で、比べるのには使われません。散策ガイドは、Play のリリース名を `versionName` だけにしています（[10-2](02-tracks.md)）。
 
@@ -101,9 +101,9 @@ defaultConfig {
 - 署名の設定は、APK と同じ `signingConfigs`（`keystore.properties` と `release.jks`、[1-4](../01-kotlin-android/04-signing-apk.md)）を使う。鍵がなければ、署名のない AAB ができる（Play には上げられない）
 - 散策ガイドは、作った AAB を `release/yorisoi-sanpoguide-<版>.aab` の名前で取っておき、[10-4](04-api.md) の道具で Play に上げる
 
-上げる前に、リリース版をエミュレータか実機で必ず確かめます。デバッグ版と違い、リリース版は最適化や署名の設定が違い、デバッグ版では出なかった不具合が出ることがあります。散策ガイドは、起動・位置の許可・散策の開始と終了（通知・画面を閉じたときの案内）・チャンネルの切り替え・設定の保存・記録を確かめる、と決めています（[release.md の「版を出すとき」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/release.md#版を出すとき)）。
+上げる前に、リリース版をエミュレータか実機で必ず確かめます。デバッグ版と違い、リリース版は最適化や署名の設定が違い、デバッグ版では出なかった不具合が出ることがあります。散策ガイドは、起動・位置の許可・散策の開始と終了（通知・画面を閉じたときの案内）・チャンネルの切り替え・設定の保存・記録を確かめる、と決めています（[release.md の「版を出すとき」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/release.md#版を出すとき)）。
 
-CycleGuide も同じ流れで、同じ形の AAB を作ります（[yorisoi-cycleguide の docs/release.md](https://github.com/duwenji/yorisoi-cycleguide/blob/main/docs/release.md)）。
+CycleGuide も同じ流れで、同じ形の AAB を作ります（[yorisoi-cycleguide の docs/release.md](https://github.com/duwenji/yorisoi-cycleguide/blob/main/docs/operations/release.md)）。
 
 ## ハンズオン: AAB を作って、中を見る
 

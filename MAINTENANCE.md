@@ -103,7 +103,7 @@ gh api repos/duwenji/yorisoi-sanpoguide/releases --jq length
 
 ```sh
 cd ../yorisoi-console && git diff --stat 6e0d89c..main -- docs/diagrams/
-cp ../yorisoi-console/docs/diagrams/*.png ../yorisoi-tutorial/08-aws/images/
+cp ../yorisoi-console/docs/design/diagrams/*.png ../yorisoi-tutorial/08-aws/images/
 ```
 
 部品が増えたり減ったりしていたら、8-1 の図の下の説明とサービスの一覧も直します。

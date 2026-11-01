@@ -32,7 +32,7 @@ flowchart LR
 
 ### 個人のアカウントには、製品版の前の条件がある
 
-散策ガイドは、個人のデベロッパー アカウントで出しています。新しい個人のアカウントは、製品版に出す前に **12 人以上のテスターで、14 日以上のクローズドテスト** を求められます（[play-console.md の「初回の登録」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/play-console.md#初回の登録)）。内部テストには、この条件はありません。CycleGuide が「最初は内部テストまで出す」と決めているのは、このためです（[yorisoi-cycleguide の docs/release.md](https://github.com/duwenji/yorisoi-cycleguide/blob/main/docs/release.md)）。
+散策ガイドは、個人のデベロッパー アカウントで出しています。新しい個人のアカウントは、製品版に出す前に **12 人以上のテスターで、14 日以上のクローズドテスト** を求められます（[play-console.md の「初回の登録」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/play-console.md#初回の登録)）。内部テストには、この条件はありません。CycleGuide が「最初は内部テストまで出す」と決めているのは、このためです（[yorisoi-cycleguide の docs/release.md](https://github.com/duwenji/yorisoi-cycleguide/blob/main/docs/operations/release.md)）。
 
 ## 審査
 
@@ -55,11 +55,11 @@ Play に出すものは、どのトラックでも Google の **審査** を通�
 
 止めても、すでに受け取った端末からは消えません。Play は止めた版の代わりに、一つ前の版を配り直します。
 
-散策ガイドの API の道具（[10-4](04-api.md)）は、版をトラックの **全員に** 出します（段階的にはならない）。製品版を段階的に出すときは、Play Console の画面で出す、と決めています（[play-api.md の「使い方」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/play-api.md#使い方)）。
+散策ガイドの API の道具（[10-4](04-api.md)）は、版をトラックの **全員に** 出します（段階的にはならない）。製品版を段階的に出すときは、Play Console の画面で出す、と決めています（[play-api.md の「使い方」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/play-api.md#使い方)）。
 
 ## リリース名とリリースノート
 
-[release.md の「リリース名とリリースノート」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/release.md#リリース名とリリースノート)に、決まりがあります。
+[release.md の「リリース名とリリースノート」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/release.md#リリース名とリリースノート)に、決まりがあります。
 
 - **リリース名** は `versionName` だけ（例: `1.5.2`）。Play Console の画面で出すと、既定で `9 (1.5.2)` のように入るので書き換える
 - **リリースノート** は散策者に向けた日本語で、500 文字まで。ストアの「最新情報」とテスターの画面に出る
@@ -77,7 +77,7 @@ Play に出すものは、どのトラックでも Google の **審査** を通�
 
 ## テスターに入れてもらう
 
-テスターへの案内は、つまずきが多いところです（[release.md の「テスターへの案内」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/release.md#テスターへの案内)）。
+テスターへの案内は、つまずきが多いところです（[release.md の「テスターへの案内」](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/operations/release.md#テスターへの案内)）。
 
 | つまずき | 理由と対処 |
 |---|---|
