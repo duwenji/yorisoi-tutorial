@@ -52,7 +52,7 @@
 | `YorisoiConsole-<env>` | [bin/app.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/app.ts) | チャンネル管理システム。申請を審査し、承認済みチャンネル・リストを署名して公開する | 8-2〜8-8 |
 | `YorisoiAiRelay-<env>` | [bin/relay.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/relay.ts) | 運営の AI の中継。アプリからの AI の呼び出しを運営の負担で中継する | [8-9](09-ai-relay.md) |
 | `YorisoiSpotTiles-<env>` | [bin/tiles.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/tiles.ts) | スポットのタイル。OpenStreetMap から毎週タイルを作って配る | [8-10](10-spot-tiles.md) |
-| `YorisoiStudio-<env>` | [bin/studio.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/studio.ts) | スタジオと一言。素材提供者が出すスタジオ（お知らせ）と、場所に置く一言を置いて配る | [8-12](12-studio.md) |
+| `YorisoiStudio-<env>` | [bin/studio.ts](https://github.com/duwenji/yorisoi-console/blob/main/infra/bin/studio.ts) | その場の素材（区画ごとに運営から取る素材）。素材提供者が出すスタジオ（お知らせ）と、場所に置く一言を、それぞれ置いて配る | [8-12](12-studio.md) |
 
 `<env>` は `dev`（開発用）か `prod`（本番）です。4 つは同じアカウントに置きますが、CDK のアプリごと分けています。1 つの配備の失敗や障害が、ほかを巻き込まないようにするためです。スタジオだけは、中継の表と、管理システムの配備と、Parameter Store の名前でつながっています（[8-12](12-studio.md)）。スタジオを除く 3 つに共通する「止まったら運営に知らせる」仕組みと費用の見方は [8-11](11-watch-and-cost.md) でまとめて読みます。
 
@@ -131,7 +131,7 @@
 | **SES** | メールの送信 | 提供者への知らせ | — | — | — | [8-7](07-sqs-ses-kms.md) |
 | **KMS** | 鍵の管理 | 承認済みチャンネル・リストへの署名 | — | — | — | [8-7](07-sqs-ses-kms.md)・[6-4](../06-trust/04-two-tier-keys.md) |
 | **Transcribe** | 音声を文字に起こす | — | — | — | スタジオの音声 | [8-12](12-studio.md) |
-| **Bedrock** | 生成 AI のモデルを呼ぶ | — | 語りを作る | — | スタジオと一言の確認 | [8-9](09-ai-relay.md)・[8-12](12-studio.md) |
+| **Bedrock** | 生成 AI のモデルを呼ぶ | — | 語りを作る | — | スタジオ・一言の確認 | [8-9](09-ai-relay.md)・[8-12](12-studio.md) |
 | **Parameter Store** | 設定の置き場 | — | 1 日の上限・月の予算・モデル | — | 利用規約の版・止める、表の名前 | [8-9](09-ai-relay.md)・[8-12](12-studio.md) |
 | **Secrets Manager** | 秘密の置き場 | 本番だけ、一覧のカーソルの鍵 | 本番だけ、端末の ID のハッシュの鍵と Play Integrity の鍵 | — | — | [8-3](03-lambda-apigw.md)・[8-9](09-ai-relay.md) |
 | **EventBridge** | 決まった時刻・出来事で何かを動かす | 毎日 03:00 の公開 | — | 毎週のバッチ、失敗を拾う | 文字起こしの終わりを拾う | [8-3](03-lambda-apigw.md)・[8-10](10-spot-tiles.md)・[8-12](12-studio.md) |
