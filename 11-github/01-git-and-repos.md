@@ -177,18 +177,9 @@ git ls-files -s gradlew gradlew.bat
 
 `100755` は実行できるファイル、`100644` はふつうのファイルです。Windows のファイルには Linux と同じ形の実行の権限がないので、Windows で作った `gradlew` は `100644` で記録されることがあり、GitHub Actions で `Permission denied` になります。直し方（`git update-index --chmod=+x gradlew`）は [5-3](../05-station-format/03-publish.md) で見ました。
 
-## リポジトリの名前を変える
+## リポジトリの名前を変えるとき
 
-エコシステムの名前を michizure から yorisoi に改めたとき、GitHub のリポジトリも改名しました（たとえば michizure-console → yorisoi-console）。GitHub は、**古い名前への接続を新しい名前に転送します**。
-
-```sh
-curl -sI https://github.com/duwenji/michizure-console | grep -iE "^(HTTP|location)"
-```
-
-```text
-HTTP/1.1 301 Moved Permanently
-Location: https://github.com/duwenji/yorisoi-console
-```
+GitHub でリポジトリの名前を変えると（`gh repo rename <新しい名前>`）、GitHub は **古い名前への接続を新しい名前に転送します**。古い名前の URL を開くと、`HTTP/1.1 301 Moved Permanently` と、新しい名前の `Location` が返ります。
 
 `git clone`・`git push`・`gh` のコマンド・API も、古い名前のままで新しいリポジトリに届きます。ただし、転送に頼りきらず、次のものは自分で直します。
 
@@ -200,7 +191,7 @@ Location: https://github.com/duwenji/yorisoi-console
 | GitHub Pages の URL（`<owner>.github.io/<リポジトリ>/`） | URL にリポジトリの名前が入る。Play に出したプライバシーポリシーの URL も変わる（[11-6](06-pages-releases.md)） |
 | 手元のフォルダの名前 | Git には関係ないが、`../yorisoi-*` のパスをそろえるため |
 
-管理システムの改名のプルリクエスト（yorisoi-console #37）は、リポジトリの改名に合わせて、npm のパッケージの名前・CDK のスタックの名前・文書の名前をまとめて置き換えています。**GitHub の上の名前を変えるのは一瞬ですが、その名前を使っているものは自分で追いかける** 必要があります。
+名前は、npm のパッケージの名前・CDK のスタックの名前・文書の中にも入っています。**GitHub の上の名前を変えるのは一瞬ですが、その名前を使っているものは自分で追いかける** 必要があります。1 つのプルリクエストでまとめて置き換え、説明に「変えないもの」（すでに出ているアプリが使う URL など）を書きます（[11-2](02-pull-requests.md)）。
 
 ## ハンズオン: 改行と権限を確かめる
 
@@ -208,8 +199,8 @@ Location: https://github.com/duwenji/yorisoi-console
 
 ```sh
 cd /c/Dev/apps/yorisoi-sanpoguide
-git check-attr -a prompts/src/main/resources/sanpoguide/channels/quiet/channel.json docs/play-data-safety.csv gradlew
-git ls-files --eol docs/play-data-safety.csv gradlew README.md
+git check-attr -a prompts/src/main/resources/sanpoguide/channels/quiet/channel.json docs/operations/play-data-safety.csv gradlew
+git ls-files --eol docs/operations/play-data-safety.csv gradlew README.md
 
 cd ../yorisoi-console
 git ls-files --eol | awk '{print $2}' | sort | uniq -c

@@ -179,7 +179,7 @@ grep -rhoE "\b(ARCH-001|API-001|API-CHANNEL-[A-Z]+|API-MATERIALS|DM-001|DES-0[0-
 ### 2. 1 つの決定をたどる
 
 ```sh
-grep -n "^| D-4 \|^| A-14 " docs/architecture.md
+grep -n "^| D-4 \|^| A-14 " docs/design/architecture.md
 grep -n "D-4" docs/design/DES-005-review.md
 grep -rn "D-4" web/src infra/lib
 ```
@@ -189,8 +189,8 @@ grep -rn "D-4" web/src infra/lib
 ### 3. 決定が変わった記録をたどる
 
 ```sh
-git log --oneline -- docs/architecture.md
-git log -p -S "A-4" -- docs/architecture.md
+git log --oneline --follow -- docs/design/architecture.md
+git log -p --follow -S "A-4" -- docs/design/architecture.md
 ```
 
 1 つ目は、ARCH-001 を変えたコミットの一覧です。2 つ目は、`A-4` を含む行が増えたり減ったりしたコミットを、差分つきで出します。文書には今の決定だけが書かれているので、「前はどうだったか」「なぜ変えたか」は、こうして git の履歴から読みます。決定の変更と、それに合わせた実装が、同じコミットに入っていることも確かめられます。

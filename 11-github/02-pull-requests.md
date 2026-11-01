@@ -54,52 +54,22 @@ flowchart LR
 
 ## プルリクエストの説明
 
-プルリクエストの説明には、だいたい次の 4 つを書いています。yorisoi-console の [#37](https://github.com/duwenji/yorisoi-console/pull/37)（改名）から抜き出すと:
+プルリクエストの説明には、だいたい次の 4 つを書いています。yorisoi-console の [#75](https://github.com/duwenji/yorisoi-console/pull/75)（文書の置き場所をそろえる）から抜き出すと:
 
 ```markdown
 ## 概要
-SanpoGuide ADR-003 1.2（SanpoGuide #55）で、エコシステムの名前を michizure から yorisoi に改めた。…
+文書の体系的な整理の 3 段目です。どのリポジトリも `docs/` の下を同じ分け方にそろえます。…
 
-## 変更
-- npm のパッケージ `@michizure-console/*` → `@yorisoi-console/*`（package-lock も）
-- …
-- 変えないもの: `/.well-known/sanpo-channels`、リストID・アカウントIDの接頭辞
+## このリポジトリの変更
+- architecture（.md・.html）・data-model・aws-diagrams・diagrams/ → design/
+- console-api.md・api/ → contracts/（api-types の生成元のパス、diagrams.mjs の出力先も）
+- guide/ → manual/
+- CI が取る platform の JSON Schema の URL を contracts/api/ に
 
-## 確認
-- `npx tsc -b` 成功、`npx vitest run` 13 ファイル 150 件成功
+確認: 型を生成し直して差分なし。`npm run typecheck`・`npm test`（238 件）通過
 
-## 注意
-- CI の validator は GitHub Packages から 2.0.0 を取るので、… を公開するまで失敗する
-```
-
-| 見出し | 書くこと |
-|---|---|
-| 概要 | なぜ変えるのか。決めた文書（方針・設計）や、関係するプルリクエストの番号 |
-| 変更 | 何を変えたか。**変えないもの** も書くと、読む人が安心できる |
-| 確認 | 手元で何を流して、どうなったか |
-| 注意 | マージの前後にすること、CI が落ちると分かっているときはその理由 |
-
-小さな変更なら、yorisoi-platform の [#41](https://github.com/duwenji/yorisoi-platform/pull/41) のように箇条書きだけでもかまいません。大事なのは、**半年後の自分がこの説明だけ読んで、変更の理由が分かる** ことです。
-
-## マージの 3 つの方法
-
-GitHub には、プルリクエストを `main` に入れる方法が 3 つあります。
-
-| 方法 | `main` に残るもの | 向いているとき |
-|---|---|---|
-| **Create a merge commit** | ブランチのコミットすべて ＋ 2 つの親を持つ「マージ・コミット」 | ブランチの中の段階も残したい |
-| Squash and merge | ブランチのコミットを 1 つにまとめたコミット | 途中のコミットに意味がない |
-| Rebase and merge | ブランチのコミットを、`main` の先に付け直したもの | 1 本の線にしたい |
-
-散策ガイドは、5 つのリポジトリとも **merge commit** で入れています（どの方法も選べる設定のままで、人の側でそろえています）。マージ・コミットの説明は、GitHub が自動で付ける `Merge pull request #<番号> from duwenji/<ブランチ>` です。
-
-```mermaid
-gitGraph
-    commit id: "165db93 #40"
-    branch feat/cue-presenter-shows
-    commit id: "59b3407 v2.16.0"
-    checkout main
-    merge feat/cue-presenter-shows id: "21028df #41"
+## マージの順番
+CI が platform の contracts/api/spot-tile.schema.json を取るので、platform の PR を先にマージしてください。
 ```
 
 マージ・コミットには親が 2 つあります。1 つ目の親は、マージする前の `main`、2 つ目の親はブランチの先です。そこで、**1 つ目の親だけをたどる** と、`main` に入ったプルリクエストが 1 行ずつ並びます。
@@ -291,7 +261,7 @@ git log --oneline --graph
 <details>
 <summary>問 4. プルリクエストの説明に「変えないもの」を書くのはなぜですか。</summary>
 
-読む人が、「これも変わったのでは」と心配する範囲を、先に閉じられるからです。たとえば改名のプルリクエストで「`/.well-known/sanpo-channels` は変えない」と書いておけば、すでに出ているアプリが壊れないことが一目で分かります。
+読む人が、「これも変わったのでは」と心配する範囲を、先に閉じられるからです。たとえば名前を置き換えるプルリクエストで「`/.well-known/sanpo-channels` は変えない」と書いておけば、すでに出ているアプリが壊れないことが一目で分かります。
 
 </details>
 

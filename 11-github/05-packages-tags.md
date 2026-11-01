@@ -93,7 +93,7 @@ flowchart LR
 
 - **同じ版は 2 度公開できない**: GitHub Packages は、すでにある版への公開を拒みます（409 Conflict）。直すときは新しい版を出す
 - **タグを動かさない**: 公開したあとにタグを別のコミットへ付け替えても、パッケージの中身は変わりません。タグと中身が食い違い、「v2.15.0 のソース」がどれか分からなくなります
-- **タグを消さない**: yorisoi-platform には、名前を変える前のタグ（`station-format-v*`・`michizure-core-v*`）も残っています。どのコミットを公開したかの記録だからです。yorisoi-sanpoguide の `sanpoguide-prompts-v*` も同じです
+- **タグを消さない**: yorisoi-platform には、今のパッケージと違う名前のタグ（`station-format-v*`・`michizure-core-v*`）も残っています。どのコミットを公開したかの記録だからです。yorisoi-sanpoguide の `sanpoguide-prompts-v*` も同じです
 - **版を消さない**: GitHub Packages の画面から版を消すこともできますが、その版を固定して使っている側（[5-3](../05-station-format/03-publish.md) の validator）が組み立てられなくなります
 
 まちがえて公開したら、消すのではなく、**直した新しい版を出して、使う側に上げてもらう** のが基本です。
@@ -136,7 +136,7 @@ OK prompts-v2.0.0
 OK prompts-v4.2.1
 ```
 
-ある時点では、どちらのリポジトリもすべて `OK` でした。名前を変える前のタグ（`sanpoguide-prompts-v*` など）は、`prompts-v*` に当てはまらないので数えていません。`git show sanpoguide-prompts-v1.1.0:gradle.properties` で開くと、そのころはこのリポジトリがコアも公開していた（`michizureCoreVersion`）ことが分かります。
+ある時点では、どちらのリポジトリもすべて `OK` でした。今と違う名前のタグ（`sanpoguide-prompts-v*` など）は、`prompts-v*` に当てはまらないので数えていません。
 
 ### やってみよう: タグを付けるべきコミットを探す
 

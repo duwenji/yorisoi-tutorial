@@ -70,7 +70,7 @@ spots = SpotRepository(
 
 ## 移すのは、2 本目が使う直前に
 
-キットの多くは、最初から platform にあったわけではありません。`kit-channel` の中身（`ChannelSync`・`Producer`・`Cues` など）は、もともと散策ガイドのアプリの中にありました。[第 5 部の最初](01-jvm-library.md)で見た `core-format` の切り出しと同じく、あとから移したものです。
+キットは、1 本目のアプリの中で書いたコードを、2 本目が使う段になってから移して作ります。`kit-channel` の中身（`ChannelSync`・`Producer`・`Cues` など）も、[第 5 部の最初](01-jvm-library.md)で見た `core-format` と同じく、アプリから切り出したものです。
 
 移す時期には決まりがあります（E-4）。
 

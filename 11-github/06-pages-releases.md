@@ -25,8 +25,8 @@ gh api repos/duwenji/yorisoi-sanpoguide/pages --jq '{url:.html_url,source,build_
 
 | アプリ | 出しているページ | 使い道 |
 |---|---|---|
-| 散策ガイド | トップ（`index.html`）、[プライバシーポリシー](https://duwenji.github.io/yorisoi-sanpoguide/privacy-policy) | Play の「プライバシーポリシー」と「ウェブサイト」の欄（[10-3](../10-play/03-console.md)） |
-| CycleGuide | [プライバシーポリシー](https://duwenji.github.io/yorisoi-cycleguide/privacy-policy) だけ | Play の「プライバシーポリシー」の欄 |
+| 散策ガイド | トップ（`index.html`）、[プライバシーポリシー](https://duwenji.github.io/yorisoi-sanpoguide/policies/privacy-policy) | Play の「プライバシーポリシー」と「ウェブサイト」の欄（[10-3](../10-play/03-console.md)） |
+| CycleGuide | [プライバシーポリシー](https://duwenji.github.io/yorisoi-cycleguide/policies/privacy-policy) だけ | Play の「プライバシーポリシー」の欄 |
 
 `docs/` には、設計書・TODO・Play Console の手順書など、開発のための文書がたくさんあります。それらは GitHub のリポジトリの画面で読むもので、Web には出しません。
 
@@ -47,9 +47,10 @@ yorisoi-sanpoguide の [docs/_config.yml](https://github.com/duwenji/yorisoi-san
 # GitHub Pages (main, /docs) publishes the landing page and privacy policy; the rest is for the repository.
 title: 散策ガイド
 lang: ja
-exclude: ["*.md", "*.csv", "architecture.html"]
+exclude: ["*.md", "*.csv", "design"]
 include: ["privacy-policy.md"]
 theme: jekyll-theme-primer
+plugins: ["jekyll-redirect-from"]
 defaults:
   - scope: { path: "" }
     values: { layout: default }
@@ -57,9 +58,10 @@ defaults:
 
 | 行 | 意味 |
 |---|---|
-| `exclude: ["*.md", "*.csv", "architecture.html"]` | Markdown と CSV と構成図は、すべて出さない |
-| `include: ["privacy-policy.md"]` | ただし、プライバシーポリシーだけは出す |
+| `exclude: ["*.md", "*.csv", "design"]` | Markdown と CSV と、設計のフォルダ（構成図の HTML がある）は、すべて出さない |
+| `include: ["privacy-policy.md"]` | ただし、プライバシーポリシー（`policies/privacy-policy.md`）だけは出す。`include` はファイルの名前で当てはめるので、フォルダの中にあっても当たる |
 | `theme: jekyll-theme-primer` | GitHub が用意している見た目（GitHub の画面に似た文字と色） |
+| `plugins: ["jekyll-redirect-from"]` | 古い URL から新しい URL へ転送するページを作る（下の「URL を変えるとき」） |
 | `defaults` の `layout: default` | すべてのページに、そのテーマの枠（見出し・タイトル）を付ける |
 
 **「全部出して、隠したいものを外す」ではなく、「全部外して、出したいものだけ戻す」** 書き方です。あとから `docs/` に文書を足しても、勝手に Web に出ることはありません。
@@ -67,20 +69,21 @@ defaults:
 実際に確かめると:
 
 ```sh
-for p in "" privacy-policy TODO README architecture.html; do
+for p in "" policies/privacy-policy privacy-policy TODO README design/architecture.html; do
   curl -s -o /dev/null -w "%{http_code} /$p\n" "https://duwenji.github.io/yorisoi-sanpoguide/$p"
 done
 ```
 
 ```text
 200 /
+200 /policies/privacy-policy
 200 /privacy-policy
 404 /TODO
 404 /README
-404 /architecture.html
+404 /design/architecture.html
 ```
 
-`privacy-policy.md` は `privacy-policy.html` に組み立てられ、`.html` を付けずに `/privacy-policy` でも開けます。
+`policies/privacy-policy.md` は `policies/privacy-policy.html` に組み立てられ、`.html` を付けずに `/policies/privacy-policy` でも開けます。`/privacy-policy` が 200 なのは、次の節の転送のページがあるからです。
 
 トップの [docs/index.html](https://github.com/duwenji/yorisoi-sanpoguide/blob/main/docs/index.html) は、先頭に Jekyll の設定（front matter）を持つ HTML です。
 
@@ -91,18 +94,27 @@ title: 散策ガイド
 ---
 <h1>散策ガイド</h1>
 …
-<p>詳しくは<a href="{{ '/privacy-policy' | relative_url }}">プライバシーポリシー</a>をご覧ください。</p>
+<p>詳しくは<a href="{{ '/policies/privacy-policy' | relative_url }}">プライバシーポリシー</a>をご覧ください。</p>
 ```
 
-`{{ '/privacy-policy' | relative_url }}` は、Jekyll がサイトの場所（`/yorisoi-sanpoguide`）を前に付けて、`/yorisoi-sanpoguide/privacy-policy` にしてくれる書き方です。`/privacy-policy` と直接書くと、`duwenji.github.io/privacy-policy`（別のサイト）を指してしまいます。
+`{{ '/policies/privacy-policy' | relative_url }}` は、Jekyll がサイトの場所（`/yorisoi-sanpoguide`）を前に付けて、`/yorisoi-sanpoguide/policies/privacy-policy` にしてくれる書き方です。`/policies/privacy-policy` と直接書くと、`duwenji.github.io/policies/privacy-policy`（別のサイト）を指してしまいます。
 
-## URL を変えない
+## URL を変えるとき
 
-プライバシーポリシーの URL は、Play Console に登録してあり、ストアの掲載ページから散策者がたどります。だから、
+プライバシーポリシーの URL は、Play Console に登録してあり、ストアの掲載ページから散策者がたどります。ファイルの置き場所や名前を変えると URL も変わるので、次の 3 つを一緒に行います。
 
-- **ファイルの名前を変えない**: `privacy-policy.md` を `privacy.md` にすると、URL が変わり、Play に登録した URL が 404 になる
-- **リポジトリの名前を変えるときは、Play の登録も直す**: Pages の URL にはリポジトリの名前が入る（[11-1](01-git-and-repos.md)）
-- **`exclude` を書き換えたら、出ているページを確かめる**: 上の `curl` で、要るページが 200、要らないページが 404 か
+1. **古い URL から転送する**: 動かしたファイルの先頭の front matter に、古い URL を書く。`jekyll-redirect-from` が、古い URL に新しい URL へ移るだけのページを作る
+
+   ```yaml
+   ---
+   redirect_from: ["/privacy-policy.html"]
+   ---
+   ```
+
+2. **Play の登録を直す**: 「アプリのコンテンツ」のプライバシーポリシーの URL は Play Console の画面で、データ削除用の URL はデータ セーフティの CSV（`node tools/play.mjs data-safety docs/operations/play-data-safety.csv`。[10-4](../10-play/04-api.md)）で直す
+3. **出ているページを確かめる**: 上の `curl` で、新しい URL と古い URL が 200、要らないページが 404 か
+
+リポジトリの名前を変えるときも、Pages の URL が変わるので同じです（[11-1](01-git-and-repos.md)）。転送のページは JavaScript と meta refresh で移るので、URL の `#` から後ろ（節へのリンク）は引き継がれません。節を指す URL は新しいものに登録し直します。
 
 プライバシーポリシーの **中身** を変えるとき（たとえば外に送る情報を足したとき）の順番は、[10-3](../10-play/03-console.md) で見ました。Pages は `main` に入ると数十秒で出るので、アプリのリリースより先にマージできます。
 
@@ -190,7 +202,7 @@ done
 
 - **出すものだけを `include` する**: `docs/` に足した文書が勝手に出ないように
 - **サイトの中のリンクは `relative_url`**: プロジェクトのサイトは `/<リポジトリ>/` の下にある
-- **Play に登録した URL は変えない**: ファイルの名前、リポジトリの名前、`exclude` の 3 つに気をつける
+- **Play に登録した URL を変えるときは、転送と登録の直しを一緒に**: ファイルの置き場所・名前、リポジトリの名前、`exclude` を変えるとき
 - **アプリは Releases で配らない**: Play を通らない入れ方を作らない
 - **使わない下書きのリリースは消す**: ファイルが残り続ける
 
@@ -204,9 +216,9 @@ done
 </details>
 
 <details>
-<summary>問 2. <code>docs/privacy-policy.md</code> の名前を <code>docs/privacy.md</code> に変えると、何が起きますか。</summary>
+<summary>問 2. <code>docs/policies/privacy-policy.md</code> の名前を <code>docs/policies/privacy.md</code> に変え、ほかは何もしないと、何が起きますか。</summary>
 
-Pages の URL が `/privacy` に変わり、Play Console に登録した `/privacy-policy` が 404 になります（さらに `include` にも当てはまらなくなり、ページそのものが出なくなります）。ストアの掲載ページからプライバシーポリシーが読めなくなります。
+`include` が `privacy-policy.md` という名前で当てはめているので、ページそのものが出なくなります。Play Console に登録した `/policies/privacy-policy` も、転送している古い `/privacy-policy` も 404 になり、ストアの掲載ページからプライバシーポリシーが読めなくなります。名前を変えるなら、`include` を直し、古い URL を `redirect_from` に足し、Play の登録を直します。
 
 </details>
 

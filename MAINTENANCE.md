@@ -99,10 +99,10 @@ gh api repos/duwenji/yorisoi-sanpoguide/releases --jq length
 
 ### 8. 生成した AWS の図をコピーし直す
 
-8-1 の図（`08-aws/images/`）は、yorisoi-console の `docs/diagrams/` のコピーです。console の図が描き直されていたら、コピーし直します。
+8-1 の図（`08-aws/images/`）は、yorisoi-console の `docs/design/diagrams/` のコピーです。console の図が描き直されていたら、コピーし直します。
 
 ```sh
-cd ../yorisoi-console && git diff --stat 6e0d89c..main -- docs/diagrams/
+cd ../yorisoi-console && git diff --stat 6e0d89c..main -- docs/diagrams/ docs/design/diagrams/
 cp ../yorisoi-console/docs/design/diagrams/*.png ../yorisoi-tutorial/08-aws/images/
 ```
 
